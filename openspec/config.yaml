@@ -1,0 +1,42 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+rules:
+  tasks:
+    # Owner ruling, 2026-10-08: a task is a PLAN for the Builder, not an instruction.
+    # It carries requirements, constraints, and the process to follow — it guides,
+    # it does not command. Never write "do X": a direct instruction transfers the
+    # author's oversights into the build. A plan leaves the Builder room to judge.
+    - Every task entry states requirements, constraints, and process to follow — it guides, never commands
+    - No direct instructions ("do X", "wire Y", "build Z"): the task describes what must be true and what must not happen, not the steps to type
+    - A task must be checkable against its requirements, not against whether the Builder obeyed a verb
+    - Where a choice belongs to the Builder, the task names the constraints on the choice rather than making the choice
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

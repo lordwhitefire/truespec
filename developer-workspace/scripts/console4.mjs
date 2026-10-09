@@ -1,0 +1,15 @@
+import { chromium } from "playwright-core";
+const b = await chromium.launch({ executablePath: "/usr/bin/google-chrome", headless: true });
+const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+const seen = [];
+p.on("response", (r) => seen.push([r.status(), r.url()]));
+p.on("requestfailed", (r) => seen.push(["FAIL", r.url() + " " + (r.failure()?.errorText||"")]));
+await p.goto("http://localhost:3210/inventory", { waitUntil: "networkidle" });
+await p.check('input[name="status"][value="a"]');
+await p.waitForTimeout(300);
+await p.click("#vl");
+await p.waitForTimeout(500);
+console.log(seen.filter(([s,u]) => s>=400 || s==="FAIL").map(x=>x.join(" ")).join("\n") || "none>=400");
+console.log("--- all non-200/304 ---");
+console.log(seen.filter(([s]) => s!==200 && s!==304).map(x=>x.join(" ")).join("\n") || "none");
+await b.close();

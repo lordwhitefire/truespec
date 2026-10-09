@@ -1,0 +1,95 @@
+# TrueSpec — implementation plan (tasks)
+
+**Form (owner ruling 2026-10-08):** these are plans for the Builder, not instructions. Each entry states what must be true, what must not happen, and the process to follow — it guides, it does not command. Where a choice belongs to the Builder, the constraints on the choice are named instead of the choice being made. Completion is judged against the requirements and the specs, not against whether a verb was obeyed.
+
+Build order follows `planning-close.md`: UI first (something concrete to write the rest against), then business logic, functionality, UX, data model, system model. Reference screens in `test-truespec-v2` are read-only visual truth; where screen and spec disagree, the spec wins. The binding requirements live in this change's `specs/`; this file is the route through them.
+
+## 1. Foundation
+
+- [ ] 1.1 The project root must hold a Next.js + TypeScript application whose appearance is governed entirely by `ui-plan.md` rulings: dark default with a persisted visitor toggle, one shared token set for showroom and office, `#c8a24a` gold, Oswald + Inter. Constraint: no visual decision may contradict `ui-plan.md`; where it is silent, the choice is the Builder's and must be recorded in a change log
+- [ ] 1.2 Configuration must be verifiable at startup: missing or wrong keys (Neon database URL, Clerk publishable + secret keys, Sanity project/dataset/token, session secret) fail loudly. Constraint: a broken page must never render in place of a configuration error (J2)
+- [ ] 1.3 The schema must cover the entities business logic thinks in — `office_user`, `session`, `auth_attempt`, `car`, `cost_line`, `car_state`, `car_photo`, `enquiry`, `enquiry_state`, `tap`, `activity_event`, `setting`. Constraints: every money column is integer minor units (no float, no scale > 0); every timestamp is `timestamptz` UTC; storage detail follows `data-model-implementation-plan.md`
+- [ ] 1.4 The built-in registries (four car sections' seeded states, five enquiry states) must live in migrations as the contract, and demo cars must live in an idempotent first-run seed. Constraints: re-running the seed never duplicates registry rows; all seed money data honours R3 — rates on the cost lines, no global rate anywhere; source data `seed-content.md` corrected for R3 (its global-rate line is stale — flagged, not silently trusted)
+- [ ] 1.5 A single shared money module must exist as the one place cost and profit are computed: integer kobo arithmetic, per-line rate conversion, one totals function. Constraint: rounding happens in that function and nowhere else (specs/money, design D5)
+
+## 2. Showroom UI (public screens)
+
+- [ ] 2.1 The home page must match the approved reference screen — brand, tagline, a prominent WhatsApp path — with section previews whose counts come from the one shared counting rule. Constraints: nothing appears that `ui-plan.md` did not approve; counts can never disagree with the inventory page or office (specs/showroom, specs/dashboard)
+- [ ] 2.2 The inventory page must present exactly the three fixed sections as tabs, with Landed rendered inside Available. Constraint: no fourth top-level section can exist, whatever states the owner configures (specs/showroom)
+- [ ] 2.3 A car page must carry everything needed to decide: swipeable gallery (arrows additionally on laptop), brand/model/trim/year/colours/mileage/full naira price/features, and a WhatsApp button whose message names that car. Constraints: price is never abbreviated (hero badge excepted); the tap records only page, car ref, time (specs/showroom, specs/enquiries)
+- [ ] 2.4 Responsive behaviour must follow the width table: cards on phone, table on laptop, filtering as full-screen sheet / sheet / bar dropdown by width. Constraint: widths are not designs — content and rules are identical at all three (design D9, `product-overview.md`)
+- [ ] 2.5 Links to sold or deleted cars must resolve gracefully — no crash, no stale availability, no leaked payload. Constraint: the outcome is never an error page that admits data the buyer may not see (specs/showroom)
+
+## 3. The public boundary (coexists with the UI, gates everything before ship)
+
+- [ ] 3.1 Exactly one server-side mapping function must produce all public car data, from the explicit allow-list in specs/showroom. Constraints: no raw row serialization on any public path; the browser never holds database credentials; RLS stays restrictive but is explicitly not the mechanism (design D2, data-model D5)
+- [ ] 3.2 Every showroom read — pages, counts, lists — must pass through that mapping. The verification is negative: no response, visible or serialized, contains purchase, shipping, clearing, trucking, fuel, rate, total-cost, or profit values (specs/showroom)
+- [ ] 3.3 An automated leak check must exist and pass: walking every public route and asserting no cost/rate/profit field name or value in any response. Constraint: this is a pre-handover gate — handover without a passing run is not acceptable (design Risks)
+- [ ] 3.4 The listing gate must hold: no price or no photo ⇒ draft, absent from every public page, count, and link; a public page can never show an unset price as a number (specs/showroom, ruling C3)
+
+## 4. Office UI (screens behind auth)
+
+- [ ] 4.1 Sign-in and first-run creation must exist as the only door: email + password, one generic failure message, delay-aware behaviour. Constraints: no default password, no sign-up path afterwards, no message that reveals whether an email exists (specs/office-access)
+- [ ] 4.2 The dashboard must keep the fixed layout whatever the owner configures: stock cards, money cards with explicit reach lines, recent taps, recent activity. Constraint: no manual Refresh button — focus-refresh only; taps surface as badge/list only (specs/dashboard, rulings A2/A3)
+- [ ] 4.3 The inventory list must show price, cost, and profit per row — this screen family is the only place costs appear at all. Constraints: cards on phone, table on laptop; office-only, never serialised publicly (specs/showroom, `product-overview.md`)
+- [ ] 4.4 The car form must be one screen for both add and edit, sectioned details/photos/costs/state/notes, with profit visible beside it while typing and labelled "estimated" until landed. Constraint: same fields at all three widths; only the presentation differs — full page / drawer / inline (specs/inventory, `product-overview.md`)
+- [ ] 4.5 The state editor must support add/rename/reorder with a required section mapping, owner-chosen colour, and new-arrival flag, and must block deletion while any car occupies a state. Constraint: buyer-visible output never contains state labels — only the three section names (specs/inventory)
+- [ ] 4.6 Sold/Archive must exist with "mark as sold" as a separate action carrying sale price and date. Constraint: sold is a flag, never a state choice; un-marking reverses the sale record with no stale real-profit residue (specs/inventory, system-model 30)
+- [ ] 4.7 The enquiries board must show the pipeline as cards (name, number, car, notes) movable between columns. Constraint: moving an enquiry to Sold changes nothing about any car (specs/enquiries)
+- [ ] 4.8 Settings must contain exactly: WhatsApp number, tagline, full-tank default, password change, export. Constraints: no rate field exists anywhere (R3); an invalid WhatsApp number cannot save; the password is held by the identity provider, never as a setting and never in plaintext in application tables (specs/office-settings)
+- [ ] 4.9 Deletion anywhere must require confirmation and offer undo for 8 seconds, via one shared pattern. Constraint: one blocking dialog at a time, focus defaults to the safe choice, Enter never triggers the destructive one (specs/inventory, `ux-implementation-plan.md`)
+- [ ] 4.10 Office navigation at tablet width is an open choice — sidebar and bottom bar both fit. Constraint: whichever is chosen, it is recorded in the UI change log; it is spec-neutral and changes no requirement (product-overview "still open")
+
+## 5. Business logic
+
+- [ ] 5.1 State→section mapping must be enforced server-side, with showroom sections derived only from those mappings. Constraint: buyers never see an owner state label; every state maps to exactly one section, never zero or two (specs/inventory)
+- [ ] 5.2 The counting rule must exist once as a shared function read by showroom, home, and office: Available = group + landed-this-year counted once with "of which N new arrivals", sold outside stock. Constraint: no second implementation of counting may exist anywhere (specs/dashboard)
+- [ ] 5.3 Money presentation rules must hold at every read point: estimated/landed/total cost named by state, projected/real profit, negative profit shown uncorrected, zero ≠ missing, incomplete-cost cars out of profit totals with the "still building" line and explicit reach. Constraint: money tied up still includes incomplete-cost cars (specs/money, ruling C4)
+- [ ] 5.4 Cost-line validation must hold: a $ amount with no rate cannot save and is caught inline; any change to cost, rate, or price recomputes total cost and profit everywhere. Constraint: no frozen-at-entry figures, no per-screen re-derivation (specs/money)
+- [ ] 5.5 `TS-####` reference codes must be assigned once at creation from a sequence and survive every edit. Constraints: never manually chosen, edited, or reused after deletion; taps, enquiries, and activity join to cars by ref (specs/inventory, data-model D4)
+- [ ] 5.6 Sold flag semantics must survive both directions: mark and unmark each leave projected/real totals correct, with the sale record reversed or voided rather than orphaned (specs/inventory, system-model 30)
+
+## 6. Functionality
+
+- [ ] 6.1 Sessions must be app-enforced: valid iff `now < expires_at` (7 d) and idle ≤ 12 h, tracked in our own `session` row per Clerk session, `HttpOnly, SameSite=Lax, Secure` cookie, sign-out invalidating both our row and the Clerk session, every office route checked server-side. Constraint: no "remember me" may exceed the 7-day cap; enforcement must not depend on paid features of any vendor (specs/office-access, design D4)
+- [ ] 6.2 Sign-in abuse control must match the decided numbers: no delay for the first 3 failures, then 1s→5s→15s→30s capped 60s; 10 failures/IP/15 min then log-and-reject for the window; a rate-limited logger. Constraint: nothing ever locks the account; every attempt passes our server-side checks before it reaches Clerk — the sign-in form is the app's own, never a hosted login page (rulings A1/F4, specs/office-access, design D4)
+- [ ] 6.3 Every office state change must arrive as a POST with origin verification through Server Actions; Route Handlers may serve reads but any write among them carries an explicit origin check. Constraint: no GET anywhere changes data (design D3, system-model 8)
+- [ ] 6.4 Car CRUD must work end-to-end through the full lifecycle: create, edit, delete → tombstone → undo window → hard delete by job. Constraint: undo restores byte-for-byte; hard delete cascades photos/costs/sale rows and leaves no orphan (specs/inventory, specs/media)
+- [ ] 6.5 The image flow must follow upload-first, car-saves-second: assets upload independently, rows link on save, cover = position 0 with reorder/set-cover. Constraints: EXIF stripped at the write boundary, size cap enforces no-derivatives (F3), placeholder rendering when an asset is missing or Sanity is down (specs/media, design D7)
+- [ ] 6.6 WhatsApp taps must record only page, car ref, and time, and the WhatsApp entry page must carry the privacy notice before the tap. Constraint: no name, number, or message content ever attaches to a tap (specs/enquiries, ruling A5)
+- [ ] 6.7 The PDF import must be a preview-and-confirm process: upload → parse → editable preview table → explicit confirm before anything persists; rejections explained, not dropped. Constraints: the PDF lives in Sanity under a randomized filename with its reference only in the database, linked and deletable (F1); nothing saves before confirm (specs/enquiries, specs/media)
+- [ ] 6.8 Dashboard data must refresh on focus with no manual control, taps as badge/list only, activity sourced from `activity_event`. Constraint: layout never shifts with data volume (specs/dashboard, rulings A2/A3)
+- [ ] 6.9 Settings saves must be guarded by inline validation (WhatsApp number format first), and password change must be delegated to Clerk with no password material stored in application tables. Constraint: a wrong number can never reach storage, because it silently kills the showroom's primary action (specs/office-settings)
+- [ ] 6.10 The export must be one action producing all held data — cars, costs, enquiries, taps, activity, settings — as CSV and JSON. Constraint: the export must be sufficient as the owner's full exit path (specs/office-settings, ruling A6)
+
+## 7. UX implementation
+
+- [ ] 7.1 The feedback layer must follow `ux-implementation-plan.md`: save confirmations, delete-with-undo (8 s), toast ordering rules, one blocking dialog at a time with focus defaulting to Cancel, Enter never destructive (specs/inventory)
+- [ ] 7.2 Inline validation must catch money errors before save — missing rate, malformed number — never after. Constraint: errors appear at the field, not as a post-submit surprise (specs/money, `product-overview.md`)
+- [ ] 7.3 Empty states must exist for every list: no cars, no enquiries, filter matched nothing, first-run office. Constraint: an empty screen explains itself rather than showing a blank area (`product-overview.md`)
+- [ ] 7.4 Failure and attention wording must follow the settled rules: gold + icon + words, never colour alone; costs-incomplete attention distinct from red errors; info is grey text with an icon (no blue); offline indicator per the UX implementation plan (rulings in `ui-plan.md` §8)
+- [ ] 7.5 The per-width interaction split must hold: bottom sheet vs inline dropdown for state changes, swipe on touch vs visible buttons on laptop, full page / drawer / inline editing. Constraint: the difference is presentation only — identical behaviour and rules at all widths (design D9)
+
+## 8. Data model finalization
+
+- [ ] 8.1 Final column types and indexes must be reconciled against what the wired screens actually store, with a verified absence of any float or scale > 0 money column. Constraint: reconciliation follows the screens, not the earlier plan, where they differ (`data-model-implementation-plan.md`)
+- [ ] 8.2 Storage rules must hold as decided: Sanity public-read dataset for images; enquiry PDFs in Sanity with randomized filenames, their references only in the database and never in a public payload; Neon reachable only server-side (connection string never reaches the browser); RLS restrictive and documented as non-mechanism. Constraint: no future pass may "fix" RLS and believe it has fixed the split (design D2, data-model D5)
+- [ ] 8.3 The tombstone lifecycle must satisfy both directions: undo restores the record byte-for-byte with photos/costs/state; post-window hard delete cascades rows and removes assets. Constraint: neither direction may leave an orphan row or an orphan asset (specs/media)
+- [ ] 8.4 Retention groundwork must exist before sweeps run: the dates A4 queries need (last contact, sale date) present on enquiry records. Constraint: the sweep touches PII only — never cars, never money (design Risks, ruling A4)
+
+## 9. System model hardening
+
+- [ ] 9.1 One daily scheduled job must cover the deferred cleanup: expired tombstones hard-deleted, orphan Sanity assets > 24 h pruned, 404-asset rows removed outside the undo window, flagged PDFs deleted, `auth_attempt` > 90 days pruned, A4 retention sweep run, `last_backup_at` heartbeated. Constraint: all of it on one cadence inside free-tier budgets (design D8)
+- [ ] 9.2 Bytes/rows convergence must hold after the job: only referenced, existing assets remain, in both directions — bytes win over rows, rows win over orphan bytes; the placeholder covers any outage window (specs/media)
+- [ ] 9.3 The CSRF/GET audit must pass: every write POST + origin-checked; the `SameSite=Lax` top-level-GET gap closed by the fact that no GET changes state (system-model 8, design D3)
+- [ ] 9.4 The error-response audit must pass: no submission echoed back in errors, no PII in any public payload (system-model 24, specs/showroom)
+- [ ] 9.5 Startup and config checks must hold in deployment: missing env fails loudly (Neon, Clerk, Sanity keys), Sanity dataset readability confirmed, session secret fixed (J2/J3)
+- [ ] 9.6 Monitoring must meet the declared minimum: uptime check on the public URL, `last_backup_at` visible in the office, storage-quota threshold noticed in-product. Constraint: no email channel exists in v1 — notices surface in the office (design D8, specs/office-settings)
+- [ ] 9.7 The pre-handover gate must be a full-suite run: leak check (3.3) green plus spec-scenario tests passing, with output retained as evidence (specs/showroom, design Risks)
+
+## 10. Close-out
+
+- [ ] 10.1 The reference screens and the built behaviour must be reconciled, every conflict logged. Constraint: each conflict resolves in favour of the specs — the rule wins over the screen (`planning-close.md`)
+- [ ] 10.2 Stale planning documents discovered during the build must be flagged to the owner (known: `seed-content.md` global-rate line vs R3). Constraint: `product-management/` is never edited silently by the build (owner's scope discipline)
+- [ ] 10.3 The A4–A6 retention defaults must be confirmed by the owner's "go" before the sweep's numbers are treated as final. Constraint: only the numbers may change on confirmation, never the structure (planning-close register)
+- [ ] 10.4 Acceptance must rest on evidence: showroom checked on all three widths, office flows exercised, leak-check output attached. Constraint: acceptance is the owner's call against these requirements, not a claim by the Builder (specs)

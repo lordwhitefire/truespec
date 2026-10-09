@@ -1,0 +1,31 @@
+# Neon context (never commit — holds project/branch link)
+.neon
+
+# Environment (never commit — holds DATABASE_URL and keys)
+.env
+.env.local
+.env*.local
+
+# Node / Next
+node_modules/
+.next/
+out/
+next-env.d.ts
+
+# OS / editor
+.DS_Store
+*.log
+
+# TS build cache
+*.tsbuildinfo
+
+# Images / screenshots (never commit)
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.avif
+*.tiff
+developer-workspace/**/*shots*/

@@ -1,0 +1,15 @@
+import { chromium } from "playwright-core";
+const b = await chromium.launch({ executablePath: "/usr/bin/google-chrome", headless: true });
+const p = await b.newPage({ viewport: { width: 1200, height: 900 } });
+const msgs = [];
+p.on("console", (m) => { if (["error","warning"].includes(m.type())) msgs.push(m.type()+": "+m.text()); });
+p.on("pageerror", (e) => msgs.push("pageerror: "+e.message));
+await p.goto("http://localhost:3210/inventory", { waitUntil: "networkidle" });
+await p.check('input[name="status"][value="a"]');
+await p.selectOption("#sort", "low");
+await p.click("#vl");
+await p.click("#vg");
+await p.click(".clr");
+await p.waitForTimeout(300);
+console.log(msgs.length ? msgs.join("\n") : "no console errors/warnings");
+await b.close();

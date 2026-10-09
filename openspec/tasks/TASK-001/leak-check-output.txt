@@ -1,0 +1,42 @@
+# TASK-001 — leak-check run (evidence)
+
+Command: npm run leak-check
+Against: next start (production build) on http://localhost:3000
+Date: 2026-10-09T02:09:08Z
+
+```
+
+> truespec@0.1.0 leak-check
+> tsx scripts/leak-check.ts
+
+◇ injected env (9) from .env.local
+(node:1738579) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+leak-check against http://localhost:3000 — 16 public route(s)
+
+ok   / (200, 18981 bytes)
+ok   /inventory (200, 21670 bytes)
+ok   /car/TS-0001 (200, 12560 bytes)
+ok   /car/TS-0002 (200, 12404 bytes)
+ok   /car/TS-0003 (200, 12748 bytes)
+ok   /car/TS-0004 (200, 12800 bytes)
+ok   /car/TS-0005 (200, 12526 bytes)
+ok   /car/TS-0006 (200, 12170 bytes)
+ok   /car/TS-0007 (200, 12755 bytes)
+ok   /car/TS-0008 (200, 12513 bytes)
+ok   /car/TS-0009 (200, 12551 bytes)
+ok   /car/TS-0010 (200, 12036 bytes)
+ok   /car/TS-0011 (200, 12209 bytes)
+ok   /car/TS-0012 (200, 12198 bytes)
+ok   /car/TS-0013 (200, 12525 bytes)
+ok   /car/TS-0014 (200, 12433 bytes)
+
+LEAK CHECK PASSED — no cost, rate or profit value on any public route.
+```

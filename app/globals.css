@@ -1,0 +1,568 @@
+/* THEME — ported verbatim from test-truespec-v2/truespec.html (the colour truth).
+   Light is :root; dark is html[data-theme=dark]; dark is the default. */
+
+:root {
+  --gold: #c8a24a;
+  --gt: #1a1405;
+  --wa: #25d366;
+  --dk: #212529;
+  --ink: #23272b;
+  --mute: #5c636b;
+  --lt: #f1f2f4;
+  --bg: #fff;
+  --band: #222629;
+  --ph1: #d7d9dc;
+  --ph2: #c3c6ca;
+  --bar: #d5d7da;
+  --line: #e2e4e7;
+  --card: #383d42;
+  --card-line: transparent;
+  --nav: #eceef0;
+  --nav-line: #dcdfe2;
+  --tick: #23272b;
+  --dash: #fff;
+  --dts: #cfd2d6;
+  --nv: #4b5056;
+  --tab: #33383d;
+  --tab-fg: #fff;
+  --tab-hover: #3d4349;
+  --tab-on: #fff;
+  --tab-on-fg: var(--gold);
+  --oo: #2f6fd0;
+  --oo-bg: #e9f0fb;
+  --ld: #0e7a3e;
+  --ld-bg: #e4f4ea;
+  --chip-bg: var(--lt);
+  --chip-line: var(--line);
+  color-scheme: light;
+
+  /* Structural tokens (app). */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --space: 16px;
+  --w-phone: 560px;
+  --w-tablet: 820px;
+  --w-laptop: 1100px;
+  --touch: 44px;
+  --font-head: "Oswald", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Shadows (ui-plan §4). */
+  --shadow-card: 0 18px 34px rgba(0, 0, 0, 0.14);
+  --shadow-float: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --shadow-btn: 0 8px 18px rgba(37, 211, 102, 0.35);
+
+  /* Aliases: names the not-yet-rebuilt screens still use. Removed as screens are rebuilt. */
+  --surface: var(--bg);
+  --surface-2: var(--lt);
+  --muted: var(--mute);
+  --gold-ink: var(--gt);
+  --green: var(--wa);
+  --danger: #b3261e;
+}
+
+html[data-theme="dark"] {
+  --ink: #e8eaed;
+  --mute: #9aa0a6;
+  --lt: #191c20;
+  --bg: #101214;
+  --band: #17191c;
+  --ph1: #23272b;
+  --ph2: #1a1d21;
+  --bar: #33383d;
+  --line: #2a2e33;
+  --card: #1e2226;
+  --card-line: #2a2e33;
+  --nav: #17191c;
+  --nav-line: #2a2e33;
+  --tick: #e8eaed;
+  --dash: #101214;
+  --dts: #4a5056;
+  --nv: #8a9096;
+  --tab: #24282c;
+  --tab-fg: #d6d9dc;
+  --tab-hover: #2e3338;
+  --tab-on: var(--gold);
+  --tab-on-fg: var(--gt);
+  --oo: #8ab4ff;
+  --oo-bg: rgba(138, 180, 255, 0.12);
+  --ld: #57cc8a;
+  --ld-bg: rgba(87, 204, 138, 0.12);
+  --chip-bg: #1e2226;
+  --chip-line: #2a2e33;
+  color-scheme: dark;
+
+  --shadow-card: 0 18px 34px rgba(255, 255, 255, 0.09);
+  --shadow-float: 0 12px 30px rgba(0, 0, 0, 0.55);
+  --danger: #ef5b52;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.wrap {
+  max-width: var(--w-laptop);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header / band — dark in both modes, gold used freely as text here. */
+.band {
+  background: var(--band);
+  color: #f4f5f7;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.band .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+}
+
+.brand {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.brand b {
+  color: var(--gold);
+}
+
+.band nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 14px;
+}
+
+.band nav a:hover {
+  color: var(--gold);
+}
+
+/* Theme toggle — the reference's .thm circle (truespec.html). */
+.thm {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--nav-line);
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.thm:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--gt);
+}
+
+/* Buttons — gold is a fill on light surfaces, ink text beside it. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--touch);
+  padding: 0 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-color: var(--gold);
+}
+
+.btn-whatsapp {
+  background: var(--green);
+  color: #06301a;
+  border-color: var(--green);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.25);
+}
+
+.hero {
+  padding: 56px 0 32px;
+}
+
+.hero h1 {
+  font-size: clamp(34px, 6vw, 56px);
+  line-height: 1.05;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 18px;
+  max-width: 46ch;
+  margin-top: 14px;
+}
+
+.hero .cta {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 40px 0 16px;
+}
+
+.section-head h2 {
+  font-size: 26px;
+}
+
+.section-head .note {
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-float);
+}
+
+.card .photo {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-2);
+}
+
+.card .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ribbon {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.label {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(10, 12, 15, 0.78);
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.label.landed {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+
+.card .body {
+  padding: 14px 16px 18px;
+}
+
+.card .title {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.card .meta {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.chip {
+  display: inline-block;
+  margin-top: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+}
+
+.price {
+  margin-top: 12px;
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.price .was {
+  color: var(--muted);
+  font-size: 15px;
+  text-decoration: line-through;
+  margin-left: 8px;
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+/* Inventory tabs */
+.tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--line);
+  margin: 28px 0 22px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.tab[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+}
+
+.tab .count {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 32px 0;
+}
+
+/* Car page */
+.vdp {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 32px;
+  margin-top: 28px;
+}
+
+@media (max-width: 820px) {
+  .vdp {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gallery {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.gallery .stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--surface-2);
+}
+
+.gallery .stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery button.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(10, 12, 15, 0.7);
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.gallery button.arrow.prev {
+  left: 12px;
+}
+
+.gallery button.arrow.next {
+  right: 12px;
+}
+
+.gallery .thumbs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.gallery .thumbs img {
+  width: 84px;
+  height: 63px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.gallery .thumbs img[data-active="true"] {
+  opacity: 1;
+  outline: 2px solid var(--gold);
+}
+
+.specs {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+.specs li {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+  font-size: 15px;
+}
+
+.specs .k {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+  margin: 10px 0 0;
+}
+
+.feature-list li {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.big-price {
+  font-family: var(--font-head);
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.big-price .was {
+  color: var(--muted);
+  font-size: 18px;
+  text-decoration: line-through;
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+.notice {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin: 24px 0;
+}
+
+.footer {
+  margin-top: 64px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  padding: 28px 0 40px;
+}
+
+@media (max-width: 560px) {
+  .hero {
+    padding: 36px 0 20px;
+  }
+}

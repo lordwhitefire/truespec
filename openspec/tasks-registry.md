@@ -1,0 +1,20 @@
+# Tasks registry
+
+Plain list of the pieces of work the project needs to catch up to the architecture. Each entry is a short description; detailed task/testing files live under `openspec/tasks/` once an entry is picked for development.
+
+Architecture change: `openspec/changes/truespec-architecture/` (proposal, specs, design, tasks — validated).
+
+**Owner ruling (2026-10-08) — the form of every task note:** a task is a *plan* for the Builder, not an instruction. It carries requirements, constraints, and the process to follow — it guides, it does not command. Never "do X, Y, Z": direct instructions transfer the author's oversights into the build, and a Builder following an oversight blindly is worse than a Builder judging. Written into `openspec/config.yaml` under `rules.tasks` so every future task artifact inherits it.
+
+**Owner ruling (2026-10-09) — the registry is one entry per layer, in build order.** Product layer = **UI · business logic · functionality · UX**; then **data model**; then **system model**. **Build order: UI → business logic → data model → functionality → UX → system model.** The data model is planned **before** functionality and UX — both work on its store (functionality writes to it; UX's undo, offline handling and failure wording are defined against it), and business logic must name the entities first. Task 1 is UI. The UI layer is done as a **recon / do-over (RECON-001)**, because the first attempt split UI by surface and swallowed business-logic and data-model work. That misplaced work is **left where it is** (owner, 2026-10-09): the business-logic and data-model entries re-cover their own parts, and that duplication does not affect the developer completing each layer.
+
+## Registry
+
+- [ ] **TASK-001 — UI. Layer 1.** The whole UI layer: the public showroom (home, inventory, car page, privacy, 404, sold/deleted) and the office (login / first-run, dashboard, inventory, car form, state editor, enquiries, activity, settings) — every approved element, all three widths, both modes. (Carries the old entry's "foundation & public boundary" content, left as-is per the 2026-10-09 ruling.)
+  - **RECON-001 — the recon / do-over of this task (owner, 2026-10-09).** The old TASK-001 ("Showroom foundation & public boundary") plus the old office-screens entry split UI by surface instead of treating it as one layer, and pulled in business-logic and data-model work. **RECON-001** (`openspec/tasks/RECON-001/`) is the recon *of* TASK-001 — the do-over — in its own holder on purpose: so the correction stays visible in the future, and the Builder is not influenced by the old entry. **The Builder works from RECON-001, not from the old entry.**
+- [ ] **TASK-002 — Business logic. Layer 2.** State/section mapping, the counting rule, money rules (per-line rates, labels, "still building"), reference codes, the sold flag, the visibility gate, and the allow-list boundary.
+- [ ] **TASK-003 — Data model. Layer 3.** The full schema, storage layout (images + PDFs), money representation, session/auth and rate-limit/tap tables, registries, seed split, migrations, cleanup groundwork.
+- [ ] **TASK-004 — Functionality. Layer 4.** Sessions, abuse control, Server Action writes, CRUD, gallery and image flow, WhatsApp taps, enquiry PDF import, export.
+- [ ] **TASK-005 — UX. Layer 5.** Dialogs, focus, toasts, undo timing, offline handling, failure wording, per-width interactions.
+- [ ] **TASK-006 — System model. Layer 6.** Behaviour, request paths, guarantees, boundaries and edge cases; the daily job, convergence, audits, monitoring, the pre-handover gate.
+- [ ] **TASK-007 — Close-out.** Screen reconciliation, stale-doc flags (seed-content vs R3), A4–A6 owner confirmation, acceptance pass. Not a layer — the final pass.
