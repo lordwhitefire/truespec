@@ -1,81 +1,414 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Gallery } from "@/components/Gallery";
-import { carWaLink } from "@/components/whatsapp";
+import "@/app/car/car.css";
+import { CarBehaviors } from "@/components/site/CarBehaviors";
+import { carHref } from "@/components/site/car-view";
+import { carWaLink, waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
-import { isSpecial } from "@/lib/serialize";
-import { getPublicCar, getSetting } from "@/lib/public-cars";
+import { isSpecial, type PublicCar } from "@/lib/serialize";
+import { getPublicCar, getPublicCars, getSetting } from "@/lib/public-cars";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Car details | TrueSpec Automotive" };
+}
+
+const SECTION_LABEL: Record<string, string> = {
+  available: "Available",
+  "on order": "On order",
+  landed: "Landed",
+};
+
+const STATUS_KEY: Record<string, string> = {
+  available: "a",
+  "on order": "o",
+  landed: "l",
+};
+
+const RELATED_H2: Record<string, string> = {
+  available: "More available cars",
+  "on order": "More cars on order",
+  landed: "More landed cars",
+};
+
+const DELIVERY_STEPS: { title: string; desc: string }[] = [
+  { title: "Pick the car", desc: "Choose a car here or tell us the make, model and year you want." },
+  { title: "Chat with us on WhatsApp", desc: "Confirm the car and agree the doorstep price with the owner." },
+  { title: "We ship and clear", desc: "We buy, ship from the USA and clear the car at the port." },
+  { title: "Delivered to your door", desc: "Delivery anywhere in Nigeria is already in the price." },
+];
+
+const FEATURE_TAIL = ["Shipping included", "Clearing included", "Delivery included"];
+
+function crumbTitle(c: PublicCar): string {
+  return [c.brand, c.model, c.year].filter(Boolean).join(" ");
+}
+
+function h1Title(c: PublicCar): string {
+  return [c.brand, c.model, c.trim, c.year].filter(Boolean).join(" ");
+}
+
+function cardTitle(c: PublicCar): string {
+  return [c.year, c.brand, c.model].filter(Boolean).join(" ");
+}
+
+function mileage(c: PublicCar): string {
+  return c.mileageKm === null ? "—" : `${c.mileageKm.toLocaleString("en-US")} mi`;
+}
+
+function leadSentence(c: PublicCar): string {
+  const name = [c.year, c.brand, c.model, c.trim].filter(Boolean).join(" ");
+  const ext = (c.exteriorColor ?? "—").toLowerCase();
+  const int = (c.interiorColor ?? "—").toLowerCase();
+  return `This ${name} comes in ${ext} with a ${int} interior and ${mileage(c)} on the clock.`;
+}
+
+function overview(c: PublicCar): string[] {
+  const out: string[] = [];
+  out.push(
+    `Every ${c.brand ?? "car"} we list is imported from the USA and delivered with one honest doorstep price.`,
+  );
+  out.push(
+    `Message us and we will send more photos, a video walk-around, or answer anything about this ${c.model ?? "car"}.`,
+  );
+  return out;
+}
+
 export default async function CarPage({ params }: { params: Promise<{ ref: string }> }) {
   const { ref } = await params;
-  const car = await getPublicCar(ref);
+  const [car, number, all] = await Promise.all([
+    getPublicCar(ref),
+    getSetting("whatsapp_number"),
+    getPublicCars(),
+  ]);
   if (!car) notFound();
 
-  const number = (await getSetting("whatsapp_number")) ?? "";
+  const num = number ?? "";
   const name = [car.brand, car.model].filter(Boolean).join(" ");
   const special = isSpecial(car);
-  const title = [car.year, name, car.trim].filter(Boolean).join(" ");
+  const sectionLabel = SECTION_LABEL[car.section] ?? "Available";
+  const statusKey = STATUS_KEY[car.section] ?? "a";
+  const wa = carWaLink(num, car);
+  const offerLink = waLink(
+    num,
+    `Hello TrueSpec, I would like to make an offer on the ${[car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ")} (Ref ${car.ref}), listed at ${formatNaira(car.priceKobo)}.`,
+  );
+  const viewingLink = waLink(
+    num,
+    `Hello TrueSpec, I would like to book a viewing for the ${[car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ")} (Ref ${car.ref}).`,
+  );
+
+  const related = all.filter((c) => c.ref !== car.ref).slice(0, 11);
+  const lead = leadSentence(car);
+  const paragraphs = overview(car);
+  const slug = [car.year, car.brand, car.model, car.trim]
+    .filter(Boolean)
+    .join("-")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const note =
+    car.section === "on order" && car.arrivalNote
+      ? car.arrivalNote
+      : `${sectionLabel} now. Message us to arrange a viewing.`;
 
   return (
-    <div className="wrap">
-      <div className="vdp">
-        <div>
-          <Gallery photos={car.photos} alt={title} />
-        </div>
-
-        <div>
-          <h1 style={{ fontSize: 32 }}>{name}</h1>
-          <div className="meta" style={{ color: "var(--muted)", marginTop: 6 }}>
-            {car.trim} · {car.year} · {car.ref}
-          </div>
-
-          <div className="big-price" style={{ marginTop: 18 }}>
-            {formatNaira(car.priceKobo)}
-            {special && car.wasPriceKobo !== null ? (
-              <span className="was">{formatNaira(car.wasPriceKobo)}</span>
-            ) : null}
-          </div>
-
-          {car.section === "on order" && car.arrivalNote ? (
-            <div className="notice">{car.arrivalNote}</div>
-          ) : null}
-
-          <a
-            className="btn btn-whatsapp"
-            style={{ width: "100%", marginBottom: 20 }}
-            href={carWaLink(number, car)}
-          >
-            Chat on WhatsApp
-          </a>
-
-          <ul className="specs">
-            <li>
-              <span className="k">Year</span>
-              {car.year ?? "—"}
-            </li>
-            <li>
-              <span className="k">Mileage</span>
-              {car.mileageKm !== null ? `${car.mileageKm.toLocaleString("en-NG")} mi` : "—"}
-            </li>
-            <li>
-              <span className="k">Exterior</span>
-              {car.exteriorColor ?? "—"}
-            </li>
-            <li>
-              <span className="k">Interior</span>
-              {car.interiorColor ?? "—"}
-            </li>
-          </ul>
-
-          <h3 style={{ marginTop: 8 }}>Features</h3>
-          <ul className="feature-list">
-            {car.features.map((f) => (
-              <li key={f}>{f}</li>
-            ))}
-          </ul>
+    <>
+      <div className="crumbs">
+        <div className="w" id="crumb">
+          <a href="/">Home</a>
+          <i className="fa-solid fa-chevron-right" />
+          <a href="/inventory">Inventory</a>
+          <i className="fa-solid fa-chevron-right" />
+          <b>{crumbTitle(car)}</b>
         </div>
       </div>
-    </div>
+
+      <div className="main" id="main">
+        <div className="w">
+          <div className="cols">
+            <div>
+              <h1 className="in" id="ti">{h1Title(car)}</h1>
+
+              <div className="chips in" style={{ "--d": 1 } as React.CSSProperties} id="chips">
+                <span className={`chip st ${statusKey}`}>
+                  <i className="fa-solid fa-circle" />
+                  {sectionLabel}
+                </span>
+                <span className="chip">
+                  <i className="fa-solid fa-hashtag" />
+                  Ref {car.ref}
+                </span>
+                <button type="button" className="chip">
+                  <i className="fa-solid fa-share-nodes" />
+                  Share this
+                </button>
+                {car.arrivalNote ? (
+                  <span className="chip">
+                    <i className="fa-regular fa-calendar" />
+                    {car.arrivalNote}
+                  </span>
+                ) : null}
+              </div>
+
+              <p className="speak in" style={{ "--d": 1 } as React.CSSProperties} id="speak" role="status" aria-live="polite" />
+
+              <div className="in" style={{ "--d": 2 } as React.CSSProperties}>
+                <div className="gal" id="gal" tabIndex={0}>
+                  <div className="rib" id="rib">
+                    {special ? (
+                      <span>Special</span>
+                    ) : car.section === "on order" ? (
+                      <span className="oo">On order</span>
+                    ) : car.section === "landed" ? (
+                      <span className="ld">Landed</span>
+                    ) : null}
+                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} />
+                  <button type="button" className="gb l" aria-label="Previous photo">
+                    <i className="fa-solid fa-chevron-left" />
+                  </button>
+                  <button type="button" className="gb r" aria-label="Next photo">
+                    <i className="fa-solid fa-chevron-right" />
+                  </button>
+                  <div className="cn" id="cn">
+                    <i className="fa-regular fa-image" /> 1 / {car.photos.length}
+                  </div>
+                </div>
+                <div className="thumbs" id="thumbs">
+                  {car.photos.map((p, i) => (
+                    <button
+                      key={p + i}
+                      type="button"
+                      className={i === 0 ? "on" : undefined}
+                      aria-label={`Photo ${i + 1}`}
+                      data-i={i}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p} alt="" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="tabs rv" id="tabs" role="tablist" aria-label="Car information">
+                <button type="button" role="tab" data-p="p1" aria-selected="true" className="on">
+                  Overview
+                </button>
+                <button type="button" role="tab" data-p="p2" aria-selected="false">
+                  Features
+                </button>
+                <button type="button" role="tab" data-p="p3" aria-selected="false">
+                  Delivery
+                </button>
+                <span className="bar" id="bar" />
+              </div>
+
+              <div className="pn on rv" id="p1" role="tabpanel">
+                <p className="lead">{lead}</p>
+                {paragraphs.map((t) => (
+                  <p key={t}>{t}</p>
+                ))}
+                <div className="quote">{note}</div>
+                <p>Message us on WhatsApp for more photos, a video walk-around or to ask anything about this car.</p>
+              </div>
+
+              <div className="pn" id="p2" role="tabpanel">
+                <ul className="fl">
+                  {[...car.features, ...FEATURE_TAIL].map((f, i) => (
+                    <li key={f} style={{ "--i": i } as React.CSSProperties}>
+                      <i className="fa-solid fa-check" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="pn" id="p3" role="tabpanel">
+                <ol className="steps">
+                  {DELIVERY_STEPS.map((s, i) => (
+                    <li key={s.title}>
+                      <span className="num">{i + 1}</span>
+                      <div>
+                        <b>{s.title}</b>
+                        <span>{s.desc}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+
+            <aside className="aside in" style={{ "--d": 3 } as React.CSSProperties}>
+              <div className="pc">
+                <small>Doorstep price</small>
+                <span className="num" id="pr">{formatNaira(car.priceKobo)}</span>
+                <div id="old">{special && car.wasPriceKobo !== null ? <s>{formatNaira(car.wasPriceKobo)}</s> : null}</div>
+                <div className="inc">Shipping, clearing and delivery included.</div>
+                <div className="sv" id="sv" hidden={!(special && car.wasPriceKobo !== null)}>
+                  {special && car.wasPriceKobo !== null ? (
+                    <>
+                      Instant savings: <b>{formatNaira(car.wasPriceKobo - car.priceKobo)}</b>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <a className="wab big" id="wa" href={wa} target="_blank" rel="noopener noreferrer">
+                <i className="fa-brands fa-whatsapp fa-xl" />
+                <span id="waTxt">{car.section === "on order" ? "Reserve this car" : "Chat on WhatsApp"}</span>
+              </a>
+              <a className="ofr" id="of" href={offerLink} target="_blank" rel="noopener noreferrer">
+                Make an offer
+                <i className="fa-solid fa-naira-sign" />
+              </a>
+              <a className="ofr" id="vw" href={viewingLink} target="_blank" rel="noopener noreferrer">
+                Book a viewing
+                <i className="fa-regular fa-calendar-check" />
+              </a>
+              <div id="spec">
+                <div>
+                  <span>Brand</span>
+                  <b>{car.brand ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Model</span>
+                  <b>{car.model ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Trim</span>
+                  <b>{car.trim ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Year</span>
+                  <b>{car.year ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Mileage</span>
+                  <b>{mileage(car)}</b>
+                </div>
+                <div>
+                  <span>Exterior</span>
+                  <b>{car.exteriorColor ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Interior</span>
+                  <b>{car.interiorColor ?? "—"}</b>
+                </div>
+                <div>
+                  <span>Status</span>
+                  <b>{sectionLabel}</b>
+                </div>
+              </div>
+              <div className="trust">
+                <p>
+                  <i className="fa-solid fa-tags" /> One doorstep price, no extra fees
+                </p>
+                <p>
+                  <i className="fa-solid fa-ship" /> Shipped from the USA
+                </p>
+                <p>
+                  <i className="fa-solid fa-truck-fast" /> Delivered anywhere in Nigeria
+                </p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <section className="rel">
+        <div className="w">
+          <div className="rh rv">
+            <h2 id="rt">{RELATED_H2[car.section] ?? "More available cars"}</h2>
+            <div className="rn">
+              <button type="button" aria-label="Previous">
+                <i className="fa-solid fa-chevron-left" />
+              </button>
+              <button type="button" aria-label="Next">
+                <i className="fa-solid fa-chevron-right" />
+              </button>
+            </div>
+          </div>
+          <div className="rt" id="rt2">
+            {related.map((c) => (
+              <a className="rc" href={carHref(c)} key={c.ref}>
+                <div className="ph">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.photos[0]} alt="" loading="lazy" />
+                </div>
+                <div className="bd">
+                  <h3>{cardTitle(c)}</h3>
+                  <div className="pr">{formatNaira(c.priceKobo)}</div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div className="mbar" id="mbar">
+        <div>
+          <small>Doorstep price</small>
+          <div className="num" id="mp">
+            {formatNaira(car.priceKobo)}
+          </div>
+        </div>
+        <a className="wab" id="mw" href={wa} target="_blank" rel="noopener noreferrer">
+          <i className="fa-brands fa-whatsapp" />
+          <span id="mwTxt">{car.section === "on order" ? "Reserve now" : "Chat now"}</span>
+        </a>
+      </div>
+
+      <div className="lb" id="lb">
+        <button type="button" className="x" aria-label="Close">
+          <i className="fa-solid fa-xmark" />
+        </button>
+        <button type="button" className="p" aria-label="Previous">
+          <i className="fa-solid fa-chevron-left" />
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img id="li" alt="" />
+        <button type="button" className="n" aria-label="Next">
+          <i className="fa-solid fa-chevron-right" />
+        </button>
+      </div>
+
+      <div className="stoast" id="stoast" />
+
+      <div className="ovl" id="ovl" hidden>
+        <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+          <button className="mx" id="mx" type="button" aria-label="Close">
+            &times;
+          </button>
+          <div className="mdlh">
+            <div className="av" aria-hidden="true">
+              U
+            </div>
+            <h2 id="mtitle" />
+          </div>
+          <div id="mbody" />
+        </div>
+      </div>
+
+      <div className="ptoast" id="ptoast" role="status" hidden>
+        <span id="ptxt" />
+        <button id="ptx" type="button" aria-label="Dismiss">
+          &times;
+        </button>
+      </div>
+
+      <CarBehaviors
+        photos={car.photos}
+        alt={h1Title(car)}
+        wa={wa}
+        viewing={viewingLink}
+        name={[car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ")}
+        slug={slug}
+        status={statusKey}
+        was={special && car.wasPriceKobo !== null ? formatNaira(car.wasPriceKobo - car.priceKobo) : null}
+        note={car.arrivalNote ?? ""}
+      />
+    </>
   );
 }

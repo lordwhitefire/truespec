@@ -10,7 +10,7 @@
    Ours is scoped to `.sv`, but it must still come FIRST so the global chrome
    rules that are also used inside `.sv` (.speak, .lnk, .wab, …) win by order,
    while `.sv .thing` rules win by specificity. Do not move this down. */
-.sv * { margin: 0; padding: 0; }
+* { margin: 0; padding: 0; }
 
 /* ---------- BASE (bits the chrome and every screen need) ---------- */
 [hidden] { display: none !important; }

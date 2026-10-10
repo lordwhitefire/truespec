@@ -6,10 +6,15 @@
   --gt: #1a1405;
   --wa: #25d366;
   --dk: #212529;
+  --ease: cubic-bezier(.2,.7,.2,1);
   --ink: #23272b;
   --mute: #5c636b;
+  --body2: #4a5057;
   --lt: #f1f2f4;
   --bg: #fff;
+  --thumb: #ccc;
+  --ofr-hv: #e6e8eb;
+  --rc: #fff;
   --band: #222629;
   --ph1: #d7d9dc;
   --ph2: #c3c6ca;
@@ -19,6 +24,7 @@
   --card-line: transparent;
   --nav: #eceef0;
   --nav-line: #dcdfe2;
+  --crumbs: #fff;
   --tick: #23272b;
   --dash: #fff;
   --dts: #cfd2d6;
@@ -34,6 +40,8 @@
   --ld-bg: #e4f4ea;
   --chip-bg: var(--lt);
   --chip-line: var(--line);
+  --dtabs-on: #fff;
+  --dtabs-on-fg: #23272b;
   color-scheme: light;
 
   /* Structural tokens (app). */
@@ -44,8 +52,8 @@
   --w-tablet: 820px;
   --w-laptop: 1100px;
   --touch: 44px;
-  --font-head: "Oswald", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: Oswald, sans-serif;
+  --font-body: Inter, sans-serif;
 
   /* Shadows (ui-plan §4). */
   --shadow-card: 0 18px 34px rgba(0, 0, 0, 0.14);
@@ -64,8 +72,12 @@
 html[data-theme="dark"] {
   --ink: #e8eaed;
   --mute: #9aa0a6;
+  --body2: #b9bdc2;
   --lt: #191c20;
   --bg: #101214;
+  --thumb: #2a2e33;
+  --ofr-hv: #2e3338;
+  --rc: #1e2226;
   --band: #17191c;
   --ph1: #23272b;
   --ph2: #1a1d21;
@@ -75,6 +87,7 @@ html[data-theme="dark"] {
   --card-line: #2a2e33;
   --nav: #17191c;
   --nav-line: #2a2e33;
+  --crumbs: #17191c;
   --tick: #e8eaed;
   --dash: #101214;
   --dts: #4a5056;
@@ -90,6 +103,8 @@ html[data-theme="dark"] {
   --ld-bg: rgba(87, 204, 138, 0.12);
   --chip-bg: #1e2226;
   --chip-line: #2a2e33;
+  --dtabs-on: #e8eaed;
+  --dtabs-on-fg: #101214;
   color-scheme: dark;
 
   --shadow-card: 0 18px 34px rgba(255, 255, 255, 0.09);
@@ -112,12 +127,18 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   line-height: 1.5;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
 }
 
 h1,

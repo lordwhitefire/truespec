@@ -24,7 +24,7 @@ export function Ticker({ lines }: { lines: string[] }) {
   }, [lines.length]);
 
   return (
-    <div className="tick" aria-live="off">
+    <div className="tick" id="tick" aria-live="off">
       {lines.map((text, k) => (
         <span key={k} className={k === i ? (out ? "out" : "on") : ""}>
           <i className={`fa-solid ${ICONS[k % 4]}`} />

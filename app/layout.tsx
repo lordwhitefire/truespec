@@ -3,6 +3,7 @@ import "./globals.css";
 import "./reference.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Ticker } from "@/components/site/Ticker";
+import { SiteFab } from "@/components/site/SiteFab";
 import { getPublicCars, getSetting } from "@/lib/public-cars";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { formatNaira } from "@/lib/money";
@@ -67,7 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <header>
+        <div id="site-header">
           <div className="top" id="top">
             <div className="w">
               <a href="/" className="lg">
@@ -117,10 +118,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </a>
             </div>
           </div>
-        </header>
+        </div>
 
-        <main>{children}</main>
+        {children}
 
+        <div id="site-footer">
         <footer id="contact">
           <div className="w">
             <div className="fg">
@@ -132,7 +134,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               </div>
               <div>
                 <h4>Photo gallery</h4>
-                <div className="gl">
+                <div className="gl" id="gl">
                   {gallery.map((src, i) => (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img key={i} src={src} alt="" loading="lazy" />
@@ -216,16 +218,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
           </div>
         </footer>
+        </div>
 
-        <a
-          className="fab"
-          href={wa("Hello TrueSpec, I have a question.")}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
-        >
-          <i className="fa-brands fa-whatsapp" />
-        </a>
+        <SiteFab href={wa("Hello TrueSpec, I have a question.")} />
       </body>
     </html>
   );

@@ -19,7 +19,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <button className="thm" type="button" onClick={toggle} aria-label="Toggle dark mode">
+    <button className="thm" id="thm" type="button" onClick={toggle} aria-label="Toggle dark mode">
       <i className="fa-solid fa-moon" />
     </button>
   );
