@@ -23,6 +23,8 @@ export type PublicCar = {
   isNewArrival: boolean;
   // ui-plan Q38: the On Order arrival chip.
   arrivalNote: string | null;
+  sold?: boolean;
+  soldAt?: string | null;
 };
 
 export const PUBLIC_CAR_FIELDS: readonly (keyof PublicCar)[] = [
@@ -59,6 +61,7 @@ export type RawCarRow = {
   section: PublicSection;
   is_new_arrival: boolean;
   sold: boolean;
+  sold_at: string | null;
   photos: unknown;
 };
 
@@ -125,6 +128,8 @@ export function toPublicCar(
     section: row.section,
     isNewArrival: row.is_new_arrival,
     arrivalNote: row.arrival_note,
+    sold: row.sold,
+    soldAt: row.sold_at,
   };
 }
 

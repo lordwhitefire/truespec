@@ -1,17 +1,25 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import "@/app/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { carHref } from "@/components/site/car-view";
 import { carWaLink, waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
-import { getPublicCar, getPublicCars, getSetting } from "@/lib/public-cars";
+import { getPublicCarForView, getPublicCars, getSetting } from "@/lib/public-cars";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Car details | TrueSpec Automotive" };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ ref: string }>;
+}): Promise<Metadata> {
+  const { ref } = await params;
+  const car = await getPublicCarForView(ref);
+  if (!car) return { title: "Car not found | TrueSpec Automotive" };
+  if (car.sold) return { title: "Sold | TrueSpec Automotive" };
+  const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
+  return { title: `${name} | TrueSpec Automotive` };
 }
 
 const SECTION_LABEL: Record<string, string> = {
@@ -78,11 +86,19 @@ function overview(c: PublicCar): string[] {
 export default async function CarPage({ params }: { params: Promise<{ ref: string }> }) {
   const { ref } = await params;
   const [car, number, all] = await Promise.all([
-    getPublicCar(ref),
+    getPublicCarForView(ref),
     getSetting("whatsapp_number"),
     getPublicCars(),
   ]);
-  if (!car) notFound();
+  if (!car) {
+    const unknownNum = (await getSetting("whatsapp_number")) ?? "";
+    return notFoundView(unknownNum);
+  }
+
+  // Separate sold from unknown - sold cars exist but are not listed
+  if (car.sold) {
+    return soldPageView(car, all, number ?? "");
+  }
 
   const num = number ?? "";
   const name = [car.brand, car.model].filter(Boolean).join(" ");
@@ -409,6 +425,221 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
         was={special && car.wasPriceKobo !== null ? formatNaira(car.wasPriceKobo - car.priceKobo) : null}
         note={car.arrivalNote ?? ""}
       />
+    </>
+  );
+}
+
+function RelatedShell() {
+  return (
+    <section className="rel">
+      <div className="w">
+        <div className="rh rv">
+          <h2 id="rt">More cars</h2>
+          <div className="rn">
+            <button type="button" aria-label="Previous">
+              <i className="fa-solid fa-chevron-left" />
+            </button>
+            <button type="button" aria-label="Next">
+              <i className="fa-solid fa-chevron-right" />
+            </button>
+          </div>
+        </div>
+        <div className="rt" id="rt2" />
+      </div>
+    </section>
+  );
+}
+
+function CarLayers({ wa }: { wa: string }) {
+  return (
+    <>
+      <div className="mbar" id="mbar">
+        <div>
+          <small>Doorstep price</small>
+          <div className="num" id="mp" />
+        </div>
+        <a className="wab" id="mw" href={wa} target="_blank" rel="noopener noreferrer">
+          <i className="fa-brands fa-whatsapp" />
+          <span id="mwTxt">Chat now</span>
+        </a>
+      </div>
+
+      <div className="lb" id="lb">
+        <button type="button" className="x" aria-label="Close">
+          <i className="fa-solid fa-xmark" />
+        </button>
+        <button type="button" className="p" aria-label="Previous">
+          <i className="fa-solid fa-chevron-left" />
+        </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img id="li" alt="" />
+        <button type="button" className="n" aria-label="Next">
+          <i className="fa-solid fa-chevron-right" />
+        </button>
+      </div>
+
+      <div className="stoast" id="stoast" />
+
+      <div className="ovl" id="ovl" hidden>
+        <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+          <button className="mx" id="mx" type="button" aria-label="Close">
+            &times;
+          </button>
+          <div className="mdlh">
+            <div className="av" aria-hidden="true">
+              U
+            </div>
+            <h2 id="mtitle" />
+          </div>
+          <div id="mbody" />
+        </div>
+      </div>
+
+      <div className="ptoast" id="ptoast" role="status" hidden>
+        <span id="ptxt" />
+        <button id="ptx" type="button" aria-label="Dismiss">
+          &times;
+        </button>
+      </div>
+    </>
+  );
+}
+
+function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
+  const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
+  const month = car.soldAt
+    ? new Date(car.soldAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : "";
+  const soldWa = waLink(
+    num,
+    `Hello TrueSpec, I saw the link to the ${name} — it's sold. I'm after something similar.`,
+  );
+  const similar = all.filter((c) => c.section === "available").slice(0, 4);
+  return (
+    <>
+      <div className="crumbs">
+        <div className="w" id="crumb">
+          <a href="/">Home</a>
+          <i className="fa-solid fa-chevron-right" />
+          <a href="/inventory">Inventory</a>
+          <i className="fa-solid fa-chevron-right" />
+          <b>Sold</b>
+        </div>
+      </div>
+
+      <div className="main" id="main">
+      <div className="w nfbox">
+        {car.photos[0] ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={car.photos[0]}
+            alt={name}
+            style={{
+              display: "block",
+              width: "100%",
+              maxWidth: 420,
+              aspectRatio: "16 / 10",
+              objectFit: "cover",
+              borderRadius: 12,
+              border: "1px solid var(--line)",
+              margin: "0 auto 26px",
+            }}
+          />
+        ) : null}
+        <div className="av" aria-hidden="true">
+          U
+        </div>
+        <h1>That one found a new owner</h1>
+        <p>
+          {name} went in {month}. Good car — it moved quickly. Here&apos;s what I can put you in
+          instead:
+        </p>
+        <div className="row">
+          <a className="wab big" href={soldWa} target="_blank" rel="noopener noreferrer">
+            <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
+          </a>
+          <a className="btn" href="/inventory">
+            <i className="fa-solid fa-grip" /> See the full inventory
+          </a>
+        </div>
+      </div>
+      {similar.length ? (
+        <section className="rel">
+          <div className="w">
+            <div className="rh">
+              <h2>On the lot right now</h2>
+            </div>
+            <p style={{ color: "var(--mute)", fontSize: 14, margin: "-12px 0 18px" }}>
+              Similar body, same one-price rule.
+            </p>
+            <div className="rt">
+              {similar.map((c) => (
+                <a className="rc" href={carHref(c)} key={c.ref}>
+                  <div className="ph">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={c.photos[0]} alt="" loading="lazy" />
+                  </div>
+                  <div className="bd">
+                    <h3>{[c.brand, c.model, c.year].filter(Boolean).join(" ")}</h3>
+                    <div className="pr">{formatNaira(c.priceKobo)}</div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <div className="w" style={{ padding: "40px 24px", textAlign: "center", color: "var(--mute)" }}>
+          Nothing quite like it on the lot right now — tell me what you were after and I&apos;ll
+          find one.
+        </div>
+      )}
+      </div>
+
+      <RelatedShell />
+      <CarLayers wa={soldWa} />
+    </>
+  );
+}
+
+function notFoundView(num: string) {
+  const waSource = waLink(
+    num,
+    "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: ",
+  );
+  return (
+    <>
+      <div className="crumbs">
+        <div className="w" id="crumb">
+          <a href="/">Home</a>
+          <i className="fa-solid fa-chevron-right" />
+          <b>Not found</b>
+        </div>
+      </div>
+
+      <div className="main" id="main">
+      <div className="w nfbox">
+        <div className="av" aria-hidden="true">
+          U
+        </div>
+        <h1>We could not find that car</h1>
+        <p>
+          That car may have sold, or the link is old. Tell me what you were after and I&apos;ll
+          find one like it — or browse what&apos;s on the lot now.
+        </p>
+        <div className="row">
+          <a className="wab big" href={waSource} target="_blank" rel="noopener noreferrer">
+            <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
+          </a>
+          <a className="btn" href="/#cars">
+            <i className="fa-solid fa-grip" /> See all cars
+          </a>
+        </div>
+      </div>
+      </div>
+
+      <RelatedShell />
+      <CarLayers wa={waSource} />
     </>
   );
 }

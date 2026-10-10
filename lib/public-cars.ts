@@ -12,6 +12,7 @@ const SELECT_CARS = `
          c.was_price_kobo, c.arrival_note, c.doorstep_price_kobo,
          s.section, s.is_new_arrival,
          (sale.id IS NOT NULL) AS sold,
+         sale.sold_at,
          COALESCE(
            (SELECT json_agg(p.sanity_asset_id ORDER BY p.position)
             FROM car_photo p WHERE p.car_id = c.id),
@@ -39,6 +40,14 @@ export async function getPublicCar(ref: string): Promise<PublicCar | null> {
   const rows = (await sql.query(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
   if (!row || !isListed(row)) return null;
+  return mapRows([row])[0];
+}
+
+export async function getPublicCarForView(ref: string): Promise<PublicCar | null> {
+  const sql = db();
+  const rows = (await sql.query(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
+  const row = rows[0];
+  if (!row) return null;
   return mapRows([row])[0];
 }
 

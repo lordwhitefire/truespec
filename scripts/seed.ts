@@ -24,6 +24,7 @@ type DemoCar = {
   features: string[];
   arrivalNote?: string;
   imgs: string[]; // 3 Unsplash ids
+  sold?: string; // ISO date; marks a car that found a new owner (reaches the Sold state)
 };
 
 // The reference catalogue verbatim (test-truespec-v2/truespec.html CARS):
@@ -58,6 +59,13 @@ const DEMO: DemoCar[] = [
   { ref: "TS-1022", brand: "Lexus", model: "ES 350", trim: "350", year: 2018, exterior: "Obsidian black", interior: "Black", mileage: 74000, price: N(31_000_000), was: 0, state: "Landed", features: ["Leather upholstery", "Heated front seats", "Power sunroof", "Mark Levinson audio", "LED headlights", "Dual-zone climate", "Wood trim"], imgs: ["1577496550006-f24a50e9d50c", "1568074532337-80968739967c", "1651872655139-2408c06d1c6e"] },
   { ref: "TS-1023", brand: "Mercedes-Benz", model: "E 350", trim: "350", year: 2020, exterior: "Obsidian black", interior: "Tan", mileage: 39000, price: N(48_000_000), was: N(52_500_000), state: "Landed", features: ["Burmester 3D audio", "Ambient lighting", "Heated front seats", "Wireless charging", "Air suspension", "Panoramic sunroof", "Driver Assistance package"], imgs: ["1609703048009-d3576872b32c", "1748569748174-33f4ba3ddcdf", "1652453822986-04f70788b118"] },
   { ref: "TS-1024", brand: "Toyota", model: "RAV4", trim: "XLE", year: 2019, exterior: "Celestial silver", interior: "Black", mileage: 61000, price: N(35_500_000), was: 0, state: "Landed", features: ["All wheel drive", "Power tailgate", "Heated front seats", "Blind spot monitoring", "Roof rails", "Apple CarPlay", "Dual-zone climate"], imgs: ["1739796216379-e5b6793f313a", "1633160847660-87506f1caa2d", "1621765523163-d2cd5f81948e"] },
+
+  // Sold — reached via /car/TS-1025. In the reference a sold car is removed from
+  // CARS and listed in SOLD; here the car exists but the sale row un-lists it and
+  // routes the view to the Sold state. Mirrors SOLD[0] "2021 Honda Civic EX".
+  // The photo is the reference's real Unsplash id for this exact car
+  // (1552519507-da3b142c6e3d, verified 200); the sold view renders only photos[0].
+  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, state: "Available", sold: "2026-09-15", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"], imgs: ["1552519507-da3b142c6e3d"] },
 ];
 
 // Previous demo refs, replaced by the reference catalogue. Deleting a car cascades to
@@ -148,6 +156,21 @@ async function main() {
           [carId, img(c.imgs[p]), p],
         );
       }
+
+      // Create a sale row if a sold date is provided
+      if (c.sold) {
+        await client.query(
+          `INSERT INTO sale (car_id, sale_price_kobo, sold_at)
+           VALUES ($1, $2, $3)
+           ON CONFLICT (car_id) DO UPDATE SET
+             sale_price_kobo = EXCLUDED.sale_price_kobo,
+             sold_at = EXCLUDED.sold_at`,
+          [carId, c.price, new Date(c.sold).toISOString()],
+        );
+      } else {
+        await client.query(`DELETE FROM sale WHERE car_id = $1`, [carId]);
+      }
+
       inserted += isNew ? 1 : 0;
     }
 
