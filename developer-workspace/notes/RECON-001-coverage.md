@@ -4,21 +4,22 @@
 **Date:** 2026-10-09 · **Author:** Developer.
 **Method:** compared built source (`app/`, `components/`, `app/globals.css`) against the reference
 screens in `test-truespec-v2` and the `ui-plan.md` answers, at markup/CSS level.
-**Honesty flag:** **no screen was render-verified.** There is no browser in this session, so "does
-not match" below means a difference visible in the markup/CSS, not a screenshot comparison. Every
-row's `render-checked` column is **No**. Exact visual match is unproven until a browser checks it.
+**Honesty flag (Phase 1):** this pass was markup/CSS only — there was no browser, so "does not
+match" below means a difference visible in the source, not a render. A **living render-check log**
+(§7) now tracks which screens have been confirmed against a real render; a row's `Render` column is
+**No** until that check has run. Exact visual match is unproven until then.
 
 ---
 
 ## 1. Screen register — 13 screens
 
 Status key: **OK** = built and matches · **PARTIAL** = built but differs · **MISSING** = no route.
-"Render" = confirmed against a real render (all No).
+"Render" = confirmed against a real render (see §7).
 
 | # | Screen | Reference | Built | Status | Render |
 |---|---|---|---|---|---|
-| 1 | Showroom home | `truespec.html` | `app/page.tsx` | **PARTIAL** | No |
-| 2 | Buyer inventory | `inventory.html` | `app/inventory/page.tsx` + `InventoryTabs` | **PARTIAL** | No |
+| 1 | Showroom home | `truespec.html` | `app/page.tsx` | **does not match** — diffs recorded | **Yes** |
+| 2 | Buyer inventory | `inventory.html` | `app/inventory/page.tsx` + `InventoryBrowser` | **does not match** — 1 UI diff + structural, recorded | **Yes** |
 | 3 | Car page | `car.html` | `app/car/[ref]/page.tsx` + `Gallery` | **PARTIAL** | No |
 | 4 | Login / first-run | `login.html` | — | **MISSING** | No |
 | 5 | Privacy | `privacy.html` | — | **MISSING** | No |
@@ -160,3 +161,20 @@ conflicts and are logged here, not silently reconciled.
 - Next (Phase 2): turn this into the ordered gap-closure plan.
 
 *No files outside `developer-workspace/` were changed. Recon only.*
+
+---
+
+## 7. Render-check log (living)
+
+Runtime check = build (`localhost:3210`) vs reference (`test-truespec-v2/*.html`, served read-only),
+at **560 / 820 / 1100 × dark / light**. Method + guardrails: `plans/RECON-001-ui-layer-plan.md`
+§5–§7. **Recorded, not fixed.**
+
+| # | Screen | Checked | Cells | Result | Report |
+|---|---|---|---|---|---|
+| 1 | Showroom home | 2026-10-09 | 6 (560/820/1100 × D/L) | does not match — differences recorded (see report) | `reports/RECON-001-home-runtime-check.md` |
+| 2 | Buyer inventory | 2026-10-09 | 6 (560/820/1100 × D/L) | does not match — 1 interactive-UI diff (S11 Clear-all announcement) + structural D-i1…D-i13 | `reports/RECON-001-inventory-runtime-check.md` |
+| 3 | Car page | 2026-10-09 | 6 normal + sold/not-found (2) | does not match — stub; 13 interactive/structural divergences recorded | `reports/RECON-001-car-runtime-check.md` |
+
+**Inventory override (recorded):** owner ruled the page already exists → **check, do not rebuild**.
+This supersedes the "rebuild first" wording for screen 2 in `plans/RECON-001-ui-layer-plan.md` §2/§4.

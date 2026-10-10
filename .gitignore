@@ -29,3 +29,6 @@ next-env.d.ts
 *.avif
 *.tiff
 developer-workspace/**/*shots*/
+
+# Runtime capture runs (generated, large — regenerate with the skill's run.mjs)
+developer-workspace/**/runs/
