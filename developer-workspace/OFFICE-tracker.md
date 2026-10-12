@@ -14,15 +14,13 @@ This tracks the conversion of all office/reference pages from `test-truespec-v2/
 - Screen 9 (Privacy public): done
 
 ## Open items (from prior notes)
-- Re-run inventory compare (noted as pending earlier)
-- Re-check dashboard (noted as pending earlier)
 - Run car-form add-mode compare (7 states) — still pending
 
 ## Details
 
-1. **Dashboard (/office/dashboard)** — Status: done. Recon + model + build + compare complete. Commit: includes built page + CSS + artifacts. (Ref: `office-dashboard.html`)
+1. **Dashboard (/office/dashboard)** — Status: done (committed). Recon + model + build + compare complete. Commit: includes built page + CSS + artifacts. (Ref: `office-dashboard.html`)
 
-2. **Inventory (/office/inventory)** — Status: done (committed). Compare artifacts present. Open: re-run compare (tracker note).
+2. **Inventory (/office/inventory)** — Status: done (committed).
 
 3. **Car form (/office/car)** — Status: done (committed). Build + compare done; add-mode compare (7 states) pending per tracker.
 
