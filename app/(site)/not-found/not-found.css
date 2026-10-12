@@ -1,0 +1,93 @@
+/* 404 page — matches reference */
+.nfbox {
+  padding: 90px 24px;
+  text-align: center;
+  max-width: 620px;
+  margin: auto;
+}
+.av {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--gt);
+  display: grid;
+  place-items: center;
+  font-family: Oswald, sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  margin: 0 auto 20px;
+}
+.nfbox h1 {
+  font-size: clamp(26px, 4vw, 36px);
+  margin-bottom: 12px;
+}
+.nfbox p {
+  color: var(--mute);
+  margin-bottom: 28px;
+  font-size: 15.5px;
+}
+.nfbox .row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gold);
+  color: var(--gt);
+  height: 48px;
+  padding: 0 26px;
+  font-weight: 700;
+  font-size: 14px;
+  border: 0;
+  border-radius: 5px;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.small {
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.small a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.small a:hover {
+  color: var(--gold);
+}
+.speak {
+  margin: 26px auto 0;
+  max-width: 440px;
+  background: var(--lt);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  padding: 10px 14px;
+  font-size: 14px;
+}
+.speak:empty {
+  display: none;
+}
+@keyframes speakin {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.speak.pop {
+  animation: speakin 0.35s;
+}
+@media (max-width: 560px) {
+  .nfbox {
+    padding: 60px 20px;
+  }
+}
