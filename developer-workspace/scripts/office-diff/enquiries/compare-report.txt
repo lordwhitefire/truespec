@@ -1,0 +1,2292 @@
+# runtime-divergence · detail-close
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"click":{"css":"#ovlD [data-close]"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · detail-escape
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"press":"Escape"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · detail-open
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+- - dialog "Chinedu O.":
++ - alert
++ - dialog "Enquiry":
+-   - heading "Chinedu O." [level=2]
++   - heading "Enquiry" [level=2]
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · detail-scrim
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"eval":"(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
++ - dialog "Enquiry":
++   - button "Close": ×
++   - heading "Enquiry" [level=2]
++   - paragraph: Everything here was typed in by you — the site never saw the conversation.
++   - text: Phone
++   - link "0803 555 0192":
++     - /url: tel:08035550192
++   - text: Car 2019 Lexus RX 350 Source Tap on the RX 350's page First contact 4 Oct 2026 Enquiry state
++   - button "New"
++   - button "Talking"
++   - button "Negotiating"
++   - button "Sold"
++   - button "Lost"
++   - text: Notes
++   - textbox "What was agreed, what he asked for, when to follow up…": Asked if duty is included in the price. Told him it's one doorstep price.
++   - link " WhatsApp them":
++     - /url: https://wa.me/2348035550192?text=Hello%20Chinedu%20O.%2C%20Umar%20from%20TrueSpec%20here%20%E2%80%94%20about%20the%202019%20Lexus%20RX%20350.
++   - link " Call":
++     - /url: tel:08035550192
+
+## CSS rules
+unique-signature elements with a style/box difference: 6
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>div>h2
+      box: ref=0x0 target=472x26
+      width: ref="auto" target="472px"
+      height: ref="auto" target="25.5px"
+  body>div>div>p
+      box: ref=0x0 target=472x20
+      width: ref="auto" target="472px"
+      height: ref="auto" target="19.5px"
+  body>div>div>div>div>a
+      box: ref=0x0 target=96x20
+      width: ref="auto" target="95.9688px"
+      height: ref="auto" target="20.25px"
+      minWidth: ref="0px" target="auto"
+      minHeight: ref="0px" target="auto"
+  body>div>div>div>div>b
+      box: ref=0x0 target=125x20
+      width: ref="auto" target="124.844px"
+      height: ref="auto" target="20.25px"
+      minWidth: ref="0px" target="auto"
+      minHeight: ref="0px" target="auto"
+  body>div>div>div>textarea
+      box: ref=0x0 target=472x70
+      width: ref="100%" target="472px"
+      height: ref="auto" target="70px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · drag-card
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const c=document.querySelector('.card');const col=document.querySelector('.col');const dt=new DataTransfer();c.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));col.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · drop-move
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const c=document.querySelector('.card');const from=c.closest('.col').dataset.col;const t=[...document.querySelectorAll('.col')].find(x=>x.dataset.col!==from);const dt=new DataTransfer();c.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));t.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - text: New 1
++     - text: New 2
++     - 'button "Open enquiry: Chinedu O."':
++       - text: CO Chinedu O.
++       - time: 18 min
++       - paragraph:  0803 555 0192
++       - text:  2019 Lexus RX 350
++       - paragraph:  Asked if duty is included in the price. Told him it's one doorstep price.
+-     - text: Talking 2
+-     - 'button "Open enquiry: Chinedu O."':
+-       - text: CO Chinedu O.
+-       - time: just now
+-       - paragraph:  0803 555 0192
+-       - text:  2019 Lexus RX 350
+-       - paragraph:  Asked if duty is included in the price. Told him it's one doorstep price.
++     - text: Talking 1
+- - status: Moved Chinedu O. to Talking. The car itself is untouched.
++ - alert
++ - status
+
+## CSS rules
+unique-signature elements with a style/box difference: 2
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>span
+      box: ref=378x21 target=0x0
+      width: ref="378.109px" target="0px"
+      height: ref="21px" target="0px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · enq-1440-dark
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-tab
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"press":"Tab"} ; {"press":"Tab"} ; {"press":"Tab"} ; {"press":"Tab"} ; {"wait":250}
+target: applied 8, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-card
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".card"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-import
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#importBtn"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-nav
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".sn a"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-pdrop
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"hover":{"css":"#pdrop"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-pill
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"hover":{"css":"#dPills .stb"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+- - dialog "Chinedu O.":
++ - alert
++ - dialog "Enquiry":
+-   - heading "Chinedu O." [level=2]
++   - heading "Enquiry" [level=2]
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-back
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"click":{"css":"#pdrop"}} ; {"wait":1600} ; {"click":{"css":"[data-back]"}} ; {"wait":250}
+target: applied 8, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-confirm
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"click":{"css":"#pdrop"}} ; {"wait":1600} ; {"click":{"css":"#pconfirm"}} ; {"wait":250}
+target: applied 8, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-escape
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"press":"Escape"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-scrim
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"eval":"(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
++ - dialog "Import enquiry sheet":
++   - button "Close": ×
++   - heading "Import enquiry sheet" [level=2]
++   - paragraph: Prepared from the fixed template, outside this software. Nothing is saved until you confirm the preview.
++   - button "Choose PDF":  Drop the PDF here, or click to browse
++   - paragraph: The file is read, shown to you as a table, and nothing is written until you press Confirm.
+
+## CSS rules
+unique-signature elements with a style/box difference: 2
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>div>div>div>i
+      box: ref=0x0 target=436x24
+      width: ref="auto" target="436px"
+      height: ref="auto" target="24px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-step1
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-step2
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"click":{"css":"#pdrop"}} ; {"wait":300}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · import-step3
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#importBtn"}} ; {"click":{"css":"#pdrop"}} ; {"wait":1600}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · move-via-pill
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=250  target=254)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 23
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    button::Close
+    link::0803 555 0192
+    button::New
+    button::Talking
+    button::Negotiating
+    button::Sold
+    button::Lost
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".card"}} ; {"click":{"css":"#dPills [data-mv=\"sold\"]"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (1):
+    - dialog::Chinedu O.
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+- - dialog "Chinedu O.":
++ - alert
++ - dialog "Enquiry":
+-   - heading "Chinedu O." [level=2]
++   - heading "Enquiry" [level=2]
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-1180
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=1180x900  target=1180x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1180,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-820
+reference : http://localhost:3211/office-enquiries.html
+target    : http://localhost:3210/office/enquiries
+viewport  reference=820x1000  target=820x1000
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=245  target=249)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=4  target=5
+
+## What is common
+shared rule signatures: 77
+shared controls (role::name): 18
+    link::
+    link::Settings
+    button::
+    button::Open enquiry: Chinedu O.
+    button::Open enquiry: Mrs. Adebayo
+    button::Open enquiry: Emeka U.
+    button::Open enquiry: Kelechi N.
+    button::Open enquiry: Tunde A.
+    button::Open enquiry: Ibrahim S.
+    dialog::Enquiry
+    button::Close
+    textbox::What was agreed, what he asked for, when to follow up…
+    dialog::Import enquiry sheet
+    button::Choose PDF
+    checkbox::Include row
+    combobox::Pick a state
+    button::Back
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[820,1000]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 39 framework/glue nodes removed from the target before the compare.
+

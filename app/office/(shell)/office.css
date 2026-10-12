@@ -2,7 +2,9 @@
    inline <style> (lines 17–147), with the owner-approved theme toggle added.
    The ONLY change from the reference source: `.sfoot` uses the modelled `.srow`
    arrangement (from office-settings.html / office-activity.html) so the toggle
-   sits beside the sign-out link, exactly as on the pages that carry it.
+   sits beside the sign-out link, exactly as on the pages that carry it. The row
+   is pinned to one text line (18.75px) so the 30px toggle does not make the
+   footer taller than the reference and shift the sidebar nav's height.
    Source is read here only to port; the model is the standard. */
 
 /* ============ THEME VARIABLES ============ */
@@ -42,7 +44,7 @@ nav.sn{flex:1;padding:6px 10px;display:grid;gap:2px;align-content:start;overflow
 .sn a.on i{color:var(--gt)}
 .sfoot{padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:12.5px;color:#8a9096}
 .sfoot b{display:block;color:#fff;font-weight:600;font-size:13px}
-.sfoot .srow{display:flex;gap:14px;margin-top:8px}
+.sfoot .srow{display:flex;align-items:center;gap:14px;margin-top:8px;height:18.75px}
 .sfoot a{display:inline-flex;align-items:center;gap:7px;color:#8a9096}
 .sfoot a:hover{color:var(--gold)}
 .thm{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:none;color:#cfd2d6;font-size:12px;display:grid;place-items:center;padding:0}

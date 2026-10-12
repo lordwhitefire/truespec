@@ -39,7 +39,7 @@ Skill: `~/.agents/skills/runtime-divergence/` (`scripts/{run,model,compare}.mjs`
 | 1 | Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 2 | Inventory | ✅ | ✅ | ✅ | ✅ | 🔄 |
 | 3 | Car form | ✅ | ✅ | ✅ | ✅ | 🔄 |
-| 4 | Enquiries | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| 4 | Enquiries | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 5 | Activity | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 | 6 | Settings | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 | 7 | Login | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
@@ -229,8 +229,50 @@ border-box bottom; the reference is x=1478 and bleeds flush. Both are deliberate
 **Open:** add-mode compare (`checklist-add.json`, 7 states) not yet run; the inventory compare re-run
 (and the global font/layout dashboard re-check) is still pending.
 
+## Screen 4 — Enquiries (`office-enquiries.html`, 436 lines) — built; compare run
+
+The board is drawn in the reference's own JS from a hardcoded 6-enquiry seed across 5 columns, and
+enquiries have no data layer (plan §1 — data model out of scope). So the seed and every behaviour live in
+the client. Files: `app/office/(shell)/enquiries/{enquiries.css,enquiries-client.tsx,page.tsx}`. This
+screen has **no `.demo` switcher** (nothing to delete); its one divergence is the shared theme toggle.
+
+The reference's `.main` is only 17 lines — the board (columns, cards) is JS-rendered into `#board`, and
+the two overlays + toast sit at `body` level (outside `.shell`), so the client portals them to
+`document.body`, matching the reference DOM. Conditions (plan §3): drag `.card` between `[data-col]`
+(`moveTo` + 4s toast), Enter/click → detail `#ovlD` with `#dPills [data-mv]` pills, `[data-close]`/scrim/
+Escape, import `#importBtn` → `#ovlP` steps `pdf1 → pdf2 → pdf3`, `#pdrop` click/Enter/Space → `startParse`,
+`[data-back]` → `pdf1`, `#pconfirm` → toast, plus theme and widths (breakpoints ≤1180 / ≤820).
+
+**Compare (26 states)** — checklist `checklist.json`, model `model/` (79 rule signatures / 40 controls),
+captures `captures-compare/`, report `compare-report.txt`. Every state reached (all actions applied, none
+failed). States: ambient dark / light, widths 1180 / 820 / 560 / 390, hover (nav, import, card, pill,
+drop zone), focus, drag (`.dragging` + `.dragover`), a real drop → `moveTo` + toast, detail
+open/close/scrim/Escape, move via a state pill, and the 3-step import (step1 / step2 reading / step3
+preview / back / confirm / Escape / scrim). The import states are genuinely distinguishable — the model's
+`hiddenLayers` shifts (`ovlP` visible with `pdf1`/`pdf2` hidden in the preview). Divergence: the approved
+theme toggle in `.sfoot` (`.srow` wrapper, its `a`/`i`, `.thm` button + icon) plus the product route URLs —
+nothing unapproved.
+
+**Owner-directed fix (2026-10-12).** The 30px toggle made the sidebar footer 11px taller than the
+reference, shortening `.sn` (723px vs 734.125px). Fixed by pinning the footer row to one text line
+(`.sfoot .srow{…;height:18.75px}`) in **all four** office stylesheets — dashboard, inventory, car,
+enquiries (the sidebar is shared) — so the toggle floats in the row instead of sizing it. Verified by a
+single geometry read (`probe-navheight.mjs`): `.sn` now 734.25px vs the reference's 734.125px (Δ 0.125px,
+inside the compare's 1px tolerance). The compare was **not** re-run (owner instruction).
+
+**Open:** the inventory compare re-run and the dashboard re-check (the global font/layout change) remain
+pending, as does the car-form add-mode compare (7 states).
+
 ## Change log
 
+- 2026-10-12 — **screen 4 Enquiries built (board, drag/drop, detail modal, 3-step import) + compare
+  (26 states).** `enquiries.css` (verbatim port of the reference `<style>`; no `.demo` to drop),
+  `enquiries-client.tsx` (seed + all behaviours; overlays portalled to `document.body`), `page.tsx`.
+  `typecheck` + `build` clean; `/office/enquiries` prerendered; served on `:3210`. Compare: all 26 states
+  reached; only the approved theme toggle + product URLs diverge. Then, at the owner's direction, **pinned
+  the shared sidebar footer row to 18.75px across all four office stylesheets**, so the toggle no longer
+  shortens `.sn` (723px → 734.25px vs the reference's 734.125px) — verified by a geometry read, no
+  re-compare.
 - 2026-10-12 — **screen 3 Car form built (edit + add by route) + first compare (edit).** `car.css`
   (self-contained port of the reference `<style>`, `.demo` dropped, approved `.srow`/`.thm` toggle kept),
   `car-client.tsx` (uncontrolled form + live costing + portals to `document.body`), `page.tsx` (edit,

@@ -1,0 +1,280 @@
+{
+  "_note": "Enquiries board checklist. MODEL phase: `build` points at the reference so the run is clean; flip `build` to http://localhost:3210/office/enquiries for the COMPARE phase. Same states, both sides. The board is JS-rendered from a 6-enquiry seed across 5 columns. This screen has NO `.demo` switcher (nothing to delete); the only approved divergence is the shared-shell theme toggle (`.srow`/`.thm`) plus the product route URLs.",
+  "ref": "http://localhost:3211/office-enquiries.html",
+  "build": "http://localhost:3210/office/enquiries",
+  "states": [
+    {
+      "name": "enq-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-1180",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1180, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "hover-nav",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".sn a" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-import",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "#importBtn" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-card",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".card" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-pill",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "hover": { "css": "#dPills .stb" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-pdrop",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "hover": { "css": "#pdrop" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-tab",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "drag-card",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const c=document.querySelector('.card');const col=document.querySelector('.col');const dt=new DataTransfer();c.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));col.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "drop-move",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const c=document.querySelector('.card');const from=c.closest('.col').dataset.col;const t=[...document.querySelectorAll('.col')].find(x=>x.dataset.col!==from);const dt=new DataTransfer();c.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt}));t.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "detail-open",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "move-via-pill",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "click": { "css": "#dPills [data-mv=\"sold\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "detail-close",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "click": { "css": "#ovlD [data-close]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "detail-scrim",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "eval": "(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "detail-escape",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".card" } },
+        { "press": "Escape" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "import-step1",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "import-step2",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "click": { "css": "#pdrop" } },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "import-step3",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "click": { "css": "#pdrop" } },
+        { "wait": 1600 }
+      ]
+    },
+    {
+      "name": "import-back",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "click": { "css": "#pdrop" } },
+        { "wait": 1600 },
+        { "click": { "css": "[data-back]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "import-confirm",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "click": { "css": "#pdrop" } },
+        { "wait": 1600 },
+        { "click": { "css": "#pconfirm" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "import-escape",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "press": "Escape" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "import-scrim",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#importBtn" } },
+        { "eval": "(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()" },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}
