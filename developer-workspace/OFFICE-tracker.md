@@ -41,7 +41,7 @@ Skill: `~/.agents/skills/runtime-divergence/` (`scripts/{run,model,compare}.mjs`
 | 3 | Car form | ✅ | ✅ | ✅ | ✅ | 🔄 |
 | 4 | Enquiries | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 5 | Activity | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 6 | Settings | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| 6 | Settings | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 7 | Login | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 
 Legend: ✅ done · ⏳ not started · 🔄 in progress · ➖ n/a
@@ -297,7 +297,60 @@ a behavioural difference. Owner judged the UI good; the compare was not re-run.
 
 **Open:** the inventory compare re-run, the dashboard re-check and the car-form add-mode compare still stand.
 
+## Screen 6 — Settings (`office-settings.html`, 447 lines) — built; compare run
+
+Four cards (WhatsApp number, Tagline, Currency & cost defaults, Password), each with its own
+validation or dirty-watch and a demo toast. No data layer (plan §1 — data model out of scope), so
+all behaviour lives in the client. Files: `app/office/(shell)/settings/{settings.css,
+settings-client.tsx,page.tsx}`. Like **activity**, the reference settings page carries the theme
+toggle **natively** (`.sfoot .srow` + `.thm` + `#thm`), so its `<style>` is ported verbatim and there
+is **no** `.srow` height pin and no `.demo` switcher to delete; the only divergence is the product
+route URLs. Reference quirks reproduced on purpose: `#tagN` boots hardcoded at `44` though the
+tagline is 53 chars (it only updates on input); `#pDirty` boots hidden because `pCheck()` never runs
+at boot; `#pvLink` only updates while the number is valid (keeps its last good value when invalid).
+
+**Conditionals (23 states).** checklist: dark 1440 / light 1440, widths 820 / 560 / 390 (only
+breakpoint ≤820), hover (nav, eye, enabled save btn), focus (`#wa`), WhatsApp invalid / empty /
+valid-edit / save, tagline type / save, FX dirty / save, password short / mismatch / strong /
+reveal (`data-eye`) / save, theme toggle. Controlled inputs typed with the React-safe native value
+setter + `input` event.
+
+**Pipeline.** 1 Recon ✅ · 2 Ref rules ✅ (`scripts/office-diff/settings/captures/`) · 3 Model ✅
+(`.../model/` — 67 rule signatures / 28 controls) · 4 Build ✅ · 5 Compare ✅
+(`captures-build/`, report `compare-report.txt`).
+
+**Compare (23 states).** Every state reached (all actions applied, none failed). After one real fix,
+**22 of 23 states are clean — 0 style diffs, 0 token diffs**; the only remaining divergences are the
+approved ones (Next `next-route-announcer` glue `body>div` 2→3 + `+ alert`; product route URLs).
+`toggle-theme` alone shows 5 style diffs (body / main / h1 / `.in` / bnav) — the **theme-transition
+timing race**: a re-capture with a 1.2 s settle matches exactly (0 diffs), so both sides toggle
+identically; measurement artifact, not a defect.
+
+**Real find — a global font bug.** The Settings compare surfaced a ~2px width difference on the
+WhatsApp preview number, with **byte-identical computed styles** (`Oswald`, 16px, weight 600) — i.e.
+the actual font *face* differed. Root cause: `app/office/layout.tsx` loaded `Oswald:wght@500;700`,
+with a comment claiming the reference office page loads 500/700 only — but **every** reference office
+page (`office-dashboard/inventory/car/enquiries/activity/settings.html`, `login.html`) links
+`Oswald:wght@500;600;700`. So `font-weight:600` Oswald text (e.g. `.mchip b`) was substituted under
+Chrome's weight matching and rendered ~2px wide. **Fixed** the shared link to
+`Oswald:wght@500;600;700` (the diff vanished). This is global: it also affects screens 1–5, where it
+was previously mis-attributed ("Oswald 500/700 fonts" fix). The dashboard re-check and the inventory
+compare re-run are now **more** warranted.
+
+**Open:** login (screen 7); re-run the inventory compare; re-check the dashboard; the car-form
+add-mode compare (7 states).
+
 ## Change log
+
+- 2026-10-12 — **screen 6 Settings built + compare (23 states).** `settings.css` (verbatim port of the
+  reference `<style>`; toggle native here, no `.srow` height pin), `settings-client.tsx` (four cards +
+  all behaviours; boot quirks reproduced), `page.tsx`. `typecheck` + `build` clean; `/office/settings`
+  prerendered; served on `:3210`. Compare: all 23 states reached; after the font fix **22/23 clean (0
+  style diffs, 0 token diffs)**, the rest the approved announcer glue + product route URLs; the lone
+  `toggle-theme` diff is the theme-transition timing race (a 1.2 s re-capture matches exactly). **Real
+  find:** `app/office/layout.tsx` loaded `Oswald:wght@500;700` while every office reference page links
+  `Oswald:wght@500;600;700` — so weight-600 Oswald text was substituted and ~2px wide; **fixed the
+  shared font link** to include 600 (global: also affects screens 1–5).
 
 - 2026-10-12 — **screen 5 Activity built + compare (22 states).** `activity.css` (verbatim port of the
   reference `<style>`; the toggle is native here, so no `.srow` height pin), `activity-client.tsx`

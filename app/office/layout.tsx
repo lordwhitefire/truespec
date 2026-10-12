@@ -1,11 +1,13 @@
 // Office-area layout — wraps every /office/* route (the (shell) group today,
-// and the upcoming login/settings/car-form screens). Loads the office reference's
-// font set: Oswald 500;700 + Inter 400;500;600. The reference office page loads
-// Oswald 500 and 700 only, so its font-weight:400/600 text renders through
-// Chrome's weight substitution; this link reproduces that exactly.
+// and the login/settings screens). Loads the office reference's font set
+// verbatim: every reference office page links
+//   Inter 400;500;600 + Oswald 500;600;700
+// Oswald 600 matters — without it, font-weight:600 Oswald text (e.g. the
+// WhatsApp preview number `.mchip b`) is substituted under Chrome's weight
+// matching and renders ~2px wide versus the reference.
 const fonts = (
   <link
-    href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Inter:wght@400;500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
     rel="stylesheet"
   />
 );

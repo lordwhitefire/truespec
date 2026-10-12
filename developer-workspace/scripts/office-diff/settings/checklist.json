@@ -1,0 +1,240 @@
+{
+  "_note": "Settings checklist. MODEL phase: point `build` at the reference (:3211/office-settings.html) so the run is clean; flip `build` to http://localhost:3210/office/settings for the COMPARE phase. Same states, both sides. The reference settings page carries the theme toggle NATIVELY (`.sfoot .srow` + `.thm` + `#thm`), so the toggle is NOT a divergence here — only the product route URLs are. Controlled inputs are typed with the React-safe native value setter + an `input` event (run.mjs has no `fill`). Media query: only <=820px.",
+  "ref": "http://localhost:3211/office-settings.html",
+  "build": "http://localhost:3210/office/settings",
+  "states": [
+    {
+      "name": "set-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "hover-nav",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".sn a" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-eye",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".eye" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-wa",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.getElementById('wa').focus()})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wa-invalid",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('wa');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'123');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wa-empty",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('wa');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wa-valid-edit",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('wa');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'+234 801 234 5678');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wa-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('wa');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'+234 801 234 5678');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#waSave" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "tag-type",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('tag');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'Drive home in a car you trust.');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "tag-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('tag');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'Drive home in a car you trust.');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#tagSave" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "fx-dirty",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('fx');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'1250');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "fx-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('fx');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'1250');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#fxSave" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-btn",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('fx');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'1250');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "hover": { "css": "#fxSave" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "pw-short",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('newp');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'abc123');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "pw-mismatch",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('newp');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'longenoughpass');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "eval": "(()=>{const el=document.getElementById('newp2');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'different');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "pw-strong",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('newp');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "eval": "(()=>{const el=document.getElementById('newp2');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "pw-reveal",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".eye[data-eye=\"curp\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "pw-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('newp');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "eval": "(()=>{const el=document.getElementById('newp2');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#pSave" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toggle-theme",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#thm" } },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}
