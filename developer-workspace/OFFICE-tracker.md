@@ -40,7 +40,7 @@ Skill: `~/.agents/skills/runtime-divergence/` (`scripts/{run,model,compare}.mjs`
 | 2 | Inventory | ✅ | ✅ | ✅ | ✅ | 🔄 |
 | 3 | Car form | ✅ | ✅ | ✅ | ✅ | 🔄 |
 | 4 | Enquiries | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 5 | Activity | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| 5 | Activity | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 6 | Settings | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 | 7 | Login | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 
@@ -263,8 +263,52 @@ inside the compare's 1px tolerance). The compare was **not** re-run (owner instr
 **Open:** the inventory compare re-run and the dashboard re-check (the global font/layout change) remain
 pending, as does the car-form add-mode compare (7 states).
 
+## Screen 5 — Activity (`office-activity.html`, 288 lines) — built; compare run
+
+The log is drawn in the reference's own JS from a hardcoded 9-day / 16-entry timeline, and it has no data
+layer (plan §1 — data model out of scope), so the timeline and every behaviour live in the client. Files:
+`app/office/(shell)/activity/{activity.css,activity-client.tsx,page.tsx}`. **Unlike the other office pages,
+the reference activity page carries the theme toggle natively** (`.sfoot .srow` + `.thm` + `#thm`), so here
+the toggle is not a divergence — its `<style>` is ported verbatim (no `.srow` height pin).
+
+**Compare (22 states)** — checklist `checklist.json`, model `model/` (43 rule signatures / 35 controls),
+captures `captures-build/`, report `compare-report.txt`. Every state reached (all actions applied, none
+failed). States: ambient dark / light, widths 820 / 560 / 390 (the page's only breakpoint is ≤820), hover
+(nav, chip, ref, older), focus-search, the type chips (sold / added / deleted / imports), search hit / ref /
+miss, clear-filters, chip-then-search, older-reveal, older-chip, theme toggle. Search is typed with the
+React-safe native value setter + `input` event (`run.mjs` has no `fill` action).
+
+**Two real diffs found and fixed on the first pass:**
+1. The log carried an extra `<div>` per day — the reference writes `.dayh`/`.entry` straight into `#log` as
+   siblings. Replaced the wrapper with a keyed `Fragment` → every structural rule, plus the 5px body height
+   and the `.entry` flex→block diff, cleared.
+2. The entry message was wrapped in a `<span>` — the reference writes the whole `<p>` as one HTML string, so
+   its `<b>`s sit directly under the `<p>`. Switched to the same string (`entryHtml`); this also keeps the
+   search haystack identical (the reference matches against the raw markup, tags included).
+
+After the fixes every state is clean but for the known, approved noise — the Next `next-route-announcer`
+glue (`body>div` 1→2, `+ alert`) and the product route URLs — with **0 style diffs and 0 token diffs**.
+
+**One measured artifact (not a defect):** `toggle-theme` shows 4 style diffs (body / main / h1 / bnav) — the
+reference frame captured dark while the build had settled light. `probe-theme.mjs` clicks `#thm` on both
+sides and shows they behave **identically** (theme flips to `light` at once, icon sun→moon, background
+transitions to white over the 0.3s the CSS declares). It is a transition-timing race in the measurement, not
+a behavioural difference. Owner judged the UI good; the compare was not re-run.
+
+**Open:** the inventory compare re-run, the dashboard re-check and the car-form add-mode compare still stand.
+
 ## Change log
 
+- 2026-10-12 — **screen 5 Activity built + compare (22 states).** `activity.css` (verbatim port of the
+  reference `<style>`; the toggle is native here, so no `.srow` height pin), `activity-client.tsx`
+  (9-day timeline + all behaviours; the entry `<p>` written as one HTML string, as the reference does),
+  `page.tsx`. `typecheck` + `build` clean; `/office/activity` prerendered; served on `:3210`. The first
+  compare found **two real structural diffs** — a per-day wrapper `<div>` in `#log` (the reference writes
+  `.dayh`/`.entry` as siblings) and an extra `<span>` around the entry message — and both were fixed;
+  after the fix every state is clean but for the approved route-announcer glue (`body>div` 1→2, `+ alert`)
+  and the product route URLs (**0 style diffs, 0 token diffs**). The lone `toggle-theme` style diff is a
+  transition-timing race — `probe-theme.mjs` shows both sides toggle identically — so the compare was not
+  re-run (owner: the UI is good).
 - 2026-10-12 — **screen 4 Enquiries built (board, drag/drop, detail modal, 3-step import) + compare
   (26 states).** `enquiries.css` (verbatim port of the reference `<style>`; no `.demo` to drop),
   `enquiries-client.tsx` (seed + all behaviours; overlays portalled to `document.body`), `page.tsx`.

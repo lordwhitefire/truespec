@@ -1,0 +1,1681 @@
+# runtime-divergence · act-1440-dark
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-added
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=112  target=113)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 11
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1012
+    link::Open TS-1014
+    link::Open TS-1013
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#types [data-tp=\"add\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-deleted
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=86  target=87)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 8
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1024
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#types [data-tp=\"del\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 12 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-imports
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=84  target=85)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 42
+shared controls (role::name): 7
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#types [data-tp=\"imp\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-sold
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=86  target=87)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 8
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1015
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#types [data-tp=\"sold\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 12 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-then-search
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=94  target=95)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 9
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1012
+    link::Open TS-1013
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#types [data-tp=\"add\"]"}} ; {"eval":"(()=>{const q=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(q,'toyota');q.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · clear-filters
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const q=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(q,'zzzz');q.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"click":{"css":"#clearf"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-   - searchbox "Search the log"
++   - searchbox "Search the log": zzzz
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-search
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{document.getElementById('q').focus()})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-chip
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#types button"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-more
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#older"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-nav
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".sn a"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-ref
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".ref"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · older-chip
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=92  target=93)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 42
+shared controls (role::name): 7
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#older"}} ; {"click":{"css":"#types [data-tp=\"set\"]"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 12 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · older-reveal
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=215  target=216)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 17
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    link::Open TS-1011
+    link::Open TS-1005
+    link::Open TS-1006
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#older"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · search-hit
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=94  target=95)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 8
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1009
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const q=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(q,'sienna');q.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · search-miss
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=80  target=81)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 40
+shared controls (role::name): 8
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    button::Clear filters
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const q=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(q,'zzzz');q.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 12 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · search-ref
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=95  target=96)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 8
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const q=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(q,'TS-1014');q.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toggle-theme
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#thm"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
+-     - /url: login.html
++     - /url: /office/login
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 4
+  body
+      borderTopColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      borderColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      backgroundColor: ref="rgb(16, 18, 20)" target="rgb(255, 255, 255)"
+      color: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+  body>div>main
+      borderTopColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      borderColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      color: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+  body>div>main>div>h1
+      borderTopColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      borderColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      color: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+  body>nav
+      borderTopColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      borderColor: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+      color: ref="rgb(232, 234, 237)" target="rgb(35, 39, 43)"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-820
+reference : http://localhost:3211/office-activity.html
+target    : http://localhost:3210/office/activity
+viewport  reference=820x1000  target=820x1000
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=180  target=181)
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 43
+shared controls (role::name): 14
+    link::
+    button::Toggle dark mode
+    link::Settings
+    searchbox::Search the log
+    group::Filter by type
+    button::
+    link::Open TS-1014
+    link::Open TS-1012
+    link::Open TS-1009
+    link::Open TS-1013
+    link::Open TS-1024
+    link::Open TS-1015
+    link::Open TS-1007
+    button::Show 3 older days
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[820,1000]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
