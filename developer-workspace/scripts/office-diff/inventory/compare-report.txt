@@ -1,0 +1,2553 @@
+# runtime-divergence · chip-available
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=548  target=552)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 71
+shared controls (role::name): 32
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    dialog::Delete this car?
+    button::Keep it
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"role":"button","name":"Available"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 47 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · chip-sold
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=138  target=142)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 71
+shared controls (role::name): 12
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"role":"button","name":"Sold"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 3
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>main>div>table>tbody>tr>td>span
+      box: ref=71x20 target=68x20
+  body>div>main>div>table>tbody>tr>td>div
+      width: ref="123.281px" target="123.797px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · clear-filters
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'zzz');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"click":{"css":"#clearf"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · default-1440-dark
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · empty
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=105  target=109)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 52
+shared controls (role::name): 11
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    button::Clear filters
+    dialog::Delete this car?
+    button::Keep it
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'zzz');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 14 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-tab
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"press":"Tab"} ; {"press":"Tab"} ; {"press":"Tab"} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-nav
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".sn a"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-row
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".t tbody tr"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · modal
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".t tbody tr .acts .del"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · search-camry
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=179  target=183)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 71
+shared controls (role::name): 14
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'camry');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 20 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · sort-pf
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('sort');const s=Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set;s.call(el,'pf');el.dispatchEvent(new Event('change',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · sort-pl
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('sort');const s=Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set;s.call(el,'pl');el.dispatchEvent(new Event('change',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toast-deleted
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=675  target=679)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 39
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".t tbody tr .acts .del"}} ; {"click":{"css":"#yes"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 2
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>div>div>button>i
+      borderTopColor: ref="rgb(255, 255, 255)" target="rgb(232, 234, 237)"
+      borderColor: ref="rgb(255, 255, 255)" target="rgb(232, 234, 237)"
+      color: ref="rgb(255, 255, 255)" target="rgb(232, 234, 237)"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 54 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · undo
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".t tbody tr .acts .del"}} ; {"click":{"css":"#yes"}} ; {"click":{"css":"#undo"}} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+-   - text: Toyota Land Cruiser V8 ZX 2019 deleted.
+
+## CSS rules
+unique-signature elements with a style/box difference: 3
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>span
+      box: ref=271x21 target=0x0
+      width: ref="270.719px" target="0px"
+      height: ref="21px" target="0px"
+  body>div>button
+      textDecorationLine: ref="underline" target="none"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-1000
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=1000x900  target=1000x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1000,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
+-             - /url: office-car.html
++             - /url: /office/car
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 4
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+  body>div>main>div>table
+      box: ref=784x2104 target=781x2104
+      width: ref="783.625px" target="780.859px"
+  body>div>main>div>table>tr
+      box: ref=784x43 target=781x43
+      width: ref="783.625px" target="780.859px"
+  body>div>main>div>table>tbody
+      box: ref=784x2061 target=781x2061
+      width: ref="783.625px" target="780.859px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-820
+reference : http://localhost:3211/office-inventory.html
+target    : http://localhost:3210/office/inventory
+viewport  reference=820x1000  target=820x1000
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=716  target=720)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=3  target=4
+
+## What is common
+shared rule signatures: 74
+shared controls (role::name): 41
+    link::
+    link::Settings
+    searchbox::Search inventory
+    combobox::Sort
+    group::Filter by state
+    button::
+    link::Edit Toyota Land Cruiser V8 ZX
+    button::Delete Toyota Land Cruiser V8 ZX
+    link::Edit Toyota Corolla LE
+    button::Delete Toyota Corolla LE
+    link::Edit Honda Accord EX-L
+    button::Delete Honda Accord EX-L
+    link::Edit Toyota Highlander XLE
+    button::Delete Toyota Highlander XLE
+    link::Edit Toyota RAV4 XLE AWD
+    button::Delete Toyota RAV4 XLE AWD
+    link::Edit Toyota Tacoma TRD Off-Road
+    button::Delete Toyota Tacoma TRD Off-Road
+    link::Edit Lexus RX 350
+    button::Delete Lexus RX 350
+    link::Edit Toyota Venza XLE
+    button::Delete Toyota Venza XLE
+    link::Edit Toyota Sienna LE
+    button::Delete Toyota Sienna LE
+    link::Edit Toyota Hilux SRV
+    button::Delete Toyota Hilux SRV
+    link::Edit Honda CR-V EX-L
+    button::Delete Honda CR-V EX-L
+    link::Edit Toyota Camry SE
+    button::Delete Toyota Camry SE
+    link::Costs incomplete
+    link::Edit Toyota Fortuner
+    button::Delete Toyota Fortuner
+    link::Edit Toyota Land Cruiser Prado TX
+    button::Delete Toyota Land Cruiser Prado TX
+    link::Edit Toyota Camry XLE
+    button::Delete Toyota Camry XLE
+    dialog::Delete this car?
+    button::Keep it
+    status::
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[820,1000]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-car.html
++       - /url: /office/car
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 57 framework/glue nodes removed from the target before the compare.
+

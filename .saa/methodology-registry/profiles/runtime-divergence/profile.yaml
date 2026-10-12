@@ -1,0 +1,37 @@
+id: runtime-divergence
+name: Runtime Divergence (differential runtime comparison)
+version: 1.0.0
+description: >
+  Compare one running system against another (or against a model of it) by their
+  runtime behaviour only — never by their source. Drive each side through the
+  same states, collapse what each produces into comparable rules, and report the
+  divergence rule by rule. In this run the reference is the live page's own
+  runtime and the "target" being checked is the extracted inventory's claims.
+source: /home/lordwhitefire/.agents/skills/runtime-divergence/SKILL.md
+techniques:
+  - differential-runtime-comparison
+  - state-driving
+  - independent-census
+  - set-equality
+  - probe-injection
+  - evidence-audit
+workflow:
+  - discovery
+  - state-enumeration
+  - reference-capture
+  - target-capture
+  - normalize
+  - compare
+  - report
+frameworks:
+  - name: playwright-core
+    version: 1.64.0
+tools:
+  - name: rd-browser
+    capability: browser-automation
+  - name: rd-extract
+    capability: runtime-extraction
+  - name: rd-compare
+    capability: runtime-comparison
+  - name: independent-census
+    capability: independent-css-census

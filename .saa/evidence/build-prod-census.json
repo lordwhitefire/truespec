@@ -1,0 +1,97 @@
+{
+  "when": "2026-10-11T15:51:01.959Z",
+  "prodUrl": "http://localhost:3212/car/NOPE-9999",
+  "stability": {
+    "cold1": {
+      "elementQSA": 177,
+      "elementTreeWalker": 177,
+      "shadowHosts": 1,
+      "ruleTotal": 2582,
+      "byKind": {
+        "style": 2430,
+        "at-block": 16,
+        "keyframes": 23,
+        "keyframe": 62,
+        "font-face": 51
+      }
+    },
+    "cold2": {
+      "elementQSA": 177,
+      "elementTreeWalker": 177,
+      "shadowHosts": 1,
+      "ruleTotal": 2582,
+      "byKind": {
+        "style": 2430,
+        "at-block": 16,
+        "keyframes": 23,
+        "keyframe": 62,
+        "font-face": 51
+      }
+    },
+    "identical": true,
+    "verdict": "STABLE"
+  },
+  "prod": {
+    "elementQSA": 177,
+    "elementTreeWalker": 177,
+    "shadowHosts": 1,
+    "byKind": {
+      "style": 2430,
+      "at-block": 16,
+      "keyframes": 23,
+      "keyframe": 62,
+      "font-face": 51
+    },
+    "total": 2582,
+    "perSheet": {
+      "http://localhost:3212/_next/static/css/914ddc1397b5235e.css": 350,
+      "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css": 187,
+      "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+    },
+    "sheets": [
+      {
+        "href": "http://localhost:3212/_next/static/css/914ddc1397b5235e.css",
+        "readable": true
+      },
+      {
+        "href": "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css",
+        "readable": true
+      },
+      {
+        "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap",
+        "readable": false
+      },
+      {
+        "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+        "readable": false
+      }
+    ]
+  },
+  "inventory_dev": {
+    "elementQSA": 196,
+    "byKind": {
+      "font-face": 55,
+      "style": 2779,
+      "at-block": 25,
+      "keyframes": 27,
+      "keyframe": 74
+    },
+    "total": 2960,
+    "perSheet": {
+      "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004,
+      "http://localhost:3210/_next/static/css/app/(site)/car/%5Bref%5D/page.css?v=1791730867494": 182,
+      "http://localhost:3210/_next/static/css/app/(site)/layout.css?v=1791730867494": 349,
+      "(inline)": 384
+    }
+  },
+  "compare_prod_vs_dev_inventory": {
+    "elementMatch": false,
+    "ruleTotalMatch": false,
+    "byKindMatch": false,
+    "onlyInProd": 456,
+    "onlyInInventory": 782,
+    "note": "The saved build.json was captured from `next dev`; a production build legitimately differs (no dev overlay, bundled/hashed CSS). A difference here is NOT an error in the inventory — it measures dev-vs-prod drift."
+  }
+}

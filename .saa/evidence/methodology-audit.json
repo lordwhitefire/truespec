@@ -1,0 +1,35 @@
+{
+  "run_id": "EXTRACT-001-verify-run-1",
+  "methodology_id": "runtime-divergence",
+  "methodology_version": "1.0.0",
+  "applicable_steps": ["independent-census", "inventory-re-derivation", "six-check-comparison", "drive-inactive-rule", "ledger-reason-audit"],
+  "completed_steps": [
+    {"step": "independent-census", "reason": "Action executed successfully with evidence"},
+    {"step": "inventory-re-derivation", "reason": "Action executed successfully with evidence"},
+    {"step": "six-check-comparison", "reason": "Action executed successfully with evidence"},
+    {"step": "drive-inactive-rule", "reason": "Action executed successfully with evidence"},
+    {"step": "ledger-reason-audit", "reason": "Action executed successfully with evidence"}
+  ],
+  "skipped_steps": [],
+  "tool_step_mapping": [
+    {"tool_id": "independent-census", "methodology_step": "independent-census", "action_id": "act-001"},
+    {"tool_id": "independent-census", "methodology_step": "inventory-re-derivation", "action_id": "act-002"},
+    {"tool_id": "independent-census", "methodology_step": "six-check-comparison", "action_id": "act-003"},
+    {"tool_id": "independent-census", "methodology_step": "drive-inactive-rule", "action_id": "act-004"},
+    {"tool_id": "independent-census", "methodology_step": "ledger-reason-audit", "action_id": "act-005"}
+  ],
+  "unmapped_actions": [],
+  "evidence_summary": {"total": 4, "by_type": {"log": 1, "generated-report": 1, "other": 2}},
+  "confirmed_findings": ["F1", "F2"],
+  "untested_areas": [],
+  "evidence_gaps": [
+    {"step": "independent-census", "expected": ["element census", "rule census", "cross-origin sheet text"], "actual": ["log"]},
+    {"step": "inventory-re-derivation", "expected": ["inventory counts by kind and sheet"], "actual": []},
+    {"step": "six-check-comparison", "expected": ["set differences both ways", "closed-vocabulary spot check"], "actual": ["generated-report", "other"]},
+    {"step": "drive-inactive-rule", "expected": ["inactive rule appears after driving state", "probe rule injected"], "actual": []},
+    {"step": "ledger-reason-audit", "expected": ["per-rule reason partition"], "actual": ["other"]}
+  ],
+  "user_decisions_required": [],
+  "audit_completed_at": "2026-10-11T15:41:10.146Z",
+  "auditor_version": "1.0.0"
+}

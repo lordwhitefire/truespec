@@ -1,0 +1,49 @@
+# Reason-for-every-gap audit — EXTRACT-001 (independent re-parse of the ledgers)
+
+## Method
+Parsed `reference-rule-ledger.txt` and `build-rule-ledger.txt` independently of the
+inventory's machine fields: a rule line is one beginning `[`; a reason line is one
+beginning `        reason:`. A rule line with no following reason line = a gap with
+no stated reason. Categories are read from the reason text itself, not from
+`ruleRegistry` (the registry has no `used` field at all — usage lives only in the
+ledger + `matchedInStates`/`inactiveConds`/`unmatchable`).
+
+## Reference page (the graded standard)
+- rule lines:            2274
+- reason lines:          2274   (ledger header: "every rule present, with used/unused and a reason. 2274 rules.")
+- rule lines w/o reason: 0
+- `USED` status lines:   102
+- `unused` status lines: 2172
+
+Reason partition of the 2274 (sums to 2274):
+- used                                  102   ("used — selector matched an element in state(s): …")
+- unused — no element matched           2031   ("unused — selector matched no element in any driven state")
+- unused — inactive condition             13   ("unused — inside inactive condition: media (max-width:560px) / (max-width:1000px) / (prefers-reduced-motion:reduce) …")
+- n/a — declaration                      128   ("n/a — @keyframes definition (activates via animation-name, not by matching)" / "@font-face declaration" …)
+- unmatchable                              0
+
+Cross-check against the proof report's claimed reference numbers:
+- unused style rules partition: report says 2031 noElement + 7 inactiveMedia + 0 unmatchable
+  (102 used + 2038 unused = 2140 style rules).  My independent parse reproduces
+  **2031 noElement** and **0 unmatchable** exactly.  My "inactive condition" total is 13
+  because it also counts non-style declarations inside inactive conditions
+  (@keyframes/@font-face/at-block); the **style-rule subset is 7**, matching the report.
+- n/a (128) is not a gap: @keyframes/@keyframe/@font-face are not element-matched by
+  design and each carries a stated reason.
+
+Verdict: **PASS** — every unused rule carries a stated, checkable reason; no unexplained gap.
+
+## Build page (secondary / not one of the six graded checks)
+- rule lines:            2965   (of which 5 are wrapped continuation lines of multi-line
+                                  selectors such as `[type='button']::-moz-focus-inner,`
+                                  — not orphaned rules)
+- reason lines:          2960
+- rule lines w/o reason: 5  → all 5 are selector-continuation lines, not real rules
+- reason categories: used 139, unused-noElement 2616, unused-inactive 47, n/a 156
+
+Verdict: **PASS** (no genuine gap; the 5 are a line-counting artifact of multi-line selectors).
+
+## Note on "used: false"
+The inventory has no `used` field to trust or distrust; usage is recorded per state in
+`matchedInStates`.  This audit therefore did not rely on any boolean flag — it read the
+ledger reason text, which names the states a selector matched.

@@ -18,9 +18,11 @@ export function ThemeToggle() {
     document.documentElement.dataset.theme = next;
   }
 
+  // The icon reflects the theme, exactly like the reference's applyTheme():
+  // sun while dark, moon while light.
   return (
     <button className="thm" id="thm" type="button" onClick={toggle} aria-label="Toggle dark mode">
-      <i className="fa-solid fa-moon" />
+      <i className={`fa-solid fa-${theme === "dark" ? "sun" : "moon"}`} />
     </button>
   );
 }

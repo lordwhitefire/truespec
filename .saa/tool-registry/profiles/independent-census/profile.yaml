@@ -1,0 +1,16 @@
+id: independent-census
+name: Independent CSS/element census (in-page, document.styleSheets + querySelectorAll)
+version: 1.0.0
+description: >
+  A fresh census taken directly from the running page via the page's own CSSOM
+  (document.styleSheets traversal) and its own element query
+  (querySelectorAll('*')), used specifically to re-count the inventory from a
+  DIFFERENT code path than the Builder's extractor (which used CDP
+  CSS.getStyleSheetText plus a hand-written parseCss). Its whole purpose is to
+  not accept the inventory's own numbers.
+source: .saa/evidence/independent-census.mjs (this run)
+capabilities:
+  - independent-css-census
+supported_methodologies:
+  - methodology_id: runtime-divergence
+    role: independently re-derive the element and rule sets to compare against the inventory

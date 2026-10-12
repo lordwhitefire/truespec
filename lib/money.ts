@@ -64,7 +64,10 @@ export function profitKobo(opts: {
   return null;
 }
 
+export function nairaDigits(kobo: number): string {
+  return Math.trunc(kobo / 100).toLocaleString("en-NG");
+}
+
 export function formatNaira(kobo: number): string {
-  const naira = Math.trunc(kobo / 100);
-  return `₦${naira.toLocaleString("en-NG")}`;
+  return `₦${nairaDigits(kobo)}`;
 }

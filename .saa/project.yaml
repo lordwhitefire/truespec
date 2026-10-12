@@ -1,0 +1,37 @@
+# .saa/project.yaml — Software Assurance workspace for the truespec project.
+# Declares what is registered and initialized for the Software Assurance Agent.
+
+project: truespec
+root: /home/lordwhitefire/current-project/truespec
+
+registries:
+  methodology-registry: .saa/methodology-registry/profiles
+  tool-registry: .saa/tool-registry/profiles
+
+active_task:
+  id: EXTRACT-001
+  testing_file: openspec/tasks/EXTRACT-001/testing.md
+  task_file: openspec/tasks/EXTRACT-001/task.md
+  kind: verification (falsification of the rule-extraction inventory)
+  status: in-progress
+
+methodology_selected:
+  id: runtime-divergence
+  version: 1.0.0
+  chosen_by: user
+  decided: 2026-10-11
+
+frameworks_initialized:
+  - name: playwright-core
+    version: 1.64.0
+
+tools_initialized:
+  - rd-browser
+  - rd-extract
+  - rd-compare
+  - independent-census
+
+environments:
+  chrome_cdp: http://127.0.0.1:9222
+  reference: http://localhost:3211/car.html?car=1999-not-a-real-car
+  build: http://localhost:3210/car/NOPE-9999

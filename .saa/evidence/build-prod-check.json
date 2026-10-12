@@ -1,0 +1,63 @@
+{
+  "when": "2026-10-11T15:58:00.114Z",
+  "prodUrl": "http://localhost:3212/car/NOPE-9999",
+  "elementCount": {
+    "extractor": 177,
+    "independentQSA": 177,
+    "match": true
+  },
+  "ruleTotal": {
+    "extractor": 2582,
+    "independent": 2582,
+    "match": true
+  },
+  "byKind": {
+    "extractor": {
+      "style": 2430,
+      "at-block": 16,
+      "keyframes": 23,
+      "keyframe": 62,
+      "font-face": 51
+    },
+    "independent": {
+      "style": 2430,
+      "at-block": 16,
+      "keyframes": 23,
+      "keyframe": 62,
+      "font-face": 51
+    },
+    "match": true
+  },
+  "perSheet": {
+    "extractor": {
+      "http://localhost:3212/_next/static/css/914ddc1397b5235e.css": 350,
+      "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css": 187,
+      "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+    },
+    "independent": {
+      "http://localhost:3212/_next/static/css/914ddc1397b5235e.css": 350,
+      "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css": 187,
+      "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+    },
+    "match": true
+  },
+  "styleSelectorSet": {
+    "extractorDistinct": 2384,
+    "independentDistinct": 2384,
+    "onlyInExtractor": 0,
+    "onlyInIndependent": 0,
+    "match": true
+  },
+  "examples": {
+    "onlyInExtractor": [],
+    "onlyInIndependent": []
+  },
+  "savedDevInventory": {
+    "elementQSA": 196,
+    "rules": 2960,
+    "styleSelectors": 2710
+  },
+  "note": "Extractor build.json here was captured from the STABLE production server (:3212). The 'savedDevInventory' is the original build.json captured from `next dev` (:3210) — shown only to explain why the dev snapshot could not be verified."
+}

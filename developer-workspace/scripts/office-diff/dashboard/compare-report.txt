@@ -1,0 +1,759 @@
+# runtime-divergence · default-1440-dark
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-tab
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"press":"Tab"} ; {"press":"Tab"} ; {"press":"Tab"} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-addcar
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".hrow .btn"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-more
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".more2"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-nav
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".sn a"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-820
+reference : http://localhost:3211/office-dashboard.html
+target    : http://localhost:3210/office
+viewport  reference=820x1000  target=820x1000
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=150  target=154)
+
+### Rules the reference has that the target does not (2)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div   reference=1  target=2
+
+## What is common
+shared rule signatures: 49
+shared controls (role::name): 12
+    link::
+    button::Search (UI placeholder)
+    link::Settings
+    link::See which
+    link::Full log
+    button::Show older entries
+    link::All enquiries
+    link::2019 Lexus RX 350
+    link::2021 Toyota Camry SE
+    link::2019 Toyota Hilux SRV
+    link::2020 Toyota Sienna LE
+    button::Show all taps
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[820,1000]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-car.html
++     - /url: /office/car
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>header>span>span
+      box: ref=50x28 target=47x28
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 32 framework/glue nodes removed from the target before the compare.
+

@@ -1,0 +1,14 @@
+id: rd-extract
+name: runtime-divergence extraction (extract.mjs)
+version: 1.0.0
+description: >
+  Full, untargeted runtime extraction of one page in one state: whole-body DOM
+  tree, per-element computed style over a broad property set, :root tokens,
+  every same-origin CSS rule via the page CSSOM, accessibility tree, control
+  inventory, hidden layers.
+source: /home/lordwhitefire/.agents/skills/runtime-divergence/scripts/extract.mjs
+capabilities:
+  - runtime-extraction
+supported_methodologies:
+  - methodology_id: runtime-divergence
+    role: capture an independent runtime snapshot of each side per state

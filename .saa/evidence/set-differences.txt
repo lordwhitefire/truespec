@@ -1,0 +1,9 @@
+# Set differences — reference style rules
+independent style rules: 2125 distinct (2140 total)
+inventory   style rules: 2125 distinct (2140 total)
+
+## Only in inventory (possible invention) — 0
+
+## Only in independent (possible omission) — 0
+
+## Count mismatch (same key, different multiplicity) — 0

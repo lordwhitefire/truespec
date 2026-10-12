@@ -1,0 +1,74 @@
+# EXTRACT-001 independent falsification — run log
+
+Methodology: runtime-divergence (runtime-only; the two source trees were never diffed).
+Independent session: this Software Assurance run did NOT perform the extraction.
+
+Environment (at run time)
+- Chrome CDP :9222; reference http://localhost:3211/car.html?car=1999-not-a-real-car
+  (python3 static server); build http://localhost:3210/car/NOPE-9999 (next dev v15.5.27).
+- Inventory under test: developer-workspace/scripts/runtime-ui-diff/runs/extract-001/
+  {reference.json, build.json, comparison.json, reference-rule-ledger.txt, build-rule-ledger.txt}
+
+Instruments (all in .saa/evidence/)
+- independent-census.mjs   — first element/rule census + recon of cross-origin sheets.
+- recon.mjs                — cross-origin sheet detection (SecurityError) + inline <style> count.
+- inspect-inventory.mjs    — dumped ruleRegistry entry shape and histograms.
+- verify-inventory.mjs     — THE falsification run: independent census (browser CSSOM),
+                             inventory re-derivation, the six checks, drive+probe.
+- diag.mjs                 — closed-list/`<absent>`/ledger diagnosis.
+- sheet-cache/             — byte cache of the two CDN sheets (offline-reproducible).
+
+How the independent enumeration works (materially different from the extractor)
+- Same-origin sheets: read live `document.styleSheets[i].cssRules` from the browser.
+- Cross-origin sheets (Google Fonts, Font Awesome) throw SecurityError on cssRules, so the
+  text is fetched with the browser's own User-Agent and re-parsed via
+  `new CSSStyleSheet().replaceSync(text)` + that sheet's own `cssRules` — i.e. the
+  enumeration/parse is the browser's CSSOM, not the extractor's hand-written parser.
+  (Only the byte text is fetched, as the page itself fetched it; caching makes re-runs offline.)
+
+Run history
+1. independent-census.mjs — reference 163 elements; ruleTotal 222 vs inventory 2274
+   (the 222 was the inline sheet only — CDN sheets unreadable); cross-origin confirmed.
+2. verify-inventory.mjs (v1) — reference independent 2274 == inventory 2274, perSheet ==
+   {inline 234, google 36, fa 2004}; build independent 194→(load noise); checks 2/5 "FAIL"
+   was a `:before` vs `::before` normalizer artifact (symmetric 1880/1880).
+3. diag.mjs — closedList size 497 == each element's vals length; `<absent>` count 0 of 731584
+   values; top closedList order == snapshot closed order; ledger parse: every rule reasoned.
+4. verify-inventory.mjs (v2, final) — normalized pseudo-elements + combinator spacing +
+   `*::`→`::`; item-6 graded from the ledger; deterministic theme drive; probe color rgb(3,5,7).
+   RESULT: all six reference checks PASS (see check-results.json / set-differences.txt).
+
+Commands
+  node .saa/evidence/verify-inventory.mjs        # produces check-results.json, set-differences.txt
+  node .saa/evidence/diag.mjs                    # closed-list / ledger diagnosis
+Reproduce: run from project root with playwright-core in ./node_modules and Chrome on :9222.
+
+Determinism caveat
+- The reference page is a static file: independent numbers are stable across reloads.
+- The build page is a **next dev** server (HMR): its CSSOM is NOT stable across loads
+  (inline sheet 171→382 rules between two runs; layout.css `?v=` token changed; +1 dev-overlay
+  element). Build numbers are therefore reported as observations, not as a pass/fail.
+
+Gap G1 closure — build-side verification (2026-10-11)
+- Built the app for production (`npm run build`) and served it with `next start -p 3212`
+  (no HMR, no dev overlay) to obtain a STABLE target.
+- Stability: three cold loads byte-identical (sha1 e3f1c8ab3637, 25024 bytes); CSS is
+  content-hashed with no version query.
+- verify-build-prod.mjs — independent census of the production page, twice cold:
+  STABLE; 177 elements, 2582 rules.
+- extract-rules.mjs with .saa/evidence/extract001-prod.config.json (build→:3212) — extractor
+  inventory of the same production page: 177 elements, 2582 rules.
+- compare-prod.mjs — elements match, totals match, byKind match, perSheet match,
+  style-selector sets match (2384 distinct both; 0 differences either way).
+  RESULT: build-side checks PASS → G1 CLOSED (finding F3 confirmed).
+- The saved dev inventory (196/2960) differs because `next dev` injects a 384-rule inline
+  sheet, version-stamped route CSS, and ~19 dev-overlay elements that do not exist in
+  production. That is dev-vs-prod drift, not a census disagreement.
+- See EXTRACT-001-gap-G1-closure.md; artefacts build-prod-census.json, build-prod-check.json,
+  independent-rules-build-prod.json, extract001-prod/.
+
+Commands (G1)
+  npm run build && npm run start -- -p 3212 &
+  node .saa/evidence/verify-build-prod.mjs
+  node developer-workspace/scripts/extract-rules.mjs .saa/evidence/extract001-prod.config.json .saa/evidence/extract001-prod/
+  node .saa/evidence/compare-prod.mjs

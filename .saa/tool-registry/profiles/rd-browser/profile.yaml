@@ -1,0 +1,13 @@
+id: rd-browser
+name: runtime-divergence browser layer (browser.mjs)
+version: 1.0.0
+description: >
+  One persistent, visible Chrome over CDP :9222. Attaches to the already-open
+  window, hands back two reusable tabs, resizes via device emulation. Never
+  headless, never a second instance. Detaches on exit, leaving the window open.
+source: /home/lordwhitefire/.agents/skills/runtime-divergence/scripts/browser.mjs
+capabilities:
+  - browser-automation
+supported_methodologies:
+  - methodology_id: runtime-divergence
+    role: attach to the live browser, reuse the reference/build tabs, drive states

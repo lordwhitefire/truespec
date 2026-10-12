@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
+    "db:seed:office": "tsx scripts/seed-office.ts",
     "leak-check": "tsx scripts/leak-check.ts"
   },
   "dependencies": {

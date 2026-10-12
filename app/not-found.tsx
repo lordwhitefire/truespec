@@ -1,3 +1,6 @@
+import "./globals.css";
+import "./reference.css";
+
 export default function NotFound() {
   return (
     <div className="wrap">

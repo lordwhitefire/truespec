@@ -1,0 +1,12 @@
+id: rd-compare
+name: runtime-divergence model + compare (model.mjs, normalize.mjs, compare.mjs)
+version: 1.0.0
+description: >
+  Collapse captured runtimes into comparable rules, build the reference model,
+  and compare a target against it, reporting divergence rule by rule.
+source: /home/lordwhitefire/.agents/skills/runtime-divergence/scripts/
+capabilities:
+  - runtime-comparison
+supported_methodologies:
+  - methodology_id: runtime-divergence
+    role: normalize and compare the independent census against the inventory

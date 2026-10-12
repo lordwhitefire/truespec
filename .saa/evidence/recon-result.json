@@ -1,0 +1,118 @@
+{
+  "reference": {
+    "tag": "reference",
+    "info": {
+      "url": "http://localhost:3211/car.html?car=1999-not-a-real-car",
+      "dataTheme": "light",
+      "htmlClass": "",
+      "hasThm": true,
+      "thmText": "",
+      "localStorage": {
+        "ts-lastcar": "\"2021-toyota-camry-xse-v6\"",
+        "ts-seen": "{\"2021-toyota-camry-xse-v6\":3}",
+        "ts-theme": "light"
+      },
+      "sheets": [
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap",
+          "ownerTag": "LINK",
+          "readable": false,
+          "ruleCount": null,
+          "err": "SecurityError"
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "ownerTag": "LINK",
+          "readable": false,
+          "ruleCount": null,
+          "err": "SecurityError"
+        },
+        {
+          "href": null,
+          "ownerTag": "STYLE",
+          "readable": true,
+          "ruleCount": 206,
+          "err": null
+        }
+      ],
+      "adoptedStyleSheetCount": 0
+    }
+  },
+  "build": {
+    "tag": "build",
+    "info": {
+      "url": "http://localhost:3210/car/NOPE-9999",
+      "dataTheme": "light",
+      "htmlClass": "",
+      "hasThm": true,
+      "thmText": "",
+      "localStorage": {
+        "ts-known": "[\"TS-1001\",\"TS-1002\",\"TS-1003\",\"TS-1004\",\"TS-1005\",\"TS-1006\",\"TS-1007\",\"TS-1008\",\"TS-1009\",\"TS-1010\",\"TS-1011\",\"TS-1012\",\"TS-1013\",\"TS-1014\",\"TS-1015\",\"TS-1016\",\"TS-1017\",\"TS-1018\",\"TS-1019\",\"TS-1020\",\"TS-1021\",\"TS-1022\",\"TS-1023\",\"TS-1024\"]",
+        "ts-asked": "true",
+        "ts-lastcar": "\"2021-toyota-camry-xse-v6\"",
+        "ts-seen": "{\"2021-toyota-camry-xse-v6\":14,\"2021-toyota-camry-se\":1}",
+        "ts-visits": "8",
+        "ts-theme": "light"
+      },
+      "sheets": [
+        {
+          "href": "http://localhost:3210/_next/static/css/app/(site)/layout.css?v=1791732344834",
+          "ownerTag": "LINK",
+          "readable": true,
+          "ruleCount": 306,
+          "err": null
+        },
+        {
+          "href": "http://localhost:3210/_next/static/css/app/(site)/car/%5Bref%5D/page.css?v=1791732344834",
+          "ownerTag": "LINK",
+          "readable": true,
+          "ruleCount": 157,
+          "err": null
+        },
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap",
+          "ownerTag": "LINK",
+          "readable": false,
+          "ruleCount": null,
+          "err": "SecurityError"
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "ownerTag": "LINK",
+          "readable": false,
+          "ruleCount": null,
+          "err": "SecurityError"
+        }
+      ],
+      "adoptedStyleSheetCount": 0
+    }
+  },
+  "fetchedCrossOrigin": {
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap": {
+      "status": 200,
+      "bytes": 1332,
+      "cssom": {
+        "total": 6,
+        "style": 0,
+        "atBlock": 0,
+        "kf": 0,
+        "frame": 0,
+        "ff": 6,
+        "other": 0
+      }
+    },
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": {
+      "status": 200,
+      "bytes": 102641,
+      "cssom": {
+        "total": 1955,
+        "style": 1931,
+        "atBlock": 1,
+        "kf": 14,
+        "frame": 0,
+        "ff": 10,
+        "other": 0
+      }
+    }
+  }
+}

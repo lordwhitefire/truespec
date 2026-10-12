@@ -1,0 +1,99 @@
+INVENTORY
+
+Every car, what it cost, and what it made. Only visible here — never in the showroom.
+
+Add a car
+Newest first
+Price: high to low
+Price: low to high
+Profit: high to low
+All15
+Available11
+On the way1
+At port1
+Landed1
+Sold1
+
+15 cars — 14 in stock, 1 sold
+
+CAR	STATE	PRICE	LANDED COST	PROFIT	ACTIONS
+
+Toyota Land Cruiser V8 ZX 2019
+TS-1001 · 61,204 mi	
+AVAILABLE	₦96,500,000	₦89,600,000	₦6,900,000	
+
+
+Toyota Corolla LE 2020
+TS-1002 · 48,905 mi	
+AVAILABLE	₦24,750,000	₦21,270,000	₦3,480,000	
+
+
+Honda Accord EX-L 2019
+TS-1003 · 55,730 mi	
+AVAILABLE	₦28,900,000	₦25,550,000	₦3,350,000	
+
+
+Toyota Highlander XLE 2018
+TS-1004 · 68,142 mi	
+AVAILABLE	₦38,750,000	₦34,520,000	₦4,230,000	
+
+
+Toyota RAV4 XLE AWD 2020
+TS-1005 · 41,876 mi	
+AVAILABLE	₦35,200,000	₦31,415,000	₦3,785,000	
+
+
+Toyota Tacoma TRD Off-Road 2021
+TS-1006 · 33,158 mi	
+AVAILABLE	₦62,000,000	₦55,590,000	₦6,410,000	
+
+
+Lexus RX 350 2019
+TS-1007 · 47,209 mi	
+AVAILABLE	₦47,500,000	₦40,605,000	₦6,895,000	
+
+
+Toyota Venza XLE 2019
+TS-1008 · 58,033 mi	
+AVAILABLE	₦36,400,000	₦32,210,000	₦4,190,000	
+
+
+Toyota Sienna LE 2020
+TS-1009 · 52,614 mi	
+AVAILABLE	₦33,900,000	₦32,655,000	₦1,245,000	
+
+
+Toyota Hilux SRV 2019
+TS-1010 · 81,375 mi	
+AVAILABLE	₦41,000,000	₦28,760,000	₦12,240,000	
+
+
+Honda CR-V EX-L 2020
+TS-1011 · 45,290 mi	
+AVAILABLE	₦29,400,000	₦26,455,000	₦2,945,000	
+
+
+Toyota Camry SE 2021
+TS-1012 · 26,908 mi	
+LANDED	₦34,500,000	₦32,410,000	₦2,090,000	
+
+
+Toyota Fortuner 2021
+TS-1013 · 29,844 mi	
+ON THE WAY
+Expected 18th
+	₦58,000,000	COSTS INCOMPLETE	COSTS INCOMPLETE	
+
+
+Toyota Land Cruiser Prado TX 2020
+TS-1014 · 37,461 mi	
+AT PORT
+Arriving 12th · clearing in progress
+	₦78,000,000	COSTS INCOMPLETE	COSTS INCOMPLETE	
+
+
+Toyota Camry XLE 2018
+TS-1015 · 72,418 mi · sold 29 Sep 2026	
+SOLD	₦31,500,000	₦27,650,000	₦3,850,000	
+
+Landed cost and profit appear only in the office. The public site is handed an explicit list of fields — costs are never included, even by accident.

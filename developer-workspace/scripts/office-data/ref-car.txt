@@ -1,0 +1,85 @@
+EDIT CAR
+
+Toyota Sienna LE 2020 · TS-1009 · added 25 Sep 2026 · last updated by Umar, 25 Sep 14:31
+
+Mark as sold
+Delete
+1
+THE CAR
+BRAND
+MODEL
+TRIM
+YEAR
+MILEAGE
+Shown exactly as the car reads — miles for US imports.
+DOORSTEP PRICE (₦)
+₦
+The one price a buyer sees. Shipping, clearing and delivery are already inside it.
+EXTERIOR COLOUR
+INTERIOR
+FEATURES — ONE PER LINE
+Written the way a seller types. These go straight to the buyer's page.
+2
+PHOTOS
+Drop photos here or click to browse — first photo is the cover buyers see first
+COVER
+3
+COSTS
+— never leaves the office
+PURCHASE PRICE ($)
+$
+SHIPPING ($)
+$
+CLEARING ($)
+$
+TRUCKING WITHIN USA ($)
+$
+TRUCKING IN NIGERIA (₦)
+₦
+FULL TANK (₦)
+₦
+Default from Settings — change per car if needed.
+4
+STATE
+WHERE THIS CAR IS
+Available
+On the way
+At port
+Cleared
+Landed
+Held for paymentCUSTOM
+
+The showroom follows automatically. Buyers only ever see the three section names — never these labels.
+
+New arrival
+Also shows under "Landed this year" in the showroom, as well as Available.
+ARRIVAL NOTE
+Shown to buyers on On-order cars. The one field they'd otherwise have to ask about.
+5
+PRIVATE NOTES
+NOTES TO SELF
+For your filing only — never sent to the showroom, even by accident.
+Save car
+Cancel
+Saving puts the car in the showroom immediately.
+LANDED COST — LIVE
+Purchase + US costs
+$32,020
+Nigeria costs
+₦635,000
+Rate
+₦1,000 / $1
+LANDED COST
+₦32,655,000
+Doorstep price
+₦33,900,000
+PROFIT ON THIS CAR
+₦1,245,000
+
+Price − landed. ≈ 3.7% of the price.
+
+WHAT THE BUYER SEES
+
+Only the doorstep price, the car's facts and its photos. Costs, profit, private states and these notes are never sent to the browser — it's a server rule, not a setting.
+
+Preview the buyer page 

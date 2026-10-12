@@ -1,0 +1,280 @@
+{
+  "when": "2026-10-11T15:36:51.879Z",
+  "reference": {
+    "independent": {
+      "elementQSA": 163,
+      "elementTreeWalker": 163,
+      "shadowHosts": 0,
+      "byKind": {
+        "style": 2140,
+        "at-block": 6,
+        "keyframes": 22,
+        "keyframe": 60,
+        "font-face": 46
+      },
+      "total": 2274,
+      "perSheet": {
+        "http://localhost:3211/car.html?car=1999-not-a-real-car": 234,
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap": 36,
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+      },
+      "sheets": [
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap",
+          "readable": false
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "readable": false
+        },
+        {
+          "href": null,
+          "readable": true
+        }
+      ],
+      "fetched": [
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap",
+          "bytes": 13401
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "bytes": 102641
+        }
+      ]
+    },
+    "inventory": {
+      "elementQSA": 163,
+      "byKind": {
+        "style": 2140,
+        "at-block": 6,
+        "keyframes": 22,
+        "keyframe": 60,
+        "font-face": 46
+      },
+      "total": 2274,
+      "perSheet": {
+        "http://localhost:3211/car.html?car=1999-not-a-real-car": 234,
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004,
+        "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap": 36
+      }
+    }
+  },
+  "build": {
+    "independent": {
+      "elementQSA": 197,
+      "elementTreeWalker": 197,
+      "shadowHosts": 2,
+      "byKind": {
+        "style": 2777,
+        "at-block": 25,
+        "keyframes": 27,
+        "keyframe": 74,
+        "font-face": 55
+      },
+      "total": 2958,
+      "perSheet": {
+        "http://localhost:3210/_next/static/css/app/(site)/layout.css?v=1791733006184": 349,
+        "http://localhost:3210/_next/static/css/app/(site)/car/%5Bref%5D/page.css?v=1791733006184": 182,
+        "http://localhost:3210/car/NOPE-9999": 382,
+        "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+      },
+      "sheets": [
+        {
+          "href": "http://localhost:3210/_next/static/css/app/(site)/layout.css?v=1791733006184",
+          "readable": true
+        },
+        {
+          "href": "http://localhost:3210/_next/static/css/app/(site)/car/%5Bref%5D/page.css?v=1791733006184",
+          "readable": true
+        },
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap",
+          "readable": false
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "readable": false
+        },
+        {
+          "href": null,
+          "readable": true
+        }
+      ],
+      "fetched": [
+        {
+          "href": "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap",
+          "bytes": 15397
+        },
+        {
+          "href": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
+          "bytes": 102641
+        }
+      ]
+    },
+    "inventory": {
+      "byKind": {
+        "font-face": 55,
+        "style": 2779,
+        "at-block": 25,
+        "keyframes": 27,
+        "keyframe": 74
+      },
+      "total": 2960
+    }
+  },
+  "buildProduction": {
+    "url": "http://localhost:3212/car/NOPE-9999",
+    "note": "G1 closure: build server built with `next build` and run with `next start` (no HMR). Two cold loads byte-identical and censused identically (STABLE). Extractor inventory of the same page vs independent census.",
+    "stability": {
+      "cold1": { "elementQSA": 177, "ruleTotal": 2582 },
+      "cold2": { "elementQSA": 177, "ruleTotal": 2582 },
+      "identical": true,
+      "verdict": "STABLE"
+    },
+    "extractor": {
+      "elementQSA": 177,
+      "total": 2582,
+      "byKind": { "style": 2430, "at-block": 16, "keyframes": 23, "keyframe": 62, "font-face": 51 },
+      "perSheet": {
+        "http://localhost:3212/_next/static/css/914ddc1397b5235e.css": 350,
+        "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css": 187,
+        "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+      }
+    },
+    "independent": {
+      "elementQSA": 177,
+      "total": 2582,
+      "byKind": { "style": 2430, "at-block": 16, "keyframes": 23, "keyframe": 62, "font-face": 51 },
+      "perSheet": {
+        "http://localhost:3212/_next/static/css/914ddc1397b5235e.css": 350,
+        "http://localhost:3212/_next/static/css/bb1208c7758a01ea.css": 187,
+        "https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap": 41,
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css": 2004
+      }
+    },
+    "checks": {
+      "1-element-count": "PASS (177 = 177)",
+      "2-rule-completeness": "PASS (2582 = 2582; byKind and perSheet identical)",
+      "5-no-invention": "PASS (style-selector sets: 2384 distinct both; onlyInExtractor 0, onlyInIndependent 0)"
+    },
+    "verdict": "PASS"
+  },
+  "checks": {
+    "1-element-count": {
+      "referenceIndependent": [
+        163,
+        163
+      ],
+      "referenceInventory": 163,
+      "buildIndependent": [
+        197,
+        197
+      ],
+      "verdict": "PASS"
+    },
+    "2-rule-completeness": {
+      "independentTotal": 2274,
+      "inventoryTotal": 2274,
+      "independentByKind": {
+        "style": 2140,
+        "at-block": 6,
+        "keyframes": 22,
+        "keyframe": 60,
+        "font-face": 46
+      },
+      "inventoryByKind": {
+        "style": 2140,
+        "at-block": 6,
+        "keyframes": 22,
+        "keyframe": 60,
+        "font-face": 46
+      },
+      "onlyInInventory": 0,
+      "onlyInIndependent": 0,
+      "verdict": "PASS"
+    },
+    "3-closed-vocabulary": {
+      "closedListSize": 497,
+      "closedListLen": 497,
+      "elementValsLens": [
+        497
+      ],
+      "absentSeen": false,
+      "sample": [
+        {
+          "path": "html",
+          "checked": 497,
+          "mismatch": 0,
+          "details": []
+        },
+        {
+          "path": "html/0:head",
+          "checked": 497,
+          "mismatch": 0,
+          "details": []
+        },
+        {
+          "path": "html/0:head/0:meta",
+          "checked": 497,
+          "mismatch": 0,
+          "details": []
+        }
+      ],
+      "verdict": "PASS"
+    },
+    "4-hidden-dynamic-rule": {
+      "steps": [],
+      "themeBefore": "light",
+      "themeAtLight": "light",
+      "darkMatchesAtLight": 0,
+      "themeAfterClick": "dark",
+      "darkMatchesAfterClick": 1,
+      "plantedOutline": "rgb(3, 5, 7) solid 7px",
+      "plantedInSheets": true,
+      "probeApplied": true,
+      "item4ok": true,
+      "verdict": "PASS"
+    },
+    "5-no-invention": {
+      "onlyInInventory": 0,
+      "examples": [],
+      "verdict": "PASS"
+    },
+    "6-reason-for-gaps": {
+      "reference": {
+        "ruleLines": 2274,
+        "reasonLines": 2274,
+        "status": {
+          "used": 102,
+          "unused": 2172
+        },
+        "cat": {
+          "used": 102,
+          "unmatchedNoElement": 2031,
+          "unmatchedInactiveCond": 13,
+          "n/a-declaration": 128
+        }
+      },
+      "build": {
+        "ruleLines": 2965,
+        "reasonLines": 2960,
+        "status": {
+          "used": 139,
+          "unused": 2821
+        },
+        "cat": {
+          "unmatchedNoElement": 2616,
+          "other": 2,
+          "unmatchedInactiveCond": 47,
+          "used": 139,
+          "n/a-declaration": 156
+        }
+      },
+      "matchedRules": 102,
+      "verdict": "PASS"
+    }
+  }
+}

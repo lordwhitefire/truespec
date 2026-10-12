@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@/app/car/car.css";
+import "@/app/(site)/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { carHref } from "@/components/site/car-view";
 import { carWaLink, waLink } from "@/components/whatsapp";

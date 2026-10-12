@@ -32,3 +32,11 @@ developer-workspace/**/*shots*/
 
 # Runtime capture runs (generated, large — regenerate with the skill's run.mjs)
 developer-workspace/**/runs/
+
+# Runtime-divergence capture / compare runs (generated, large — regenerate with the skill)
+developer-workspace/**/captures/
+developer-workspace/**/captures-*/
+
+# Software-assurance evidence dumps (generated, large)
+.saa/evidence/extract001-prod/build.json
+.saa/evidence/extract001-prod/reference.json

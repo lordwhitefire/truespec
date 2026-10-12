@@ -1,0 +1,122 @@
+{
+  "when": "2026-10-11T15:57:19.788Z",
+  "config": {
+    "ref": "http://localhost:3211/car.html?car=1999-not-a-real-car",
+    "build": "http://localhost:3212/car/NOPE-9999",
+    "probe": {
+      "className": "extract001-planted",
+      "plantCss": ".extract001-planted{outline:7px solid rgb(7,7,7)}"
+    },
+    "states": [
+      {
+        "name": "default"
+      },
+      {
+        "name": "scroll",
+        "actions": [
+          {
+            "scroll": true
+          },
+          {
+            "wait": 400
+          }
+        ]
+      },
+      {
+        "name": "theme",
+        "actions": [
+          {
+            "click": {
+              "css": "#thm"
+            }
+          },
+          {
+            "wait": 200
+          }
+        ]
+      },
+      {
+        "name": "gallery",
+        "actions": [
+          {
+            "click": {
+              "css": "#gal"
+            }
+          },
+          {
+            "wait": 300
+          }
+        ]
+      },
+      {
+        "name": "farewell",
+        "actions": [
+          {
+            "wait": 7200
+          },
+          {
+            "eval": "document.dispatchEvent(new MouseEvent('mouseout',{bubbles:true,clientY:-1,relatedTarget:null}))"
+          },
+          {
+            "wait": 250
+          }
+        ],
+        "resetSession": true
+      },
+      {
+        "name": "toast",
+        "actions": [
+          {
+            "wait": 9700
+          }
+        ],
+        "resetSession": true
+      },
+      {
+        "name": "mobile360",
+        "actions": [
+          {
+            "resize": [
+              360,
+              800
+            ]
+          },
+          {
+            "wait": 300
+          }
+        ]
+      },
+      {
+        "name": "tablet768",
+        "actions": [
+          {
+            "resize": [
+              768,
+              1024
+            ]
+          },
+          {
+            "wait": 300
+          }
+        ]
+      },
+      {
+        "name": "keyboard",
+        "actions": [
+          {
+            "press": "Tab"
+          },
+          {
+            "press": "Tab"
+          },
+          {
+            "press": "Escape"
+          },
+          {
+            "wait": 200
+          }
+        ]
+      }
+    ]
+  }
+}

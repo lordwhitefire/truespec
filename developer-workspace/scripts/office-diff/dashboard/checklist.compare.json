@@ -1,0 +1,94 @@
+{
+  "_note": "Dashboard checklist — COMPARE phase. `build` flipped to the production build on :3210. Same 9 states as the model phase, both sides.",
+  "ref": "http://localhost:3211/office-dashboard.html",
+  "build": "http://localhost:3210/office",
+  "states": [
+    {
+      "name": "default-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "hover-nav",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".sn a" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-addcar",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".hrow .btn" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-more",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".more2" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-tab",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}

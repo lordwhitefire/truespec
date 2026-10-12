@@ -1,0 +1,197 @@
+{
+  "_note": "Inventory checklist — MODEL phase. `build` points at the reference so the run is clean; flip `build` to http://localhost:3210/office/inventory for the COMPARE phase. Same states, both sides. width-1000 exists because the reference has a <=1000 .main padding rule the dashboard lacks.",
+  "ref": "http://localhost:3211/office-inventory.html",
+  "build": "http://localhost:3211/office-inventory.html",
+  "states": [
+    {
+      "name": "default-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-1000",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1000, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "hover-nav",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".sn a" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-row",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".t tbody tr" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-tab",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "chip-available",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "role": "button", "name": "Available" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "chip-sold",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "role": "button", "name": "Sold" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "search-camry",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'camry');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "sort-pl",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('sort');const s=Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set;s.call(el,'pl');el.dispatchEvent(new Event('change',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "sort-pf",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('sort');const s=Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype,'value').set;s.call(el,'pf');el.dispatchEvent(new Event('change',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "empty",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'zzz');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "clear-filters",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('q');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'zzz');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#clearf" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "modal",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".t tbody tr .acts .del" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toast-deleted",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".t tbody tr .acts .del" } },
+        { "click": { "css": "#yes" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "undo",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".t tbody tr .acts .del" } },
+        { "click": { "css": "#yes" } },
+        { "click": { "css": "#undo" } },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}
