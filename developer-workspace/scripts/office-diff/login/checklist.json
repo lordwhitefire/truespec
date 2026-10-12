@@ -1,0 +1,237 @@
+{
+  "_note": "Login checklist. MODEL phase: point `build` at the reference (:3211/login.html) so the run is clean; flip `build` to http://localhost:3210/office/login for the COMPARE phase. Same states, both sides. Login is standalone (no office shell); the theme toggle `#thm` is the reference's own fixed top-right button. The `.demo` UI-review switcher is reference-only and is DELETED in the build, so the setup and forgot panels are reached on BOTH sides through the reference's own `show(k)` panel switch (the reference exposes it as a global function; the build mirrors that). `locked` is reached through the product's own control (three failed sign-ins). `#li-forgot` is a dead control in the reference (no handler) and stays dead. The `demo-only` success path navigates away, so it is not a capturable state. Media query: only <=560px.",
+  "ref": "http://localhost:3211/login.html",
+  "build": "http://localhost:3210/office/login",
+  "states": [
+    {
+      "name": "login-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 400 }
+      ]
+    },
+    {
+      "name": "hover-go",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "#li-go" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-eye",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "button.eye[data-eye=\"li-pass\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-link",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "#li-forgot" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-email",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.getElementById('li-email').focus()})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "eye-reveal",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "button.eye[data-eye=\"li-pass\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wrong-pass",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#li-go" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "wrong-clear",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#li-go" } },
+        { "eval": "(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'x');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "lockout",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "click": { "css": "#li-go" } },
+        { "click": { "css": "#li-go" } },
+        { "click": { "css": "#li-go" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-panel",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-weak",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "eval": "(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'abc123');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-strong",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "eval": "(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-mismatch",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "eval": "(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'longenoughpass');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "eval": "(()=>{const el=document.getElementById('su-pass2');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'different');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-eye",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "click": { "css": "button.eye[data-eye=\"su-pass\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "setup-go",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('setup')})()" },
+        { "click": { "css": "#su-go" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "forgot-panel",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('forgot')})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "forgot-sent",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('forgot')})()" },
+        { "click": { "css": "#fr-go" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "forgot-back",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{show('forgot')})()" },
+        { "click": { "css": "a[data-goto=\"login\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toggle-theme",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#thm" } },
+        { "wait": 1200 }
+      ]
+    }
+  ]
+}

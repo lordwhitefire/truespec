@@ -1,0 +1,1297 @@
+# runtime-divergence · eye-reveal
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 12
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    button::Hide password
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"button.eye[data-eye=\"li-pass\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-email
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{document.getElementById('li-email').focus()})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · forgot-back
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('forgot')})()"} ; {"click":{"css":"a[data-goto=\"login\"]"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · forgot-panel
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('forgot')})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · forgot-sent
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('forgot')})()"} ; {"click":{"css":"#fr-go"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-eye
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"button.eye[data-eye=\"li-pass\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-go
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#li-go"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-link
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#li-forgot"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · lockout
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"click":{"css":"#li-go"}} ; {"click":{"css":"#li-go"}} ; {"click":{"css":"#li-go"}} ; {"wait":250}
+target: applied 8, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · login-1440-dark
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-eye
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 12
+    button::Toggle dark mode
+    textbox::
+    button::Hide password
+    button::
+    alert::
+    button::Show password
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"click":{"css":"button.eye[data-eye=\"su-pass\"]"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-go
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"click":{"css":"#su-go"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-mismatch
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"eval":"(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'longenoughpass');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"eval":"(()=>{const el=document.getElementById('su-pass2');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'different');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-panel
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-strong
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"eval":"(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'SuperSecret-Passphrase-42');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · setup-weak
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{show('setup')})()"} ; {"eval":"(()=>{const el=document.getElementById('su-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'abc123');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toggle-theme
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#thm"}} ; {"wait":1200}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":400}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · wrong-clear
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"click":{"css":"#li-go"}} ; {"eval":"(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'x');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · wrong-pass
+reference : http://localhost:3211/login.html
+target    : http://localhost:3210/office/login
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=82  target=78)
+
+### Rules the reference has that the target does not (2)
+- body>div>b   ×1
+- body>div>button   ×3
+
+## What is common
+shared rule signatures: 33
+shared controls (role::name): 11
+    button::Toggle dark mode
+    textbox::
+    button::Show password
+    button::
+    alert::
+    checkbox::
+    link::Forgot password?
+    button::Back to sign in
+    button::Send reset link
+    link::Back to sign in
+    link::Public showroom
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('li-pass');const s=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;s.call(el,'nope');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"click":{"css":"#li-go"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (3):
+    - button::Sign in
+    - button::First-time setup
+    - button::Locked out
+
+## Accessibility tree diff  (- reference / + target)
+-   - /url: truespec.html
+- - text: "UI review: jump to a state"
+- - button "Sign in"
+- - button "First-time setup"
+- - button "Locked out"
++   - /url: /
++ - alert
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 13 framework/glue nodes removed from the target before the compare.
+

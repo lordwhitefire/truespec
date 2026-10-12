@@ -42,7 +42,7 @@ Skill: `~/.agents/skills/runtime-divergence/` (`scripts/{run,model,compare}.mjs`
 | 4 | Enquiries | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 5 | Activity | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 6 | Settings | ✅ | ✅ | ✅ | ✅ | ✅ |
-| 7 | Login | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| 7 | Login | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 Legend: ✅ done · ⏳ not started · 🔄 in progress · ➖ n/a
 
@@ -342,15 +342,7 @@ add-mode compare (7 states).
 
 ## Change log
 
-- 2026-10-12 — **screen 6 Settings built + compare (23 states).** `settings.css` (verbatim port of the
-  reference `<style>`; toggle native here, no `.srow` height pin), `settings-client.tsx` (four cards +
-  all behaviours; boot quirks reproduced), `page.tsx`. `typecheck` + `build` clean; `/office/settings`
-  prerendered; served on `:3210`. Compare: all 23 states reached; after the font fix **22/23 clean (0
-  style diffs, 0 token diffs)**, the rest the approved announcer glue + product route URLs; the lone
-  `toggle-theme` diff is the theme-transition timing race (a 1.2 s re-capture matches exactly). **Real
-  find:** `app/office/layout.tsx` loaded `Oswald:wght@500;700` while every office reference page links
-  `Oswald:wght@500;600;700` — so weight-600 Oswald text was substituted and ~2px wide; **fixed the
-  shared font link** to include 600 (global: also affects screens 1–5).
+- 2026-10-12 — **screens 6 and 7 (Settings, Login) built + compare.** Settings: `settings.css` (verbatim port of the reference `<style>`; toggle native here, no `.srow` height pin), `settings-client.tsx` (four cards + all behaviours; boot quirks reproduced), `page.tsx`. Compare: **22/23 clean (0 style diffs, 0 token diffs)**; only the approved announcer glue + product route URLs; `toggle-theme` is the transition timing race (1.2s re-capture matches exactly). **Real find:** `app/office/layout.tsx` loaded `Oswald:wght@500;700` while every office reference page links `Oswald:wght@500;600;700` — so weight-600 Oswald text was substituted and ~2px wide; **fixed the shared font link** to include 600 (global: also affects screens 1–5). Login: `app/office/login/{login.css,login-client.tsx,page.tsx}`; the reference's imperative script mirrored in the client (panels via the reference's `show(k)`, eyes, setup strength/meter + match, fake login + 3-attempt lockout, forgot). `.demo` UI-review switcher deleted (approved); `#li-forgot` remains dead. Compare: **21/21 clean (0 style diffs, 0 token diffs)**. Typescript + production build clean; `/office/settings` and `/office/login` prerendered, served on `:3210`.
 
 - 2026-10-12 — **screen 5 Activity built + compare (22 states).** `activity.css` (verbatim port of the
   reference `<style>`; the toggle is native here, so no `.srow` height pin), `activity-client.tsx`

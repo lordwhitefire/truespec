@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Fonts are loaded per area in (site)/layout.tsx and office/layout.tsx —
         each area mirrors the reference's own Oswald weights (public: 600;700,
-        office: 500;700) so font-weight substitution resolves identically. */}
+        office: 500;600;700) so font-weight substitution resolves identically. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
