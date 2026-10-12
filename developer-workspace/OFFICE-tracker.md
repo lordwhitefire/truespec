@@ -38,7 +38,7 @@ Skill: `~/.agents/skills/runtime-divergence/` (`scripts/{run,model,compare}.mjs`
 |---|--------|:---:|:---:|:---:|:---:|:---:|
 | 1 | Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ |
 | 2 | Inventory | ✅ | ✅ | ✅ | ✅ | 🔄 |
-| 3 | Car form | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| 3 | Car form | ✅ | ✅ | ✅ | ✅ | 🔄 |
 | 4 | Enquiries | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 | 5 | Activity | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
 | 6 | Settings | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
@@ -197,8 +197,48 @@ diffs** — 3 fixed, 1 judged a variance:
 **Open:** re-run the inventory compare on the rebuilt page to prove parity; re-check the dashboard
 (the font/layout split is global).
 
+## Screen 3 — Car form (`office-car.html`, 515 lines) — built; first compare (edit)
+
+Reached **by route** (plan §9 Q2): `/office/car` = edit (demo subject `TS-1009`), `/office/car/new` = add.
+The reference's `.demo` edit/add switcher is deleted. Shared fields read from the office data layer
+(`getOfficeCars` → `TS-1009`); the form-only fields the data model does not own (ext/int, features,
+private notes, photos, the 6 cost lines) are a presentational `FORM_DEMO` constant mirroring the
+reference's hardcoded `EDIT` seed (data model out of scope, plan §1). Files:
+`app/office/(shell)/car/{car.css,car-client.tsx,page.tsx,new/page.tsx}`.
+
+**Edit compare (24 states)** — checklist `checklist.json`, model `model/` (85 rule signatures /
+58 controls), captures `captures-compare/`, report `compare-report.txt`. Every state reached (all
+actions applied, none failed). Structure: **9 diverging rules out of 85 (ref) / 87 (build)**, and all
+9 are the two approved divergences — nothing unapproved:
+- ref-only ×3 — deleted `.demo` switcher (`body>div>b`) + the sign-out link sitting directly in `.sfoot`.
+- build-only ×5 — the approved theme toggle (`.srow` wrapper, its sign-out `a`/`i`, `.thm` button + icon).
+- count ×1 — `body>div>button`: ref 3 (2 demo buttons + toast Undo) vs build 1 (toast Undo).
+Content nodes equal (247 = 247).
+
+**Owner-approved divergence (2026-10-12).** The reference renders the profit strip (`.pr`) text
+**flush-left** (1px inset) — `.pr` is a *sibling* of `.pb`, so its `-18px` bleed margin leaves none of
+its own 18px padding; the rows above sit at 18px inset. At the owner's request the profit strip is
+indented without re-padding the whole block: `.pr small, .pr .num, .pr .sub { padding-left: 15px }`.
+The owner also changed `.pr`'s bottom margin from the reference's `-16px` (which pulls the strip flush
+and lets it clip into the panel's bottom edge) to `1px`, so the strip sits fully inside the panel and
+the panel's bottom border shows. Verified live — build `#p-profit`/`#p-psub` text x=1493 (15px inset;
+the rows are 18px, so the profit text is 3px left of them) and `.pr` bottom 2px above the panel's
+border-box bottom; the reference is x=1478 and bleeds flush. Both are deliberate; the compare will flag
+`.pr`.
+
+**Open:** add-mode compare (`checklist-add.json`, 7 states) not yet run; the inventory compare re-run
+(and the global font/layout dashboard re-check) is still pending.
+
 ## Change log
 
+- 2026-10-12 — **screen 3 Car form built (edit + add by route) + first compare (edit).** `car.css`
+  (self-contained port of the reference `<style>`, `.demo` dropped, approved `.srow`/`.thm` toggle kept),
+  `car-client.tsx` (uncontrolled form + live costing + portals to `document.body`), `page.tsx` (edit,
+  DB-backed shared fields), `new/page.tsx` (add). `typecheck` + `build` clean; both routes prerender;
+  served on `:3210`. Edit compare: all 24 states reached; 9/85 rules diverge, all approved. Then, at the
+  owner's request, indented the profit strip (`padding-left:15px` on `.pr small/.num/.sub`) and changed
+  its bottom margin `-16px → 1px` (strip no longer bleeds to the panel bottom), fixing the reference's
+  flush-left quirk — verified live.
 - 2026-10-11 — tracker created; dashboard source recon done; ambient + conditionals recorded above.
   Wrong premature shell bits removed (built before modelling). Reference extraction next.
 - 2026-10-11 — dashboard: ref captures + model built (9 states). Shell + dashboard page written

@@ -1,0 +1,2766 @@
+# runtime-divergence · costing-loss
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('f-price');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'10000000');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · costing-partial
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"eval":"(()=>{const el=document.getElementById('c-tank');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'');el.dispatchEvent(new Event('input',{bubbles:true}))})()"} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · edit-1440-dark
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · focus-tab
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"press":"Tab"} ; {"press":"Tab"} ; {"press":"Tab"} ; {"wait":250}
+target: applied 7, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-drop
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#drop"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-nav
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".sn a"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-savebtn
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":"#save"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · hover-stb
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"hover":{"css":".stb"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · light-1440
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · modal-delete
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#delBtn"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · modal-escape
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#delBtn"}} ; {"press":"Escape"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · modal-scrim
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#mkSold"}} ; {"eval":"(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()"} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · modal-sold
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#mkSold"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · photo-makecover
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".th .mk [data-mk]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · photo-remove
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=240  target=240)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".th .mk [data-rm]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · state-cleared
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".stb[data-st=\"Cleared\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · state-held
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":".stb[data-st=\"Held for payment\"]"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toast-delete
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#delBtn"}} ; {"click":{"css":"#delYes"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toast-save
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=248  target=248)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 83
+shared controls (role::name): 38
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    link::Preview buyer page
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#save"}} ; {"wait":250}
+target: applied 5, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+-     - /url: car.html?car=2019-toyota-sienna-xle
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
++     - /url: /car/2019-toyota-sienna-xle
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · toast-sold
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1440x900  target=1440x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1440,900]} ; {"click":{"css":"#mkSold"}} ; {"click":{"css":"#soldYes"}} ; {"wait":250}
+target: applied 6, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-1150
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=1150x900  target=1150x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[1150,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-       - /url: office-dashboard.html
++       - /url: /office
+-       - /url: office-inventory.html
++       - /url: /office/inventory
+-       - /url: office-car.html
++       - /url: /office/car
+-       - /url: office-enquiries.html
++       - /url: /office/enquiries
+-       - /url: office-activity.html
++       - /url: /office/activity
+-       - /url: office-settings.html
++       - /url: /office/settings
++   - button "Toggle dark mode": 
+-     - /url: login.html
++     - /url: /office/login
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 1
+  body>div>aside>nav
+      box: ref=240x734 target=240x723
+      height: ref="734.125px" target="723px"
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-390
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=390x844  target=390x844
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[390,844]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-560
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=560x900  target=560x900
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[560,900]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+
+
+---
+
+# runtime-divergence · width-820
+reference : http://localhost:3211/office-car.html
+target    : http://localhost:3210/office/car
+viewport  reference=820x1000  target=820x1000
+
+## Structure verdict (rules, not names)
+DIVERGENCE — the target's structure rules differ from the reference.
+(content nodes: reference=247  target=247)
+
+### Rules the reference has that the target does not (3)
+- body>div>aside>div>a   ×1
+- body>div>aside>div>a>i   ×1
+- body>div>b   ×1
+
+### Rules the target has that the reference does not (5)
++ body>div>aside>div>div   ×1
++ body>div>aside>div>div>a   ×1
++ body>div>aside>div>div>a>i   ×1
++ body>div>aside>div>div>button   ×1
++ body>div>aside>div>div>button>i   ×1
+
+### Same rule, different count (1)
+~ body>div>button   reference=3  target=1
+
+## What is common
+shared rule signatures: 82
+shared controls (role::name): 37
+    link::
+    link::Settings
+    button::
+    textbox::Toyota
+    textbox::Sienna
+    textbox::LE
+    spinbutton::2020
+    textbox::52,614
+    spinbutton::33,900,000
+    textbox::Silver
+    textbox::Grey
+    textbox::Reverse camera
+Power sliding doors
+Tri-zone AC
+    button::Add photos
+    button::Remove photo
+    button::Make cover
+    spinbutton::26,500
+    spinbutton::3,200
+    spinbutton::1,850
+    spinbutton::470
+    spinbutton::525,000
+    spinbutton::110,000
+    button::Available
+    button::On the way
+    button::At port
+    button::Cleared
+    button::Landed
+    checkbox::
+    textbox::Expected arrival: November
+    textbox::Duty paid, immaculate. Ready for viewing.
+    link::Cancel
+    dialog::
+    button::Not yet
+    button::Mark as sold
+    button::Keep it
+    button::Delete
+    status::
+    button::Undo
+
+## Behaviour (event → effect)
+actions in this state: {"eval":"(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()"} ; {"reload":true} ; {"resize":[820,1000]} ; {"wait":300}
+target: applied 4, failed 0
+The target reached the state (every action had an effect).
+controls the reference exposes that the target does not (2):
+    - button::Edit (Sienna)
+    - button::Add (blank)
+
+## Accessibility tree diff  (- reference / + target)
+-     - /url: office-settings.html
++     - /url: /office/settings
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-         - /url: car.html?car=2019-toyota-sienna-xle
++         - /url: /car/2019-toyota-sienna-xle
+-     - /url: office-dashboard.html
++     - /url: /office
+-     - /url: office-inventory.html
++     - /url: /office/inventory
+-     - /url: office-car.html
++     - /url: /office/car
+-     - /url: office-enquiries.html
++     - /url: /office/enquiries
+-     - /url: office-settings.html
++     - /url: /office/settings
++ - alert
+- - text: "UI review: mode"
+- - button "Edit (Sienna)"
+- - button "Add (blank)"
+
+## CSS rules
+unique-signature elements with a style/box difference: 0
+design tokens that differ: 0
+
+## What was NOT checked
+- selector text: not diffed (only computed values that fire).
+- cross-origin stylesheets unreadable: reference=2 target=2.
+- timing of animations/transitions: not measured (states settle on a wait).
+- 17 framework/glue nodes removed from the target before the compare.
+

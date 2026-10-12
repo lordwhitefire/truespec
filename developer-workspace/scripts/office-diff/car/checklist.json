@@ -1,0 +1,247 @@
+{
+  "_note": "Car form (add/edit) checklist — EDIT mode (the primary model). MODEL phase: `build` points at the reference so the run is clean; flip `build` to http://localhost:3210/office/car/TS-1009 for the COMPARE phase. Same states, both sides. The reference's `.demo` mode switcher is deleted in the product (modes are by route, plan §9 Q2) and shows up as an approved ref-only difference; the reference boots in edit mode (fillEdit) so the ambient matches.",
+  "ref": "http://localhost:3211/office-car.html",
+  "build": "http://localhost:3210/office/car",
+  "states": [
+    {
+      "name": "edit-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-1150",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1150, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-560",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [560, 900] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "hover-nav",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".sn a" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-stb",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": ".stb" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-savebtn",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "#save" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "hover-drop",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "hover": { "css": "#drop" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "focus-tab",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "press": "Tab" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "state-cleared",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".stb[data-st=\"Cleared\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "state-held",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".stb[data-st=\"Held for payment\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "photo-makecover",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".th .mk [data-mk]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "photo-remove",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": ".th .mk [data-rm]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "costing-partial",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('c-tank');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "costing-loss",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{const el=document.getElementById('f-price');const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,'10000000');el.dispatchEvent(new Event('input',{bubbles:true}))})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "modal-sold",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#mkSold" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "modal-delete",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#delBtn" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toast-sold",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#mkSold" } },
+        { "click": { "css": "#soldYes" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toast-delete",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#delBtn" } },
+        { "click": { "css": "#delYes" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "toast-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#save" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "modal-escape",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#delBtn" } },
+        { "press": "Escape" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "modal-scrim",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "click": { "css": "#mkSold" } },
+        { "eval": "(()=>{const o=document.querySelector('.ovl:not([hidden])');if(o)o.click()})()" },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}

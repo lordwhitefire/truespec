@@ -1,0 +1,80 @@
+{
+  "_note": "Car form — ADD mode (supplementary; the product reaches it by route, plan §9 Q2). The reference boots in edit and is switched with the `.demo` switcher via `[data-mode=\"add\"]`; on the build that eval is a harmless no-op (no such control) because the build page IS add mode. MODEL phase: `build` points at the reference; flip `build` to http://localhost:3210/office/car for COMPARE.",
+  "ref": "http://localhost:3211/office-car.html",
+  "build": "http://localhost:3210/office/car/new",
+  "states": [
+    {
+      "name": "add-1440-dark",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "add-light-1440",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','light')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "add-width-820",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [820, 1000] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "add-width-390",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [390, 844] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "wait": 300 }
+      ]
+    },
+    {
+      "name": "add-state-held",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "click": { "css": ".stb[data-st=\"Held for payment\"]" } },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "add-costing-typed",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "eval": "(()=>{const set=(id,v)=>{const el=document.getElementById(id);const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}))};set('f-price','33900000');set('c-purchase','26500');set('c-ship','3200');set('c-clear','1850');set('c-truckus','470');set('c-truckng','525000');set('c-tank','110000')})()" },
+        { "wait": 250 }
+      ]
+    },
+    {
+      "name": "add-toast-save",
+      "actions": [
+        { "eval": "(()=>{try{localStorage.setItem('ts-theme','dark')}catch(e){}})()" },
+        { "reload": true },
+        { "resize": [1440, 900] },
+        { "eval": "(()=>{document.querySelector('[data-mode=\"add\"]')?.click()})()" },
+        { "click": { "css": "#save" } },
+        { "wait": 250 }
+      ]
+    }
+  ]
+}
