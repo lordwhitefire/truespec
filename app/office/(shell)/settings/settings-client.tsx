@@ -1,7 +1,15 @@
 "use client";
 
-import { type InputHTMLAttributes, useEffect, useRef, useState } from "react";
+import {
+  type InputHTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
+import { StateEditor } from "./state-editors";
+import { CAR_STATES, CUSTOMER_STATES, CUSTOMER_COUNTS } from "./state-seeds";
 
 /* Settings — a faithful port of office-settings.html.
    The whole screen is presentational+local: four cards, each with its own
@@ -22,6 +30,16 @@ const FX0 = "1000";
 const TANK0 = "110000";
 const CURP0 = "demo-only";
 
+/* The Settings sub-menu (ui-plan Q58). One route, panels swapped in place —
+   no new routes, the URL never changes. */
+const TABS = [
+  { k: "general", label: "General", icon: "fa-sliders" },
+  { k: "car", label: "Car states", icon: "fa-car-side" },
+  { k: "customer", label: "Customer states", icon: "fa-users" },
+  { k: "account", label: "Account", icon: "fa-user-gear" },
+] as const;
+type TabKey = (typeof TABS)[number]["k"];
+
 const waDigits = (v: string) => v.replace(/\D/g, "");
 
 function strength(v: string) {
@@ -32,7 +50,7 @@ function strength(v: string) {
   return s;
 }
 
-export function Settings() {
+export function Settings({ carCounts = {} }: { carCounts?: Record<string, number> }) {
   const [wa, setWa] = useState(WA0);
   const [waSnap, setWaSnap] = useState(WA0);
   const [waSaved, setWaSaved] = useState(false); // clears the "good" outline after save
@@ -52,6 +70,24 @@ export function Settings() {
   const [newp2, setNewp2] = useState("");
   const [pDirty, setPDirty] = useState(false); // visible flag (boots hidden)
   const [eyes, setEyes] = useState<Record<string, boolean>>({});
+
+  const [tab, setTab] = useState<TabKey>("general");
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  function onTabKey(e: ReactKeyboardEvent<HTMLButtonElement>, k: TabKey) {
+    const i = TABS.findIndex((t) => t.k === k);
+    let n = -1;
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % TABS.length;
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+      n = (i - 1 + TABS.length) % TABS.length;
+    else if (e.key === "Home") n = 0;
+    else if (e.key === "End") n = TABS.length - 1;
+    if (n < 0) return;
+    e.preventDefault();
+    const nk = TABS[n].k;
+    setTab(nk);
+    tabRefs.current[nk]?.focus();
+  }
 
   const [toast, setToast] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -183,7 +219,34 @@ export function Settings() {
         </p>
       </div>
 
-      <div className="cards">
+      <div className="setwrap">
+        <nav className="subnav" role="tablist" aria-label="Settings sections">
+          {TABS.map((t) => (
+            <button
+              key={t.k}
+              type="button"
+              role="tab"
+              id={`tab-${t.k}`}
+              aria-selected={tab === t.k}
+              aria-controls={`panel-${t.k}`}
+              tabIndex={tab === t.k ? 0 : -1}
+              className={`subnav-it${tab === t.k ? " on" : ""}`}
+              ref={(el) => {
+                tabRefs.current[t.k] = el;
+              }}
+              onClick={() => setTab(t.k)}
+              onKeyDown={(e) => onTabKey(e, t.k)}
+            >
+              <i className={`fa-solid ${t.icon}`} />
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="setmain">
+          <div className="cards" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+        {tab === "general" && (
+          <>
         {/* ============ 1. WHATSAPP NUMBER ============ */}
         <section className="card">
           <div className="ch">
@@ -386,7 +449,38 @@ export function Settings() {
             Updated by Umar on 1 Oct 2026, 09:30
           </p>
         </section>
+          </>
+        )}
 
+        {tab === "car" && (
+          <section className="card">
+            <div className="ch">
+              <i className="fa-solid fa-car-side" />
+              <h2>Car states</h2>
+            </div>
+            <p className="cd">
+              The states a car moves through. Each maps to one section, carries its own colour,
+              and can show as an inventory filter.
+            </p>
+            <StateEditor car seed={CAR_STATES} counts={carCounts} />
+          </section>
+        )}
+
+        {tab === "customer" && (
+          <section className="card">
+            <div className="ch">
+              <i className="fa-solid fa-users" />
+              <h2>Customer states</h2>
+            </div>
+            <p className="cd">
+              The states an enquiry moves through, and the colour each carries on the board.
+            </p>
+            <StateEditor car={false} seed={CUSTOMER_STATES} counts={CUSTOMER_COUNTS} />
+          </section>
+        )}
+
+        {tab === "account" && (
+          <>
         {/* ============ 4. PASSWORD ============ */}
         <section className="card">
           <div className="ch">
@@ -461,6 +555,10 @@ export function Settings() {
             Password last changed 12 Sep 2026
           </p>
         </section>
+          </>
+        )}
+          </div>
+        </div>
       </div>
 
       {mounted

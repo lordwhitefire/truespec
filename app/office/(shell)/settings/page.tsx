@@ -1,11 +1,19 @@
 import "./settings.css";
+import { getOfficeCars } from "@/lib/office";
 import { Settings } from "./settings-client";
 
-/* Settings — four cards, each with its own validation or dirty-watch and a demo
-   toast. The screen has no data layer (plan §1 — the data model is out of scope
-   for this layer), so the page is a thin route: it imports the screen's own
-   stylesheet and mounts the client. */
+/* Settings — the four site-wide cards plus the two state editors, swapped in
+   place by the left sub-menu (ui-plan Q58). The editors are UI-only, but the
+   car-state counts are the office's own rows, so this route reads them (as
+   inventory does) and hands the counts to the client. Nothing is stored. */
 
-export default function SettingsPage() {
-  return <Settings />;
+export default async function SettingsPage() {
+  const cars = await getOfficeCars();
+  const carCounts: Record<string, number> = {};
+  for (const c of cars) {
+    if (c.sold_at !== null) continue; // a sold car is rendered as "Sold", not its old state
+    carCounts[c.state] = (carCounts[c.state] ?? 0) + 1;
+  }
+
+  return <Settings carCounts={carCounts} />;
 }

@@ -9,6 +9,7 @@ This tracks the conversion of all office/reference pages from `test-truespec-v2/
 - Screen 4 (enquiries): done (committed)
 - Screen 5 (activity): done (committed)
 - Screen 6 (settings): done (committed, 22/23 clean — toggle-theme timing race accepted)
+  - **settings add-on (RECON-001 state editors + sub-menu): done, verified, uncommitted.** New left sub-menu (General / Car states / Customer states / Account, in-place, URL unchanged) and the two state editors. UI-only, in memory. Report: `developer-workspace/reports/RECON-001-state-editors-report.md`; plan+tracker: `developer-workspace/plans/RECON-001-state-editors.md`. Live-verified 3 widths × 2 modes, no page overflow; typecheck clean.
 - Screen 7 (login): done (committed, 21/21 clean)
 - Screen 8 (404 public): done
 - Screen 9 (Privacy public): done
