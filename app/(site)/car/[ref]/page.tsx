@@ -4,6 +4,7 @@ import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { carHref } from "@/components/site/car-view";
 import { carWaLink, waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
+import { sectionLabel, tokenOf } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { getPublicCarForView, getPublicCars, getSetting } from "@/lib/public-cars";
 
@@ -21,18 +22,6 @@ export async function generateMetadata({
   const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
   return { title: `${name} | TrueSpec Automotive` };
 }
-
-const SECTION_LABEL: Record<string, string> = {
-  available: "Available",
-  "on order": "On order",
-  landed: "Landed",
-};
-
-const STATUS_KEY: Record<string, string> = {
-  available: "a",
-  "on order": "o",
-  landed: "l",
-};
 
 const RELATED_H2: Record<string, string> = {
   available: "More available cars",
@@ -62,7 +51,7 @@ function cardTitle(c: PublicCar): string {
 }
 
 function mileage(c: PublicCar): string {
-  return c.mileageKm === null ? "—" : `${c.mileageKm.toLocaleString("en-US")} mi`;
+  return c.mileageKm === null ? "—" : `${c.mileageKm.toLocaleString("en-US")} km`;
 }
 
 function leadSentence(c: PublicCar): string {
@@ -103,8 +92,8 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   const num = number ?? "";
   const name = [car.brand, car.model].filter(Boolean).join(" ");
   const special = isSpecial(car);
-  const sectionLabel = SECTION_LABEL[car.section] ?? "Available";
-  const statusKey = STATUS_KEY[car.section] ?? "a";
+  const sectionName = sectionLabel(car.section);
+  const statusKey = tokenOf(car.section);
   const wa = carWaLink(num, car);
   const offerLink = waLink(
     num,
@@ -127,7 +116,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   const note =
     car.section === "on order" && car.arrivalNote
       ? car.arrivalNote
-      : `${sectionLabel} now. Message us to arrange a viewing.`;
+      : `${sectionName} now. Message us to arrange a viewing.`;
 
   return (
     <>
@@ -150,7 +139,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
               <div className="chips in" style={{ "--d": 1 } as React.CSSProperties} id="chips">
                 <span className={`chip st ${statusKey}`}>
                   <i className="fa-solid fa-circle" />
-                  {sectionLabel}
+                  {sectionName}
                 </span>
                 <span className="chip">
                   <i className="fa-solid fa-hashtag" />
@@ -314,7 +303,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                 </div>
                 <div>
                   <span>Status</span>
-                  <b>{sectionLabel}</b>
+                  <b>{sectionName}</b>
                 </div>
               </div>
               <div className="trust">

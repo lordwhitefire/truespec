@@ -1,3 +1,5 @@
+import type { Section } from "@/lib/sections";
+
 // The built-in state lists, as seeds for the two Settings state editors
 // (RECON-001 v1). UI-only: these are the states the office already ships, and
 // the colours it already uses — nothing invented (owner ruling 2026-10-12,
@@ -8,25 +10,28 @@
 //    inventory filters the office shows). Special is NOT a row — it is the
 //    ribbon, fixed gold.
 //  - Customer states: the enquiry board's five dot colours.
-
-export type CarSection = "Available" | "On Order" | "Landed";
+//
+// Section identity is NOT defined here. A car state maps to one of the three
+// sections from `lib/sections.ts` — the one definition (R-SEC-1) — and this file
+// only names which one each owner state maps to; the editor renders each with the
+// one label (`sectionLabel`). There is no second section list.
 
 export type EditorRow = {
   id: string;
   label: string;
   colour: string;
-  /** car editor only — the section the state shows under (always set) */
-  section?: CarSection;
+  /** car editor only — the section the state shows under (one of `Section`) */
+  section?: Section;
   /** car editor only — an inventory filter, never a showroom tab */
   tab?: boolean;
 };
 
 export const CAR_STATES: EditorRow[] = [
-  { id: "available", label: "Available", colour: "#0e7a3e", section: "Available", tab: true },
-  { id: "on-the-way", label: "On the way", colour: "#3a7bd5", section: "On Order", tab: true },
-  { id: "at-port", label: "At port", colour: "#3a7bd5", section: "On Order", tab: true },
-  { id: "cleared", label: "Cleared", colour: "#c8a24a", section: "On Order", tab: true },
-  { id: "landed", label: "Landed", colour: "#b9820b", section: "Landed", tab: true },
+  { id: "available", label: "Available", colour: "#0e7a3e", section: "available", tab: true },
+  { id: "on-the-way", label: "On the way", colour: "#3a7bd5", section: "on order", tab: true },
+  { id: "at-port", label: "At port", colour: "#3a7bd5", section: "on order", tab: true },
+  { id: "cleared", label: "Cleared", colour: "#c8a24a", section: "on order", tab: true },
+  { id: "landed", label: "Landed", colour: "#b9820b", section: "landed", tab: true },
 ];
 
 export const CUSTOMER_STATES: EditorRow[] = [
@@ -47,5 +52,3 @@ export const CUSTOMER_COUNTS: Record<string, number> = {
   Sold: 1,
   Lost: 1,
 };
-
-export const SECTIONS: CarSection[] = ["Available", "On Order", "Landed"];

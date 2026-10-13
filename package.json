@@ -7,15 +7,19 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"lib/**/*.test.ts\"",
     "db:migrate": "tsx scripts/migrate.ts",
+    "demo:wipe": "node --import tsx --conditions=react-server scripts/demo-wipe.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "db:seed:office": "tsx scripts/seed-office.ts",
-    "leak-check": "tsx scripts/leak-check.ts"
+    "leak-check": "tsx scripts/leak-check.ts",
+    "store-freshness": "tsx scripts/store-freshness-check.ts"
   },
   "dependencies": {
     "@neon/config": "^1.8.6",
     "@neon/env": "^1.5.3",
     "@neondatabase/serverless": "^1.2.0",
+    "@sanity/client": "^8.9.0",
+    "@sanity/image-url": "^2.1.1",
     "dotenv": "^18.0.6",
     "next": "^15.5.27",
     "pg": "^8.23.1",

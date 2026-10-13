@@ -1,7 +1,9 @@
 import { formatNaira } from "@/lib/money";
+import { sectionLabel, type Section } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 
-export type CardVariant = "available" | "on order" | "landed";
+// The card variant is the section itself — no second section type (R-SEC-1).
+export type CardVariant = Section;
 
 export function CarCard({ car, variant }: { car: PublicCar; variant: CardVariant }) {
   const name = [car.brand, car.model].filter(Boolean).join(" ");
@@ -13,8 +15,8 @@ export function CarCard({ car, variant }: { car: PublicCar; variant: CardVariant
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={car.photos[0]} alt={`${name} ${car.trim ?? ""}`.trim()} loading="lazy" />
         {special ? <span className="ribbon">Special</span> : null}
-        {variant === "on order" ? <span className="label">On Order</span> : null}
-        {variant === "landed" ? <span className="label landed">Landed</span> : null}
+        {variant === "on order" ? <span className="label">{sectionLabel("on order")}</span> : null}
+        {variant === "landed" ? <span className="label landed">{sectionLabel("landed")}</span> : null}
       </div>
       <div className="body">
         <div className="title">{name}</div>

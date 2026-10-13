@@ -3,10 +3,14 @@ import Link from "next/link";
 import { getOfficeDashboard } from "@/lib/office";
 import { formatNaira, nairaDigits } from "@/lib/money";
 
+// The figures come from the store, so this page renders per request — never from a build-time
+// snapshot of it.
+export const dynamic = "force-dynamic";
+
 // Dashboard — built to the reference runtime model.
 //
-// The figures are computed by the office read layer (lib/office.ts) from the
-// seeded office demo dataset (office_car) — plan §6. The two feed panels
+// The figures are computed by the office read layer (lib/office.ts) from the one
+// `car` table with `cost_line` and `car_state` — plan §6. The two feed panels
 // (activity, WhatsApp taps) stay presentational for now; they are the activity
 // and enquiries screens' data and get DB-backed when those screens are built.
 export default async function DashboardPage() {
@@ -34,10 +38,10 @@ export default async function DashboardPage() {
           </small>
           <div className="num">
             <s>₦</s>
-            {nairaDigits(d.moneyTiedUpKobo)}
+            {nairaDigits(d.moneyTiedUp.kobo)}
           </div>
           <p className="foot">
-            Across <b>{d.carsInStock} cars</b> in stock — includes cars with incomplete costs, because that money is spent.
+            Across <b>{d.moneyTiedUp.of} cars</b> in stock — includes cars with incomplete costs, because that money is spent.
           </p>
         </div>
         <div className="kpi warn">
@@ -47,13 +51,13 @@ export default async function DashboardPage() {
           </small>
           <div className="num">
             <s>₦</s>
-            {nairaDigits(d.projectedProfitKobo)}
+            {nairaDigits(d.projectedProfit.kobo)}
           </div>
           <p className="foot w">
             <b>
-              From {d.profitFromCount} of {d.carsInStock} cars.
+              From {d.projectedProfit.counted} of {d.projectedProfit.of} cars.
             </b>{" "}
-            {d.profitExcludedCount} excluded: costs incomplete.{" "}
+            {d.projectedProfit.stillBuilding} excluded: costs incomplete.{" "}
             <Link href="/office/inventory" style={{ textDecoration: "underline" }}>
               See which
             </Link>
@@ -66,11 +70,11 @@ export default async function DashboardPage() {
           </small>
           <div className="num">
             <s>₦</s>
-            {nairaDigits(d.realProfitKobo)}
+            {nairaDigits(d.realProfit.kobo)}
           </div>
           <p className="foot">
-            <b>{d.soldCount} car sold</b> — {d.soldLabel}, sale price{" "}
-            {d.soldPriceKobo !== null ? formatNaira(d.soldPriceKobo) : "—"}. Sits in Inventory → Sold.
+            <b>{d.counts.sold} car sold</b> — {d.sold?.label ?? "—"}, sale price{" "}
+            {d.sold?.priceKobo != null ? formatNaira(d.sold.priceKobo) : "—"}. Sits in Inventory → Sold.
           </p>
         </div>
       </div>
@@ -80,14 +84,14 @@ export default async function DashboardPage() {
         <div className="sc">
           <i className="fa-solid fa-circle-check" />
           <div>
-            <b>{d.available} available</b>
-            <span>of which {d.newArrivals} new arrival</span>
+            <b>{d.counts.available} available</b>
+            <span>of which {d.counts.newArrivals} new arrival</span>
           </div>
         </div>
         <div className="sc">
           <i className="fa-solid fa-ship" />
           <div>
-            <b>{d.onOrder} on order</b>
+            <b>{d.counts.onOrder} on order</b>
             <span>arriving Nov – Jan</span>
           </div>
         </div>

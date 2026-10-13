@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SECTIONS, type CarSection, type EditorRow } from "./state-seeds";
+import { SECTIONS, sectionLabel, type Section } from "@/lib/sections";
+import { type EditorRow } from "./state-seeds";
 import { inkFor } from "./colour";
 
 /* The two state editors (RECON-001 v1, ui-plan Q59). One shared table; the
@@ -30,7 +31,7 @@ export function StateEditor({
     setRows((r) => [
       ...r,
       car
-        ? { id: uid(), label: "New state", colour: "", section: "Available", tab: true }
+        ? { id: uid(), label: "New state", colour: "", section: "available", tab: true }
         : { id: uid(), label: "New state", colour: "" },
     ]);
   }
@@ -43,7 +44,7 @@ export function StateEditor({
     setRows((r) => r.map((x) => (x.id === id ? { ...x, colour } : x)));
   }
 
-  function setSection(id: string, section: CarSection) {
+  function setSection(id: string, section: Section) {
     setRows((r) => r.map((x) => (x.id === id ? { ...x, section } : x)));
   }
 
@@ -186,11 +187,11 @@ export function StateEditor({
                     className="edsection"
                     aria-label={`Section for ${row.label}`}
                     value={row.section}
-                    onChange={(e) => setSection(row.id, e.target.value as CarSection)}
+                    onChange={(e) => setSection(row.id, e.target.value as Section)}
                   >
                     {SECTIONS.map((s) => (
                       <option key={s} value={s}>
-                        {s}
+                        {sectionLabel(s)}
                       </option>
                     ))}
                   </select>

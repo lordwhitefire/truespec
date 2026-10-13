@@ -1,13 +1,17 @@
-// The one counting rule (specs/dashboard, task 3.2/5.2). Showroom, home page
-// and office all read this. No second implementation may exist anywhere.
+// The one counting rule (R-CNT-1…5). Showroom, home page and office all read this.
+// No second implementation of a stock count may exist anywhere.
 //
-// Available = Available-group cars + Landed-this-year (new-arrival) cars,
-// counted once, with an "of which N new arrivals" note. On Order = on-order
+// Available = Available-group cars + Landed-this-year (new-arrival) cars, each
+// counted once, with an "of which N new arrivals" note. On Order = the on-order
 // group. Sold is counted separately, outside the stock total.
+//
+// A car's section is the one from `lib/sections.ts` — this module holds no section
+// vocabulary of its own.
 
-export type StockSection = "available" | "on order" | "landed";
+import type { Section } from "./sections";
+
 export type Countable = {
-  section: StockSection | "sold";
+  section: Section;
   isNewArrival: boolean;
   sold: boolean;
 };
@@ -42,11 +46,10 @@ export function countStock(cars: readonly Countable[]): StockCounts {
       case "landed":
         landed += 1;
         if (car.isNewArrival) {
+          // Landed this year: also buyable, counted once here (R-CNT-1).
           newArrivals += 1;
-          available += 1; // a new arrival is also buyable — counted once here
+          available += 1;
         }
-        break;
-      default:
         break;
     }
   }

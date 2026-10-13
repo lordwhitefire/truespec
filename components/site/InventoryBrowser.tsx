@@ -13,6 +13,8 @@ import {
 } from "react";
 import { waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
+import { countStock } from "@/lib/counts";
+import { SECTIONS, presentedSections, sectionLabel, tokenOf, type Section } from "@/lib/sections";
 import type { PublicCar } from "@/lib/serialize";
 import { ReferenceCard } from "./ReferenceCard";
 import { carHref, carState, carTitle } from "./car-view";
@@ -27,7 +29,7 @@ type Sort = "new" | "low" | "high" | "year";
 type View = "grid" | "list";
 
 export type InventoryInitial = {
-  status: string[]; // "a" | "o" | "l"
+  status: Section[];
   make: string[];
   year: number[];
   color: string[];
@@ -36,18 +38,6 @@ export type InventoryInitial = {
   sort: Sort;
   view: View;
 };
-
-const SECTION_OF: Record<string, PublicCar["section"]> = {
-  a: "available",
-  o: "on order",
-  l: "landed",
-};
-const TOKEN_OF: Record<PublicCar["section"], string> = {
-  available: "a",
-  "on order": "o",
-  landed: "l",
-};
-const STATUS_LABEL: Record<string, string> = { a: "Available", o: "On order", l: "Landed" };
 
 const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Benin City"];
 const WHEN = ["20 min ago", "45 min ago", "1 hr ago", "this morning"];
@@ -63,7 +53,7 @@ export function InventoryBrowser({
   number: string;
   initial: InventoryInitial;
 }) {
-  const [status, setStatus] = useState<Set<string>>(() => new Set(initial.status));
+  const [status, setStatus] = useState<Set<Section>>(() => new Set(initial.status));
   const [make, setMake] = useState<Set<string>>(() => new Set(initial.make));
   const [year, setYear] = useState<Set<number>>(() => new Set(initial.year));
   const [color, setColor] = useState<Set<string>>(() => new Set(initial.color));
@@ -95,9 +85,12 @@ export function InventoryBrowser({
     [cars],
   );
   const statusCounts = useMemo(() => {
-    const m = new Map<string, number>();
-    for (const c of cars) m.set(TOKEN_OF[c.section], (m.get(TOKEN_OF[c.section]) ?? 0) + 1);
-    return m;
+    const counts = countStock(cars);
+    return new Map<Section, number>([
+      ["available", counts.available],
+      ["on order", counts.onOrder],
+      ["landed", counts.landed],
+    ]);
   }, [cars]);
 
   const min = parsePrice(minText);
@@ -107,7 +100,7 @@ export function InventoryBrowser({
   const list = useMemo(() => {
     let l = cars.filter(
       (c) =>
-        (!status.size || status.has(TOKEN_OF[c.section])) &&
+        (!status.size || presentedSections(c).some((s) => status.has(s))) &&
         (!make.size || (c.brand != null && make.has(c.brand))) &&
         (!year.size || (c.year != null && year.has(c.year))) &&
         (!color.size || (c.exteriorColor != null && color.has(c.exteriorColor))) &&
@@ -123,7 +116,7 @@ export function InventoryBrowser({
   // ---- deep links (reference syncURL) -------------------------------------
   useEffect(() => {
     const p = new URLSearchParams();
-    if (status.size) p.set("status", [...status].sort().join(","));
+    if (status.size) p.set("status", [...status].map(tokenOf).sort().join(","));
     if (make.size) p.set("make", [...make].join(","));
     if (year.size) p.set("year", [...year].join(","));
     if (color.size) p.set("color", [...color].join(","));
@@ -362,17 +355,17 @@ export function InventoryBrowser({
                 <div className="sbb">
                   <details className="fs" open>
                     <summary>Status</summary>
-                    {(["a", "o", "l"] as const).map((k) => (
-                      <label className="ck" key={k}>
+                    {SECTIONS.map((section) => (
+                      <label className="ck" key={section}>
                         <input
                           type="checkbox"
                           name="status"
-                          value={k}
-                          checked={status.has(k)}
-                          onChange={(e) => toggle<string>(setStatus, k, e.target.checked)}
+                          value={tokenOf(section)}
+                          checked={status.has(section)}
+                          onChange={(e) => toggle<Section>(setStatus, section, e.target.checked)}
                         />
-                        {STATUS_LABEL[k]}
-                        <em>{statusCounts.get(k) ?? 0}</em>
+                        {sectionLabel(section)}
+                        <em>{statusCounts.get(section) ?? 0}</em>
                       </label>
                     ))}
                   </details>
@@ -632,7 +625,7 @@ function InventoryRow({ car }: { car: PublicCar }) {
                 <i className="fa-solid fa-road" />
                 Mileage
               </small>
-              <b>{car.mileageKm.toLocaleString("en-US")} mi</b>
+              <b>{car.mileageKm.toLocaleString("en-US")} km</b>
             </div>
           ) : null}
           {car.exteriorColor ? (

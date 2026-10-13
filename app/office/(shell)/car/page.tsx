@@ -1,6 +1,10 @@
 import "./car.css";
-import { getOfficeCars } from "@/lib/office";
+import { getOfficeCarViews, getOfficeStates } from "@/lib/office";
 import { CarForm, type CarFormData } from "./car-client";
+
+// The car comes from the store, so this page renders per request — never from a build-time
+// snapshot of it.
+export const dynamic = "force-dynamic";
 
 /* The reference office-car.html boots in edit mode on a single demo car
    (TS-1009, Toyota Sienna LE 2020). The product reaches the car form by route
@@ -9,11 +13,13 @@ import { CarForm, type CarFormData } from "./car-client";
    sends to the car form; `/office/car/new` is add mode.
 
    Shared fields (brand/model/trim/year/mileage/price/state/new-arrival/arrival
-   note) come from the office read layer. The form-only fields the office data
-   model does not own (exterior/interior, features, private notes, photos, and
-   the six cost lines) are presentational demo values here, exactly as the
-   reference hardcodes them in its own script — data-model work is out of scope
-   for this layer (plan §1). */
+   note) come from the office read layer, and the car's section from the one rule
+   (through the adapter). The form-only fields the office data model does not own
+   (exterior/interior, features, private notes, photos) are presentational demo
+   values here, exactly as the reference hardcodes them in its own script —
+   data-model work is out of scope for this layer (plan §1). All six cost lines
+   are naira (the rate is gone); the demo amounts are the reference's USD amounts
+   at the old ₦1,000 rate, now simply naira. */
 
 const DEMO_REF = "TS-1009";
 
@@ -30,17 +36,17 @@ const FORM_DEMO = {
     "1659029933222-8ce502a9fa7d",
   ],
   costs: {
-    purchase: "26500",
-    ship: "3200",
-    clear: "1850",
-    truckus: "470",
+    purchase: "26500000",
+    ship: "3200000",
+    clear: "1850000",
+    truckus: "470000",
     truckng: "525000",
     tank: "110000",
   },
 };
 
 export default async function CarPage() {
-  const cars = await getOfficeCars();
+  const [cars, states] = await Promise.all([getOfficeCarViews(), getOfficeStates()]);
   const c = cars.find((x) => x.ref === DEMO_REF);
 
   const priceNaira =
@@ -56,9 +62,15 @@ export default async function CarPage() {
     mileage: c?.mileage != null ? c.mileage.toLocaleString("en-US") : "",
     price: priceNaira,
     state: c?.state ?? "Available",
+    section: c?.section ?? "available",
     isNew: c?.is_new_arrival ?? false,
     arr: c?.arrival_note ?? "",
   };
 
-  return <CarForm mode="edit" data={data} />;
+  // The owner's state → the one section, from the registry (the office adapter's
+  // own read). The form renames its live cost figure from this, never from a map
+  // of its own (R-MON-7).
+  const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
+
+  return <CarForm mode="edit" data={data} stateSections={stateSections} />;
 }

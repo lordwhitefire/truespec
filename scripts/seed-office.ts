@@ -1,6 +1,13 @@
 import { config as loadEnv } from "dotenv";
 import { Client } from "pg";
 
+// RETIRED (TASK-003 Task 14). Superseded by `scripts/seed.ts`, the one demo-fleet
+// seed. This script wrote `office_car` and `office_users` — the office's separate
+// 15-car table with one lump cost per car and mileage in miles. The office now
+// reads the one `car` table with `cost_line` and `car_state`, and `office_car` is
+// dropped by migration `0015`. Kept (not deleted) only so the change is visible;
+// its npm script is removed, so nothing runs it.
+
 loadEnv({ path: ".env.local" });
 
 const N = (naira: number) => Math.round(naira * 100); // naira -> kobo

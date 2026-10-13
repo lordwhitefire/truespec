@@ -2,8 +2,17 @@
 // public car data, from an explicit allow-list. The output is built field by
 // field — a raw row is never spread — so a cost/rate/profit field cannot leak
 // by accident of serialization.
+//
+// The section vocabulary is not defined here: it comes from `lib/sections.ts`
+// (R-SEC-5), and the row's section is resolved by that module's one rule rather
+// than trusted straight from the registry column (R-SEC-2).
 
-export type PublicSection = "available" | "on order" | "landed";
+import { createImageUrlBuilder } from "@sanity/image-url";
+
+import { sectionOfState, type Section } from "./sections";
+
+// The public section is the one section, sourced from `lib/sections.ts` (R-SEC-5).
+export type PublicSection = Section;
 
 export type PublicCar = {
   ref: string;
@@ -23,8 +32,11 @@ export type PublicCar = {
   isNewArrival: boolean;
   // ui-plan Q38: the On Order arrival chip.
   arrivalNote: string | null;
-  sold?: boolean;
-  soldAt?: string | null;
+  // Always set by the one constructor (`toPublicCar`); read by the car page's sold
+  // view and by the counting rule. Not part of the public allow-list (they are
+  // markers, not listing data), so they stay off `PUBLIC_CAR_FIELDS`.
+  sold: boolean;
+  soldAt: string | null;
 };
 
 export const PUBLIC_CAR_FIELDS: readonly (keyof PublicCar)[] = [
@@ -58,7 +70,10 @@ export type RawCarRow = {
   was_price_kobo: number | string | null;
   arrival_note: string | null;
   doorstep_price_kobo: number | string | null;
-  section: PublicSection;
+  /** The owner's state label — read for resolution only, never part of the payload (R-SEC-5). */
+  state: string;
+  /** The section the state registry says the state means — resolved by `lib/sections.ts` (R-SEC-2). */
+  configured_section: string;
   is_new_arrival: boolean;
   sold: boolean;
   sold_at: string | null;
@@ -97,9 +112,24 @@ export function resolvePhotoUrl(
   projectId: string,
   dataset: string,
 ): string {
-  // Seed/demo assets store a full URL; Sanity assets store an asset id.
-  if (/^https?:\/\//.test(assetId)) return assetId;
-  return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}`;
+  // A photo row holds a Sanity asset reference and nothing else — never a third-party address
+  // (task.md conflict 5). The branch that passed one through is gone: the rebuild-from-nothing
+  // (Task 20) left the store holding 49 references and 0 addresses, so there is nothing left to
+  // pass through. Something that is not a reference arriving here is an invariant broken, and it
+  // fails here, named — rather than rendering as a plausible broken image, or quietly putting
+  // someone else's media back on a public page.
+  if (!assetId.startsWith("image-")) {
+    throw new Error(
+      `a photo row holds what is not a Sanity asset reference: ${assetId.slice(0, 80)}`,
+    );
+  }
+
+  // The store holds a Sanity asset id (`image-<hash>-<w>x<h>-<ext>`), which is
+  // *not* the CDN path: the address drops the `image-` prefix and turns the last
+  // dash into a dot (`…-1200x800.jpg`). Concatenating the id straight into the
+  // path yields a 400 from the CDN, so the derivation is done by Sanity's own
+  // builder rather than by hand.
+  return createImageUrlBuilder({ projectId, dataset }).image(assetId).url();
 }
 
 export function isListed(row: RawCarRow): boolean {
@@ -125,7 +155,8 @@ export function toPublicCar(
     photos: assetIds.map((id) => resolvePhotoUrl(id, env.sanityProjectId, env.sanityDataset)),
     priceKobo: Number(row.doorstep_price_kobo),
     wasPriceKobo: row.was_price_kobo === null ? null : Number(row.was_price_kobo),
-    section: row.section,
+    // The one state→section rule (R-SEC-2), never the raw column.
+    section: sectionOfState(row.state, row.configured_section),
     isNewArrival: row.is_new_arrival,
     arrivalNote: row.arrival_note,
     sold: row.sold,

@@ -26,7 +26,6 @@ import { CAR_STATES, CUSTOMER_STATES, CUSTOMER_COUNTS } from "./state-seeds";
 
 const WA0 = "+234 800 000 0000";
 const TAG0 = "Imported from the USA. Delivered anywhere in Nigeria.";
-const FX0 = "1000";
 const TANK0 = "110000";
 const CURP0 = "demo-only";
 
@@ -60,9 +59,7 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
   const [tagSnap, setTagSnap] = useState(TAG0);
   const [tagN, setTagN] = useState("44"); // reference hardcodes 44 at boot
 
-  const [fx, setFx] = useState(FX0);
   const [tank, setTank] = useState(TANK0);
-  const [fxSnap, setFxSnap] = useState(FX0);
   const [tankSnap, setTankSnap] = useState(TANK0);
 
   const [curp, setCurp] = useState(CURP0);
@@ -144,16 +141,12 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
     showToast("Tagline saved (demo). The home page updates immediately.");
   }
 
-  /* ---------- 3. FX + tank ---------- */
-  const fxDirty = fx !== fxSnap || tank !== tankSnap;
+  /* ---------- 3. Cost default ---------- */
+  const tankDirty = tank !== tankSnap;
 
-  function saveFx() {
-    setFxSnap(fx);
+  function saveTank() {
     setTankSnap(tank);
-    const rate = parseInt(fx, 10) || 1000;
-    showToast(
-      `Defaults saved (demo). Rate ₦${rate.toLocaleString("en-US")} per $1 applies to new cost entries only.`,
-    );
+    showToast("Default saved (demo). Full tank is pre-filled on every new car.");
   }
 
   /* ---------- 4. Password ---------- */
@@ -387,37 +380,17 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
           </p>
         </section>
 
-        {/* ============ 3. CURRENCY & DEFAULTS ============ */}
+        {/* ============ 3. COST DEFAULT ============ */}
         <section className="card">
           <div className="ch">
-            <i className="fa-solid fa-dollar-sign" />
-            <h2>Currency &amp; cost defaults</h2>
+            <i className="fa-solid fa-naira-sign" />
+            <h2>Cost default</h2>
           </div>
           <p className="cd">
-            Used when typing a car&apos;s costs. Existing cost lines keep the rate they
-            were entered at — this setting only affects new entries.
+            Pre-filled when typing a car&apos;s costs. Every amount is in naira — there is
+            no currency conversion.
           </p>
           <div className="r2">
-            <div className="f">
-              <label htmlFor="fx">Dollar rate</label>
-              <div className="per">
-                <span className="cur">
-                  <span>₦</span>
-                  <input
-                    className="in"
-                    id="fx"
-                    type="number"
-                    min={1}
-                    step={5}
-                    value={fx}
-                    style={{ paddingLeft: 34 }}
-                    onChange={(e) => setFx(e.target.value)}
-                  />
-                </span>
-                <span>per $1</span>
-              </div>
-              <p className="hint">Landed cost = dollar costs × this rate + naira costs.</p>
-            </div>
             <div className="f">
               <label htmlFor="tank">Full tank</label>
               <div className="cur">
@@ -436,10 +409,10 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
             </div>
           </div>
           <div className="srow2">
-            <button className="btn" id="fxSave" type="button" disabled={!fxDirty} onClick={saveFx}>
-              Save defaults
+            <button className="btn" id="tankSave" type="button" disabled={!tankDirty} onClick={saveTank}>
+              Save default
             </button>
-            <span className="dirty" id="fxDirty" hidden={!fxDirty}>
+            <span className="dirty" id="tankDirty" hidden={!tankDirty}>
               <i className="fa-solid fa-pencil" />
               Unsaved change
             </span>

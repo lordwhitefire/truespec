@@ -2,50 +2,60 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
+import { formatNaira } from "@/lib/money";
+import type { Section } from "@/lib/sections";
+import type { StockCounts } from "@/lib/counts";
 
 // Inventory client — reproduces the reference office-inventory.html behaviour
 // exactly: state chips (zero-count hidden unless active), search + sort, the
 // count line, the table (desktop) / cards (phone) pair, the dual empty block,
 // and the body-level confirm modal + undo toast (portaled so the DOM shape
 // matches the reference: shell → bnav → ovl → toast as body children).
+//
+// The owner's state labels come from the registry, passed in from the page
+// (`states`); this component keeps no state vocabulary of its own. Only the
+// presentational dot colour is derived, from the car's section — colour per
+// state is named for TASK-003.
 
 export type InventoryRow = {
   ref: string;
   name: string;
   year: number | null;
-  state: "av" | "ow" | "pt" | "ld" | "sd";
-  stLabel: string;
+  /** The owner's private state label — office-only. */
+  state: string;
+  /** The one section identity, from `lib/sections.ts`. */
+  section: Section;
+  /** Sold is a flag, not a state (R-SLD). */
+  sold: boolean;
+  /** The cost figure's name, from `costLabelFor` (R-MON-7). */
+  costLabel: string;
   mileage: string;
   price: number; // kobo
-  landed: number | null; // kobo
+  cost: number | null; // kobo
   profit: number | null; // kobo
   soldOn?: string;
   note?: string;
 };
 
-const ORDER = ["all", "av", "ow", "pt", "ld", "sd"] as const;
-type StateKey = (typeof ORDER)[number];
+export type InventoryState = { label: string; section: Section };
 
-const LABEL: Record<StateKey, string> = {
-  all: "All",
-  av: "Available",
-  ow: "On the way",
-  pt: "At port",
-  ld: "Landed",
-  sd: "Sold",
+const ALL = "__all";
+const SOLD = "__sold";
+
+// Presentation only: the dot colour follows the car's section. Per-state colour
+// is named for TASK-003, not built here.
+const SECTION_CLASS: Record<Section, string> = {
+  available: "av",
+  "on order": "ow",
+  landed: "ld",
 };
-
-const ST_CLS: Record<string, string> = { av: "av", ow: "ow", pt: "pt", ld: "ld", sd: "sd" };
-
-const naira = (kobo: number) => "₦" + Math.trunc(kobo / 100).toLocaleString("en-US");
 
 function stChip(c: InventoryRow) {
   return (
     <>
-      <span className={`st ${ST_CLS[c.state]}`}>
+      <span className={`st ${c.sold ? "sd" : SECTION_CLASS[c.section]}`}>
         <i />
-        {c.stLabel}
+        {c.sold ? "Sold" : c.state}
       </span>
       {c.note ? (
         <div style={{ fontSize: "11.5px", color: "var(--mute)", marginTop: 4 }}>{c.note}</div>
@@ -60,7 +70,7 @@ function moneyCell(v: number | null) {
       Costs incomplete
     </a>
   ) : (
-    <span className="money">{naira(v)}</span>
+    <span className="money">{formatNaira(v)}</span>
   );
 }
 
@@ -74,15 +84,23 @@ function profitCell(c: InventoryRow) {
   }
   return (
     <span className={`money pf ${c.profit < 0 ? "loss" : "pok"}`}>
-      <b>{naira(c.profit)}</b>
+      <b>{formatNaira(c.profit)}</b>
       {c.profit < 0 ? <span className="loss"> loss</span> : null}
     </span>
   );
 }
 
-export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
+export function InventoryClient({
+  rows: initial,
+  states,
+  counts,
+}: {
+  rows: InventoryRow[];
+  states: InventoryState[];
+  counts: StockCounts;
+}) {
   const [rows, setRows] = useState(initial);
-  const [fState, setFState] = useState<StateKey>("all");
+  const [fState, setFState] = useState<string>(ALL);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("new");
   const [del, setDel] = useState<InventoryRow | null>(null);
@@ -111,7 +129,7 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
   const list = useMemo(() => {
     let l = rows.filter(
       (c) =>
-        (fState === "all" || c.state === fState) &&
+        (fState === ALL || (fState === SOLD ? c.sold : !c.sold && c.state === fState)) &&
         (!q || (c.name + " " + c.ref).toLowerCase().includes(q)),
     );
     if (sort === "ph") l = [...l].sort((a, b) => b.price - a.price);
@@ -120,13 +138,25 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
     return l;
   }, [rows, fState, q, sort]);
 
-  const chipCounts = (k: StateKey) =>
-    k === "all" ? rows.length : rows.filter((c) => c.state === k).length;
+  // The chips come from the owner's registry; only the counts are view facet
+  // counts, except Sold, which is the counting rule's own sold figure.
+  const chips: { key: string; label: string }[] = [
+    { key: ALL, label: "All" },
+    ...states.map((s) => ({ key: s.label, label: s.label })),
+    { key: SOLD, label: "Sold" },
+  ];
 
-  const stock = rows.filter((c) => c.state !== "sd").length;
+  const chipCounts = (k: string) =>
+    k === ALL
+      ? rows.length
+      : k === SOLD
+        ? counts.sold
+        : rows.filter((c) => !c.sold && c.state === k).length;
+
+  const stock = rows.length - counts.sold;
 
   function clearFilters() {
-    setFState("all");
+    setFState(ALL);
     setQ("");
     if (qRef.current) qRef.current.value = "";
   }
@@ -195,17 +225,17 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
       </div>
 
       <div className="chipf" id="states" role="group" aria-label="Filter by state">
-        {ORDER.map((k) => {
-          const n = chipCounts(k);
-          if (k !== "all" && !n && fState !== k) return null;
+        {chips.map(({ key, label }) => {
+          const n = chipCounts(key);
+          if (key !== ALL && !n && fState !== key) return null;
           return (
             <button
-              key={k}
+              key={key}
               type="button"
-              className={fState === k ? "on" : undefined}
-              onClick={() => setFState(k)}
+              className={fState === key ? "on" : undefined}
+              onClick={() => setFState(key)}
             >
-              {LABEL[k]}
+              {label}
               {n ? <em>{n}</em> : null}
             </button>
           );
@@ -216,7 +246,7 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
         {list.length === rows.length ? (
           <>
             <b>{rows.length} cars</b>{" — "}
-            {stock} in stock, {rows.length - stock} sold
+            {stock} in stock, {counts.sold} sold
           </>
         ) : (
           <>
@@ -233,26 +263,26 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
                 <th>Car</th>
                 <th>State</th>
                 <th className="r">Price</th>
-                <th className="r">Landed cost</th>
+                <th className="r">Cost</th>
                 <th className="r">Profit</th>
                 <th className="r">Actions</th>
               </tr>
             </thead>
             <tbody id="rows">
               {list.map((c) => (
-                <tr key={c.ref} className={c.state === "sd" ? "soldrow" : undefined}>
+                <tr key={c.ref} className={c.sold ? "soldrow" : undefined}>
                   <td className="carx">
                     <b>
                       {c.name} {c.year}
                     </b>
                     <small>
                       {c.ref} · {c.mileage}
-                      {c.state === "sd" ? ` · sold ${c.soldOn}` : ""}
+                      {c.sold ? ` · sold ${c.soldOn}` : ""}
                     </small>
                   </td>
                   <td>{stChip(c)}</td>
-                  <td className="r money">{naira(c.price)}</td>
-                  <td className="r">{moneyCell(c.landed)}</td>
+                  <td className="r money">{formatNaira(c.price)}</td>
+                  <td className="r">{moneyCell(c.cost)}</td>
                   <td className="r">{profitCell(c)}</td>
                   <td className="r">
                     <div className="acts">
@@ -287,23 +317,23 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
         {list.map((c) => (
           <article
             key={c.ref}
-            className={`ccard${c.state === "sd" ? " soldrow" : ""}`}
-            style={c.state === "sd" ? { opacity: 0.75 } : undefined}
+            className={`ccard${c.sold ? " soldrow" : ""}`}
+            style={c.sold ? { opacity: 0.75 } : undefined}
           >
             <div className="chead">
               <h3>
                 {c.name} {c.year}
                 <small>
                   {c.ref} · {c.mileage}
-                  {c.state === "sd" ? ` · sold ${c.soldOn}` : ""}
+                  {c.sold ? ` · sold ${c.soldOn}` : ""}
                 </small>
               </h3>
               {stChip(c)}
             </div>
             <div className="cmoney">
               <div>
-                <small>Price{c.state === "sd" ? " (sold for)" : ""}</small>
-                <b>{naira(c.price)}</b>
+                <small>Price{c.sold ? " (sold for)" : ""}</small>
+                <b>{formatNaira(c.price)}</b>
               </div>
               <div>
                 <small>Profit</small>
@@ -316,21 +346,21 @@ export function InventoryClient({ rows: initial }: { rows: InventoryRow[] }) {
                     className={c.profit < 0 ? undefined : "pok"}
                     style={c.profit < 0 ? { color: "var(--bad)" } : undefined}
                   >
-                    {naira(c.profit)}
+                    {formatNaira(c.profit)}
                   </b>
                 )}
               </div>
               <div>
-                <small>Landed cost</small>
-                {c.landed == null ? (
+                <small>{c.costLabel}</small>
+                {c.cost == null ? (
                   <span style={{ color: "var(--mute)" }}>—</span>
                 ) : (
-                  <b>{naira(c.landed)}</b>
+                  <b>{formatNaira(c.cost)}</b>
                 )}
               </div>
               <div>
                 <small>State</small>
-                <b style={{ fontSize: 13 }}>{c.stLabel}</b>
+                <b style={{ fontSize: 13 }}>{c.sold ? "Sold" : c.state}</b>
               </div>
             </div>
             <div className="cfoot">

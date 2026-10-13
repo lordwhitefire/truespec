@@ -2,6 +2,10 @@ import "./settings.css";
 import { getOfficeCars } from "@/lib/office";
 import { Settings } from "./settings-client";
 
+// The cars come from the store, so this page renders per request — never from a build-time
+// snapshot of it.
+export const dynamic = "force-dynamic";
+
 /* Settings — the four site-wide cards plus the two state editors, swapped in
    place by the left sub-menu (ui-plan Q58). The editors are UI-only, but the
    car-state counts are the office's own rows, so this route reads them (as

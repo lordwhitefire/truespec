@@ -9,6 +9,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import {
+  costLabelFor,
+  formatNaira,
+  isCostComplete,
+  parseCostAmount,
+  profitKobo,
+  totalCostKobo,
+  SIX_COST_KINDS,
+  type CostLineInput,
+} from "@/lib/money";
+import type { Section } from "@/lib/sections";
 
 export type CarCosts = {
   purchase: string;
@@ -34,15 +45,14 @@ export type CarFormData = {
   feat: string;
   costs: CarCosts;
   state: string;
+  /** The car's section, from `lib/sections.ts` (the one rule) — names the live cost. */
+  section: Section;
   isNew: boolean;
   arr: string;
   note: string;
   imgs: string[];
 };
 
-const RATE = 1000;
-const naira = (n: number) => "₦" + Math.round(n).toLocaleString("en-US");
-const usd = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
 const imgURL = (id: string, w: number) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
 
@@ -58,80 +68,165 @@ const BLANK_COSTS: CarCosts = {
   tank: "",
 };
 
-function parse(v: string): number | null {
-  const n = parseFloat(v);
-  return Number.isNaN(n) ? null : n;
-}
+// The six cost fields, in the order of the one money module's six kinds
+// (`SIX_COST_KINDS`) — a field's stored kind is its position, so no second kind
+// list exists here. Every amount is naira (R-MON-3); nothing is converted.
+const COST_FIELDS = ["purchase", "ship", "clear", "truckus", "truckng", "tank"] as const;
+type CostField = (typeof COST_FIELDS)[number];
+const KIND_BY_FIELD: Record<CostField, (typeof SIX_COST_KINDS)[number]> = {
+  purchase: "purchase_price",
+  ship: "shipping",
+  clear: "clearing",
+  truckus: "trucking_usa",
+  truckng: "trucking_ng",
+  tank: "full_tank",
+};
 
-function compute(priceStr: string, c: CarCosts) {
-  const price = parse(priceStr);
-  const us = [parse(c.purchase), parse(c.ship), parse(c.clear), parse(c.truckus)];
-  const ng = [parse(c.truckng), parse(c.tank)];
-  const usdSum = us.reduce<number>((a, v) => a + (v || 0), 0);
-  const ngSum = ng.reduce<number>((a, v) => a + (v || 0), 0);
-  const entered = us.concat(ng).filter((v) => v != null).length;
-  const hasAny = entered > 0;
-  const landed = hasAny ? usdSum * RATE + ngSum : null;
+type CostErrors = Partial<Record<CostField | "price", string>>;
 
-  const usdTxt = hasAny && usdSum ? usd(usdSum) : "—";
-  const ngnTxt = hasAny && ngSum ? naira(ngSum) : "—";
-  const priceTxt = price != null ? naira(price) : "—";
-  const landedTxt = landed != null ? naira(landed) : "—";
+// The live panel — every figure from `lib/money.ts` (naira only; no rate, no
+// dollar). A malformed amount shows its message at its own field and is not
+// counted (R-MON-10); a car with incomplete costs shows no profit (R-MON-8);
+// the cost figure is named by the car's state (R-MON-7). No arithmetic here.
+function compute(priceStr: string, c: CarCosts, section: Section) {
+  const readings = COST_FIELDS.map((field) => ({ field, raw: c[field], parsed: parseCostAmount(c[field]) }));
+
+  const costLines: CostLineInput[] = readings.map((r) => ({
+    kind: KIND_BY_FIELD[r.field],
+    amountMinor: r.parsed.ok ? r.parsed.amountMinor : null,
+  }));
+
+  const errors: CostErrors = {};
+  for (const r of readings) {
+    if (r.raw.trim() !== "" && !r.parsed.ok) errors[r.field] = r.parsed.error;
+  }
+
+  const entered = costLines.filter((l) => l.amountMinor !== null).length;
+  const complete = isCostComplete(costLines);
+  const totalKobo = totalCostKobo(costLines);
   const count = `${entered} of 6 costs entered.`;
   const showInc = entered !== 6;
+
+  const priceParsed = parseCostAmount(priceStr);
+  const priceKobo = priceStr.trim() === "" ? null : priceParsed.ok ? priceParsed.amountMinor : null;
+  if (priceStr.trim() !== "" && !priceParsed.ok) errors.price = priceParsed.error;
+
+  const costTxt = entered > 0 ? formatNaira(totalKobo) : "—";
+  const priceTxt = priceKobo != null ? formatNaira(priceKobo) : "—";
+  const costLabel = costLabelFor(section, false);
 
   let profitTxt = "—";
   let profitCls = "num";
   let psub =
-    price == null
+    priceKobo == null
       ? "Enter a doorstep price to see profit."
-      : "Type the costs — this updates as you type.";
-  if (price != null && landed != null) {
-    const p = price - landed;
-    profitTxt = naira(p) + (p < 0 ? " loss" : "");
+      : entered === 0
+        ? "Type the costs — this updates as you type."
+        : "Profit shows once all six costs are in.";
+  if (priceKobo != null && complete) {
+    const p = profitKobo({ totalCostKobo: totalKobo, priceKobo, salePriceKobo: null }).kobo ?? 0;
+    profitTxt = formatNaira(p) + (p < 0 ? " loss" : "");
     profitCls = "num " + (p < 0 ? "loss" : "ok");
     psub =
       p < 0
         ? "This price loses money. Raise the price or rethink the buy."
-        : `Price − landed. ≈ ${((p / price) * 100).toFixed(1)}% of the price.`;
+        : `Price − cost. ≈ ${((p / priceKobo) * 100).toFixed(1)}% of the price.`;
   }
 
-  const mLanded = landed != null ? naira(landed) : "—";
+  const mCost = complete ? formatNaira(totalKobo) : "—";
   let mProfit = "—";
   let mProfitCls = "";
-  if (price != null && landed != null) {
-    const p = price - landed;
-    mProfit = naira(p);
+  if (priceKobo != null && complete) {
+    const p = profitKobo({ totalCostKobo: totalKobo, priceKobo, salePriceKobo: null }).kobo ?? 0;
+    mProfit = formatNaira(p);
     mProfitCls = p < 0 ? "loss" : "ok";
   }
 
   return {
-    usdTxt,
-    ngnTxt,
+    costTxt,
+    costLabel,
     priceTxt,
-    landedTxt,
     count,
     showInc,
     profitTxt,
     profitCls,
     psub,
-    mLanded,
+    mCost,
     mProfit,
     mProfitCls,
+    errors,
   };
+}
+
+// One cost input — all naira (₦), validated by the one predicate at the field
+// (R-MON-10): an amount that is not a valid naira figure shows its message here,
+// before the form is saved. The naira sign is part of the field; no dollar sign.
+function CostInput({
+  field,
+  label,
+  placeholder,
+  value,
+  error,
+  hint,
+  onInput,
+}: {
+  field: CostField;
+  label: string;
+  placeholder: string;
+  value: string;
+  error?: string;
+  hint?: string;
+  onInput: () => void;
+}) {
+  const id = `c-${field}`;
+  return (
+    <div className="f">
+      <label htmlFor={id}>{label} (₦)</label>
+      <div className="cur">
+        <span>₦</span>
+        <input
+          className="in cost"
+          id={id}
+          type="text"
+          inputMode="decimal"
+          placeholder={placeholder}
+          defaultValue={value}
+          onInput={onInput}
+          aria-invalid={error ? true : undefined}
+        />
+      </div>
+      {hint ? <span className="hint">{hint}</span> : null}
+      {error ? (
+        <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 export function CarForm({
   mode,
   data,
+  stateSections,
 }: {
   mode: "edit" | "add";
   data: CarFormData;
+  /** The owner's state registry (label → the one section), from the office adapter. */
+  stateSections: Record<string, Section>;
 }) {
   const isEdit = mode === "edit";
 
+  // A state the registry does not hold (the demo custom state) keeps the car's
+  // own section — the label is never guessed from an unmapped state.
+  const sectionFor = (state: string) => stateSections[state] ?? data.section;
+
   const [panel, setPanel] = useState(() =>
-    compute(isEdit ? data.price : "", isEdit ? data.costs : BLANK_COSTS),
+    compute(
+      isEdit ? data.price : "",
+      isEdit ? data.costs : BLANK_COSTS,
+      sectionFor(isEdit ? data.state : "Available"),
+    ),
   );
   const [imgs, setImgs] = useState<string[]>(isEdit ? data.imgs : []);
   const [curState, setCurState] = useState(isEdit ? data.state : "Available");
@@ -162,20 +257,33 @@ export function CarForm({
     [],
   );
 
-  const recalc = () => {
+  const recalc = (state: string = curState) => {
     const g = (id: string) =>
       (document.getElementById(id) as HTMLInputElement | null)?.value ?? "";
     setPanel(
-      compute(g("f-price"), {
-        purchase: g("c-purchase"),
-        ship: g("c-ship"),
-        clear: g("c-clear"),
-        truckus: g("c-truckus"),
-        truckng: g("c-truckng"),
-        tank: g("c-tank"),
-      }),
+      compute(
+        g("f-price"),
+        {
+          purchase: g("c-purchase"),
+          ship: g("c-ship"),
+          clear: g("c-clear"),
+          truckus: g("c-truckus"),
+          truckng: g("c-truckng"),
+          tank: g("c-tank"),
+        },
+        sectionFor(state),
+      ),
     );
   };
+
+  // The cost figure is named by the state (R-MON-7), so changing the state
+  // renames it even when no amount changed.
+  useEffect(() => {
+    recalc(curState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curState]);
+
+  const hasFieldErrors = Object.keys(panel.errors).length > 0;
 
   const showToast = (html: string) => {
     setToastMsg(html);
@@ -287,7 +395,7 @@ export function CarForm({
                   defaultValue={isEdit ? data.mileage : ""}
                 />
                 <span className="hint">
-                  Shown exactly as the car reads — miles for US imports.
+                  Shown exactly as the car reads — kilometres.
                 </span>
               </div>
               <div className="f">
@@ -297,18 +405,23 @@ export function CarForm({
                   <input
                     className="in"
                     id="f-price"
-                    type="number"
-                    min={0}
-                    step={50000}
+                    type="text"
+                    inputMode="decimal"
                     placeholder="33,900,000"
                     defaultValue={isEdit ? data.price : ""}
-                    onInput={recalc}
+                    onInput={() => recalc()}
+                    aria-invalid={panel.errors.price ? true : undefined}
                   />
                 </div>
                 <span className="hint">
                   The one price a buyer sees. Shipping, clearing and delivery are
                   already inside it.
                 </span>
+                {panel.errors.price ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {panel.errors.price}
+                  </span>
+                ) : null}
               </div>
               <div className="f">
                 <label htmlFor="f-ext">Exterior colour</label>
@@ -410,101 +523,55 @@ export function CarForm({
               </span>
             </h2>
             <div className="fgrid">
-              <div className="f">
-                <label htmlFor="c-purchase">Purchase price ($)</label>
-                <div className="cur">
-                  <span>$</span>
-                  <input
-                    className="in cost"
-                    id="c-purchase"
-                    type="number"
-                    min={0}
-                    placeholder="26,500"
-                    defaultValue={isEdit ? data.costs.purchase : ""}
-                    onInput={recalc}
-                  />
-                </div>
-              </div>
-              <div className="f">
-                <label htmlFor="c-ship">Shipping ($)</label>
-                <div className="cur">
-                  <span>$</span>
-                  <input
-                    className="in cost"
-                    id="c-ship"
-                    type="number"
-                    min={0}
-                    placeholder="3,200"
-                    defaultValue={isEdit ? data.costs.ship : ""}
-                    onInput={recalc}
-                  />
-                </div>
-              </div>
-              <div className="f">
-                <label htmlFor="c-clear">Clearing ($)</label>
-                <div className="cur">
-                  <span>$</span>
-                  <input
-                    className="in cost"
-                    id="c-clear"
-                    type="number"
-                    min={0}
-                    placeholder="1,850"
-                    defaultValue={isEdit ? data.costs.clear : ""}
-                    onInput={recalc}
-                  />
-                </div>
-              </div>
-              <div className="f">
-                <label htmlFor="c-truckus">Trucking within USA ($)</label>
-                <div className="cur">
-                  <span>$</span>
-                  <input
-                    className="in cost"
-                    id="c-truckus"
-                    type="number"
-                    min={0}
-                    placeholder="470"
-                    defaultValue={isEdit ? data.costs.truckus : ""}
-                    onInput={recalc}
-                  />
-                </div>
-              </div>
-              <div className="f">
-                <label htmlFor="c-truckng">Trucking in Nigeria (₦)</label>
-                <div className="cur">
-                  <span>₦</span>
-                  <input
-                    className="in cost"
-                    id="c-truckng"
-                    type="number"
-                    min={0}
-                    step={10000}
-                    placeholder="525,000"
-                    defaultValue={isEdit ? data.costs.truckng : ""}
-                    onInput={recalc}
-                  />
-                </div>
-              </div>
-              <div className="f">
-                <label htmlFor="c-tank">Full tank (₦)</label>
-                <div className="cur">
-                  <span>₦</span>
-                  <input
-                    className="in cost"
-                    id="c-tank"
-                    type="number"
-                    min={0}
-                    step={10000}
-                    placeholder="110,000"
-                    defaultValue={isEdit ? data.costs.tank : ""}
-                    onInput={recalc}
-                  />
-                </div>
-                <span className="hint">
-                  Default from Settings — change per car if needed.
-                </span>
-              </div>
+              <CostInput
+                field="purchase"
+                label="Purchase price"
+                placeholder="26,500,000"
+                value={isEdit ? data.costs.purchase : ""}
+                error={panel.errors.purchase}
+                onInput={() => recalc()}
+              />
+              <CostInput
+                field="ship"
+                label="Shipping"
+                placeholder="3,200,000"
+                value={isEdit ? data.costs.ship : ""}
+                error={panel.errors.ship}
+                onInput={() => recalc()}
+              />
+              <CostInput
+                field="clear"
+                label="Clearing"
+                placeholder="1,850,000"
+                value={isEdit ? data.costs.clear : ""}
+                error={panel.errors.clear}
+                onInput={() => recalc()}
+              />
+              <CostInput
+                field="truckus"
+                label="Trucking within USA"
+                placeholder="470,000"
+                value={isEdit ? data.costs.truckus : ""}
+                error={panel.errors.truckus}
+                onInput={() => recalc()}
+              />
+              <CostInput
+                field="truckng"
+                label="Trucking in Nigeria"
+                placeholder="525,000"
+                value={isEdit ? data.costs.truckng : ""}
+                error={panel.errors.truckng}
+                onInput={() => recalc()}
+              />
+              <CostInput
+                field="tank"
+                label="Full tank"
+                placeholder="110,000"
+                value={isEdit ? data.costs.tank : ""}
+                error={panel.errors.tank}
+                hint="Default from Settings — change per car if needed."
+                onInput={() => recalc()}
+              />
             </div>
           </section>
 
@@ -609,11 +676,14 @@ export function CarForm({
               className="btn"
               id="save"
               type="button"
-              onClick={() =>
+              onClick={() => {
+                // A malformed amount blocks the save at its field (R-MON-10) —
+                // the message is already shown there, so nothing is saved.
+                if (hasFieldErrors) return;
                 showToast(
                   'Saved (demo). The showroom updates immediately. <a href="/car/2019-toyota-sienna-xle" target="_blank">Preview buyer page</a>',
-                )
-              }
+                );
+              }}
             >
               <i className="fa-solid fa-check" /> Save car
             </button>
@@ -628,24 +698,12 @@ export function CarForm({
           <div className="panel2">
             <div className="ph2">
               <i className="fa-solid fa-calculator" />
-              Landed cost — live
+              {panel.costLabel} — live
             </div>
             <div className="pb">
-              <div className="pl">
-                <span>Purchase + US costs</span>
-                <b id="p-usd">{panel.usdTxt}</b>
-              </div>
-              <div className="pl">
-                <span>Nigeria costs</span>
-                <b id="p-ngn">{panel.ngnTxt}</b>
-              </div>
-              <div className="pl">
-                <span>Rate</span>
-                <b id="p-rate">₦1,000 / $1</b>
-              </div>
               <div className="pl tot">
-                <span>Landed cost</span>
-                <b id="p-landed">{panel.landedTxt}</b>
+                <span>{panel.costLabel}</span>
+                <b id="p-cost">{panel.costTxt}</b>
               </div>
               <div className="pl">
                 <span>Doorstep price</span>
@@ -712,8 +770,8 @@ export function CarForm({
           <>
             <div className="mbar" aria-hidden="true">
               <div>
-                <small>Landed</small>
-                <b id="m-landed">{panel.mLanded}</b>
+                <small>{panel.costLabel}</small>
+                <b id="m-cost">{panel.mCost}</b>
               </div>
               <div style={{ textAlign: "right" }}>
                 <small>Profit</small>

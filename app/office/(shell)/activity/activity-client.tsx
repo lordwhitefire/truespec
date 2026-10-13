@@ -40,7 +40,6 @@ const E: Entry[] = [
   { d: 2, t: "16:20", type: "add", ref: "TS-1014", html: "Added <b>Land Cruiser Prado TX 2020</b> — price ₦78,000,000" },
   { d: 2, t: "10:03", type: "state", ref: "TS-1013", html: "Changed state of <b>Toyota Fortuner</b> to <b>On the way</b>" },
   { d: 3, t: "18:40", type: "add", ref: "TS-1013", html: "Added <b>Toyota Fortuner 2021</b> — price ₦58,000,000" },
-  { d: 3, t: "09:30", type: "set", html: "Settings — FX rate set to <b>₦1,000 per $1</b>" },
   { d: 4, t: "15:44", type: "del", ref: "TS-1024", html: "Deleted <b>Honda Civic 2016</b> (duplicate entry) — <b>restored via Undo</b> a few seconds later" },
   { d: 4, t: "11:02", type: "edit", ref: "TS-1009", html: "Added a private note to <b>Sienna LE</b> — “call Kelechi about his offer”" },
   { d: 5, t: "11:20", type: "sold", ref: "TS-1015", html: "Marked <b>Camry XLE 2018</b> as <b>Sold</b> — sale price ₦31,500,000 · profit ₦3,850,000" },

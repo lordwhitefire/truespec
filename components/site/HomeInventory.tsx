@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { PublicCar, PublicSection } from "@/lib/serialize";
+import { countStock } from "@/lib/counts";
+import { presentedSections } from "@/lib/sections";
+import type { PublicCar } from "@/lib/serialize";
 import { ReferenceCard } from "./ReferenceCard";
 import { speak } from "./speak";
 import { store } from "./store";
@@ -10,10 +12,10 @@ const newMsg = (n: number) =>
   `Here ${n === 1 ? "is the car" : "are the " + n + " cars"} that arrived since your last visit.`;
 
 type TabId = "a" | "o" | "l";
-const TABS: { id: TabId; label: string; section: PublicSection }[] = [
-  { id: "a", label: "Available", section: "available" },
-  { id: "o", label: "On order", section: "on order" },
-  { id: "l", label: "Landed this year", section: "landed" },
+const TABS: { id: TabId; label: string }[] = [
+  { id: "a", label: "Available" },
+  { id: "o", label: "On order" },
+  { id: "l", label: "Landed this year" },
 ];
 
 type View = { type: "tab"; key: TabId } | { type: "new"; cars: PublicCar[] };
@@ -27,16 +29,17 @@ type View = { type: "tab"; key: TabId } | { type: "new"; cars: PublicCar[] };
 export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: string }) {
   const [view, setView] = useState<View>({ type: "tab", key: "a" });
 
-  const available = cars.filter((c) => c.section === "available");
-  const landed = cars.filter((c) => c.section === "landed");
-  const buyable = [...available, ...landed];
+  // Counts come from the one counting rule (R-CNT-1…5), never local arithmetic.
+  const counts = countStock(cars);
 
   const list =
     view.type === "new"
       ? view.cars
       : view.key === "a"
-        ? buyable
-        : cars.filter((c) => c.section === TABS.find((t) => t.id === view.key)!.section);
+        ? cars.filter((c) => presentedSections(c).includes("available"))
+        : view.key === "o"
+          ? cars.filter((c) => c.section === "on order")
+          : cars.filter((c) => c.section === "landed");
 
   useEffect(() => {
     const onNew = () => {
@@ -70,11 +73,18 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
                   </>
                 ) : activeTab === "a" ? (
                   <>
-                    Available <b>{available.length} ready</b> · <b>{landed.length} landed</b>
+                    Available <b>{counts.available} cars</b>
+                    {counts.newArrivals > 0 ? (
+                      <>
+                        {" "}
+                        · of which <b>{counts.newArrivals} new arrivals</b>
+                      </>
+                    ) : null}
                   </>
                 ) : (
                   <>
-                    {activeTab === "o" ? "On order" : "Landed"} <b>{list.length} cars</b>
+                    {activeTab === "o" ? "On order" : "Landed"}{" "}
+                    <b>{activeTab === "o" ? counts.onOrder : counts.landed} cars</b>
                   </>
                 )}
               </span>

@@ -8,6 +8,12 @@ import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { formatNaira } from "@/lib/money";
 import { waLink } from "@/components/whatsapp";
 
+// The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
+// under this layout renders per request, never from a build-time snapshot. (The three data-heavy
+// public pages declare this themselves as well; this is the declaration the two client pages,
+// /privacy and /not-found, cannot make for themselves.)
+export const dynamic = "force-dynamic";
+
 // Public-area fonts — matches the reference car page, which loads Oswald 600;700
 // (no 400/500) plus Inter 400;500;600. Text requesting weight 400/500 therefore
 // resolves through Chrome's font-weight substitution exactly as the reference does.

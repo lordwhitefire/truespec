@@ -1,20 +1,31 @@
 import { config as loadEnv } from "dotenv";
 import { Client } from "pg";
 import { formatNaira, totalCostKobo, type CostLineInput } from "../lib/money";
+import { SECTION_LABEL } from "../lib/sections";
 
 loadEnv({ path: ".env.local" });
 
-const BASE = process.env.LEAK_BASE_URL ?? "http://localhost:3000";
+// The build server per the plan's standing rule (owner 2026-10-13): build on :3210,
+// reference on :3211. Port 3000 is never used.
+const BASE = process.env.LEAK_BASE_URL ?? "http://localhost:3210";
 
-// Field names / tokens that must never appear in a public response.
-const FORBIDDEN = [
-  "purchase",
-  "shipping",
-  "clearing",
-  "trucking",
+// Field names / tokens that must never appear in a public response. Tokens are
+// identifiers (snake_case field or kind names) and quoted shapes (`"shipping"`),
+// never bare English words the marketing copy legitimately uses ("Shipping,
+// clearing and delivery included."). `rate`/`cost` are word-boundaried so a
+// framework name like `generateMetadata` (substring "rate") cannot trip the
+// check; the genuine rate signal is `rate_minor`/`currency` (field names) plus
+// the naira cost-value check below.
+const FORBIDDEN: (string | RegExp)[] = [
+  "purchase_price",
+  '"shipping"',
+  '"clearing"',
+  "trucking_usa",
+  "trucking_ng",
   "full_tank",
   "amount_minor",
   "rate_minor",
+  "currency",
   "cost_line",
   "total_cost",
   "totalCost",
@@ -22,8 +33,8 @@ const FORBIDDEN = [
   "private_note",
   "doorstep_price_kobo",
   "kobo",
-  "cost",
-  "rate",
+  /\bcost\b/,
+  /\brate\b/,
 ];
 
 async function listedRefs(client: Client): Promise<string[]> {
@@ -45,12 +56,10 @@ async function costTotals(client: Client): Promise<Set<string>> {
   const { rows } = await client.query<{
     ref: string;
     kind: string;
-    currency: string;
     amount_minor: string | null;
-    rate_minor: string | null;
     doorstep_price_kobo: string | null;
   }>(
-    `SELECT c.ref, cl.kind, cl.currency, cl.amount_minor, cl.rate_minor, c.doorstep_price_kobo
+    `SELECT c.ref, cl.kind, cl.amount_minor, c.doorstep_price_kobo
      FROM car c JOIN cost_line cl ON cl.car_id = c.id`,
   );
   const byCar = new Map<string, { lines: CostLineInput[]; price: number | null }>();
@@ -63,9 +72,7 @@ async function costTotals(client: Client): Promise<Set<string>> {
     }
     byCar.get(r.ref)!.lines.push({
       kind: r.kind,
-      currency: r.currency as "USD" | "NGN",
       amountMinor: r.amount_minor === null ? null : Number(r.amount_minor),
-      rateMinor: r.rate_minor === null ? null : Number(r.rate_minor),
     });
   }
   const totals = new Set<string>();
@@ -79,6 +86,53 @@ async function costTotals(client: Client): Promise<Set<string>> {
   return totals;
 }
 
+/**
+ * The store's own references to private material: every photo's asset id and the imported PDF's
+ * asset id and filename. A public page legitimately carries the *derived* CDN address, which holds
+ * the asset's hash but is not the id — so the id itself appearing anywhere public means the office's
+ * own reference escaped (and the PDF's id or filename means the customer's file did).
+ */
+async function privateReferences(client: Client): Promise<Set<string>> {
+  const { rows } = await client.query<{ ref: string | null }>(
+    `SELECT sanity_asset_id AS ref FROM car_photo WHERE sanity_asset_id !~* '^https?://'
+     UNION ALL
+     SELECT sanity_asset_id FROM enquiry_pdf WHERE sanity_asset_id !~* '^https?://'
+     UNION ALL
+     SELECT filename FROM enquiry_pdf WHERE filename IS NOT NULL`,
+  );
+  return new Set(rows.map((r) => r.ref).filter((v): v is string => Boolean(v && v.length >= 6)));
+}
+
+/** Every enquiry's own detail — a name, a number, a note — none of which is public. */
+async function customerDetail(client: Client): Promise<Set<string>> {
+  const { rows } = await client.query<{
+    name: string | null;
+    number: string | null;
+    note: string | null;
+  }>(`SELECT name, number, note FROM enquiry`);
+  const out = new Set<string>();
+  for (const r of rows) {
+    for (const value of [r.name, r.number, r.note]) {
+      // Short values are skipped: a two-character note would match ordinary copy and turn a real
+      // leak check into noise. Every demo value is well past this.
+      if (value && value.length >= 6) out.add(value);
+    }
+  }
+  return out;
+}
+
+/**
+ * The owner's own office words: a state label that is not one of the three buyer-facing section
+ * names (R-SEC-5 — the showroom speaks in sections, never in the office's state vocabulary).
+ */
+async function officeStateLabels(client: Client): Promise<Set<string>> {
+  const { rows } = await client.query<{ label: string }>(
+    `SELECT DISTINCT label FROM car_state WHERE label <> ALL($1::text[]) ORDER BY label`,
+    [Object.values(SECTION_LABEL)],
+  );
+  return new Set(rows.map((r) => r.label));
+}
+
 async function main() {
   const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not set.");
@@ -86,32 +140,58 @@ async function main() {
   await client.connect();
 
   let failures = 0;
+  let contentFailures = 0;
+  let statusFailures = 0;
   try {
     const refs = await listedRefs(client);
     const costValues = await costTotals(client);
+    const privateRefs = await privateReferences(client);
+    const enquiries = await customerDetail(client);
+    const officeLabels = await officeStateLabels(client);
     const routes = ["/", "/inventory", ...refs.map((r) => `/car/${r}`)];
 
-    console.log(`leak-check against ${BASE} — ${routes.length} public route(s)\n`);
+    console.log(`leak-check against ${BASE} — ${routes.length} public route(s)`);
+    console.log(
+      `watching for: ${FORBIDDEN.length} token(s) · ${costValues.size} cost value(s) · ` +
+        `${privateRefs.size} asset/file reference(s) · ${enquiries.size} customer value(s) · ` +
+        `${officeLabels.size} office state label(s)\n`,
+    );
 
     for (const route of routes) {
       const res = await fetch(`${BASE}${route}`, { redirect: "manual" });
       const body = await res.text();
-      const hits: string[] = [];
+      const contentHits: string[] = [];
 
       for (const token of FORBIDDEN) {
-        if (body.includes(token)) hits.push(`token "${token}"`);
+        const hit = typeof token === "string" ? body.includes(token) : token.test(body);
+        if (hit) contentHits.push(`token "${token}"`);
       }
       for (const value of costValues) {
-        if (value && body.includes(value)) hits.push(`cost value ${value}`);
+        if (value && body.includes(value)) contentHits.push(`cost value ${value}`);
+      }
+      for (const value of privateRefs) {
+        if (body.includes(value)) contentHits.push(`asset/file reference ${value}`);
+      }
+      for (const value of enquiries) {
+        if (body.includes(value)) contentHits.push(`customer detail "${value}"`);
+      }
+      for (const value of officeLabels) {
+        if (body.includes(value)) contentHits.push(`office state label "${value}"`);
       }
 
       const status = res.status;
-      if (status >= 500) hits.push(`status ${status}`);
+      // A 5xx is a failure — but it is not the same failure as a leak, and calling it "forbidden
+      // content" (as this summary used to) hides which one happened. A dev-mode error page can also
+      // print the failing SQL, which is a leak vector in its own right, so it stays a failure.
+      const statusHit = status >= 500 ? `did not render — status ${status}` : null;
 
-      if (hits.length > 0) {
+      if (contentHits.length > 0 || statusHit) {
         failures += 1;
+        if (contentHits.length > 0) contentFailures += 1;
+        if (statusHit) statusFailures += 1;
         console.log(`FAIL ${route} (${status})`);
-        for (const h of hits) console.log(`       ${h}`);
+        for (const h of contentHits) console.log(`       ${h}`);
+        if (statusHit) console.log(`       ${statusHit}`);
       } else {
         console.log(`ok   ${route} (${status}, ${body.length} bytes)`);
       }
@@ -122,10 +202,16 @@ async function main() {
 
   console.log("");
   if (failures > 0) {
-    console.log(`LEAK CHECK FAILED — ${failures} route(s) with forbidden content.`);
+    console.log(
+      `LEAK CHECK FAILED — ${failures} route(s): ${contentFailures} with forbidden content, ` +
+        `${statusFailures} that did not render.`,
+    );
     process.exit(1);
   }
-  console.log("LEAK CHECK PASSED — no cost, rate or profit value on any public route.");
+  console.log(
+    "LEAK CHECK PASSED — no cost, currency or profit value, no asset or file reference, no " +
+      "customer detail and no office state label appeared on any public route.",
+  );
 }
 
 main().catch((err) => {

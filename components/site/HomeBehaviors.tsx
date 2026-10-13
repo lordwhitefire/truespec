@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { countStock } from "@/lib/counts";
+import { inAvailablePresentation } from "@/lib/sections";
 import type { PublicCar } from "@/lib/serialize";
 import { waLink } from "@/components/whatsapp";
 import { carHref, carTitle } from "./car-view";
@@ -79,10 +81,11 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     function returnBar() {
       let html = `${SAY.welcomeBack} \u{1F44B}`;
       if (knownCars.length) {
+        // The count comes from the one counting rule, not local arithmetic (R-CNT-1).
+        const fresh = countStock(knownCars);
+        const allLanded = fresh.landed === knownCars.length;
         html += ` — ${
-          knownCars.every((c) => c.section === "landed")
-            ? SAY.landedSince(knownCars.length)
-            : SAY.newSince(knownCars.length)
+          allLanded ? SAY.landedSince(fresh.landed) : SAY.newSince(knownCars.length)
         }`;
       }
       if (lastCar) {
@@ -148,7 +151,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
           return;
         }
         store.sset("toast", true);
-        const pool = all.filter((c) => c.section === "available");
+        const pool = all.filter((c) => inAvailablePresentation(c.section));
         if (!pool.length) return;
         const car = pool[Math.floor(Math.random() * pool.length)];
         const txt = document.getElementById("toasttxt");

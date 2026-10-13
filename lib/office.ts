@@ -1,13 +1,26 @@
 import "server-only";
 import { db } from "./db";
+import { countStock, type StockCounts } from "./counts";
+import { type CostLineInput } from "./money";
+import { sectionOfState, type Section } from "./sections";
+import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
 
 // Office read layer (plan §6). Costs and profit live here and reach office
-// screens only — the public path never imports this module. The office demo
-// dataset sits in its own table (office_car) because its refs collide with the
-// public seed's refs in `car` (see migrations/0007_office.sql).
+// screens only — the public path never imports this module. The office reads the
+// one `car` table with `cost_line` and `car_state`: there is no second car table
+// and no adapter (TASK-003 re-pointed this layer; `office_car` retires in 0015).
 
-const AVAILABLE_STATES = new Set(["Available", "Landed"]);
-const ON_ORDER_STATES = new Set(["On the way", "At port", "Cleared"]);
+// Two things are resolved here and nowhere else:
+//
+//  1. Cost lines come out of `cost_line` exactly as stored — the office's figures
+//     are the same six-line rule the car form and the showroom use. A line that was
+//     never entered is simply absent (or null), which is what leaves a car
+//     incomplete; no total is expanded onto six lines and no arithmetic is added.
+//
+//  2. The section comes from the state registry (`car_state`), resolved by the
+//     one rule (`sectionOfState`), never from the owner's state label. A state
+//     the registry does not map to one section raises (R-SEC-2) — it is not
+//     guessed.
 
 export type OfficeCarRow = {
   ref: string;
@@ -19,25 +32,32 @@ export type OfficeCarRow = {
   state: string;
   is_new_arrival: boolean;
   doorstep_price_kobo: string | number | null;
-  landed_cost_kobo: string | number | null;
   arrival_note: string | null;
   sold_at: string | null;
   sale_price_kobo: string | number | null;
+  /** The stored cost lines, in the shared shape — `lib/money.ts` sums them. */
+  cost_lines: CostLineInput[];
 };
 
+/** An office row with its section already resolved by the one rule (R-SEC-2). */
+export type OfficeCarView = OfficeCarRow & { section: Section };
+
+/**
+ * One row of the owner's state registry (`car_state`) — the office's own state
+ * vocabulary, in the owner's order. This is office-private data, never a section
+ * list: the section comes from the same one rule as everywhere else. Office
+ * screens read their state chips from here, never from a map of their own.
+ */
+export type OfficeState = { label: string; section: Section; isNewArrival: boolean };
+
+/** The dashboard's figures, each a shared-rule total. */
 export type OfficeDashboard = {
-  moneyTiedUpKobo: number;
-  carsInStock: number;
-  profitFromCount: number;
-  profitExcludedCount: number;
-  projectedProfitKobo: number;
-  realProfitKobo: number;
-  soldCount: number;
-  soldLabel: string | null;
-  soldPriceKobo: number | null;
-  available: number;
-  newArrivals: number;
-  onOrder: number;
+  counts: StockCounts;
+  moneyTiedUp: MoneyTotal;
+  projectedProfit: MoneyTotal;
+  realProfit: MoneyTotal;
+  /** Display extra: the sold car the office names on the real-profit card. */
+  sold: { label: string | null; priceKobo: number | null } | null;
 };
 
 // bigint columns arrive as strings; keep every conversion at this edge.
@@ -50,57 +70,138 @@ function label(row: Pick<OfficeCarRow, "year" | "model" | "trim">): string {
   return [row.year, row.model, row.trim].filter(Boolean).join(" ");
 }
 
+// The six-line shape no longer needs expanding: the office's rows carry the stored
+// lines themselves, so the same completeness and the same sum apply on both sides.
+
+// One office row → the shared rules' input. No arithmetic happens here.
+export function toOverviewCar(row: OfficeCarView): OverviewCar {
+  const sold = row.sold_at !== null;
+  return {
+    section: row.section,
+    isNewArrival: row.is_new_arrival,
+    sold,
+    priceKobo: toNumber(row.doorstep_price_kobo),
+    salePriceKobo: sold ? toNumber(row.sale_price_kobo) : null,
+    costLines: row.cost_lines,
+  };
+}
+
+// Each row comes back once per cost line, grouped here into one office row. The
+// left joins keep a car that has a state but no sale and no costs yet.
+type RawOfficeRow = {
+  id: string;
+  ref: string;
+  brand: string;
+  model: string;
+  trim: string | null;
+  year: number | null;
+  mileage: number | null;
+  state: string;
+  is_new_arrival: boolean;
+  doorstep_price_kobo: string | number | null;
+  arrival_note: string | null;
+  sold_at: string | null;
+  sale_price_kobo: string | number | null;
+  cost_kind: string | null;
+  cost_amount_minor: string | null;
+};
+
 export async function getOfficeCars(): Promise<OfficeCarRow[]> {
   const sql = db();
-  return (await sql.query(
-    `SELECT ref, brand, model, trim, year, mileage, state, is_new_arrival,
-            doorstep_price_kobo, landed_cost_kobo, arrival_note, sold_at, sale_price_kobo
-       FROM office_car
-       ORDER BY ref`,
-  )) as OfficeCarRow[];
+  const rows = (await sql.query(
+    `SELECT c.id, c.ref, c.brand, c.model, c.trim, c.year, c.mileage,
+            s.label AS state, s.is_new_arrival,
+            c.doorstep_price_kobo, c.arrival_note,
+            sale.sold_at, sale.sale_price_kobo,
+            cl.kind AS cost_kind, cl.amount_minor AS cost_amount_minor
+       FROM car c
+       JOIN car_state s ON s.id = c.state_id
+       LEFT JOIN sale ON sale.car_id = c.id
+       LEFT JOIN cost_line cl ON cl.car_id = c.id
+      ORDER BY c.ref, cl.kind`,
+  )) as RawOfficeRow[];
+
+  const byRef = new Map<string, OfficeCarRow>();
+  for (const r of rows) {
+    let car = byRef.get(r.id);
+    if (!car) {
+      car = {
+        ref: r.ref,
+        brand: r.brand,
+        model: r.model,
+        trim: r.trim,
+        year: r.year,
+        mileage: r.mileage,
+        state: r.state,
+        is_new_arrival: r.is_new_arrival,
+        doorstep_price_kobo: r.doorstep_price_kobo,
+        arrival_note: r.arrival_note,
+        sold_at: r.sold_at,
+        sale_price_kobo: r.sale_price_kobo,
+        cost_lines: [],
+      };
+      byRef.set(r.id, car);
+    }
+    if (r.cost_kind !== null) {
+      // bigint arrives as a string; the conversion stays at this edge.
+      car.cost_lines.push({ kind: r.cost_kind, amountMinor: toNumber(r.cost_amount_minor) });
+    }
+  }
+  return [...byRef.values()];
+}
+
+// State label → the section the registry says it means (the only section source).
+async function sectionsByState(): Promise<Map<string, string>> {
+  const sql = db();
+  const rows = (await sql.query(`SELECT label, section FROM car_state`)) as {
+    label: string;
+    section: string;
+  }[];
+  return new Map(rows.map((r) => [r.label, r.section]));
+}
+
+/** Office rows with their section resolved by `lib/sections.ts`, never by a label map. */
+export async function getOfficeCarViews(): Promise<OfficeCarView[]> {
+  const [rows, byState] = await Promise.all([getOfficeCars(), sectionsByState()]);
+  return rows.map((row) => ({
+    ...row,
+    section: sectionOfState(row.state, byState.get(row.state)),
+  }));
+}
+
+/**
+ * The owner's state registry in the owner's order — the one source for the office
+ * screens' state labels. Each state's section is resolved by the same one rule
+ * (`sectionOfState`), so the registry cannot drift from `lib/sections.ts`.
+ */
+export async function getOfficeStates(): Promise<OfficeState[]> {
+  const sql = db();
+  const rows = (await sql.query(
+    `SELECT label, section, is_new_arrival FROM car_state ORDER BY sort, label`,
+  )) as { label: string; section: string; is_new_arrival: boolean }[];
+  return rows.map((r) => ({
+    label: r.label,
+    section: sectionOfState(r.label, r.section),
+    isNewArrival: r.is_new_arrival,
+  }));
+}
+
+/** The office counts, from the one counting rule (R-CNT-5) over the office rows. */
+export async function getOfficeCounts(): Promise<StockCounts> {
+  return countStock((await getOfficeCarViews()).map(toOverviewCar));
 }
 
 export async function getOfficeDashboard(): Promise<OfficeDashboard> {
-  const cars = await getOfficeCars();
-
-  const inStock = cars.filter((c) => c.sold_at === null);
-  const complete = inStock.filter((c) => c.landed_cost_kobo !== null);
-  const sold = cars.filter((c) => c.sold_at !== null);
-
-  // Money tied up counts every in-stock car: its landed cost where known, else
-  // its doorstep price — an incomplete-cost car is still money already spent.
-  const moneyTiedUpKobo = inStock.reduce((sum, c) => {
-    const landed = toNumber(c.landed_cost_kobo);
-    const price = toNumber(c.doorstep_price_kobo);
-    return sum + (landed ?? price ?? 0);
-  }, 0);
-
-  const projectedProfitKobo = complete.reduce((sum, c) => {
-    const price = toNumber(c.doorstep_price_kobo) ?? 0;
-    const landed = toNumber(c.landed_cost_kobo) ?? 0;
-    return sum + (price - landed);
-  }, 0);
-
-  const realProfitKobo = sold.reduce((sum, c) => {
-    const sale = toNumber(c.sale_price_kobo) ?? 0;
-    const landed = toNumber(c.landed_cost_kobo) ?? 0;
-    return sum + (sale - landed);
-  }, 0);
-
-  const firstSold = sold[0] ?? null;
-
+  const views = await getOfficeCarViews();
+  const overview = stockOverview(views.map(toOverviewCar));
+  const firstSold = views.find((v) => v.sold_at !== null) ?? null;
   return {
-    moneyTiedUpKobo,
-    carsInStock: inStock.length,
-    profitFromCount: complete.length,
-    profitExcludedCount: inStock.length - complete.length,
-    projectedProfitKobo,
-    realProfitKobo,
-    soldCount: sold.length,
-    soldLabel: firstSold ? label(firstSold) : null,
-    soldPriceKobo: firstSold ? toNumber(firstSold.sale_price_kobo) : null,
-    available: inStock.filter((c) => AVAILABLE_STATES.has(c.state)).length,
-    newArrivals: inStock.filter((c) => c.is_new_arrival).length,
-    onOrder: inStock.filter((c) => ON_ORDER_STATES.has(c.state)).length,
+    counts: overview.counts,
+    moneyTiedUp: overview.moneyTiedUp,
+    projectedProfit: overview.projectedProfit,
+    realProfit: overview.realProfit,
+    sold: firstSold
+      ? { label: label(firstSold), priceKobo: toNumber(firstSold.sale_price_kobo) }
+      : null,
   };
 }

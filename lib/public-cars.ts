@@ -10,7 +10,7 @@ const SELECT_CARS = `
   SELECT c.ref, c.brand, c.model, c.trim, c.year,
          c.exterior_color, c.interior_color, c.mileage, c.features,
          c.was_price_kobo, c.arrival_note, c.doorstep_price_kobo,
-         s.section, s.is_new_arrival,
+         s.label AS state, s.section AS configured_section, s.is_new_arrival,
          (sale.id IS NOT NULL) AS sold,
          sale.sold_at,
          COALESCE(
@@ -54,7 +54,7 @@ export async function getPublicCarForView(ref: string): Promise<PublicCar | null
 export async function getPublicCounts(): Promise<StockCounts> {
   const cars = await getPublicCars();
   return countStock(
-    cars.map((c) => ({ section: c.section, isNewArrival: c.isNewArrival, sold: false })),
+    cars.map((c) => ({ section: c.section, isNewArrival: c.isNewArrival, sold: c.sold === true })),
   );
 }
 

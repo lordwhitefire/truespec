@@ -1,0 +1,41 @@
+{
+  "purpose": "TASK-003 demo enquiry import — the stored result of the one authored demo PDF. Task 14's seed reproduces exactly this. The asset reference and the original filename live here and in the database only; the randomised name the asset was uploaded under is not the original filename.",
+  "originalFilename": "enquiries-2026-09-30.pdf",
+  "sanityAssetId": "file-89050990d1c068ada748e52a230bffff2685a95d-pdf",
+  "rowsTotal": 4,
+  "importedAt": "2026-09-30T09:00:00.000Z",
+  "rows": [
+    {
+      "name": "Ada Nwosu",
+      "phone": "0803 000 0101",
+      "car": "TS-1001",
+      "note": "Asked about finance terms",
+      "date": "2026-09-04",
+      "state": "New"
+    },
+    {
+      "name": "Bright Okonkwo",
+      "phone": "0805 000 0102",
+      "car": "TS-1005",
+      "note": "Wants the black interior",
+      "date": "2026-09-11",
+      "state": "Talking"
+    },
+    {
+      "name": "Chika Adeyemi",
+      "phone": "0807 000 0103",
+      "car": "TS-1013",
+      "note": "Waiting for the arrival date",
+      "date": "2026-09-18",
+      "state": "New"
+    },
+    {
+      "name": "Damilola Eze",
+      "phone": "0809 000 0104",
+      "car": "TS-1019",
+      "note": "Ready to inspect on Saturday",
+      "date": "2026-09-25",
+      "state": "Negotiating"
+    }
+  ]
+}

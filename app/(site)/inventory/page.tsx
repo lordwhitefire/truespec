@@ -1,4 +1,5 @@
 import { getPublicCars, getSetting } from "@/lib/public-cars";
+import { sectionOfToken, type Section } from "@/lib/sections";
 import {
   InventoryBrowser,
   type InventoryInitial,
@@ -9,15 +10,6 @@ export const dynamic = "force-dynamic";
 
 type Sort = "new" | "low" | "high" | "year";
 const SORTS: Sort[] = ["new", "low", "high", "year"];
-const STATUS_TOKEN: Record<string, string> = {
-  a: "a",
-  available: "a",
-  o: "o",
-  "on order": "o",
-  "on-order": "o",
-  l: "l",
-  landed: "l",
-};
 
 function list(v: string | string[] | undefined): string[] {
   if (!v) return [];
@@ -49,8 +41,8 @@ export default async function InventoryPage({
     status: [
       ...new Set(
         list(sp.status)
-          .map((t) => STATUS_TOKEN[t.toLowerCase()])
-          .filter((t): t is string => !!t),
+          .map((t) => sectionOfToken(t))
+          .filter((s): s is Section => s !== null),
       ),
     ],
     make: [...new Set(list(sp.make))],
