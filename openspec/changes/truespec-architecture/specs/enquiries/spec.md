@@ -48,11 +48,11 @@ Moving an enquiry to Sold SHALL NOT change any car's state, sold flag, or showro
 - **THEN** the enquiry's car remains exactly where it was, and marking the car sold stays a separate action
 
 ### Requirement: Retention schedule for customer data
-Customer data SHALL follow a retention schedule: lost/not-serious and uncontacted-open enquiries deleted or irreversibly anonymised 12 months after last contact; open enquiries reviewed every 12 months; buyer records kept 6 years after sale (accounting period). Deletion of a customer SHALL leave the tap rows intact (they carry no PII) and log the deletion in activity.
+Customer data SHALL follow a retention schedule measured from **the date the enquiry was recorded** (keyed in or imported), not from any later contact: every enquiry becomes due for the owner's decision 12 months after it was recorded — the system SHALL NOT need a flag to tell an open enquiry from a closed one, because the state the owner gave it is what tells him, and the action is the same either way. The system SHALL notify the owner when an enquiry becomes due and SHALL NOT delete or anonymise customer data on its own — deletion is the owner's action, taken from that notice or at any time. Buyer records are kept 6 years after sale (accounting period). Deletion of a customer SHALL remove the customer's data — the enquiry row and its imported PDF — leave the tap rows intact (they carry no PII), leave the car record untouched, and log the deletion in activity.
 
-#### Scenario: A lost enquiry ages out
-- **WHEN** a lost enquiry passes 12 months with no contact
-- **THEN** it is deleted or irreversibly anonymised, while its car's tap rows remain (taps hold no name or number)
+#### Scenario: An enquiry reaches a year
+- **WHEN** an enquiry passes 12 months since it was recorded
+- **THEN** the office shows it to the owner as due for a decision, nothing is deleted until the owner deletes it, and once he does the customer's details and the imported PDF go while the car's tap rows remain (taps hold no name or number)
 
 #### Scenario: Owner deletes a customer mid-conversation
 - **WHEN** the owner deletes a customer record

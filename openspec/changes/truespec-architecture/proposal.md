@@ -7,7 +7,7 @@ TrueSpec has a complete, closed planning stage (`product-management/`: product m
 ## What Changes
 
 - Introduces the full TrueSpec capability set as OpenSpec specs: a public showroom, a private office, and the hard boundary between them.
-- Codifies the rulings already made in `product-management/planning-close.md` (C1 sessions, C2 abuse control, C3 visibility gate, C4 incomplete-costs wording, A1–A3/A7/F1–F6, R1–R3 per-line rates) as spec requirements rather than conversation memory.
+- Codifies the rulings already made in `product-management/planning-close.md` (C1 sessions, C2 abuse control, C3 visibility gate, C4 incomplete-costs wording, A1–A3/A7/F1–F6) as spec requirements rather than conversation memory. R3 (per-line FX rates) is **superseded by the owner's 2026-10-12 ruling: no rate exists anywhere and every amount is naira** — the costs and the price to customers alike (the rate was never in the source spec; it came from the prototype screens).
 - Establishes the stack as ruled (revised 2026-10-08): Next.js + TypeScript, Neon (Postgres), Clerk (auth, with session rules still app-enforced), Sanity (images and enquiry PDFs), Vercel hosting — recorded as design decisions, not re-litigated. Supabase was dropped when its free tier's 2-project cap proved too small for TrueSpec.
 - Produces `tasks.md` covering the build of the whole product from the six implementation plans, ordered UI → business logic → functionality → UX → data model → system model as `planning-close.md` prescribes.
 - Excludes CryptoPilot entirely — it is a different product and out of scope for this change.
@@ -19,11 +19,11 @@ TrueSpec has a complete, closed planning stage (`product-management/`: product m
 - `showroom`: The public site — home, three fixed sections (Available, On Order, Landed-inside-Available), car detail pages, WhatsApp conversion, and the server-side allow-list that keeps cost data from ever reaching the browser.
 - `office-access`: The single-owner login — first-run account creation, app-enforced session lifetime (12 h inactivity / 7 d cap), growing-delay abuse control with a per-IP window and no lockout.
 - `inventory`: Car records in the office — CRUD, the state registry mapped to the three showroom sections, sold flag separate from state, `TS-####` reference codes, delete with undo and tombstone lifecycle.
-- `money`: The financial model — six fixed cost kinds, per-line FX rates (no global rate, R3), integer minor units, one rounding point, live profit while typing, and state-driven figure labelling (estimated / landed / projected / real).
+- `money`: The financial model — six fixed cost kinds, all in naira, no exchange rate anywhere, integer minor units, one totals function, live profit while typing, and state-driven figure labelling (estimated / landed / projected / real).
 - `dashboard`: The office dashboard — counts under one shared counting rule, money totals with explicit reach ("from 9 of 14 cars"), the "still building" line for incomplete costs, taps and activity feeds.
 - `enquiries`: Enquiry tracking — WhatsApp tap recording (page, car, time only), PDF import with preview-and-confirm, the five-state pipeline as an editable registry, and retention rules for customer data.
 - `office-settings`: Settings and data ownership — WhatsApp number, tagline, full-tank default, password change, one-click data export, and the PDF/photo storage locations.
-- `media`: Image and file lifecycle — Sanity as the image store with CDN, upload-first/car-saves-second flow, orphan pruning, EXIF stripping at the write boundary, and enquiry PDFs stored as private-by-convention files in Sanity.
+- `media`: Image and file lifecycle — Sanity as the image store with CDN, upload-first/car-saves-second flow, drift *reported* to the owner rather than pruned by the system, EXIF stripping at the write boundary, and enquiry PDFs stored as private-by-convention files in Sanity.
 
 ### Modified Capabilities
 

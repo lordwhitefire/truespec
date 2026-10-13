@@ -49,7 +49,7 @@ The owner's state labels, notes, and internal labels SHALL appear only in the of
 - **THEN** the showroom shows it under Available with no trace of the label "Held for payment"
 
 ### Requirement: Delete with confirmation and undo
-Deleting a car SHALL require confirmation, be undoable within an 8-second window, and only after the window close as a soft-delete tombstone that a scheduled job hard-deletes (cascading photos, costs, and sale rows, and removing stored images). One accidental delete must never be final.
+Deleting a car SHALL require confirmation, be undoable within an 8-second window, and only after the window close as a soft-delete tombstone. The tombstone is permanent until **the owner** removes it: no job, rule or clock ever hard-deletes it (owner ruling 2026-10-13 — the system warns, the client deletes). When the owner does remove it for good, its photos, costs and sale rows go with it and its stored images are cleared, with no orphan left behind. One accidental delete must never be final — and no delete is ever completed by the system.
 
 #### Scenario: Owner deletes by mistake
 - **WHEN** the owner deletes a car and hits Undo within 8 seconds
@@ -57,7 +57,7 @@ Deleting a car SHALL require confirmation, be undoable within an 8-second window
 
 #### Scenario: Undo window passes
 - **WHEN** no undo happens within 8 seconds
-- **THEN** the tombstone is hidden from all reads and the scheduled job later hard-deletes it and its assets with no orphan left behind
+- **THEN** the tombstone is hidden from all reads and stays listed as waiting to be cleared, and the owner removes it for good whenever he chooses — never the system, and not on any clock
 
 ### Requirement: Durable reference codes
 Every car SHALL receive a `TS-####` reference code on creation that is never edited, never manually chosen, and never reused after deletion; enquiries, taps, and activity rows join to the car by this reference.

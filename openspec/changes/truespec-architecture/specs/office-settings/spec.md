@@ -5,7 +5,7 @@ The office Settings screen and the owner's data ownership: the handful of values
 ## ADDED Requirements
 
 ### Requirement: The settings that exist
-Settings SHALL hold exactly: WhatsApp number, tagline, full-tank default (form prefill only), and password change. There SHALL be no FX-rate setting — per-line rates live on cost lines (ruling R3) — and the password SHALL be held by the identity provider (Clerk), never stored as a setting value and never held in plaintext by the application.
+Settings SHALL hold exactly: WhatsApp number, tagline, full-tank default (form prefill only), and password change. There SHALL be no exchange-rate setting — no rate exists anywhere in the system (owner ruling 2026-10-12; the rate was never in the source spec and has been removed) — and the password SHALL be held by the identity provider (Clerk), never stored as a setting value and never held in plaintext by the application.
 
 #### Scenario: Settings screen contents
 - **WHEN** the owner opens Settings

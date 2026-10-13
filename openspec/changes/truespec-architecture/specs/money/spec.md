@@ -1,11 +1,11 @@
 ## Purpose
 
-The money rules: what a car really cost, what profit it makes, and the guarantees that keep every figure on every screen identical — one formula, one rounding point, integer arithmetic, and a per-line FX rate with no global rate anywhere.
+The money rules: what a car really cost, what profit it makes, and the guarantees that keep every figure on every screen identical — one formula, integer arithmetic, and no exchange rate at all, because every amount in the system is naira.
 
 ## ADDED Requirements
 
 ### Requirement: Six fixed cost kinds
-The car form SHALL accept exactly six cost kinds — purchase price ($), shipping ($), clearing ($), trucking within USA ($), trucking in Nigeria (₦), full tank (₦) — and a car is "cost complete" only when all six have values.
+The car form SHALL accept exactly six cost kinds — purchase price, shipping, clearing, trucking within USA, trucking in Nigeria, full tank — every one entered in naira, and a car is "cost complete" only when all six have values.
 
 #### Scenario: Completeness check
 - **WHEN** any of the six cost values is missing
@@ -15,26 +15,26 @@ The car form SHALL accept exactly six cost kinds — purchase price ($), shippin
 - **WHEN** the owner enters 0 as a cost value
 - **THEN** zero counts as entered (the cost is complete) — zero and not-entered are different things
 
-### Requirement: Every dollar cost carries its own rate
-Each $ cost line SHALL store the FX rate (kobo per dollar, integer) at which that amount was made; there SHALL be no global or settings-level rate anywhere in the system, and lines of one car may legitimately carry different rates. Saving a $ amount with no rate SHALL be invalid and caught inline before save.
+### Requirement: No exchange rate exists — every amount is naira
+No exchange rate SHALL be stored or applied anywhere — not on a cost line, not on a car, not in Settings — and every amount in the system SHALL be naira, entered as the naira paid; a cost that was paid in dollars is entered as its naira amount. (Owner ruling 2026-10-12, superseding R3: the rate was never in the source spec — it came from the prototype screens — and the owner ruled that everything is naira, since mixing currencies in one total causes trouble.)
 
-#### Scenario: Two lines, two rates
-- **WHEN** a car's purchase price was made at one rate and its shipping at another
-- **THEN** each line converts with its own rate and the total is correct
+#### Scenario: A cost paid in dollars
+- **WHEN** a cost was paid in dollars
+- **THEN** it is entered and stored as its naira amount — no rate is asked for, stored, or applied
 
-#### Scenario: Rate missing on save
-- **WHEN** the owner saves a $ cost line without a rate
-- **THEN** inline validation blocks the save and marks the missing field — the error is caught as typed, not after saving
+#### Scenario: The customer price
+- **WHEN** a buyer views a car
+- **THEN** the price is a naira figure, and no rate field, setting key, column, or constant appears anywhere in the system
 
 ### Requirement: One total-cost formula, recomputed everywhere
-Total cost SHALL be `(Σ of the four $ lines × each line's own rate) + (Σ of the two ₦ lines)`, computed by a single function used at every read point. Changing any cost, rate, or price SHALL recompute total cost and profit everywhere — nothing is frozen at entry.
+Total cost SHALL be `Σ of the six cost lines` — all naira, so the sum is exact — computed by a single function used at every read point. Changing any cost or the price SHALL recompute total cost and profit everywhere — nothing is frozen at entry.
 
-#### Scenario: Owner corrects an old rate
-- **WHEN** the owner edits the rate on a $ line of an already-landed car
+#### Scenario: Owner corrects an old cost
+- **WHEN** the owner edits a cost line of an already-landed car
 - **THEN** total cost and profit recompute on every screen that shows them, from the same single formula
 
-### Requirement: Integer money, one rounding point
-All money SHALL be stored as integer minor units (kobo/cents) — never floats, never scaled numerics — and rounding SHALL happen in exactly one place: the totals function. Naira formatting happens only at the display edge.
+### Requirement: Integer money, one totals function
+All money SHALL be stored as integer minor units (kobo) — never floats, never scaled numerics. Every amount is naira and nothing is converted or divided, so the totals are exact integer sums; a single totals function is the only place money is combined, so no screen re-derives a figure from its own arithmetic, and naira formatting happens only at the display edge.
 
 #### Scenario: No drift across screens
 - **WHEN** the same car's cost is shown on the form, the inventory list, and the dashboard
@@ -50,6 +50,17 @@ Projected profit SHALL be `doorstep price − total cost` for unsold cars; real 
 #### Scenario: On-order car has no landed cost
 - **WHEN** a car still on order shows its costs
 - **THEN** the figure is labelled "Estimated total cost", never "Landed cost" — the car has not landed
+
+### Requirement: One selling price, on the car, never on a state
+A car SHALL have one selling price — its **doorstep price**, what the buyer pays to have the car brought to their door — and it SHALL be a field on the car, identical whether the car is on order, available, or landed. No state and no section SHALL carry a price; there is no "landed price" and no "available price". The **cost** is the only figure tied to a state, and it is office-only (the showroom allow-list keeps every cost out).
+
+#### Scenario: A car's state changes
+- **WHEN** a car's state or section changes
+- **THEN** its price is unchanged, on every screen
+
+#### Scenario: The showroom price is the one price
+- **WHEN** a buyer views a car that is still on order
+- **THEN** the showroom shows that car's one doorstep price, exactly as for a landed car
 
 ### Requirement: Incomplete costs never silently distort totals
 Cars with incomplete costs SHALL contribute their entered costs to money-tied-up (the money was genuinely spent) but SHALL be left out of profit totals with a plain "still building" line that names how many cars are out and why — never silently dropped, never counted as zero profit.

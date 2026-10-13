@@ -1,6 +1,6 @@
 ## Purpose
 
-The public showroom buyers visit without an account — browse the three fixed sections, judge a car completely on its page, and start a WhatsApp conversation — while guaranteeing that no cost, rate, or profit data ever reaches the browser.
+The public showroom buyers visit without an account — browse the three fixed sections, judge a car completely on its page, and start a WhatsApp conversation — while guaranteeing that no cost or profit data ever reaches the browser.
 
 ## ADDED Requirements
 
@@ -16,11 +16,11 @@ The showroom SHALL always present exactly three sections — Available, On Order
 - **THEN** the showroom still shows exactly Available, On Order, and Landed — state labels are an office concept and never alter the section set or the buyers' view of it
 
 ### Requirement: Cost data never reaches the browser
-The system SHALL build every public response (pages, payloads, counts, API output) from an explicit server-side allow-list of public fields — brand, model, trim, year, colours, mileage, features, photos, price, section, reference code — and MUST never include purchase price, shipping, clearing, trucking, fuel costs, per-line rates, total cost, or profit, not even by accident of serialization.
+The system SHALL build every public response (pages, payloads, counts, API output) from an explicit server-side allow-list of public fields — brand, model, trim, year, colours, mileage, features, photos, price, section, reference code — and MUST never include purchase price, shipping, clearing, trucking, fuel costs, total cost, or profit, not even by accident of serialization.
 
 #### Scenario: Public car page payload
 - **WHEN** a visitor opens a car page or requests the showroom list
-- **THEN** the response contains only allow-listed public fields, and no cost, rate, or profit value appears anywhere in the HTML, the serialized payload, or any network response
+- **THEN** the response contains only allow-listed public fields, and no cost or profit value appears anywhere in the HTML, the serialized payload, or any network response
 
 #### Scenario: Error responses do not echo submissions
 - **WHEN** a public form submission is rejected
@@ -36,6 +36,10 @@ A car SHALL appear publicly only when it has a price and at least one photo; oth
 #### Scenario: Last condition met
 - **WHEN** the missing price or photo is added
 - **THEN** the car appears in its section immediately
+
+#### Scenario: The price does not move with the state
+- **WHEN** the car's state changes between on order, available and landed
+- **THEN** the showroom shows the same one doorstep price
 
 ### Requirement: Car page carries everything needed to decide
 Each car page SHALL display price (full naira figure, not abbreviated), year, mileage, colours, features, and photos, so a buyer never needs to ask whether the car is available or what it costs. Photos SHALL be swipeable on phone and tablet, with arrows additionally on laptop.
