@@ -1,0 +1,17 @@
+{
+  "_note": "TASK-002 public-surfaces cell matrix (plan §Verification method). ref = static reference site on :3211 (test-truespec-v2); build = Next app on :3210. Surfaces only, no screenshots. Per-screen URLs are added in Task 21; this file holds the matrix.",
+  "ref": "http://127.0.0.1:3211",
+  "build": "http://127.0.0.1:3210",
+  "matrix": {
+    "widths": [560, 820, 1100],
+    "themes": ["dark", "light"]
+  },
+  "states": [
+    { "name": "w560-dark", "width": 560, "height": 900, "theme": "dark" },
+    { "name": "w560-light", "width": 560, "height": 900, "theme": "light" },
+    { "name": "w820-dark", "width": 820, "height": 1000, "theme": "dark" },
+    { "name": "w820-light", "width": 820, "height": 1000, "theme": "light" },
+    { "name": "w1100-dark", "width": 1100, "height": 900, "theme": "dark" },
+    { "name": "w1100-light", "width": 1100, "height": 900, "theme": "light" }
+  ]
+}

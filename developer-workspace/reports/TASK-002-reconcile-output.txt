@@ -1,0 +1,45 @@
+TASK-002 reconciliation — the one rule over the office demo rows
+==============================================================================
+rows: 15 office_car cars · office showed: 15 cars
+state registry (5): Available→available · On the way→on order · At port→on order · Cleared→on order · Landed→landed
+
+COUNTING  (R-CNT — lib/counts.ts)
+  AVAILABLE            rule        12 cars   office        12 cars  ✓
+  OF WHICH NEW ARRIVAL rule          1 car   office          1 car  ✓
+  ON ORDER             rule         2 cars   office         2 cars  ✓
+
+MONEY  (R-MON-8/9, R-SLD — lib/money.ts + lib/overview.ts)
+  MONEY TIED UP        rule   ₦451,040,000   office   ₦587,040,000  ✗   (14 cars in stock)
+  PROJECTED PROFIT     rule    ₦57,760,000   office    ₦57,760,000  ✓   (from 12 of 14 cars; still building — 2 of 14 cars have incomplete costs)
+  REAL PROFIT (SOLD)   rule     ₦3,850,000   office     ₦3,850,000  ✓   (from 1 of 1 cars — 2018 Camry XLE)
+  SOLD PRICE           rule    ₦31,500,000   office    ₦31,500,000  ✓   (2018 Camry XLE)
+
+COST LABEL BY STATE  (R-MON — never "Landed cost" before landing)
+  the old office labelled EVERY row "Landed cost" — including the two on-order cars.
+  the rule reads:
+    TS-1001  Available    → Available  Landed cost          price   ₦96,500,000  cost   ₦89,600,000  profit    ₦6,900,000
+    TS-1002  Available    → Available  Landed cost          price   ₦24,750,000  cost   ₦21,270,000  profit    ₦3,480,000
+    TS-1003  Available    → Available  Landed cost          price   ₦28,900,000  cost   ₦25,550,000  profit    ₦3,350,000
+    TS-1004  Available    → Available  Landed cost          price   ₦38,750,000  cost   ₦34,520,000  profit    ₦4,230,000
+    TS-1005  Available    → Available  Landed cost          price   ₦35,200,000  cost   ₦31,415,000  profit    ₦3,785,000
+    TS-1006  Available    → Available  Landed cost          price   ₦62,000,000  cost   ₦55,590,000  profit    ₦6,410,000
+    TS-1007  Available    → Available  Landed cost          price   ₦47,500,000  cost   ₦40,605,000  profit    ₦6,895,000
+    TS-1008  Available    → Available  Landed cost          price   ₦36,400,000  cost   ₦32,210,000  profit    ₦4,190,000
+    TS-1009  Available    → Available  Landed cost          price   ₦33,900,000  cost   ₦32,655,000  profit    ₦1,245,000
+    TS-1010  Available    → Available  Landed cost          price   ₦41,000,000  cost   ₦28,760,000  profit   ₦12,240,000
+    TS-1011  Available    → Available  Landed cost          price   ₦29,400,000  cost   ₦26,455,000  profit    ₦2,945,000
+    TS-1012  Landed       → Landed     Landed cost          price   ₦34,500,000  cost   ₦32,410,000  profit    ₦2,090,000
+    TS-1013  On the way   → On Order   Estimated total cost price   ₦58,000,000  cost    incomplete  profit             —
+    TS-1014  At port      → On Order   Estimated total cost price   ₦78,000,000  cost    incomplete  profit             —
+    TS-1015  Available    → Available  Total cost           price   ₦31,500,000  cost   ₦27,650,000  profit    ₦3,850,000
+
+THE OFFICE'S OWN TABLE
+  the office demo rows live in `office_car`, separate from the public `car` table
+  (their refs collide — migrations/0007_office.sql). No rule conflict; the two tables
+  are reconciled by TASK-003. Named here so neither side is silently preferred.
+
+CONFLICTS NAMED (old behaviour the rule replaces — rule wins)
+  • Older office used the doorstep PRICE as a proxy for an incomplete car's cost, so TS-1013 (₦58,000,000) and TS-1014 (₦78,000,000) each added their price. The rule counts only entered costs (R-MON-8): an incomplete car contributes ₦0. Diff = ₦136,000,000 = exactly those two prices. Rule wins — a DATA divergence, never the rule.
+
+VERDICT: the one rule reproduces every office figure it is meant to.
+         The single disagreement (money tied up) is a named DATA divergence — the rule wins.
