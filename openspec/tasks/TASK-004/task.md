@@ -70,23 +70,25 @@ half — *a transient blip must not become an error page* — belongs to this la
 1. **The office has exactly one door, and the server holds it.** Every office page and every office data
    request is checked on the server against an active session — the request is refused, not the link
    hidden. After sign-out every page and action refuses the old session, including a tab left open. Six
-   things must be true together: there is exactly one account, made on first run by the operator with
-   their own email and password; there is no default password, no shared login and no sign-up once the
-   account exists; the sign-in form is the application's own and submits to the application's own
-   server-side route, which applies its own checks **before** forwarding a cleared attempt to the
-   provider (the provider never sees an attempt the app rejected, and no hosted third-party login page
-   receives attempts directly); a failed attempt answers with one generic message that never says whether
-   the email exists; a session is valid only while `now < expires_at` (7 days) and idle no more than 12
-   hours, judged from the application's own `session` row, so no paid vendor feature decides it; and the
-   session cookie is `HttpOnly`, `SameSite=Lax`, `Secure`, with no "remember me" that outlives the 7-day
-   cap. There is **no in-app password reset flow**: Settings says, in words, that recovery is an
-   identity-provider operation, so the owner knows the route before he needs it.
-2. **Abuse control slows an attacker and never locks the owner out.** No delay on the first three failed
-   attempts, then 1s, 5s, 15s, 30s and 60s, for as long as failures continue. At most 10 failed attempts
-   per address per 15-minute window; further attempts inside the window are logged and rejected without
-   being processed. When the window passes, sign-in works normally — the account is never locked. Every
-   attempt is written to `auth_attempt`, and the log is rate-limited so the log itself cannot be turned
-   into a way to fill the store.
+   things must be true together: there is exactly one account — the owner's own — and **no public sign-up
+   path exists at all** (the provider is put in its invite-only mode, so the only account is the one the
+   owner creates, by hand, once); **the provider carries the sign-in** (owner ruling 2026-10-14), so the
+   office builds no password form and holds no password material; a failed attempt is answered without
+   announcing whether an account exists; a session is valid only while `now < expires_at` (7 days) and idle
+   no more than 12 hours, judged from the application's own `session` row, so no paid vendor feature decides
+   it; the session cookie is `HttpOnly`, `SameSite=Lax`, `Secure`, with no "remember me" that outlives the
+   7-day cap; and every office route still verifies the session on the server, on the request itself. There
+   is **no in-app password reset flow**: Settings says, in words, that recovery is an identity-provider
+   operation, so the owner knows the route before he needs it.
+2. **Abuse control slows an attacker and never locks the owner out — how, exactly, is open question 4.**
+   What must hold whatever the answer: repeated failures are slowed and, past a limit, refused; **the real
+   owner is never locked out permanently**, and a lockout that outlives the attack is not acceptable
+   (§ office-access, ruling A1/F4); the account is never locked in a way the owner cannot clear himself; and
+   whatever record of attempts exists is bounded, so it cannot be used to fill the store. **What no longer
+   holds, because the provider carries the sign-in (2026-10-14 ruling):** the office's own delay sequence
+   (1s/5s/15s/30s) and its own per-IP window, and the `auth_attempt` row written by the application for each
+   attempt — the application no longer sees the attempt at all. Whether the provider's own lockout and rate
+   limits are taken as they come, adjusted, or switched off is the owner's to rule.
 3. **Every change the owner makes is a POST with its origin verified, and no GET ever changes anything.**
    Writes arrive through Server Actions. A Route Handler is used only where something other than a form
    must post — a buyer's tap, the export download, the PDF upload — and each such handler carries the
@@ -207,8 +209,10 @@ half — *a transient blip must not become an error page* — belongs to this la
 - **The migration ledger must not lie, and no new table appears without a requirement needing it.** An
   applied migration is never edited. If this layer needs a schema change it is forward-only, concern-sized
   (continue at `0020…`) and justified by a requirement — not by convenience.
-- **The application's own rules, not a vendor's plan tier.** Session lifetime and abuse control are
-  enforced by our code, so no paid feature of any provider may be load-bearing for either.
+- **The application's own rules, not a vendor's plan tier.** Session lifetime is enforced by our code, so no
+  paid feature of any provider may be load-bearing for it — and the provider's invite-only mode, which is
+  what makes "exactly one account" true, is free on any plan (its allowlist, which needs a paid plan in
+  production, is therefore not used).
 - **TASK-005 owns the polish.** This layer lands the behaviour — the confirmation, the 8-second undo
   window, the inline validation, the empty states' existence, the page not breaking. Focus handling, toast
   ordering and wording, the offline indicator, the gold-vs-red attention wording and the per-width
@@ -251,40 +255,58 @@ The application's own honesty rule is untouched by this: the seed may author, th
 3. **The PDF the import reads.** The import must be built to a real shape, not to the authored demo file
    alone. What does the owner's PDF actually look like — which columns does it carry (customer name, number,
    what they asked for, note?), and is it a text PDF he prepares rather than a scan? **Open.**
+4. **What replaces the delay schedule and the per-IP window** (opened by the 2026-10-14 ruling that Clerk,
+   not the office, carries the sign-in). The office-access spec asks for both, and the application cannot
+   apply either once it never sees the attempt. The two things standing in their place are the provider's
+   own: an account **lockout** (ten failures, then a one-hour cooldown by default — configurable, minimum
+   five, or switched off) and per-address rate limits on the sign-in API. But a lockout **can shut the real
+   owner out**, and the same spec says the system must never lock an account. So: accept the provider's
+   lockout, switch it off and rely on the provider's rate limits alone, or ask the provider for more than it
+   offers? **Open — the owner's to rule, and the office-access spec is rewritten once it is.**
 
-*Neither open question blocks the layer from starting: the export's shape is needed before step 7 of the
-build order and the PDF's before step 6.*
+*Question 2 is needed before step 7 of the build order, question 3 before step 6, and question 4 before the
+door is built (step 1).*
 
 ### Round 1 — the owner's answers (2026-10-14)
 
-1. **Clerk, linked to the owner's own application, set up with Clerk's CLI.** The owner supplied Clerk's
-   official setup runbook and the application id `app_3KfevzKd9JdCG86xfx301JYsTuU`. **Taken from the
-   runbook:** the CLI installed (or updated) and signed in by the owner; `clerk init --app
-   app_3KfevzKd9JdCG86xfx301JYsTuU` run against this project — the SDK install, the provider, the
-   proxy/middleware with the matcher including `/__clerk/:path*` after `/(api|trpc)(.*)`, and the keys
-   reaching the environment file; and `clerk doctor` as the check that follows. `ClerkProvider` sits inside
-   `<body>`, never around `<html>`, and `auth()` is awaited (Next 15). **The environment file is never read
-   into a log, never printed and never committed** — a key that reaches a terminal is a key to rotate, and
-   `.env.local` is the owner's to edit.
-   **Bent to the requirements in two places — logged as conflict 8:** the office offers **no sign-up path**
-   (one account, made on first run; afterwards only sign-in), and a sign-in attempt passes the application's
-   **own delay and per-IP checks before it reaches the provider**, through the office's own form rather than
-   the provider's component as the door. The provider must likewise be configured so that registration is
-   not open to the public — otherwise "exactly one account" is not true. The runbook's checklist step, its
-   sign-up/sign-in controls and its "sign up as your first test user" closing step are therefore **not**
-   followed as written.
-   **A finding to bring back if it appears:** whether the provider accepts a sign-in the application
-   forwards server-side after its own checks. The requirement depends on it; if it cannot be done, that is
-   the owner's to rule on, not a rule to bend quietly.
+1. **Clerk, linked to the owner's own application, set up with Clerk's CLI — and Clerk does the sign-in,
+   not the office** (owner ruling, 2026-10-14, superseding the earlier reading in which the office's own
+   form would be the door). **Taken from the runbook:** the CLI installed (or updated) and signed in by the
+   owner; `clerk init --app app_3KfevzKd9JdCG86xfx301JYsTuU` run against this project — the SDK install,
+   the provider, the proxy/middleware with the matcher including `/__clerk/:path*` after `/(api|trpc)(.*)`,
+   and the keys reaching the environment file; and `clerk doctor` as the check that follows.
+   `ClerkProvider` sits inside `<body>`, never around `<html>`, and `auth()` is awaited (Next 15). **The
+   environment file is never read into a log, never printed and never committed** — a key that reaches a
+   terminal is a key to rotate, and `.env.local` is the owner's to edit.
+   **"One account, no public sign-up" — checked against Clerk's own documentation on 2026-10-14, and it is
+   possible.** The application is put in **Invite-only** access mode (Dashboard → Access mode; the API
+   value is `sign_up_mode: "restricted"`, settable from the CLI with `clerk config patch` rather than by
+   hand). Clerk describes that mode as *"user access is controlled by the application admin(s)"*, with users
+   added by invitation, enterprise connection or manual creation; in it the `<SignIn />` component **keeps
+   its sign-up prompt hidden by default**, and `<SignUp />` is reachable only through a valid invitation.
+   It is free on any plan — which decides the choice. The alternative, Open mode plus the **allowlist**
+   holding the owner's address, was rejected because Clerk's allowlist **requires a paid plan in
+   production**. So: the owner's account is created once, by him, as the application's only user, and no
+   public registration path exists at all. The runbook's sign-up controls and its "sign up as your first
+   test user" step are therefore **not** followed as written.
+   **Also worth knowing, from the same reading:** Clerk's **Device Trust** is on by default for
+   applications created after 2025-11-14, so a password sign-in from a **new device** will ask for an email
+   code as a second factor — harmless for one owner, but it means he needs access to that mailbox to sign
+   in somewhere new. And Clerk's own protections include an **account lockout** (ten failed attempts by
+   default, then a one-hour cooldown; configurable, with a minimum of five, or switchable off) plus
+   per-address rate limits on its sign-in API — see the open question below, because a lockout can shut the
+   real owner out and the office-access requirement forbids exactly that.
 
 ---
 
 ## Process — how to work it
 
 - **Build in this order, because each step needs the one before it:**
-  1. **The door** — first-run account creation, sign-in through the app's own route, the delay schedule and
-     the per-IP window, the session row and its cookie, the server-side check on every office route,
-     sign-out. Nothing else is safe to demonstrate while the office is open to anyone.
+  1. **The door** — the provider installed and linked, its instance put in invite-only mode so no public
+     sign-up path exists, the owner's one account created, Clerk's own sign-in mounted as the office's door,
+     the session row and its cookie, the server-side session check on every office route, sign-out. Whatever
+     answers open question 4 goes in here too, once it is ruled. Nothing else is safe to demonstrate while
+     the office is open to anyone.
   2. **The car's life** — create, edit (all fourteen columns, including the private note and the "was"
      price), the live profit figure, the malformed-amount block, the ref's one-time assignment, delete →
      tombstone → undo → the owner's permanent removal, and sold/un-mark.
@@ -319,10 +341,11 @@ build order and the PDF's before step 6.*
 
 1. …an unauthenticated visitor opens any office URL, the server refuses to render the page or return its
    data — and after the owner signs out, a tab left open is refused too.
-2. …the owner fails to sign in five times, attempts four and five are delayed (1s, then 5s) while the first
-   three are not; after ten failures from one address inside fifteen minutes, further attempts are refused
-   and logged; and once the window passes, sign-in works — the account was never locked, and the real owner
-   was never shut out.
+2. …the owner fails to sign in repeatedly, the failures are slowed and then refused past a limit, and the
+   real owner can still get in afterwards — no lockout outlives the attack, and no failure lock leaves him
+   shut out (exactly how, per open question 4). *Superseded 2026-10-14 by the ruling that the provider
+   carries the sign-in: the office no longer sees the attempt, so the delay sequence and the per-IP window
+   are no longer the application's to apply.*
 3. …the owner creates a car with a price and a photo, it appears in the office at once and in the showroom
    at once; its `TS-####` is given once, never changes on any edit, and is never reused after the car is
    deleted.
@@ -406,15 +429,17 @@ build order and the PDF's before step 6.*
    the application has already vetted, and no hosted login page may take attempts directly. This is an
    integration fact to verify, not a rule to bend: **if the provider cannot be driven that way, that is a
    finding for the owner**, and the session and abuse rules stay the application's either way.
-8. **The provider's own setup recipe contradicts two settled rules.** Clerk's runbook installs sign-in *and
-   sign-up* controls into the application and lets the provider's component carry the attempt end to end.
-   Two requirements say otherwise: the office has **exactly one account and no public sign-up** (the
-   office-access spec's "Single first-run account" and "Sign-up attempts afterwards" — *no registration path
-   exists*), and **every attempt passes the application's own delay and per-IP checks before it reaches the
-   provider**, with no hosted login page receiving attempts directly (specs/office-access; `tasks.md` 6.2;
-   rulings A1/F4). **Winner: the requirements** — the CLI is used to install and link the provider, and the
-   door stays the office's own screen and its own server-side checks. The provider must also be configured so
-   registration is not open to the public, or "exactly one account" is not true. See Round 1 above.
+8. **The provider's own setup recipe, against two settled rules — one half now ruled, one still open.** The
+   runbook installs sign-up controls into the application and closes with "sign up as your first test user".
+   The office has **exactly one account and no public sign-up** (the office-access spec's "Single first-run
+   account" and "Sign-up attempts afterwards" — *no registration path exists*). **Winner: the requirement** —
+   satisfied by Clerk's **Invite-only** access mode (checked against Clerk's documentation 2026-10-14: the
+   sign-in component hides its sign-up prompt, and `<SignUp />` needs a valid invitation; free on any plan,
+   unlike the allowlist, which needs a paid plan in production). The runbook's sign-up step is not followed.
+   The second half — whether the attempt itself passes the application's own delay and per-IP checks before
+   reaching the provider — **was the owner's call and he made it on 2026-10-14: the provider carries the
+   sign-in, not the office.** That is not a bent rule but a changed one, and it leaves the office-access
+   spec's delay schedule and per-IP window to be replaced (open question 4).
 
 ---
 

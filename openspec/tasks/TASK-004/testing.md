@@ -34,28 +34,29 @@ The dangerous failure is an office reachable without a session, or one that only
 
 - **How you will know it passed:** with no session — a fresh browser profile, or the cookie removed — every
   office URL (dashboard, inventory, car form, enquiries, activity, settings) is *refused by the server*:
-  no page, no data. Sign-out, then reloading an office tab that was already open, is refused too. There is a
-  first-run screen while no account exists, it creates the account with an email and a password of the
-  operator's choosing, and afterwards **only sign-in is offered** — no registration path exists at all. A
-  failed sign-in for an unknown email and a failed sign-in for the right email with a wrong password are
-  indistinguishable — same message, same behaviour — and neither message says whether the email exists.
+  no page, no data. Sign-out, then reloading an office tab that was already open, is refused too. **The
+  provider's instance is in its invite-only mode**, so **no registration path exists anywhere** — the office
+  offers no sign-up, and attempting to reach the provider's own sign-up is refused without a valid
+  invitation. Exactly one account exists, and it is the owner's. A failed sign-in does not announce whether
+  an account exists.
 - **What fails this group:** any office URL rendering or returning data without a session; a page that
-  renders and then redirects client-side; a sign-up route still reachable after first run; a message, a
-  timing difference or a status code that separates "unknown email" from "wrong password"; a default
-  password anywhere in the code, the seeds or the database.
+  renders and then redirects client-side; a sign-up path reachable by anyone who finds the address; more
+  than one account; a message, a timing difference or a status code that separates "unknown email" from
+  "wrong password"; a default password anywhere in the code, the seeds or the database.
 
-## 2. Abuse control, against the numbers
+## 2. Abuse control — and that the owner is never left out
 
-- **How you will know it passed:** firing failed sign-ins one by one, attempts 1–3 are answered with no
-  delay, and 4, 5, 6, 7 are delayed by roughly 1s, 5s, 15s, 30s — the delay never exceeding 60s no matter
-  how many more you fire. From one address, after 10 failures inside 15 minutes, further attempts inside
-  that window are rejected **and logged**, and the rejection comes without the attempt being processed.
-  Waiting the window out, sign-in works normally again: nothing has been locked and the account is intact.
-  Every attempt you made is in `auth_attempt` with its address, time and outcome, and the table did not
-  grow without bound while you hammered it.
-- **What fails this group:** a delay applying to the first three failures; no delay at all; a delay that
-  exceeds the cap; an account locked out after the window passed; a rejected attempt that still reached the
-  provider; a flood that fills the attempt table (the log must be rate-limited).
+**Shape pending open question 4** (the provider carries the sign-in, so the office's own delay sequence and
+per-IP window no longer apply). Check the shape the owner rules, and whatever it is, check that it does not
+shut him out.
+
+- **How you will know it passed:** firing failed sign-ins one after another, the failures are slowed and
+  then refused past a limit, and the refusals do not let the attempt through to the account. Then, once the
+  attack stops, **the real owner can sign in again** — no lock, no cooldown, and no state that only a
+  support ticket can clear, unless the owner has explicitly ruled that in. Whatever record of attempts
+  exists is bounded and did not grow without limit while you hammered it.
+- **What fails this group:** a lock that outlives the attack and shut the owner out; an account left locked
+  with no way for him to clear it; a refusal that still reached the account; a flood that fills the store.
 
 ## 3. Every write is a POST, origin-checked, and no GET changes anything
 
