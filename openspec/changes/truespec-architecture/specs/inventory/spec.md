@@ -60,7 +60,7 @@ Deleting a car SHALL require confirmation, be undoable within an 8-second window
 - **THEN** the tombstone is hidden from all reads and stays listed as waiting to be cleared, and the owner removes it for good whenever he chooses — never the system, and not on any clock
 
 ### Requirement: Durable reference codes
-Every car SHALL receive a `TS-####` reference code on creation that is never edited, never manually chosen, and never reused after deletion; enquiries, taps, and activity rows join to the car by this reference.
+Every car SHALL receive a `TS-####` reference code on creation that is never edited, never manually chosen, and never reused after deletion; taps and activity rows join to the car by this reference. An enquiry joins to no car at all — it records the car the customer asked about in the customer's own words, which need not be a car the inventory holds (specs/enquiries).
 
 #### Scenario: Code assignment
 - **WHEN** a car is created

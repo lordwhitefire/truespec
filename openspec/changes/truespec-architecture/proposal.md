@@ -21,7 +21,7 @@ TrueSpec has a complete, closed planning stage (`product-management/`: product m
 - `inventory`: Car records in the office — CRUD, the state registry mapped to the three showroom sections, sold flag separate from state, `TS-####` reference codes, delete with undo and tombstone lifecycle.
 - `money`: The financial model — six fixed cost kinds, all in naira, no exchange rate anywhere, integer minor units, one totals function, live profit while typing, and state-driven figure labelling (estimated / landed / projected / real).
 - `dashboard`: The office dashboard — counts under one shared counting rule, money totals with explicit reach ("from 9 of 14 cars"), the "still building" line for incomplete costs, taps and activity feeds.
-- `enquiries`: Enquiry tracking — WhatsApp tap recording (page, car, time only), PDF import with preview-and-confirm, the five-state pipeline as an editable registry, and retention rules for customer data.
+- `enquiries`: Enquiry tracking — WhatsApp tap recording (page, car, time only), PDF import with preview-and-confirm, enquiry states the owner edits (seeded New, Talking, Negotiating, Sold, Lost — labels for tracking, never a required flow), and retention rules for customer data.
 - `office-settings`: Settings and data ownership — WhatsApp number, tagline, full-tank default, password change, one-click data export, and the PDF/photo storage locations.
 - `media`: Image and file lifecycle — Sanity as the image store with CDN, upload-first/car-saves-second flow, drift *reported* to the owner rather than pruned by the system, EXIF stripping at the write boundary, and enquiry PDFs stored as private-by-convention files in Sanity.
 

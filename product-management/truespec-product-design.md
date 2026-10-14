@@ -466,7 +466,7 @@ Not built. The dashboard shows **recent WhatsApp taps** — a list, refreshed on
 **Admin — 7**
 
 1. Login
-2. Dashboard — stat cards, pipeline by state, recent taps, recent activity
+2. Dashboard — stat cards, recent taps, recent activity
 3. Inventory — table on desktop, cards on phone. Cost and profit visible here only
 4. Add / Edit Car — one template. Details, photos, costs with live profit, state, notes
 5. Enquiries — columns per state, cards movable between them. Upload and review PDF

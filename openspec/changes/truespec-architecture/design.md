@@ -73,6 +73,16 @@ Stack as ruled, revised 2026-10-08 by owner decision: Next.js + TypeScript, **Ne
 **Decision:** Base state rows (four car groups, five enquiry states) live in migrations as built-in contract; demo cars live in an idempotent first-run seed.
 **Why:** Migrations survive re-seeding; demo data must be re-runnable without duplicating registry rows.
 
+### D11 — An enquiry is not a car record (owner ruling 2026-10-13)
+**Decision:** `enquiry` holds the customer (name, number), the car asked about **in the customer's own words** as free text, a note, its state, its imported PDF and its dates — and holds **no reference to a car**: no `car_ref`, no car key. Taps and activity rows still join to a car by its `TS-####` reference, because a tap is a statement about a car the showroom holds; an enquiry is what a customer wants, which need not be a car we have and may be several cars at once. Each side carries its own identity and its own change-check.
+**Why:** A customer asks for a car that is often not in the inventory. A join would force a car row to be invented for something we do not hold, or stand empty in exactly the normal case — and it fuses two records the business keeps apart (car tracking and customer tracking). Two customers asking for the same car are simply two enquiries.
+**Alternatives:** Join by `car_ref` (rejected — the store's current shape and the join clause in `specs/inventory`; wrong whenever the car asked for is not held); a nullable car key (rejected — the link is empty precisely when the enquiry is real); creating a car row on demand (rejected — invents inventory the owner never entered).
+
+### D12 — States are labels, not stages (owner ruling 2026-10-13)
+**Decision:** Car states and enquiry states are **labels the owner attaches to track a record** — nothing more. No state requires another to come first, no transition is enforced or implied, and no part of the system may assume a flow: no "only New may reach Talking", no stage engine, no progress bar. An enquiry may be given Sold the same day it arrives; a car may be given any of its states at any time. Adding, renaming, reordering and deleting states is the owner's (deletion blocked while occupied), exactly as the registries already require.
+**Why:** The owner's words — "there is no pipeline". A customer can enquire and buy immediately, so no stage model fits; a car's states exist because circumstances differ, not because a car must travel through them in order. A flow would be a rule nobody asked for, and since the states are data the owner edits, a flow baked into code would break the moment he changed them.
+**Alternatives:** A board with allowed transitions / a pipeline model (rejected — scope creep, and contradicted by the owner); a fixed enum of stages (rejected — D6 already makes states data). The board view itself stays: it is a way of *showing* the states, and dragging a card sets a state — it implies no order.
+
 ## Risks / Trade-offs
 
 - **[Cost leak is catastrophic and silent if wrong]** → The allow-list serializer is the only public data path (D2), plus a pre-handover automated check that greps every public response for cost-field names and fails the build; specs make it testable.
