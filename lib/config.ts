@@ -20,7 +20,9 @@ export type AppConfig = {
 
 const REQUIRED = [
   "DATABASE_URL",
-  "CLERK_PUBLISHABLE_KEY",
+  // Clerk's CLI writes the NEXT_PUBLIC_-prefixed name (Next must expose the
+  // publishable key to the browser). Read the standard name it actually writes.
+  "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
   "CLERK_SECRET_KEY",
   "SANITY_PROJECT_ID",
   "SANITY_DATASET",
@@ -52,8 +54,11 @@ export function getConfig(): AppConfig {
   if (values.DATABASE_URL && !/^postgres(ql)?:\/\//.test(values.DATABASE_URL)) {
     wrong.push("DATABASE_URL (must be a postgresql:// connection string)");
   }
-  if (values.CLERK_PUBLISHABLE_KEY && !values.CLERK_PUBLISHABLE_KEY.startsWith("pk_")) {
-    wrong.push("CLERK_PUBLISHABLE_KEY (must start with pk_)");
+  if (
+    values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    !values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.startsWith("pk_")
+  ) {
+    wrong.push("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (must start with pk_)");
   }
   if (values.CLERK_SECRET_KEY && !values.CLERK_SECRET_KEY.startsWith("sk_")) {
     wrong.push("CLERK_SECRET_KEY (must start with sk_)");
@@ -74,7 +79,7 @@ export function getConfig(): AppConfig {
 
   cached = {
     databaseUrl: values.DATABASE_URL,
-    clerkPublishableKey: values.CLERK_PUBLISHABLE_KEY,
+    clerkPublishableKey: values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     clerkSecretKey: values.CLERK_SECRET_KEY,
     sanityProjectId: values.SANITY_PROJECT_ID,
     sanityDataset: values.SANITY_DATASET,

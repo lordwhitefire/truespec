@@ -1,0 +1,312 @@
+# TASK-004 — plan (functionality, Layer 4 of 6)
+
+**Date:** 2026-10-14 · **Status:** approved ("go") — building; Phases 0–1 under way (Tasks 1–3 done).
+**Authority:** `openspec/tasks/TASK-004/task.md` (16→17 truths, 11 handover answers), `openspec/changes/truespec-architecture/{design.md (D15–D20), specs/*, tasks.md §1.6, §4.1, §4.5, §6.1–6.11}`, and the data layer's `openspec/tasks/TASK-003/key-and-hash-v1.md` (the change-check is the server's).
+**Task list target:** this file's **Progress tracker** + Task list (Developer-workspace convention; no `tasks/todo.md` in this project).
+
+---
+
+## Overview
+
+The office looks finished and saves nothing. This layer makes the office's door the identity provider's own sign-in and makes every screen behind it write to, and read from, the store. It also lands a **state-model change** (D15: four fixed primary states + the owner's secondary states), a **drafts** holding place for uploaded files (D16), the **tap** flow, **settings + a one-action ZIP export**, and the **resilience** half so a cold store never becomes an error page. The store is rebuilt (`drop → migrate → seed`) and the demonstration's figures may move; what must hold is that **office and showroom agree** and nothing else moves.
+
+## Shared understanding — what this layer is, and what it is not
+
+**Is:** the door and every write behind it; the state model; drafts; taps; settings + export; the retryable store read.
+**Is not:** a redesign of the public boundary (D2's allow-list serializer stands); a change to the change-check (server-side, TASK-003's recipe); a new delete path (no job/clock removes anything); a mail channel; a Sanity Studio; per-width interaction polish, the retry state's *wording*, toast/confirm presentation (all TASK-005); the daily job itself (TASK-006).
+
+## Architecture decisions (already ruled — recorded, not re-decided)
+
+- **The door (D4, Q6, Q7):** Clerk carries the sign-in, invite-only mode, mounted at `/office/sign-in`; `/office` redirects there with no session. Owner installs/signs in the CLI; builder runs `clerk init --app app_3KfevzKd9JdCG86xfx301JYsTuU`, the config patch, `clerk doctor`, and wires the code. No password form, no credential material anywhere.
+- **Our session (D4, D17):** one `session` row per provider session; valid iff `now < expires_at` (7 d) and idle ≤ 12 h, refreshed on a 5-minute cooldown; **lazy upsert** on the first authenticated office request, keyed by `clerk_session_id`; cookie `HttpOnly, SameSite=Lax, Secure`; server-side check on every office route; sign-out invalidates both.
+- **Writes (D3):** every state change is a Server Action (POST, origin-checked); Route Handlers only for the tap, the export download and the file upload, each with an explicit origin check. No GET ever changes data.
+- **State model (D15):** four fixed primaries — **Available, On Order, Landed, Sold** — exactly one per car, mandatory; the owner's **secondary** states (none or several) in a link table; `section` ≡ primary state; the showroom groups by primary and **never shows Sold**; a landed car stays under Available; the store's five states reshape (On the way / At port / Cleared → secondary; On Order + Sold → primary).
+- **Drafts (D13, D16):** one new `draft` table; a file's values → one draft per record; images as an ordered list on the row; reviewed at `/office/drafts`; **nothing enters `car`/`enquiry` before a save**; `TS-####` and the change-check are given **at the save**; a draft sits in no state.
+- **Money (D5):** integer kobo, one totals function, nothing stores totals; labels estimated/landed/total; projected/real profit.
+- **Left alone (D20):** `activity_event` gains nothing (kind + car ref in `subject`); `auth_attempt` kept as-is (harmless no-op; the 90-day trim stays TASK-006's).
+- **Resilience (D18):** one shared server-side guard around every store read + one retryable component + route error boundaries, on the office **and** the showroom.
+- **Notices (D19):** both read from `setting` rows (`last_backup_at` written by TASK-006; a storage-warning figure, default 4 GB).
+- **Export (truth 13):** one action → one **ZIP** = `master.json` (nested) + one **CSV per subject** + `README.txt`; office-only.
+- **Confirmed:** photo size cap **15 MB**; WhatsApp number normalised to **`+234…`**; retention **12 months** (enquiry) / **6 years** (buyer); truth 5 corrected to "Sold is a primary state, and setting it is what performs the sale".
+
+## Progress tracker
+
+| # | Task | Status | Notes |
+|---|------|--------|-------|
+| — | Pre-flight: grilling (Rounds 1–2) + shared understanding | ✅ | Frontier empty; owner said **go**; answers in `task.md` (11 handover answers, D15–D20) |
+| 1 | Workspace artefacts + green baseline | ✅ | brief + notes written; **5/5 gates green** (64/64 tests); baseline figures recorded (`runs/TASK-004-baseline-gates.txt`) |
+| 2 | Current truth for the external surfaces + skill check | ✅ | Clerk loaded from official docs (CLI 3.4.1; **Next 15.5 → `middleware.ts`**); Sanity+Neon skills installed; **no skill** for PDF/ZIP/EXIF; ⚠️ Clerk skill + CLI sign-in need the owner |
+| 3 | Clerk installed + wired (middleware, provider, invite-only, doctor) | ✅ | `@clerk/nextjs@7.9.15`; `middleware.ts` bare `clerkMiddleware()`; provider inside `<body>`; invite-only verified (`sign_up_mode=restricted`); `clerk doctor` pass; `lib/config.ts` reads `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`. Evidence: `runs/TASK-004-clerk-init.txt` |
+| 4 | Our `session` row (lazy upsert, cookie, 7 d / 12 h, `requireOfficeSession`) | ⏳ | |
+| 5 | The door screens: `/office/sign-in`, `/office` redirect, real shell name | ⬜ | |
+| 6 | Server-side check on every office route + refusal proof | ⬜ | |
+| A | **Owner checkpoint A — the door** | ⬜ | unauth refused on every office URL; sign-in/sign-out work; **stop and demonstrate** |
+| 7 | Migration `0020` — the state model | ⬜ | kind, primaries pinned, link table, `state_id` NOT NULL, reshape |
+| 8 | Shared rules + read layers move to primary/secondary | ⬜ | `sections.ts`, `counts.ts`, `office.ts` (+ tombstone filter), `public-cars.ts` |
+| 9 | Seed rewrite (D15 g) + rebuild reproduces the showroom | ⬜ | Available→Available; middle three→On Order + old label secondary; one Sold; one with a secondary |
+| 10 | Write foundation: Server Actions + validation + create car | ⬜ | 14 columns, primary + secondaries, `TS-####`, change-check |
+| 11 | The car form wired to the store | ⬜ | private note + "was" price; malformed-amount block; live "estimated" profit |
+| 12 | Edit + ref immutability | ⬜ | change-check recomputed; identity lock left standing |
+| 13 | Delete → tombstone → 8 s undo → owner's removal | ⬜ | office reads exclude tombstones; "waiting to be cleared"; cascade + asset clear |
+| 14 | Sold / un-mark | ⬜ | sale row moves money; leaves the showroom; secondaries kept; returns to previous primary, logged |
+| 15 | Car state editor → registry (secondary only) | ⬜ | primaries not editable; deletion refused while occupied |
+| 16 | Enquiry editor + board + activity from real rows | ⬜ | registry order; no progression implied |
+| 17 | Dashboard feed panels real; seed files retired | ⬜ | taps + activity; the "5 open enquiries" real |
+| B | **Owner checkpoint B — the car's life + registries live** | ⬜ | **stop and demonstrate** |
+| 18 | Images: upload-first/save-second, EXIF, 15 MB, cover/reorder, placeholder | ⬜ | origin `owner upload`; asset-ref never a URL |
+| 19 | The tap + notice + office badge/list | ⬜ | page + car ref + time only; notice before the tap |
+| 20 | The car PDF blank + serving it at the upload point | ⬜ | the 14 editable details |
+| 21 | Migration `0021` — the draft table | ⬜ | D16 columns; no second table |
+| 22 | Car file → drafts (read, refuse, held file) | ⬜ | one draft per car; nothing in `car` |
+| 23 | Enquiry file → drafts | ⬜ | five fields; PDF held, linked, deletable |
+| 24 | `/office/drafts` review + save + images by hand + delete | ⬜ | save gives `TS-####` + change-check + state; brothers untouched |
+| 25 | Demo marker + wipe cover drafts | ⬜ | every row this layer writes carries `is_demo` |
+| 26 | Settings save (WhatsApp normalised, tagline, full-tank) | ⬜ | inline validation; previous number stays active |
+| 27 | Password delegated + operational notices | ⬜ | `last_backup_at` + 4 GB threshold read from `setting` |
+| 28 | The export (one action → ZIP) | ⬜ | `master.json` + one CSV per subject + `README.txt`; office-only |
+| 29 | The shared store guard + retryable state + error boundaries | ⬜ | office **and** showroom; never a 500 |
+| C | **Owner checkpoint C — final** | ⬜ | **stop and demonstrate**; owner redirects before TASK-005 |
+| 30 | Refusals witness | ⬜ | ten refusals, each asked/returned |
+| 31 | Flows witness (browser, before/after) | ⬜ | the standing browser-check procedure |
+| 32 | Store state + demo marker + wipe dry run + export opened | ⬜ | office ↔ showroom agreement checked, not claimed |
+| 33 | Gates + reconcile + report + copies + tracker closed | ⬜ | leak-check → typecheck → test → build → store-freshness |
+
+Legend: ⬜ not started · ⏳ in progress · ✅ done · ⛔ blocked. **Owner checkpoints A, B, C are the only points the build stops for the owner** (task.md §Process); every other phase ends at an internal *gate* that does not stop the owner.
+
+---
+
+## Task list
+
+### Phase 0 — Groundwork and baseline
+
+**Task 1 — Workspace artefacts + green baseline** (S)
+- **AC:** `briefs/TASK-004-brief.md` and `notes/TASK-004-state.md` written (what was asked; current store/seed/read-layer state). The four gates run on the **untouched** tree and recorded with their numbers, plus the demo baseline (17 cars · 49 photos · 99 cost lines · 1 sale · 6 enquiries · 1 PDF).
+- **Verify:** `npm run leak-check` · `npm run typecheck` · `npm test` · `npm run build` · `npm run store-freshness` — all green; figures written down.
+- **Deps:** none. **Files:** `developer-workspace/briefs/`, `developer-workspace/notes/` (~3).
+
+**Task 2 — Current truth for the external surfaces + skill check** (S)
+- **AC:** For Clerk, Sanity, and the PDF/ZIP/EXIF toolchain, the *current* material is loaded (installed skill, official docs) and the chosen libraries/CLI forms written to notes with citations. **If a skill exists for any of them and is not installed, the owner is told and asked before installing** (skill rule). No code written from memory.
+- **Verify:** notes cite the docs/skill versions read; the ask-and-wait is recorded.
+- **Deps:** 1. **Files:** `developer-workspace/notes/` (~2).
+
+> **Gate 0** — brief, notes, baseline and truth loaded. No owner stop.
+
+### Phase 1 — The door (build step 1)
+
+**Task 3 — Clerk installed + wired** (M)
+- **AC:** `@clerk/nextjs` installed; middleware/proxy with the matcher including `/__clerk/:path*` after `/(api|trpc)(.*)`; `ClerkProvider` inside `<body>` (never around `<html>`); `auth()` awaited (Next 15); the application verified **invite-only**; `clerk doctor` clean. **Owner's keys never printed, never committed.**
+- **Verify:** `npx clerk doctor`; a dev build renders; `clerk init` output recorded; keys absent from any log/diff.
+- **Deps:** 2. **Files:** `package.json`, `middleware.ts`, `app/layout.tsx`, `lib/config.ts` (M).
+
+**Task 4 — Our own `session` row** (M)
+- **AC:** `lib/session.ts` upserts one row on the first authenticated office request, keyed by `clerk_session_id`; validity `now < expires_at` (7 d) **and** idle ≤ 12 h; `last_seen_at` refreshed on a 5-minute cooldown; cookie `HttpOnly, SameSite=Lax, Secure`; `requireOfficeSession()` throws/redirects otherwise; sign-out invalidates our row **and** the Clerk session. Unit tests pin the two limits and the cooldown.
+- **Verify:** `npm test` (new session tests); a manual request with no/expired/idle session is refused.
+- **Deps:** 3. **Files:** `lib/session.ts`, `lib/session.test.ts` (~3).
+
+**Task 5 — The door screens** (M)
+- **AC:** `/office/sign-in` mounts the provider's own `<SignIn/>` inside the office shell; `/office` redirects there with no session; all office routes behind the check; the shell's name comes from the signed-in row (the hardcoded "Signed in as Umar" is gone).
+- **Verify:** a browser visit to `/office` with no session lands on `/office/sign-in`; after sign-in the real email shows; sign-out returns to the door.
+- **Deps:** 3, 4. **Files:** `app/office/sign-in/page.tsx`, `app/office/(shell)/layout.tsx`, `app/office/layout.tsx` (~3).
+
+**Task 6 — Every office route refused without a session + proof** (S)
+- **AC:** a script proves every office URL returns no page and no data without a session (and after a sign-out, a previously-open tab is refused). The four-gate run stays green.
+- **Verify:** `developer-workspace/scripts/task-004/office-refusal.mjs` (or equivalent) → all refused; gates green.
+- **Deps:** 5. **Files:** `developer-workspace/scripts/task-004/` (~2).
+
+> ### ⛔ Owner checkpoint A — the door. Unauthenticated office refused; sign-in/sign-out work; shell name real; gates green. **Stop and demonstrate.** (Nothing is safe while the office is open to anyone.)
+
+### Phase 2 — The state model (build step 2)
+
+**Task 7 — Migration `0020`: the state model** (M)
+- **AC:** `car_state` distinguishes `kind` (primary | secondary); the four primaries are pinned (not addable/renamable/deletable); `car.state_id` becomes **NOT NULL**; `car_secondary_state(car_id, state_id)` holds the many-to-many; On the way / At port / Cleared become secondary; **On Order** and **Sold** added as primary; `section` is a primary-only property (≡ the primary state); a secondary needs no section and no new-arrival flag; two states never share a name across both kinds; deletion refused while a car sits in the state. Forward-only; a scratch `drop → migrate → seed` proves the chain.
+- **Verify:** scratch rebuild; the store's constraints refuse a fifth primary, a duplicate name, and the deletion of an occupied state (SQLSTATE + constraint named).
+- **Deps:** A. **Files:** `migrations/0020_*.sql` (~1).
+
+**Task 8 — Shared rules + read layers move to primary/secondary** (M)
+- **AC:** `lib/sections.ts` treats *section* and *primary state* as one (grouping + helpers); `lib/counts.ts` counts by primary state (Available = Available + Landed-new-arrival; Sold outside stock); `lib/office.ts` reads the primary state and **excludes tombstones** (`deleted_at IS NULL`) where it must; `lib/public-cars.ts` shows only the three public groups and never Sold. Tests pin the shape and the counting rule.
+- **Verify:** `npm test` (updated/added); a tombstoned car is absent from office counts; Sold is absent from every public response.
+- **Deps:** 7. **Files:** `lib/sections.ts`, `lib/counts.ts`, `lib/office.ts`, `lib/public-cars.ts` + tests (~5).
+
+**Task 9 — Seed rewrite (D15 g) + rebuild** (M)
+- **AC:** the seed writes the four primaries + the owner's secondaries and maps the demo fleet exactly as ruled: Available→Available; On the way/At port/Cleared→**On Order** with the old label kept as a **secondary**; Landed→Landed; **at least one car Sold** and **at least one carrying a secondary**, so both new behaviours are visible. The showroom's three groups look as they do now. `drop → migrate → seed` reproduces the fleet; running the seed twice moves nothing.
+- **Verify:** scratch rebuild twice (second run moves nothing); the showroom group membership matches the pre-change baseline.
+- **Deps:** 7, 8. **Files:** `scripts/seed.ts`, demo data files (+ `scripts/seed-content`) (~3–5).
+
+> **Gate 2** — scratch rebuild identical twice; gates green. No owner stop.
+
+### Phase 3 — The car's life (build step 3)
+
+**Task 10 — Write foundation + create a car** (M)
+- **AC:** a Server Action creates a car from the form: all fourteen editable columns, **exactly one primary state** and any number of secondary states, the `TS-####` given by the store, the `content_hash`/`hash_version` **computed by the server** (a browser-supplied hash is ignored); a malformed amount is refused at the field; a missing primary state is refused. `activity_event` written with `kind` + the car's ref.
+- **Verify:** `npm test` (action tests); a create through the UI writes exactly one car + its cost lines; the ref is present and stable.
+- **Deps:** 9. **Files:** `app/office/actions/car.ts`, `lib/car-input.ts`, tests (~4).
+
+**Task 11 — The car form wired to the store** (M)
+- **AC:** the form offers every column it owns — including the **private note** and the crossed-out **"was" price** it does not yet offer — plus a **primary-state** picker and a **secondary-state** multi-picker; the profit figure updates as the owner types and is labelled **"estimated"** until landed; a malformed amount cannot save and is caught at the field; the stale "not owned by the office data model" comment is corrected.
+- **Verify:** a browser/route check creates and re-reads a car with a private note and a was-price; the live label reads "estimated" pre-landing.
+- **Deps:** 10. **Files:** `app/office/(shell)/car/*`, `components/` (~4–5).
+
+**Task 12 — Edit + ref immutability** (M)
+- **AC:** every editable column can be changed; `content_hash` is recomputed on each write; `car.id`/`car.ref` cannot change (the store's trigger refuses it) and the write path never attempts it.
+- **Verify:** an edit changes values and the hash; a hand-crafted identity change is refused by the store; `npm test` green.
+- **Deps:** 11. **Files:** `app/office/actions/car.ts`, car client, tests (~3).
+
+**Task 13 — Delete → tombstone → undo → the owner's removal** (M)
+- **AC:** delete asks for confirmation and offers **undo within 8 seconds** (byte-for-byte restore with photos/costs/state); after the window it is a tombstone **hidden from every office read** and listed as **waiting to be cleared**; the owner's permanent removal cascades photos/costs/sale and clears the stored assets, leaving no orphan; **no job/rule/clock removes anything**.
+- **Verify:** proof script: delete → undo restores; delete → the car is absent from every office read and present in the "waiting" list; permanent removal leaves no orphan rows/assets.
+- **Deps:** 12. **Files:** `app/office/actions/car.ts`, `lib/office.ts`, `lib/cleanup.ts`, inventory client (~5).
+
+**Task 14 — Sold / un-mark** (M)
+- **AC:** marking sold sets the **Sold primary state** and writes the sale row (price, date); the car leaves the showroom entirely, sits in Sold/Archive, stays in lifetime totals and out of stock counts, and profit moves projected → real; un-marking reverses/voids the sale, returns the car to its **previous primary** state (logged), keeps its secondary states, and leaves no real-profit residue.
+- **Verify:** proof script: sold → absent from showroom/stock, present in lifetime; un-mark → showroom/stock restored, no residue; `npm test`.
+- **Deps:** 13. **Files:** `app/office/actions/car.ts`, `lib/money.ts` (use), inventory client, tests (~4).
+
+> **Gate 3** — car lifecycle proof green; gates green. No owner stop.
+
+### Phase 4 — The registries, live (build step 4)
+
+**Task 15 — Car state editor writes the registry (secondary only)** (M)
+- **AC:** the editor adds/renames/reorders/recolours **secondary** states only; the four primaries are not addable, renamable or deletable; deletion of an occupied state is **refused by the store**, with the reason shown; a secondary needs no section and carries no new-arrival flag; two states never share a name across both kinds.
+- **Verify:** proof script hits each refusal; the editor round-trips a real registry.
+- **Deps:** 9. **Files:** `app/office/actions/state.ts`, `settings/state-editors.tsx`, `state-seeds.ts` (retire) (~4).
+
+**Task 16 — Enquiry editor + board + activity from real rows** (M)
+- **AC:** the enquiry-state editor adds/renames/reorders/deletes (deletion refused while occupied); the board reads `enquiry` + `enquiry_state` and groups in the **registry's order** — a display of labels, **no progression implied**; the activity log reads `activity_event`. No seed remains.
+- **Verify:** proof: add a state → it appears with no code change; the board shows store rows; a crafted "move a card" shape changes nothing.
+- **Deps:** 15. **Files:** `app/office/actions/enquiry.ts`, `enquiries/*`, `activity/*` (~5).
+
+**Task 17 — Dashboard feed panels real; seeds retired** (S)
+- **AC:** the dashboard's taps and activity panels read real rows; the hardcoded "5 open enquiries" and the inline feed JSX are gone; the figures come from the one shared rule.
+- **Verify:** with real rows present the panels show them; `state-seeds.ts` is no longer imported anywhere.
+- **Deps:** 16. **Files:** `app/office/(shell)/page.tsx`, `settings/state-seeds.ts` (~2–3).
+
+> ### ⛔ Owner checkpoint B — the car's life + both registries live. **Stop and demonstrate** (the biggest slice). Owner may redirect before images/taps/uploads.
+
+### Phase 5 — Images (build step 5)
+
+**Task 18 — The image flow** (M)
+- **AC:** assets upload to Sanity **before** any row is saved; rows link on save; cover = position 0 with reorder/set-cover; `origin` records `owner upload`; a **15 MB** cap refuses an oversized original; **EXIF is stripped at the write boundary**; the asset-reference column never holds a URL; a missing asset or an unreachable store renders the **placeholder**, not a broken page.
+- **Verify:** proof script: upload → bytes first, row second; the exact stored bytes carry no EXIF; an oversized file is refused; a missing asset renders the placeholder; `npm test`.
+- **Deps:** B. **Files:** `lib/sanity.ts`, `lib/photos.ts`, `app/office/actions/photo.ts`, car client (~5).
+
+### Phase 6 — Taps (build step 6)
+
+**Task 19 — The tap + notice + office badge/list** (M)
+- **AC:** the WhatsApp entry shows the privacy notice **before** the tap; a Route Handler records **page + car ref + time only** (explicit origin check) and the buyer then continues to WhatsApp; the office shows a count badge and a recent list (never a popup/alert/sound).
+- **Verify:** proof: a tap writes exactly three facts (and nothing personal); a bootleg POST without origin is refused; the badge/list update on refresh.
+- **Deps:** B. **Files:** `app/api/tap/route.ts`, `components/site/*`, dashboard panel (~4).
+
+### Phase 7 — Uploads and the template (build step 7)
+
+**Task 20 — The car PDF blank, served at the upload point** (M)
+- **AC:** the car's template is a PDF carrying its **fourteen editable details** and nothing else, downloadable at the upload point; the enquiry's five-field file needs no made-up form.
+- **Verify:** the blank downloads and opens; its fields are exactly the fourteen in `lib/change-check.ts`'s car recipe.
+- **Deps:** B. **Files:** `app/api/template/route.ts` (or static asset), `lib/template.ts` (~2–3).
+
+**Task 21 — Migration `0021`: the draft table** (S)
+- **AC:** one table per D16: `id`, `kind` (`car`|`enquiry`), `batch_id`, `source_filename`, `source_asset_id`, `values` jsonb, `image_asset_ids` (ordered), `state_label` (a **name**, nullable), `is_demo`, timestamps. No second table.
+- **Verify:** scratch rebuild; a draft row round-trips; no `car`/`enquiry` row is created by holding a draft.
+- **Deps:** 20. **Files:** `migrations/0021_*.sql` (~1).
+
+**Task 22 — A car file becomes drafts** (M)
+- **AC:** an uploaded car PDF is read into **one draft per car** (a batch shares `batch_id`); nothing enters `car`; a row that cannot be read is **explained and named**, never silently dropped; a file that is not the expected format is refused with a reason the owner can act on; the uploaded file is held in Sanity under a **randomised filename** with its reference only in the database and in no public payload.
+- **Verify:** proof: a 10-car file → 10 drafts, 0 cars, the next `TS-####` untouched; a bad file refused; the held filename is randomised and absent from public responses.
+- **Deps:** 21. **Files:** `lib/draft-read.ts`, `app/api/upload/route.ts`, tests (~4).
+
+**Task 23 — An enquiry file becomes drafts** (M)
+- **AC:** the enquiry file is read into drafts carrying its **five** fields (name, number, what they asked for, note, the state); nothing enters `enquiry`; the PDF is kept, linked and deletable; the same refusal and held-file rules apply.
+- **Verify:** proof: an enquiry file → drafts, 0 enquiries; the PDF links to the record only on save.
+- **Deps:** 22. **Files:** `lib/draft-read.ts`, `app/api/upload/route.ts`, tests (~3).
+
+**Task 24 — `/office/drafts`: review, save, delete** (M)
+- **AC:** all drafts of both kinds are reviewed on one page; the owner adds a draft's images **by hand** (template carries values, not pictures); a **save** creates the record, giving it its `TS-####` and its change-check **at that moment** and applying the state label (asking him to choose if the state is gone); saving one draft leaves its brothers untouched; a draft survives a reload and is still a draft; an unsaved draft consumes no code; a draft can be deleted.
+- **Verify:** proof: save one → one car with the next code + hash + photos; the other nine untouched; a reload keeps a draft; abandoning a draft burns no `TS-####`.
+- **Deps:** 23. **Files:** `app/office/(shell)/drafts/*`, `app/office/actions/draft.ts` (~5).
+
+**Task 25 — Demo marker + wipe covers drafts** (S)
+- **AC:** every row this layer writes (drafts included) carries `is_demo`, so the one-move wipe clears the whole demonstration and touches nothing of the client's; the wipe also removes any demo asset a draft referenced.
+- **Verify:** the wipe's dry run lists drafts; a post-wipe store has no draft rows and no orphaned demo assets.
+- **Deps:** 24. **Files:** `lib/demo-wipe.ts` / `scripts/demo-wipe.ts`, draft action (~2–3).
+
+### Phase 8 — Settings and export (build step 8)
+
+**Task 26 — Settings save for real** (M)
+- **AC:** the WhatsApp number is validated **inline** and stored **normalised to `+234…`**, digits only; a bad save is rejected and the **previous number stays active**; the tagline and the full-tank default (a form prefill only) save for real.
+- **Verify:** proof: `0…`, `234…`, `+234…` all normalise; a malformed save leaves the old value; a public `wa.me` link resolves.
+- **Deps:** 6. **Files:** `app/office/actions/setting.ts`, `settings/*`, `lib/phone.ts` + test (~4).
+
+**Task 27 — Password delegated + operational notices** (M)
+- **AC:** password change is delegated to the provider and **no password material exists in any application table**; the office displays a storage-past-threshold notice and a backup-status notice read from `setting` rows (`last_backup_at` written by TASK-006; storage-warning figure, default 4 GB). No live Sanity storage computation.
+- **Verify:** proof: no password column/row anywhere; with `last_backup_at` absent the notice says so honestly; with it present the notice reads it.
+- **Deps:** 26. **Files:** `settings/*`, `lib/settings.ts` (~3).
+
+**Task 28 — The export** (M)
+- **AC:** one action produces **one ZIP**: `master.json` (nested — each car with its costs and photos) + **one CSV per subject** (cars, costs, photos, enquiries, taps, activity, settings) + a `README.txt` naming the contents and the date; **not** an Excel workbook; reachable only from inside the office — a request without a session returns nothing.
+- **Verify:** open the ZIP and show every subject present; the nesting survives in `master.json`; an unauthenticated download returns nothing.
+- **Deps:** 27. **Files:** `app/api/export/route.ts`, `lib/export.ts`, `settings/*` (~4).
+
+### Phase 9 — Resilience (build step 9)
+
+**Task 29 — The shared store guard + retryable state** (M)
+- **AC:** every server-side store read passes through **one shared guard**; a transient failure becomes one **retryable-state** component; route-level `error.tsx` boundaries sit behind it; applied to **both** the office and the public showroom. A blip shows no bare 500 and **no invented figure**.
+- **Verify:** proof: with the store briefly unreachable, a store-reading page shows the retryable state and never a fabricated number; recover → the page renders normally.
+- **Deps:** 28. **Files:** `lib/store-guard.ts`, `components/retryable.tsx`, `app/**/error.tsx` (~5).
+
+> **Gate 9** — resilience proof green; gates green. No owner stop.
+
+### Phase 10 — Witnesses, gates and the report
+
+**Task 30 — Refusals witness** (M)
+- **AC:** every refusal proved with what was asked and what came back: an office URL with no session; a signed-out tab; a state deleted while occupied; a malformed WhatsApp number; a malformed amount; a file that is not the expected template; a GET that would have changed data; a request carrying its own `content_hash`; a request trying to change an identity; and an unauthenticated export.
+- **Verify:** `developer-workspace/scripts/task-004/refusals.mjs` → each refused, each with the right rule named, nothing changed.
+- **Deps:** 29. **Files:** `developer-workspace/scripts/task-004/` (~2).
+
+**Task 31 — Flows witness (browser, before/after)** (M)
+- **AC:** the standing browser-check procedure (attach-only CDP :9222, ≤10 chromium, no launch, no screenshots): create a car, edit it, change a cost, mark sold and un-mark, delete and undo, upload photos, upload a template and save its drafts one by one (one left unsaved), import the enquiry PDF, change a state, save a setting, export. **Figures before and after** written down.
+- **Verify:** the harness reports PASS; office and showroom agree on every shared car; no leak on public routes with the writes in place.
+- **Deps:** 30. **Files:** `developer-workspace/scripts/task-004/`, `runs/` (~3).
+
+**Task 32 — Store state, demo marker, wipe dry run, export opened** (M)
+- **AC:** the store's state after the flows is recorded so "office and showroom agree" is **checked, not claimed**; every row the demonstration created carries the demo marker; a dry run shows the demonstration and everything this layer's writes left behind is still removable in one move and nothing else is touched; the export file is opened and shown to hold every subject.
+- **Verify:** proof script + the opened export; the wipe dry run changes nothing.
+- **Deps:** 31. **Files:** `developer-workspace/scripts/task-004/` (~2).
+
+**Task 33 — Gates, reconcile, report, copies, tracker closed** (M)
+- **AC:** the gates in the learned order — **leak-check → typecheck → test → build → store-freshness** — plus the office reconcile script (itself extended for the new state model) and the browser check; a report written at `developer-workspace/reports/TASK-004.md` (built · witnesses with numbers · the ten refusals · findings · not-done · gaps for TASK-005/006 · the pending "section" vocabulary gap); a byte-identical copy into `openspec/tasks/TASK-004/`; this plan's tracker closed.
+- **Verify:** all gates green; reconcile green; the browser check PASS; report + copy exist.
+- **Deps:** 32. **Files:** `reports/`, `openspec/tasks/TASK-004/` (~4).
+
+> ### ⛔ Owner checkpoint C — final. **Stop and demonstrate.** Owner may redirect before TASK-005.
+
+---
+
+## Verification method
+
+- **The four gates, in the learned order:** `npm run leak-check` **before** `npm run build` (build clobbers `next dev`'s `.next`), then `npm run typecheck`, `npm test`, `npm run build`, and the standing fifth, `npm run store-freshness`; restart `next dev -p 3210` after any build (port 3000 is never used).
+- **The store witness:** `scripts/reconcile.ts` — the rendered office vs the store read directly through the shared rules (not through the read layer).
+- **The browser witness:** the standing procedure `developer-workspace/procedures/browser-check.md` (attach-only CDP :9222, ref :3211 vs build :3210, ≤10 chromium, no launch, no screenshots).
+- **The refusals witness:** one script per refusal, each judged on four things (refused · the right rule refused it · nothing changed · the parent survived).
+
+## Risks and mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|-----------|
+| Clerk install/keys need the owner's account | High | Task 2 asks about skills; Task 3 gates on `clerk doctor` + invite-only verify; keys never printed/committed; owner installs/signs in the CLI. |
+| `0020` reshapes a live store and is not reversible | High | Forward-only corrective files; scratch `drop → migrate → seed` proves the chain; the rebuild is the strongest check. |
+| The state-model change moves the demonstration's figures | Med | Expected and named; the witness is **agreement** between office and showroom, produced by the one rule. |
+| Building Clerk/Sanity/PDF/ZIP from memory | High | Task 2 loads the current truth; ask before installing any skill; cite the source. |
+| Cold Neon connections drop concurrent requests | Med | Warm the pool before the browser check (learned in TASK-003, `notes/T7-browser-check-and-db-flakiness.md`). |
+| `build` clobbers `next dev`'s `.next` (500s on dynamic routes) | Med | `leak-check` before `build`; restart dev after any build. |
+| A draft or asset is left orphaned | Low | Drafts carry `is_demo` and the wipe clears them; the job's removal list gains **no** third exception. |
+| The specs still say "section" where D15 says "primary state" | Low | Build to D15's semantics (section ≡ primary state); log the pending vocabulary rewrite as an architecture gap, don't silently rewrite specs. |
+
+## Gaps this layer hands over (named, not hidden)
+
+- **TASK-005:** the wording of the retryable state; the per-width interaction split (incl. the genuinely-open tablet nav); toast/confirm presentation; the 8-second undo's presentation.
+- **TASK-006:** the daily job — the drift report, the retention notice, the `last_backup_at` heartbeat, the `auth_attempt` 90-day trim, and the clearance of assets no draft and no record ever referenced.
+- **Architecture:** the pending rewrite of the specs' "section" vocabulary to "primary state" (D15 d).
+- **Carried from TASK-003:** the seed's child-row id churn; `components/CarCard.tsx:31`'s dead `mi`; `lib/serialize.ts:153`'s `mileage`→`mileageKm` alias (name only).
+
+## Open questions
+
+None — the frontier is empty; every branch was answered in `openspec/tasks/TASK-004/task.md` on 2026-10-14.
