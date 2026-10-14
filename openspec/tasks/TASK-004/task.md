@@ -287,8 +287,11 @@ door is built (step 1).*
    It is free on any plan — which decides the choice. The alternative, Open mode plus the **allowlist**
    holding the owner's address, was rejected because Clerk's allowlist **requires a paid plan in
    production**. So: the owner's account is created once, by him, as the application's only user, and no
-   public registration path exists at all. The runbook's sign-up controls and its "sign up as your first
-   test user" step are therefore **not** followed as written.
+   public registration path exists at all. **The owner has already applied it himself (2026-10-14, his own
+   word): the application is in invite-only mode.** So this is a state to verify, not a step to perform —
+   and if it is ever found back in Open mode, that is a regression, because the office's whole account rule
+   rests on it. The runbook's sign-up controls and its "sign up as your first test user" step are therefore
+   **not** followed as written.
    **Also worth knowing, from the same reading:** Clerk's **Device Trust** is on by default for
    applications created after 2025-11-14, so a password sign-in from a **new device** will ask for an email
    code as a second factor — harmless for one owner, but it means he needs access to that mailbox to sign
