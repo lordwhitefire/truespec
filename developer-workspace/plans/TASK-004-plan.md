@@ -37,7 +37,7 @@ The office looks finished and saves nothing. This layer makes the office's door 
 | 1 | Workspace artefacts + green baseline | ✅ | brief + notes written; **5/5 gates green** (64/64 tests); baseline figures recorded (`runs/TASK-004-baseline-gates.txt`) |
 | 2 | Current truth for the external surfaces + skill check | ✅ | Clerk loaded from official docs (CLI 3.4.1; **Next 15.5 → `middleware.ts`**); Sanity+Neon skills installed; **no skill** for PDF/ZIP/EXIF; ⚠️ Clerk skill + CLI sign-in need the owner |
 | 3 | Clerk installed + wired (middleware, provider, invite-only, doctor) | ✅ | `@clerk/nextjs@7.9.15`; `middleware.ts` bare `clerkMiddleware()`; provider inside `<body>`; invite-only verified (`sign_up_mode=restricted`); `clerk doctor` pass; `lib/config.ts` reads `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`. Evidence: `runs/TASK-004-clerk-init.txt` |
-| 4 | Our `session` row (lazy upsert, cookie, 7 d / 12 h, `requireOfficeSession`) | ⏳ | |
+| 4 | Our `session` row (lazy upsert, cookie, 7 d / 12 h, `requireOfficeSession`) | ✅ | `lib/session-rules.ts` (pure: 7 d total, 12 h idle, 5 min cooldown) + `lib/session.ts` (lazy upsert keyed by `clerk_session_id`, `requireOfficeSession`, `endSession` revokes provider + row); **no app cookie** — Clerk's own session cookie is the only one (per D4/D17); `lib/session.test.ts` 7/7; store witness `scripts/task-004/session-row-check.ts` 10/10 |
 | 5 | The door screens: `/office/sign-in`, `/office` redirect, real shell name | ⬜ | |
 | 6 | Server-side check on every office route + refusal proof | ⬜ | |
 | A | **Owner checkpoint A — the door** | ⬜ | unauth refused on every office URL; sign-in/sign-out work; **stop and demonstrate** |
