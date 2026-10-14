@@ -1,5 +1,5 @@
 import "server-only";
-import { db } from "./db";
+import { storeQuery } from "./store-guard";
 import { getConfig } from "./config";
 import { countStock, type StockCounts } from "./counts";
 import { isListed, toPublicCar, type PublicCar, type RawCarRow } from "./serialize";
@@ -30,22 +30,19 @@ function mapRows(rows: RawCarRow[]): PublicCar[] {
 }
 
 export async function getPublicCars(): Promise<PublicCar[]> {
-  const sql = db();
-  const rows = (await sql.query(`${SELECT_CARS} ORDER BY c.ref`)) as RawCarRow[];
+  const rows = (await storeQuery(`${SELECT_CARS} ORDER BY c.ref`)) as RawCarRow[];
   return mapRows(rows.filter(isListed));
 }
 
 export async function getPublicCar(ref: string): Promise<PublicCar | null> {
-  const sql = db();
-  const rows = (await sql.query(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
+  const rows = (await storeQuery(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
   if (!row || !isListed(row)) return null;
   return mapRows([row])[0];
 }
 
 export async function getPublicCarForView(ref: string): Promise<PublicCar | null> {
-  const sql = db();
-  const rows = (await sql.query(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
+  const rows = (await storeQuery(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
   if (!row) return null;
   return mapRows([row])[0];
@@ -59,8 +56,7 @@ export async function getPublicCounts(): Promise<StockCounts> {
 }
 
 export async function getSetting(key: string): Promise<string | null> {
-  const sql = db();
-  const rows = (await sql.query(`SELECT value FROM setting WHERE key = $1`, [key])) as {
+  const rows = (await storeQuery(`SELECT value FROM setting WHERE key = $1`, [key])) as {
     value: string;
   }[];
   return rows[0]?.value ?? null;

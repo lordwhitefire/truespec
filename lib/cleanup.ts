@@ -1,5 +1,5 @@
 import "server-only";
-import { db } from "./db";
+import { storeQuery } from "./store-guard";
 import { sanityClient } from "./sanity";
 
 // Cleanup readiness — what is waiting to be cleared, as it stands.
@@ -110,10 +110,8 @@ type RawAsset = { _id: string; _type: string; originalFilename: string | null; s
 const iso = (v: string | Date): string => (v instanceof Date ? v.toISOString() : v);
 
 export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
-  const sql = db();
-
   // 1. The owner's tombstones, and everything that travelled with each one.
-  const deletedRows = (await sql.query(
+  const deletedRows = (await storeQuery(
     `SELECT c.ref, c.brand, c.model, c.trim, c.year, c.deleted_at,
             (now()::date - c.deleted_at::date) AS age_days,
             (SELECT count(*)::int FROM car_photo p WHERE p.car_id = c.id) AS photos,
@@ -127,7 +125,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
   )) as RawDeletedCar[];
 
   // 2. Enquiries at their year. The clock is the row's own created_at.
-  const enquiryRows = (await sql.query(
+  const enquiryRows = (await storeQuery(
     `SELECT id, name, number, asked_for, created_at,
             (now()::date - created_at::date) AS age_days
        FROM enquiry
@@ -137,7 +135,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
 
   // 3 + 4. Every referencing row, in one pass: the ones that name an asset, and the ones that still
   // hold a stranger's address.
-  const referencingRows = (await sql.query(
+  const referencingRows = (await storeQuery(
     `SELECT 'car_photo' AS row_kind, cp.id AS row_id, c.ref, cp.sanity_asset_id AS asset_id
        FROM car_photo cp JOIN car c ON c.id = cp.car_id
       WHERE cp.sanity_asset_id !~* '^https?://'
@@ -148,7 +146,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
       ORDER BY 1, 3`,
   )) as RawReferencingRow[];
 
-  const addressRows = (await sql.query(
+  const addressRows = (await storeQuery(
     `SELECT 'car_photo' AS row_kind, cp.id AS row_id, c.ref, cp.sanity_asset_id AS address, cp.origin
        FROM car_photo cp JOIN car c ON c.id = cp.car_id
       WHERE cp.sanity_asset_id ~* '^https?://'
@@ -160,7 +158,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
   )) as RawAddressRow[];
 
   // 5. The two exceptions — the machine's own litter. Nothing here is a record.
-  const authRows = (await sql.query(
+  const authRows = (await storeQuery(
     `SELECT count(*)::int AS stale FROM auth_attempt WHERE at < now() - interval '90 days'`,
   )) as { stale: number }[];
 

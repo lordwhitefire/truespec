@@ -1,7 +1,7 @@
 import "server-only";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { db } from "./db";
+import { storeQuery } from "./store-guard";
 import { expiryFrom, isSessionValid, shouldRefreshLastSeen } from "./session-rules";
 
 /**
@@ -85,10 +85,9 @@ function toSession(row: SessionRow): OfficeSession {
  * so nothing can recreate the row.
  */
 export async function endSession(clerkSessionId: string): Promise<void> {
-  const sql = db();
   const client = await clerkClient();
   await client.sessions.revokeSession(clerkSessionId);
-  await sql.query(`DELETE FROM session WHERE clerk_session_id = $1`, [clerkSessionId]);
+  await storeQuery(`DELETE FROM session WHERE clerk_session_id = $1`, [clerkSessionId]);
 }
 
 /**
@@ -105,9 +104,8 @@ export async function checkOfficeSession(): Promise<OfficeSessionState> {
   if (!userId || !sessionId) return { status: "none" };
 
   const now = new Date();
-  const sql = db();
 
-  const rows = (await sql.query(
+  const rows = (await storeQuery(
     `SELECT s.id           AS session_row_id,
             s.user_id      AS office_user_id,
             u.email,
@@ -139,7 +137,7 @@ export async function checkOfficeSession(): Promise<OfficeSessionState> {
     }
 
     if (shouldRefreshLastSeen(session.lastSeenAt, now)) {
-      await sql.query(`UPDATE session SET last_seen_at = $2 WHERE id = $1`, [
+      await storeQuery(`UPDATE session SET last_seen_at = $2 WHERE id = $1`, [
         session.sessionRowId,
         now.toISOString(),
       ]);
@@ -156,7 +154,7 @@ export async function checkOfficeSession(): Promise<OfficeSessionState> {
   if (!email) return { status: "none" };
 
   // The one owner row is matched by email (there is no provider-user column).
-  const owners = (await sql.query(
+  const owners = (await storeQuery(
     `INSERT INTO office_user (email)
      VALUES ($1)
      ON CONFLICT (email) DO UPDATE SET updated_at = $2
@@ -168,7 +166,7 @@ export async function checkOfficeSession(): Promise<OfficeSessionState> {
 
   // One clock for the whole row, so the store can judge the two limits from the
   // dates alone and get the same answer the app does (TASK-003 testing.md).
-  const created = (await sql.query(
+  const created = (await storeQuery(
     `INSERT INTO session (user_id, clerk_session_id, created_at, last_seen_at, expires_at)
      VALUES ($1, $2, $3, $3, $4)
      ON CONFLICT (clerk_session_id) DO UPDATE SET last_seen_at = $3

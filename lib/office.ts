@@ -1,5 +1,5 @@
 import "server-only";
-import { db } from "./db";
+import { storeQuery } from "./store-guard";
 import { countStock, type StockCounts } from "./counts";
 import { type CostLineInput } from "./money";
 import { sectionOfState, type Section } from "./sections";
@@ -107,8 +107,7 @@ type RawOfficeRow = {
 };
 
 export async function getOfficeCars(): Promise<OfficeCarRow[]> {
-  const sql = db();
-  const rows = (await sql.query(
+  const rows = (await storeQuery(
     `SELECT c.id, c.ref, c.brand, c.model, c.trim, c.year, c.mileage,
             s.label AS state, s.is_new_arrival,
             c.doorstep_price_kobo, c.arrival_note,
@@ -152,8 +151,7 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
 
 // State label → the section the registry says it means (the only section source).
 async function sectionsByState(): Promise<Map<string, string>> {
-  const sql = db();
-  const rows = (await sql.query(`SELECT label, section FROM car_state`)) as {
+  const rows = (await storeQuery(`SELECT label, section FROM car_state`)) as {
     label: string;
     section: string;
   }[];
@@ -175,8 +173,7 @@ export async function getOfficeCarViews(): Promise<OfficeCarView[]> {
  * (`sectionOfState`), so the registry cannot drift from `lib/sections.ts`.
  */
 export async function getOfficeStates(): Promise<OfficeState[]> {
-  const sql = db();
-  const rows = (await sql.query(
+  const rows = (await storeQuery(
     `SELECT label, section, is_new_arrival FROM car_state ORDER BY sort, label`,
   )) as { label: string; section: string; is_new_arrival: boolean }[];
   return rows.map((r) => ({
