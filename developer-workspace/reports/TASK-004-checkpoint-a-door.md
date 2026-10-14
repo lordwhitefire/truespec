@@ -154,6 +154,10 @@ word and I will clean both up.
   run on `:3212` only for the gate above, and has been stopped.
 - The `office_user` table has 0 rows, so the first real sign-in will create the one
   owner row from your provider account's email.
+- **A browser check of the door has since been run** (the project's standing procedure):
+  8/8 matrix cells loaded, provider's sign-in mounted, **0 app-built password fields**
+  (reference: 3), all 7 office routes land on the door with no office chrome, chromium
+  6 → 6. Full record: `reports/TASK-004-browser-check.md`. It does **not** sign in.
 
 ---
 

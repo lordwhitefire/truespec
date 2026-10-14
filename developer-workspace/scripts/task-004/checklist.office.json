@@ -1,0 +1,56 @@
+{
+  "note": "Office surfaces checklist (procedure section 4). A state is a condition the page is put in so a conditional surface shows; here the only conditional state is the theme (dark/light), plus the width. Enumerated by reading the reference's own source for discovery only; the comparison itself is runtime-vs-runtime.",
+  "matrix": {
+    "widths": [1440, 820, 560, 390],
+    "themes": ["dark", "light"],
+    "cellsPerScreen": 8
+  },
+  "screens": [
+    {
+      "id": "door",
+      "build": "/office/sign-in",
+      "ref": "/login.html",
+      "probe": "door-probe.mjs",
+      "status": "checked",
+      "note": "ref /office/login.html is a 0-byte file on the reference server; the populated owner sign-in screen is /login.html"
+    },
+    {
+      "id": "dashboard",
+      "build": "/office",
+      "ref": "/office/dashboard.html",
+      "status": "needs-session",
+      "note": "behind the door; the office matrix applies once a session exists"
+    },
+    {
+      "id": "inventory",
+      "build": "/office/inventory",
+      "ref": "/office/inventory.html",
+      "status": "needs-session"
+    },
+    {
+      "id": "activity",
+      "build": "/office/activity",
+      "ref": "/office/activity.html",
+      "status": "needs-session"
+    },
+    {
+      "id": "enquiries",
+      "build": "/office/enquiries",
+      "ref": "/office/enquiries.html",
+      "status": "needs-session"
+    },
+    {
+      "id": "settings",
+      "build": "/office/settings",
+      "ref": "/office/settings.html",
+      "status": "needs-session"
+    },
+    {
+      "id": "car-edit",
+      "build": "/office/car",
+      "ref": "/office/car-edit.html",
+      "status": "behind-the-door",
+      "note": "the car view/edit screen; probe written with Task 7 (the car's life)"
+    }
+  ]
+}
