@@ -135,8 +135,8 @@ try {
     VALUES ('file-KEEPKEEPKEEP-pdf', 'real-own.pdf', 3, now())
   `);
   await q(`
-    INSERT INTO enquiry (name, number, car_ref, note, enquiry_state_id, pdf_import_id, is_demo, created_at, updated_at)
-    VALUES ('Real Customer', '+2348000009999', 'TS-9001', 'a real enquiry',
+    INSERT INTO enquiry (name, number, asked_for, note, enquiry_state_id, pdf_import_id, is_demo, created_at, updated_at)
+    VALUES ('Real Customer', '+2348000009999', 'a saloon, any colour', 'a real enquiry',
             (SELECT id FROM enquiry_state ORDER BY label LIMIT 1),
             (SELECT id FROM enquiry_pdf WHERE filename='real-own.pdf'), false, now(), now())
   `);
@@ -145,8 +145,8 @@ try {
   const demoPdf = await one("SELECT id FROM enquiry_pdf ORDER BY imported_at LIMIT 1");
   say(`the demo's imported PDF row: ${demoPdf.id}`);
   await q(
-    `INSERT INTO enquiry (name, number, car_ref, note, enquiry_state_id, pdf_import_id, is_demo, created_at, updated_at)
-     VALUES ('Shares The Demo PDF', '+2348000009998', 'TS-9001', 'imported from the same document',
+    `INSERT INTO enquiry (name, number, asked_for, note, enquiry_state_id, pdf_import_id, is_demo, created_at, updated_at)
+     VALUES ('Shares The Demo PDF', '+2348000009998', 'whatever you have that is clean', 'imported from the same document',
              (SELECT id FROM enquiry_state ORDER BY label LIMIT 1), $1, false, now(), now())`,
     [demoPdf.id],
   );

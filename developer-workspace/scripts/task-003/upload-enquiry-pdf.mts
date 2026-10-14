@@ -1,4 +1,4 @@
-// Task 13 — upload the demo enquiry PDF and insert its stored result.
+// Task 13 — upload the demo enquiry PDF and record its stored result.
 //
 // Specs (media §"Enquiry PDFs stored privately in Sanity"): the file goes into
 // the asset store under an `enquiry-pdfs` designation with a **randomised
@@ -8,8 +8,11 @@
 //   * store        enquiry_pdf.filename = the original ("enquiries-2026-09-30.pdf")
 //                  enquiry_pdf.sanity_asset_id = the asset reference
 //
-// It also writes scripts/demo-enquiry-import.json, the record Task 14's seed
-// reproduces from — the same pattern as scripts/demo-photo-manifest.json.
+// It also writes scripts/demo-enquiry-import.json, the record the seed reproduces
+// from — the same pattern as scripts/demo-photo-manifest.json. **Only the filler
+// writes enquiry rows** (`key-and-hash-v1.md` decision 14): this script points its
+// own `enquiry_pdf` row at the new asset and re-writes the manifest, and stops
+// there.
 //
 //   node --env-file=.env.local --conditions=react-server --import tsx \
 //     developer-workspace/scripts/task-003/upload-enquiry-pdf.mts
@@ -25,9 +28,9 @@ const PDF_PATH = `developer-workspace/scripts/task-003/runs/task-13/${ORIGINAL_F
 const RECORD = "scripts/demo-enquiry-import.json";
 const IMPORTED_AT = "2026-09-30T09:00:00.000Z";
 
-// The sheet's rows, with the office state each was left in. Fictional customers
-// (see author-enquiry-pdf.mts); the refs are fleet cars, so the import links to
-// real stock.
+// The office state each row of the sheet was left in, in the sheet's order. The
+// file is fictional (see author-enquiry-pdf.mts); what each customer is after is
+// in their own words, and one of them asks for a car we do not hold.
 const STATES = ["New", "Talking", "New", "Negotiating"];
 
 const bytes = readFileSync(PDF_PATH);
@@ -52,47 +55,29 @@ console.log(`asset ${uploaded.assetId}  ${uploaded.size}B`);
 const client = new Client({ connectionString: process.env.DATABASE_URL });
 await client.connect();
 
-// Idempotent: the demo's own import row is replaced, never duplicated.
+// This script writes the `enquiry_pdf` row and nothing else. The *enquiries* the
+// sheet produces are the filler's, written from the same manifest
+// (`key-and-hash-v1.md` decision 14) — so there is one writer for them, and a
+// re-run of this developer's tool can never be the thing that removes a row.
 const { rows: existing } = await client.query<{ id: string }>(
-  "SELECT id FROM enquiry_pdf WHERE filename = $1",
+  "SELECT id FROM enquiry_pdf WHERE filename = $1 ORDER BY id LIMIT 1",
   [ORIGINAL_FILENAME],
 );
-for (const row of existing) {
-  await client.query("DELETE FROM enquiry WHERE pdf_import_id = $1", [row.id]);
-}
-await client.query("DELETE FROM enquiry_pdf WHERE filename = $1", [ORIGINAL_FILENAME]);
 
-const { rows: pdfRows } = await client.query<{ id: string }>(
-  `INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total, imported_at)
-   VALUES ($1,$2,$3,$4) RETURNING id`,
-  [uploaded.assetId, ORIGINAL_FILENAME, ROWS.length, IMPORTED_AT],
-);
-const pdfId = pdfRows[0].id;
-console.log(`enquiry_pdf row ${pdfId}: filename=${ORIGINAL_FILENAME} rows_total=${ROWS.length}`);
-
-const stateIds = new Map(
-  (
-    await client.query<{ id: string; label: string }>("SELECT id, label FROM enquiry_state")
-  ).rows.map((r) => [r.label, r.id]),
-);
-
-for (let i = 0; i < ROWS.length; i++) {
-  const row = ROWS[i];
-  const stateId = stateIds.get(STATES[i]);
-  if (!stateId) throw new Error(`enquiry state "${STATES[i]}" not found — run migrations first.`);
+if (existing[0]) {
   await client.query(
-    `INSERT INTO enquiry (name, number, car_ref, note, enquiry_state_id, pdf_import_id, created_at, is_demo)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,true)`,
-    [row.name, row.phone, row.car, row.note, stateId, pdfId, `${row.date}T10:00:00.000Z`],
+    `UPDATE enquiry_pdf SET sanity_asset_id = $2, rows_total = $3, imported_at = $4 WHERE id = $1`,
+    [existing[0].id, uploaded.assetId, ROWS.length, IMPORTED_AT],
   );
+  console.log(`enquiry_pdf row ${existing[0].id} re-pointed at ${uploaded.assetId}`);
+} else {
+  const { rows: pdfRows } = await client.query<{ id: string }>(
+    `INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total, imported_at)
+     VALUES ($1,$2,$3,$4) RETURNING id`,
+    [uploaded.assetId, ORIGINAL_FILENAME, ROWS.length, IMPORTED_AT],
+  );
+  console.log(`enquiry_pdf row ${pdfRows[0].id}: filename=${ORIGINAL_FILENAME} rows_total=${ROWS.length}`);
 }
-console.log(`enquiry rows linking to the import: ${ROWS.length}`);
-
-const { rows: count } = await client.query<{ n: number }>(
-  "SELECT count(*)::int n FROM enquiry WHERE pdf_import_id = $1",
-  [pdfId],
-);
-console.log(`confirmed in the store: ${count[0].n} enquiry row(s) on that import`);
 await client.end();
 
 writeFileSync(
@@ -100,7 +85,7 @@ writeFileSync(
   JSON.stringify(
     {
       purpose:
-        "TASK-003 demo enquiry import — the stored result of the one authored demo PDF. Task 14's seed reproduces exactly this. The asset reference and the original filename live here and in the database only; the randomised name the asset was uploaded under is not the original filename.",
+        "TASK-003 demo enquiry import — the stored result of the one authored demo PDF. The seed reproduces exactly this. The asset reference and the original filename live here and in the database only; the randomised name the asset was uploaded under is not the original filename. Each row's `askedFor` is what the customer wrote, in their own words — never one of our codes (D11, decision 13) — and one of them names a car we do not hold.",
       originalFilename: ORIGINAL_FILENAME,
       sanityAssetId: uploaded.assetId,
       rowsTotal: ROWS.length,
