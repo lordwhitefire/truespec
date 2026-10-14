@@ -333,7 +333,7 @@ The application's own honesty rule is untouched by this: the seed may author, th
 - **Do not take the demonstration's figures as fixed.** The office's acceptance numbers move when the office
   starts saving; what must hold is agreement between the office and the showroom, and that nothing else
   moved.
-- **Where a stake is the owner's, ask — do not guess.** The three questions above are this layer's; a new
+- **Where a stake is the owner's, ask — do not guess.** The questions above are this layer's; a new
   one is added here, with its answer, rather than settled quietly in code.
 - **Leave the witnesses runnable.** The browser check, the leak check, the office's reconcile script and the
   store-freshness check must all still be obtainable when this layer closes.
