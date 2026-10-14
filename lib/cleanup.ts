@@ -36,7 +36,7 @@ export type EnquiryAtItsYear = {
   id: string;
   name: string | null;
   number: string | null;
-  carRef: string | null;
+  askedFor: string | null;
   recordedAt: string;
   ageDays: number;
 };
@@ -128,12 +128,12 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
 
   // 2. Enquiries at their year. The clock is the row's own created_at.
   const enquiryRows = (await sql.query(
-    `SELECT id, name, number, car_ref, created_at,
+    `SELECT id, name, number, asked_for, created_at,
             (now()::date - created_at::date) AS age_days
        FROM enquiry
       WHERE created_at <= now() - interval '1 year'
       ORDER BY created_at`,
-  )) as { id: string; name: string | null; number: string | null; car_ref: string | null; created_at: string | Date; age_days: number }[];
+  )) as { id: string; name: string | null; number: string | null; asked_for: string | null; created_at: string | Date; age_days: number }[];
 
   // 3 + 4. Every referencing row, in one pass: the ones that name an asset, and the ones that still
   // hold a stranger's address.
@@ -197,7 +197,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
       id: r.id,
       name: r.name,
       number: r.number,
-      carRef: r.car_ref,
+      askedFor: r.asked_for,
       recordedAt: iso(r.created_at),
       ageDays: r.age_days,
     })),

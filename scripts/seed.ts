@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { config as loadEnv } from "dotenv";
 import { Client } from "pg";
+import { CHANGE_CHECK_VERSION, carChangeCheck, enquiryChangeCheck } from "../lib/change-check";
 
 loadEnv({ path: ".env.local" });
 
@@ -95,10 +96,16 @@ function nairaLines(priceKobo: number, seed: number) {
 
 // The demo's two handwritten enquiries (plan §"The enquiries the seed will write").
 // Chidi is dated more than twelve months back so the year-mark notice has a real
-// case; Aisha is current.
+// case; Aisha is current. `askedFor` is the customer's own words for what they are
+// after — not a code, and not necessarily a car we hold (D11):
+// Chidi names no car at all; Aisha asks for one in the fleet.
+//
+// `handle` is the recipe's own name for the row — the name the filler finds it by and
+// writes it with. It is the recipe's, never the customer's, and it is what makes a
+// second run leave this enquiry alone rather than write it again (decision 6).
 const ENQUIRIES = [
-  { name: "Chidi O.", number: "+2348030000001", carRef: "TS-1001", note: "Asked about servicing history", state: "New", date: "2025-08-14" },
-  { name: "Aisha B.", number: "+2348030000002", carRef: "TS-1013", note: "Wants to see the Sport when it lands", state: "Talking", date: "2026-10-01" },
+  { handle: "demo-enquiry-01", name: "Chidi O.", number: "+2348030000001", askedFor: "a clean automatic saloon under ₦10 million — anything you have", note: "Asked about servicing history", state: "New", date: "2025-08-14" },
+  { handle: "demo-enquiry-02", name: "Aisha B.", number: "+2348030000002", askedFor: "the Range Rover Sport when it lands", note: "Wants to see the Sport when it lands", state: "Talking", date: "2026-10-01" },
 ];
 
 // Written by the photo upload (Task 12): the Sanity asset id and the recorded
@@ -114,7 +121,7 @@ type EnquiryImport = {
   sanityAssetId: string;
   rowsTotal: number;
   importedAt: string;
-  rows: { name: string; phone: string; car: string; note: string; date: string; state: string }[];
+  rows: { name: string; phone: string; askedFor: string; note: string; date: string; state: string }[];
 };
 
 async function main() {
@@ -154,95 +161,195 @@ async function main() {
         throw new Error(`seed: no uploaded photos for ${c.ref} — run the photo upload (Task 12) first.`);
       }
 
-      // Upsert, not insert-only: the fleet is the seed's own data and a re-seed
-      // must converge a row written by an earlier version (state, mileage, price).
-      const res = await client.query<{ id: string }>(
-        `INSERT INTO car (ref, brand, model, trim, year, exterior_color, interior_color, mileage,
-                          features, was_price_kobo, arrival_note, doorstep_price_kobo, state_id, is_demo)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,true)
-         ON CONFLICT (ref) DO UPDATE SET
-           brand = EXCLUDED.brand, model = EXCLUDED.model, trim = EXCLUDED.trim,
-           year = EXCLUDED.year, exterior_color = EXCLUDED.exterior_color,
-           interior_color = EXCLUDED.interior_color, mileage = EXCLUDED.mileage,
-           features = EXCLUDED.features, was_price_kobo = EXCLUDED.was_price_kobo,
-           arrival_note = EXCLUDED.arrival_note, doorstep_price_kobo = EXCLUDED.doorstep_price_kobo,
-           state_id = EXCLUDED.state_id, is_demo = true
-         RETURNING id`,
-        [c.ref, c.brand, c.model, c.trim, c.year, c.exterior, c.interior, c.mileage,
-         JSON.stringify(c.features), c.was > 0 ? c.was : null, c.arrivalNote ?? null, c.price, stateId],
-      );
-      const carId = res.rows[0].id;
+      // The car is found by its ref — the code the owner and the customer both read,
+      // now immutable. There is no delete: the row written last time is the same row
+      // this time. The recipe's fourteen editable details are gathered, the
+      // change-check is computed over them, and the row is left alone unless that
+      // check differs. `note` and `private_note` are editable details the demo recipe
+      // never writes, so they are read back and folded into the check as they stand.
+      const stored = (
+        await client.query<{
+          id: string;
+          note: string | null;
+          private_note: string | null;
+          content_hash: string;
+          hash_version: number;
+        }>("SELECT id, note, private_note, content_hash, hash_version FROM car WHERE ref = $1", [c.ref])
+      ).rows[0];
 
-      // Cost lines are re-synced every run, so a re-seed converges any stale row and
-      // the intended gaps stay gaps (the kinds in `missingCosts` are simply absent).
-      await client.query("DELETE FROM cost_line WHERE car_id = $1", [carId]);
+      const carRow = {
+        brand: c.brand,
+        model: c.model,
+        trim: c.trim,
+        year: c.year,
+        exterior_color: c.exterior,
+        interior_color: c.interior,
+        mileage: c.mileage,
+        features: JSON.stringify(c.features),
+        note: stored?.note ?? null,
+        private_note: stored?.private_note ?? null,
+        was_price_kobo: c.was > 0 ? c.was : null,
+        arrival_note: c.arrivalNote ?? null,
+        doorstep_price_kobo: c.price,
+        state_id: stateId,
+      };
+      const carFields = [
+        carRow.brand, carRow.model, carRow.trim, carRow.year, carRow.exterior_color,
+        carRow.interior_color, carRow.mileage, carRow.features, carRow.note, carRow.private_note,
+        carRow.was_price_kobo, carRow.arrival_note, carRow.doorstep_price_kobo, carRow.state_id,
+      ];
+      const carHash = carChangeCheck(carRow);
+
+      let carId: string;
+      if (!stored) {
+        carId = (
+          await client.query<{ id: string }>(
+            `INSERT INTO car (ref, brand, model, trim, year, exterior_color, interior_color, mileage,
+                              features, note, private_note, was_price_kobo, arrival_note,
+                              doorstep_price_kobo, state_id, content_hash, hash_version, is_demo)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,true)
+             RETURNING id`,
+            [c.ref, ...carFields, carHash, CHANGE_CHECK_VERSION],
+          )
+        ).rows[0].id;
+      } else if (stored.content_hash === carHash && stored.hash_version === CHANGE_CHECK_VERSION) {
+        // The same details, under the same recipe — the row is not touched at all.
+        carId = stored.id;
+      } else {
+        carId = stored.id;
+        await client.query(
+          `UPDATE car SET brand=$2, model=$3, trim=$4, year=$5, exterior_color=$6,
+                          interior_color=$7, mileage=$8, features=$9, note=$10, private_note=$11,
+                          was_price_kobo=$12, arrival_note=$13, doorstep_price_kobo=$14, state_id=$15,
+                          content_hash=$16, hash_version=$17, is_demo=true
+             WHERE id=$1`,
+          [carId, ...carFields, carHash, CHANGE_CHECK_VERSION],
+        );
+      }
+
+      // The cost lines are found by (car, kind) and written only where the amount
+      // differs. The kinds a car is missing stay missing — a gap is a fact, not a row.
       for (const line of nairaLines(c.price, i + 1)) {
         if (c.missingCosts?.includes(line.kind)) continue;
         await client.query(
-          `INSERT INTO cost_line (car_id, kind, amount_minor) VALUES ($1,$2,$3)`,
+          `INSERT INTO cost_line (car_id, kind, amount_minor) VALUES ($1,$2,$3)
+             ON CONFLICT (car_id, kind) DO UPDATE SET amount_minor = EXCLUDED.amount_minor
+             WHERE cost_line.amount_minor IS DISTINCT FROM EXCLUDED.amount_minor`,
           [carId, line.kind, line.amountMinor],
         );
       }
 
-      // Photos come from the upload record: the store holds the asset reference and
-      // the recorded origin, never an outside address.
-      await client.query("DELETE FROM car_photo WHERE car_id = $1", [carId]);
+      // The photographs are found by (car, position) and written only where the asset
+      // or its recorded origin differs. The store holds asset references, never URLs.
       for (const p of carPhotos) {
         await client.query(
-          `INSERT INTO car_photo (car_id, sanity_asset_id, origin, position) VALUES ($1,$2,$3,$4)`,
+          `INSERT INTO car_photo (car_id, sanity_asset_id, origin, position) VALUES ($1,$2,$3,$4)
+             ON CONFLICT (car_id, position) DO UPDATE
+               SET sanity_asset_id = EXCLUDED.sanity_asset_id, origin = EXCLUDED.origin
+             WHERE car_photo.sanity_asset_id IS DISTINCT FROM EXCLUDED.sanity_asset_id
+                OR car_photo.origin IS DISTINCT FROM EXCLUDED.origin`,
           [carId, p.assetId, p.origin, p.position],
         );
       }
 
       if (c.sold) {
+        // The sale is found by its car and written only where it differs. A car with
+        // no sale in the recipe is left alone — nothing is removed on its behalf.
         await client.query(
           `INSERT INTO sale (car_id, sale_price_kobo, sold_at)
            VALUES ($1, $2, $3)
            ON CONFLICT (car_id) DO UPDATE SET
-             sale_price_kobo = EXCLUDED.sale_price_kobo,
-             sold_at = EXCLUDED.sold_at`,
+             sale_price_kobo = EXCLUDED.sale_price_kobo, sold_at = EXCLUDED.sold_at
+           WHERE sale.sale_price_kobo IS DISTINCT FROM EXCLUDED.sale_price_kobo
+              OR sale.sold_at IS DISTINCT FROM EXCLUDED.sold_at`,
           [carId, c.price, new Date(c.sold).toISOString()],
         );
-      } else {
-        await client.query(`DELETE FROM sale WHERE car_id = $1`, [carId]);
       }
     }
 
-    // The two handwritten enquiries. The seed owns them: it deletes exactly the
-    // rows it is about to write (matched on name and number) and re-inserts them
-    // marked, so a re-run cannot duplicate them and no other enquiry is touched.
+    // The two handwritten enquiries. The seed owns each one through the handle the
+    // recipe gives it — `demo-enquiry-01`, `demo-enquiry-02`. Written again, the row
+    // is found by its handle and left alone; the change-check decides, not the name.
     for (const e of ENQUIRIES) {
-      await client.query("DELETE FROM enquiry WHERE name = $1 AND number = $2", [e.name, e.number]);
       const stateId = enquiryStateByLabel.get(e.state);
       if (!stateId) throw new Error(`seed: enquiry state "${e.state}" not found.`);
+      const hash = enquiryChangeCheck({
+        name: e.name,
+        number: e.number,
+        asked_for: e.askedFor,
+        note: e.note,
+        enquiry_state_id: stateId,
+      });
       await client.query(
-        `INSERT INTO enquiry (name, number, car_ref, note, enquiry_state_id, created_at, is_demo)
-         VALUES ($1,$2,$3,$4,$5,$6,true)`,
-        [e.name, e.number, e.carRef, e.note, stateId, `${e.date}T10:00:00.000Z`],
+        `INSERT INTO enquiry (name, number, asked_for, note, enquiry_state_id, created_at, is_demo,
+                              handle, content_hash, hash_version)
+         VALUES ($1,$2,$3,$4,$5,$6,true,$7,$8,$9)
+         ON CONFLICT (handle) WHERE handle IS NOT NULL DO UPDATE SET
+           name = EXCLUDED.name, number = EXCLUDED.number, asked_for = EXCLUDED.asked_for,
+           note = EXCLUDED.note, enquiry_state_id = EXCLUDED.enquiry_state_id, is_demo = true,
+           content_hash = EXCLUDED.content_hash, hash_version = EXCLUDED.hash_version
+         WHERE enquiry.content_hash IS DISTINCT FROM EXCLUDED.content_hash`,
+        [e.name, e.number, e.askedFor, e.note, stateId, `${e.date}T10:00:00.000Z`, e.handle, hash, CHANGE_CHECK_VERSION],
       );
     }
 
-    // The imported PDF and the enquiries it produced, reproduced from the record.
-    // Same ownership rule: only this import's row and its enquiries are replaced.
-    const stale = await client.query<{ id: string }>("SELECT id FROM enquiry_pdf WHERE filename = $1", [
-      imported.originalFilename,
-    ]);
-    for (const row of stale.rows) {
-      await client.query("DELETE FROM enquiry WHERE pdf_import_id = $1", [row.id]);
+    // The one imported PDF, found by its filename. `enquiry_pdf.filename` is not
+    // unique in the store, so this lookup is only honest while it stays inside the
+    // demo's own rows — and it does: the recipe names the file.
+    const existingPdf = (
+      await client.query<{ id: string; sanity_asset_id: string; rows_total: number }>(
+        "SELECT id, sanity_asset_id, rows_total FROM enquiry_pdf WHERE filename = $1",
+        [imported.originalFilename],
+      )
+    ).rows[0];
+
+    let pdfId: string;
+    if (!existingPdf) {
+      pdfId = (
+        await client.query<{ id: string }>(
+          `INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total, imported_at)
+           VALUES ($1,$2,$3,$4) RETURNING id`,
+          [imported.sanityAssetId, imported.originalFilename, imported.rowsTotal, imported.importedAt],
+        )
+      ).rows[0].id;
+    } else {
+      pdfId = existingPdf.id;
+      if (
+        existingPdf.sanity_asset_id !== imported.sanityAssetId ||
+        existingPdf.rows_total !== imported.rowsTotal
+      ) {
+        await client.query(
+          `UPDATE enquiry_pdf SET sanity_asset_id = $2, rows_total = $3 WHERE id = $1`,
+          [pdfId, imported.sanityAssetId, imported.rowsTotal],
+        );
+      }
     }
-    await client.query("DELETE FROM enquiry_pdf WHERE filename = $1", [imported.originalFilename]);
-    const pdf = await client.query<{ id: string }>(
-      `INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total, imported_at)
-       VALUES ($1,$2,$3,$4) RETURNING id`,
-      [imported.sanityAssetId, imported.originalFilename, imported.rowsTotal, imported.importedAt],
-    );
-    for (const row of imported.rows) {
+
+    // The enquiries the PDF produced carry their own handles, so a second run finds
+    // them and leaves them alone rather than writing them again.
+    for (let i = 0; i < imported.rows.length; i++) {
+      const row = imported.rows[i];
       const stateId = enquiryStateByLabel.get(row.state);
       if (!stateId) throw new Error(`seed: enquiry state "${row.state}" not found.`);
+      const handle = `demo-enquiry-pdf-${String(i + 1).padStart(2, "0")}`;
+      const hash = enquiryChangeCheck({
+        name: row.name,
+        number: row.phone,
+        asked_for: row.askedFor,
+        note: row.note,
+        enquiry_state_id: stateId,
+      });
       await client.query(
-        `INSERT INTO enquiry (name, number, car_ref, note, enquiry_state_id, pdf_import_id, created_at, is_demo)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,true)`,
-        [row.name, row.phone, row.car, row.note, stateId, pdf.rows[0].id, `${row.date}T10:00:00.000Z`],
+        `INSERT INTO enquiry (name, number, asked_for, note, enquiry_state_id, pdf_import_id, created_at,
+                              is_demo, handle, content_hash, hash_version)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,true,$8,$9,$10)
+         ON CONFLICT (handle) WHERE handle IS NOT NULL DO UPDATE SET
+           name = EXCLUDED.name, number = EXCLUDED.number, asked_for = EXCLUDED.asked_for,
+           note = EXCLUDED.note, enquiry_state_id = EXCLUDED.enquiry_state_id,
+           pdf_import_id = EXCLUDED.pdf_import_id, is_demo = true,
+           content_hash = EXCLUDED.content_hash, hash_version = EXCLUDED.hash_version
+         WHERE enquiry.content_hash IS DISTINCT FROM EXCLUDED.content_hash`,
+        [row.name, row.phone, row.askedFor, row.note, stateId, pdfId, `${row.date}T10:00:00.000Z`, handle, hash, CHANGE_CHECK_VERSION],
       );
     }
 
@@ -256,8 +363,10 @@ async function main() {
 
     await client.query("COMMIT");
     console.log(
-      `seed: ${DEMO.length} fleet car(s) synced, ${marked.rowCount ?? 0} earlier demo row(s) marked is_demo, ` +
-        `${photos.images.length} photo(s) referenced, ${ENQUIRIES.length + imported.rows.length} enquiry(ies) written.`,
+      `seed: ${DEMO.length} fleet car(s) synced (found by ref, written only where changed), ` +
+        `${marked.rowCount ?? 0} earlier demo row(s) marked is_demo, ` +
+        `${photos.images.length} photo(s) referenced, ` +
+        `${ENQUIRIES.length + imported.rows.length} enquiry(ies) synced by handle — nothing deleted.`,
     );
   } catch (err) {
     await client.query("ROLLBACK").catch(() => {});

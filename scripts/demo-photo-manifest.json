@@ -2,7 +2,7 @@
   "purpose": "TASK-003 demo photo manifest — the Unsplash origin of each uploaded image and the Sanity asset id the store holds. Asset ids and unsplash: tokens are not secrets.",
   "width": 1200,
   "sizeRule": "auto=format&fit=crop&w=1200&q=70&fm=jpg",
-  "uploadedAt": "2026-10-13T14:39:53.300Z",
+  "uploadedAt": "2026-10-13T23:41:37.290Z",
   "images": [
     {
       "origin": "unsplash:1621007947382-bb3c3994e3fb",
@@ -790,10 +790,10 @@
       "origin": "unsplash:1677637279719-b6698ac1765f",
       "ref": "TS-1017",
       "position": 1,
-      "assetId": "image-5ab2133e689dd4a79126ed53507840847a207e14-1200x800-jpg",
-      "url": "https://cdn.sanity.io/images/c2lc8g8n/production/5ab2133e689dd4a79126ed53507840847a207e14-1200x800.jpg",
-      "sha1": "5ab2133e689dd4a79126ed53507840847a207e14",
-      "bytes": 166296,
+      "assetId": "image-0ba4a65048aa6419450ddb970e7adb03cbbc8875-1200x800-jpg",
+      "url": "https://cdn.sanity.io/images/c2lc8g8n/production/0ba4a65048aa6419450ddb970e7adb03cbbc8875-1200x800.jpg",
+      "sha1": "0ba4a65048aa6419450ddb970e7adb03cbbc8875",
+      "bytes": 166295,
       "contentType": "image/jpeg",
       "exif": {
         "hasExif": false,
@@ -1043,10 +1043,10 @@
       "origin": "unsplash:1609703048009-d3576872b32c",
       "ref": "TS-1023",
       "position": 0,
-      "assetId": "image-2e16181348c11eb4118e5d271b057002fc6c817b-1200x1500-jpg",
-      "url": "https://cdn.sanity.io/images/c2lc8g8n/production/2e16181348c11eb4118e5d271b057002fc6c817b-1200x1500.jpg",
-      "sha1": "2e16181348c11eb4118e5d271b057002fc6c817b",
-      "bytes": 274451,
+      "assetId": "image-ac51cfdabeca06090df136ff26c2eef1b3c29f0e-1200x1500-jpg",
+      "url": "https://cdn.sanity.io/images/c2lc8g8n/production/ac51cfdabeca06090df136ff26c2eef1b3c29f0e-1200x1500.jpg",
+      "sha1": "ac51cfdabeca06090df136ff26c2eef1b3c29f0e",
+      "bytes": 274491,
       "contentType": "image/jpeg",
       "exif": {
         "hasExif": false,

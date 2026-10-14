@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     for (const e of w.enquiriesAtTheirYear) {
       console.log(`   ${e.id}`);
       console.log(
-        `        ${e.name ?? "(no name)"} · ${e.number ?? "(no number)"} · about ${e.carRef ?? "(no car)"}`,
+        `        ${e.name ?? "(no name)"} · ${e.number ?? "(no number)"} · asked for: ${e.askedFor ?? "(nothing recorded)"}`,
       );
       console.log(`        recorded ${e.recordedAt.slice(0, 10)} — ${e.ageDays} day(s) ago`);
     }
