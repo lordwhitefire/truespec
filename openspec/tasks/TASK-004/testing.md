@@ -37,26 +37,32 @@ The dangerous failure is an office reachable without a session, or one that only
   no page, no data. Sign-out, then reloading an office tab that was already open, is refused too. **The
   provider's instance is in its invite-only mode**, so **no registration path exists anywhere** — the office
   offers no sign-up, and attempting to reach the provider's own sign-up is refused without a valid
-  invitation. Exactly one account exists, and it is the owner's. A failed sign-in does not announce whether
-  an account exists.
+  invitation. Exactly one account exists, and it is the owner's. A failed sign-in is answered by the provider,
+  the office adds no message of its own, and the account's identity is never echoed back — and the provider's
+  **bulk** enumeration protection is on, so probing which identifiers exist is rate-limited. *(Not absolute
+  concealment: hiding existence outright needs the provider's strict mode, which forbids password-first
+  sign-in — recorded in the spec. Do not test for "identical messages"; test that the office itself reveals
+  nothing and that probing is rate-limited.)*
 - **What fails this group:** any office URL rendering or returning data without a session; a page that
   renders and then redirects client-side; a sign-up path reachable by anyone who finds the address; more
-  than one account; a message, a timing difference or a status code that separates "unknown email" from
-  "wrong password"; a default password anywhere in the code, the seeds or the database.
+  than one account; a sign-in message, timing signal or status code that comes from **our** code rather than
+  the provider's, or an account identity echoed back; bulk enumeration protection found off; a default
+  password anywhere in the code, the seeds or the database.
 
-## 2. Abuse control — and that the owner is never left out
+## 2. Abuse control — the provider's lockout, and that it clears itself
 
-**Shape pending open question 4** (the provider carries the sign-in, so the office's own delay sequence and
-per-IP window no longer apply). Check the shape the owner rules, and whatever it is, check that it does not
-shut him out.
+The shape is ruled (owner, 2026-10-14): the provider carries the sign-in, so the office's own delay sequence
+and per-IP window are gone; the provider's lockout stands — ten failed attempts, thirty minutes, not
+indefinite.
 
-- **How you will know it passed:** firing failed sign-ins one after another, the failures are slowed and
-  then refused past a limit, and the refusals do not let the attempt through to the account. Then, once the
-  attack stops, **the real owner can sign in again** — no lock, no cooldown, and no state that only a
-  support ticket can clear, unless the owner has explicitly ruled that in. Whatever record of attempts
-  exists is bounded and did not grow without limit while you hammered it.
-- **What fails this group:** a lock that outlives the attack and shut the owner out; an account left locked
-  with no way for him to clear it; a refusal that still reached the account; a flood that fills the store.
+- **How you will know it passed:** firing failed sign-ins one after another, the account is locked after ten
+  consecutive failures and the attempts beyond that do not reach the account. The lock is **bounded**: when
+  the period passes, **the owner signs in normally, with no support action, no ticket and no state anyone
+  clears by hand**. The provider's per-address rate limiting is in force, and bulk user-enumeration
+  protection is on. The office is writing no record of attempts — it never saw one.
+- **What fails this group:** an indefinite lock; a lock that outlives its period or needs an operator to
+  clear; a lock configured to something other than the ruled duration; the office writing an attempt row for
+  a failure it never saw; a refusal that still reached the account.
 
 ## 3. Every write is a POST, origin-checked, and no GET changes anything
 

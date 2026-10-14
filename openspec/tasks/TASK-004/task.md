@@ -73,22 +73,24 @@ half — *a transient blip must not become an error page* — belongs to this la
    things must be true together: there is exactly one account — the owner's own — and **no public sign-up
    path exists at all** (the provider is put in its invite-only mode, so the only account is the one the
    owner creates, by hand, once); **the provider carries the sign-in** (owner ruling 2026-10-14), so the
-   office builds no password form and holds no password material; a failed attempt is answered without
-   announcing whether an account exists; a session is valid only while `now < expires_at` (7 days) and idle
+   office builds no password form and holds no password material; a failed attempt is answered by the
+   provider, the office adds no message of its own and never echoes the account's identity back, and probing
+   which identifiers exist is rate-limited by the provider's bulk protection (the *concealment* limit — why
+   this is not absolute — is recorded in the spec and in design D4); a session is valid only while
+   `now < expires_at` (7 days) and idle
    no more than 12 hours, judged from the application's own `session` row, so no paid vendor feature decides
    it; the session cookie is `HttpOnly`, `SameSite=Lax`, `Secure`, with no "remember me" that outlives the
    7-day cap; and every office route still verifies the session on the server, on the request itself. There
    is **no in-app password reset flow**: Settings says, in words, that recovery is an identity-provider
    operation, so the owner knows the route before he needs it.
-2. **Abuse control slows an attacker and never locks the owner out — how, exactly, is open question 4.**
-   What must hold whatever the answer: repeated failures are slowed and, past a limit, refused; **the real
-   owner is never locked out permanently**, and a lockout that outlives the attack is not acceptable
-   (§ office-access, ruling A1/F4); the account is never locked in a way the owner cannot clear himself; and
-   whatever record of attempts exists is bounded, so it cannot be used to fill the store. **What no longer
-   holds, because the provider carries the sign-in (2026-10-14 ruling):** the office's own delay sequence
-   (1s/5s/15s/30s) and its own per-IP window, and the `auth_attempt` row written by the application for each
-   attempt — the application no longer sees the attempt at all. Whether the provider's own lockout and rate
-   limits are taken as they come, adjusted, or switched off is the owner's to rule.
+2. **Abuse control is the provider's, and its lock clears itself.** Repeated failed sign-ins are limited by
+   the identity provider: the account is locked after **10 failed attempts**, for a **bounded period that
+   clears itself** — the owner's own words, 2026-10-14: *ten attempts, thirty minutes, not indefinite* — and
+   the provider's per-address rate limits stay in force, with bulk user-enumeration protection on. The lock
+   clears itself with no support action, no ticket and no state anyone has to clear by hand, so the real
+   owner is never shut out for good. **Because the office never sees an attempt, it applies no per-attempt
+   rule of its own** — no delay sequence, no per-IP window, and no `auth_attempt` row written by us (the
+   table's purpose is now an open consequence, see design D4).
 3. **Every change the owner makes is a POST with its origin verified, and no GET ever changes anything.**
    Writes arrive through Server Actions. A Route Handler is used only where something other than a form
    must post — a buyer's tap, the export download, the PDF upload — and each such handler carries the
@@ -255,17 +257,15 @@ The application's own honesty rule is untouched by this: the seed may author, th
 3. **The PDF the import reads.** The import must be built to a real shape, not to the authored demo file
    alone. What does the owner's PDF actually look like — which columns does it carry (customer name, number,
    what they asked for, note?), and is it a text PDF he prepares rather than a scan? **Open.**
-4. **What replaces the delay schedule and the per-IP window** (opened by the 2026-10-14 ruling that Clerk,
-   not the office, carries the sign-in). The office-access spec asks for both, and the application cannot
-   apply either once it never sees the attempt. The two things standing in their place are the provider's
-   own: an account **lockout** (ten failures, then a one-hour cooldown by default — configurable, minimum
-   five, or switched off) and per-address rate limits on the sign-in API. But a lockout **can shut the real
-   owner out**, and the same spec says the system must never lock an account. So: accept the provider's
-   lockout, switch it off and rely on the provider's rate limits alone, or ask the provider for more than it
-   offers? **Open — the owner's to rule, and the office-access spec is rewritten once it is.**
+4. **What replaces the delay schedule and the per-IP window — answered 2026-10-14.** The owner ruled: **the
+   provider's own lockout, after 10 failed attempts, for 30 minutes — not indefinite.** So the provider's
+   abuse control is taken as it comes, with two limits that must hold: the lock is **bounded and clears
+   itself** (no support action, no ticket, nothing anyone clears by hand), and the provider's per-address
+   rate limits and bulk enumeration protection stay in force. The application applies no per-attempt rule at
+   all, because it never sees an attempt. See truth 2 above; the office-access spec and design D4 were
+   rewritten to say exactly this.
 
-*Question 2 is needed before step 7 of the build order, question 3 before step 6, and question 4 before the
-door is built (step 1).*
+*Question 2 is needed before step 7 of the build order, question 3 before step 6. Question 4 is answered.*
 
 ### Round 1 — the owner's answers (2026-10-14)
 
@@ -295,10 +295,12 @@ door is built (step 1).*
    **Also worth knowing, from the same reading:** Clerk's **Device Trust** is on by default for
    applications created after 2025-11-14, so a password sign-in from a **new device** will ask for an email
    code as a second factor — harmless for one owner, but it means he needs access to that mailbox to sign
-   in somewhere new. And Clerk's own protections include an **account lockout** (ten failed attempts by
-   default, then a one-hour cooldown; configurable, with a minimum of five, or switchable off) plus
-   per-address rate limits on its sign-in API — see the open question below, because a lockout can shut the
-   real owner out and the office-access requirement forbids exactly that.
+   in somewhere new. And Clerk's own protections include an **account lockout** — which the owner ruled on
+   2026-10-14 to **keep, set to ten failed attempts and thirty minutes, not indefinite** (see truth 2 and
+   question 4) — plus per-address rate limits on its sign-in API, which stay in force. The office-access
+   requirement that mattered here (the real owner is never shut out for good) is met by the lock being
+   bounded and self-clearing rather than by there being no lock at all; the residual cost is that he cannot
+   sign in during those thirty minutes, which he accepted.
 
 ---
 
@@ -344,11 +346,12 @@ door is built (step 1).*
 
 1. …an unauthenticated visitor opens any office URL, the server refuses to render the page or return its
    data — and after the owner signs out, a tab left open is refused too.
-2. …the owner fails to sign in repeatedly, the failures are slowed and then refused past a limit, and the
-   real owner can still get in afterwards — no lockout outlives the attack, and no failure lock leaves him
-   shut out (exactly how, per open question 4). *Superseded 2026-10-14 by the ruling that the provider
-   carries the sign-in: the office no longer sees the attempt, so the delay sequence and the per-IP window
-   are no longer the application's to apply.*
+2. …the owner fails to sign in repeatedly, the account is locked after ten consecutive failures, the lock is
+   bounded (thirty minutes), and once it passes **he signs in normally with no support action and no one
+   clearing state by hand** — nothing about the lock is indefinite. *Rewritten 2026-10-14 by the owner's
+   ruling that the provider carries the sign-in: the office no longer sees the attempt, so the delay
+   sequence and the per-IP window are no longer the application's to apply, and the lockout — which the
+   spec had forbidden outright — is now the ruled shape, bounded and self-clearing.*
 3. …the owner creates a car with a price and a photo, it appears in the office at once and in the showroom
    at once; its `TS-####` is given once, never changes on any edit, and is never reused after the car is
    deleted.
@@ -402,8 +405,9 @@ door is built (step 1).*
 1. **The office is open to anyone, and it greets a user who does not exist.** No office route checks
    anything today, and the shell prints "Signed in as Umar" while `office_user` holds no rows. Build-list
    4.1 makes sign-in the only door and the spec makes the check server-side. **Winner: the requirement** —
-   after this layer no office page renders without a session, the shell's name comes from the signed-in row,
-   and because no account exists at all, a first-run creation screen is part of this layer.
+   after this layer no office page renders without a session, and the shell's name comes from the signed-in row
+   — and the office itself creates no account: the one account is made by the owner at the identity provider,
+   which the application's invite-only setting makes the only possible source of one.
 2. **The car form's own comment denies the fields it draws.** `app/office/(shell)/car/page.tsx` says the
    form-only fields (exterior, interior, features, private notes) are "not owned by the office data model"
    and fills them with presentational demo values — but `car` owns `exterior_color`, `interior_color`,
@@ -427,22 +431,25 @@ door is built (step 1).*
    stages, with nothing requiring one to precede another. **Winner: the requirement** — the grouping is a
    display of labels; no order is asserted, nothing moves a card on its own, and no rule may require a
    progression. Logged so the shape is not mistaken for a flow when it is wired.
-7. **The provider and the app's own form.** The office-access spec requires the app's own form to submit to
-   the app's own route, which applies its checks before forwarding — so the provider must accept an attempt
-   the application has already vetted, and no hosted login page may take attempts directly. This is an
-   integration fact to verify, not a rule to bend: **if the provider cannot be driven that way, that is a
-   finding for the owner**, and the session and abuse rules stay the application's either way.
-8. **The provider's own setup recipe, against two settled rules — one half now ruled, one still open.** The
-   runbook installs sign-up controls into the application and closes with "sign up as your first test user".
-   The office has **exactly one account and no public sign-up** (the office-access spec's "Single first-run
-   account" and "Sign-up attempts afterwards" — *no registration path exists*). **Winner: the requirement** —
-   satisfied by Clerk's **Invite-only** access mode (checked against Clerk's documentation 2026-10-14: the
-   sign-in component hides its sign-up prompt, and `<SignUp />` needs a valid invitation; free on any plan,
-   unlike the allowlist, which needs a paid plan in production). The runbook's sign-up step is not followed.
-   The second half — whether the attempt itself passes the application's own delay and per-IP checks before
-   reaching the provider — **was the owner's call and he made it on 2026-10-14: the provider carries the
-   sign-in, not the office.** That is not a bent rule but a changed one, and it leaves the office-access
-   spec's delay schedule and per-IP window to be replaced (open question 4).
+7. **The provider and the app's own form — closed 2026-10-14 by the owner's ruling.** The office-access spec
+   required the app's own form to submit to the app's own route, which would apply its checks before
+   forwarding — so the provider had to accept an attempt the application had already vetted, and no hosted
+   login page could take attempts directly. The integration fact was not settled; the *requirement* was: the
+   owner ruled that **the provider carries the sign-in, not the office**. The spec, design D4, the build
+   list and this file were rewritten accordingly — the office builds no password form and the provider's own
+   bounded lockout and rate limits are the abuse control.
+8. **The provider's own setup recipe, against two settled rules — both halves now ruled.** The runbook
+   installs sign-up controls into the application and closes with "sign up as your first test user". The
+   office has **exactly one account and no public sign-up** (the office-access spec's *exactly one account,
+   and no sign-up path*). **Winner: the requirement** — satisfied by Clerk's **invite-only** access mode
+   (checked against Clerk's documentation 2026-10-14: the sign-in component hides its sign-up prompt, and
+   `<SignUp />` needs a valid invitation; free on any plan, unlike the allowlist, which needs a paid plan in
+   production). The runbook's sign-up step is not followed. The second half — whether the attempt passes the
+   application's own delay and per-IP checks before reaching the provider — **was the owner's call, and he
+   made it on 2026-10-14: the provider carries the sign-in, not the office.** That is a changed rule, not a
+   bent one: the office-access spec's delay schedule and per-IP window were replaced by the provider's own
+   bounded lockout (ten attempts, thirty minutes, self-clearing) plus its per-address rate limits — question
+   4, answered. See truths 1 and 2.
 
 ---
 
