@@ -84,20 +84,26 @@ no session email.
 ## 3. Unintended divergences — named, not silently fixed
 
 The procedure says an unintended divergence is **either a defect fixed or named for its owning task**.
-None was fixed. Three are named for the owner:
+Three were named for the owner; the owner ruled on all three (2026-10-14) and two were then fixed.
+The probe was re-run after the fixes; the results below are from that re-run.
 
-1. **The door's document title is the showroom's.** Build `/office/sign-in` carries
+1. **The door's document title was the showroom's.** Build `/office/sign-in` carried
    `TrueSpec — cars you can trust` (the root layout title), where the reference's owner sign-in page
-   carried a page-specific `Owner sign in | TrueSpec Automotive`. A one-line `metadata` on the door
-   page would fix it. *Owning task: TASK-004 (the door). Not fixed — the owner decides.*
-2. **The door's office framing copy is absent.** The build renders only *"TrueSpec Office / Sign in to
+   carried a page-specific `Owner sign in | TrueSpec Automotive`. **Fixed** — a one-line `metadata`
+   on the door page (`app/office/sign-in/[[...sign-in]]/page.tsx`). Re-run: `title` is now
+   **SAME in all 8 cells** (`compare-report.txt:8–9`).
+2. **The door's office framing copy was absent.** The build rendered only *"TrueSpec Office / Sign in to
    continue."*; the reference's door carried the strapline *"The owner's side of the showroom. Nothing
    here is public."* Dropping the reference's **form** was intended (item 1 above); dropping its
-   **copy** was not decided anywhere. *Owning task: TASK-004 (the door).*
+   **copy** was not decided anywhere. **Fixed** — the strapline is added verbatim from `login.html:109`,
+   above *"Sign in to continue."* Re-run: `bodyTextHead` now opens *"TRUESPEC OFFICE The owner's side of
+   the showroom. Nothing here is public. Sign in to continue."* (`compare-report.txt:59–62`). The
+   remaining `bodyTextHead` difference is the provider's own card copy — the intended divergence tied
+   to D4 (the provider builds the form).
 3. **The provider's card offers a social button the reference has not got** —
    `"Continue with Google"`. It is the provider's default surface. Whether the one-owner door should
-   offer social sign-in at all is a configuration choice, not a build defect. *Owning task: TASK-004
-   (door configuration).*
+   offer social sign-in at all is a configuration choice, not a build defect. **Left as-is by the
+   owner's ruling** (2026-10-14) — the button stays.
 
 Also noted, not a defect: the build's card shows the provider's **"Development mode"** badge — that is
 the Clerk **development** instance, expected in dev and absent from a production instance.

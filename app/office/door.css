@@ -52,6 +52,12 @@ body {
   margin: 0;
 }
 
+.office-door-strapline {
+  color: var(--ink);
+  font-size: 13.5px;
+  margin: 2px 0 0;
+}
+
 .office-door-sub,
 .office-signout p {
   color: var(--mute);
