@@ -241,24 +241,41 @@ The application's own honesty rule is untouched by this: the seed may author, th
 
 ---
 
-## Questions this layer puts to the owner (open — the build cannot finish without the first)
+## Questions this layer put to the owner
 
-1. **The identity provider's keys.** The sign-in half cannot be finished without a real Clerk project: its
-   publishable key and its secret key, in the environment. The repository keeps the placeholders. (One
-   thing to confirm as part of this: that an attempt the application forwards **after** its own checks is
-   accepted by the provider — the requirement that the app's own form is the only door depends on it. If it
-   turns out not to be, that is a finding to bring back, not a rule to bend.)
+1. **The identity provider's keys.** **Answered 2026-10-14** — see Round 1 below. Clerk, linked to the
+   owner's own application, installed with Clerk's CLI.
 2. **The export's shape.** The requirement says CSV and JSON. Is the owner's expectation *one download
    holding both*, or *two separate actions* — and is the human-readable form one table per subject or a
-   single combined sheet?
+   single combined sheet? **Open.**
 3. **The PDF the import reads.** The import must be built to a real shape, not to the authored demo file
    alone. What does the owner's PDF actually look like — which columns does it carry (customer name, number,
-   what they asked for, note?), and is it a text PDF he prepares rather than a scan?
+   what they asked for, note?), and is it a text PDF he prepares rather than a scan? **Open.**
 
-*The owner's answers are recorded below as they arrive. Until question 1 is answered, the sign-in half is
-blocked and the rest of the layer proceeds — the door is built last, not first.*
+*Neither open question blocks the layer from starting: the export's shape is needed before step 7 of the
+build order and the PDF's before step 6.*
 
-*(No rounds recorded yet. Written 2026-10-14.)*
+### Round 1 — the owner's answers (2026-10-14)
+
+1. **Clerk, linked to the owner's own application, set up with Clerk's CLI.** The owner supplied Clerk's
+   official setup runbook and the application id `app_3KfevzKd9JdCG86xfx301JYsTuU`. **Taken from the
+   runbook:** the CLI installed (or updated) and signed in by the owner; `clerk init --app
+   app_3KfevzKd9JdCG86xfx301JYsTuU` run against this project — the SDK install, the provider, the
+   proxy/middleware with the matcher including `/__clerk/:path*` after `/(api|trpc)(.*)`, and the keys
+   reaching the environment file; and `clerk doctor` as the check that follows. `ClerkProvider` sits inside
+   `<body>`, never around `<html>`, and `auth()` is awaited (Next 15). **The environment file is never read
+   into a log, never printed and never committed** — a key that reaches a terminal is a key to rotate, and
+   `.env.local` is the owner's to edit.
+   **Bent to the requirements in two places — logged as conflict 8:** the office offers **no sign-up path**
+   (one account, made on first run; afterwards only sign-in), and a sign-in attempt passes the application's
+   **own delay and per-IP checks before it reaches the provider**, through the office's own form rather than
+   the provider's component as the door. The provider must likewise be configured so that registration is
+   not open to the public — otherwise "exactly one account" is not true. The runbook's checklist step, its
+   sign-up/sign-in controls and its "sign up as your first test user" closing step are therefore **not**
+   followed as written.
+   **A finding to bring back if it appears:** whether the provider accepts a sign-in the application
+   forwards server-side after its own checks. The requirement depends on it; if it cannot be done, that is
+   the owner's to rule on, not a rule to bend quietly.
 
 ---
 
@@ -389,6 +406,15 @@ blocked and the rest of the layer proceeds — the door is built last, not first
    the application has already vetted, and no hosted login page may take attempts directly. This is an
    integration fact to verify, not a rule to bend: **if the provider cannot be driven that way, that is a
    finding for the owner**, and the session and abuse rules stay the application's either way.
+8. **The provider's own setup recipe contradicts two settled rules.** Clerk's runbook installs sign-in *and
+   sign-up* controls into the application and lets the provider's component carry the attempt end to end.
+   Two requirements say otherwise: the office has **exactly one account and no public sign-up** (the
+   office-access spec's "Single first-run account" and "Sign-up attempts afterwards" — *no registration path
+   exists*), and **every attempt passes the application's own delay and per-IP checks before it reaches the
+   provider**, with no hosted login page receiving attempts directly (specs/office-access; `tasks.md` 6.2;
+   rulings A1/F4). **Winner: the requirements** — the CLI is used to install and link the provider, and the
+   door stays the office's own screen and its own server-side checks. The provider must also be configured so
+   registration is not open to the public, or "exactly one account" is not true. See Round 1 above.
 
 ---
 
