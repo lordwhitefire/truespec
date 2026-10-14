@@ -1,5 +1,6 @@
 import "./settings.css";
 import { getOfficeCars } from "@/lib/office";
+import { requireOfficeSession } from "@/lib/session";
 import { Settings } from "./settings-client";
 
 // The cars come from the store, so this page renders per request — never from a build-time
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
    inventory does) and hands the counts to the client. Nothing is stored. */
 
 export default async function SettingsPage() {
+  await requireOfficeSession();
   const cars = await getOfficeCars();
   const carCounts: Record<string, number> = {};
   for (const c of cars) {

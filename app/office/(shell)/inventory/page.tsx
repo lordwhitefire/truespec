@@ -11,6 +11,7 @@ import {
 // snapshot of it.
 export const dynamic = "force-dynamic";
 import { costLabelFor, isCostComplete, profitKobo, totalCostKobo } from "@/lib/money";
+import { requireOfficeSession } from "@/lib/session";
 import { InventoryClient, type InventoryRow } from "./inventory-client";
 
 // Inventory — built to the reference runtime model (office-inventory.html).
@@ -63,6 +64,7 @@ function toRow(c: OfficeCarView): InventoryRow {
 }
 
 export default async function InventoryPage() {
+  await requireOfficeSession();
   const [views, states, counts] = await Promise.all([
     getOfficeCarViews(),
     getOfficeStates(),

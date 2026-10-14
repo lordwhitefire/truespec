@@ -2,6 +2,7 @@ import "./office.css";
 import Link from "next/link";
 import { getOfficeDashboard } from "@/lib/office";
 import { formatNaira, nairaDigits } from "@/lib/money";
+import { requireOfficeSession } from "@/lib/session";
 
 // The figures come from the store, so this page renders per request — never from a build-time
 // snapshot of it.
@@ -14,6 +15,7 @@ export const dynamic = "force-dynamic";
 // (activity, WhatsApp taps) stay presentational for now; they are the activity
 // and enquiries screens' data and get DB-backed when those screens are built.
 export default async function DashboardPage() {
+  await requireOfficeSession();
   const d = await getOfficeDashboard();
 
   return (

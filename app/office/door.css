@@ -1,0 +1,60 @@
+/* The door — the office's one sign-in surface (design D4).
+   Same theme system as the showroom and the office shell, so the provider's own
+   sign-in sits inside the office's look rather than beside it. Standalone: the door
+   renders outside the office shell (there is no sidebar before you are in). */
+
+:root {
+  --gold: #c8a24a;
+  --ink: #23272b;
+  --mute: #5c636b;
+  --lt: #f1f2f4;
+  --bg: #fff;
+  --line: #e2e4e7;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --ink: #e8eaed;
+  --mute: #9aa0a6;
+  --lt: #191c20;
+  --bg: #101214;
+  --line: #2a2e33;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+.office-door,
+.office-signout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 32px 20px;
+}
+
+.office-door-title {
+  font-family: Oswald, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.office-door-sub,
+.office-signout p {
+  color: var(--mute);
+  font-size: 13.5px;
+  margin: 0 0 22px;
+}

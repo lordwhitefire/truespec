@@ -1,5 +1,6 @@
 import "../car.css";
 import { getOfficeStates } from "@/lib/office";
+import { requireOfficeSession } from "@/lib/session";
 import { CarForm, type CarFormData } from "../car-client";
 
 // The states come from the store, so this page renders per request — never from a build-time
@@ -40,6 +41,7 @@ const BLANK: CarFormData = {
 };
 
 export default async function NewCarPage() {
+  await requireOfficeSession();
   const states = await getOfficeStates();
   const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
   return <CarForm mode="add" data={BLANK} stateSections={stateSections} />;

@@ -1,5 +1,6 @@
 import "./car.css";
 import { getOfficeCarViews, getOfficeStates } from "@/lib/office";
+import { requireOfficeSession } from "@/lib/session";
 import { CarForm, type CarFormData } from "./car-client";
 
 // The car comes from the store, so this page renders per request — never from a build-time
@@ -46,6 +47,7 @@ const FORM_DEMO = {
 };
 
 export default async function CarPage() {
+  await requireOfficeSession();
   const [cars, states] = await Promise.all([getOfficeCarViews(), getOfficeStates()]);
   const c = cars.find((x) => x.ref === DEMO_REF);
 

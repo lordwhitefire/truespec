@@ -33,8 +33,26 @@ export type OfficeSession = {
   expiresAt: Date;
 };
 
-/** Where the door is mounted (design D4; task.md §Process step 1). */
+/**
+ * The verdict of checking the current request.
+ *
+ * `none` and `ended` are different on purpose. `none` is a request with no provider
+ * session — show the door. `ended` is a request whose provider session exists but
+ * whose own row has crossed a limit; the provider session has been revoked, and the
+ * browser must clear its (now dead) session cookie before it meets the door, or
+ * Clerk's own sign-in would bounce it straight back inside. Both are refused; only
+ * `ended` additionally needs the client-side sign-out.
+ */
+export type OfficeSessionState =
+  | { status: "active"; session: OfficeSession }
+  | { status: "none" }
+  | { status: "ended" };
+
+/** The door, mounted in the office (design D4; task.md §Process step 1). */
 export const SIGN_IN_PATH = "/office/sign-in";
+
+/** The client-side sign-out that clears the provider's cookie, then returns to the door. */
+export const SIGN_OUT_PATH = "/office/sign-out";
 
 type SessionRow = {
   session_row_id: string;
@@ -64,8 +82,7 @@ function toSession(row: SessionRow): OfficeSession {
  * Order matters. Dropping our row first would let the next request's lazy upsert
  * recreate a live row from the still-active provider session, reviving a session we
  * had just ended. Revoking first means the provider no longer reports the session,
- * so nothing can recreate the row. Used both by sign-out and when one of our limits
- * has been crossed (see `getOfficeSession`).
+ * so nothing can recreate the row.
  */
 export async function endSession(clerkSessionId: string): Promise<void> {
   const sql = db();
@@ -75,18 +92,17 @@ export async function endSession(clerkSessionId: string): Promise<void> {
 }
 
 /**
- * The office session behind the current request, or `null`.
+ * Check the current request against our own row.
  *
  * Reads the provider's session, then — in one act (D17) — finds or lazily creates
  * our row and judges it against the two limits. When a limit has been crossed the
- * provider's session is ended too, so the door sends the owner to a fresh sign-in
- * rather than bouncing him straight back inside (specs/office-access: "the next
- * action requires a fresh sign-in"). Never invents a session: a request without a
- * provider session, or with one whose row has expired, gets `null`.
+ * provider's session is ended too, so the door can send the owner to a fresh
+ * sign-in rather than bouncing him straight back inside (specs/office-access:
+ * "the next action requires a fresh sign-in"). Never invents a session.
  */
-export async function getOfficeSession(): Promise<OfficeSession | null> {
+export async function checkOfficeSession(): Promise<OfficeSessionState> {
   const { userId, sessionId } = await auth();
-  if (!userId || !sessionId) return null;
+  if (!userId || !sessionId) return { status: "none" };
 
   const now = new Date();
   const sql = db();
@@ -110,16 +126,16 @@ export async function getOfficeSession(): Promise<OfficeSession | null> {
     const session = toSession(existing);
 
     if (!isSessionValid(session, now)) {
-      // A limit has been crossed. End the provider session as well, or the sign-in
-      // page would see a live provider session and redirect the owner back here.
+      // A limit has been crossed. End the provider session as well, or a still-live
+      // provider session would recreate this row on the very next request.
       try {
         await endSession(sessionId);
       } catch {
         // The provider was unreachable. Our row is left in place, so every request
-        // keeps refusing until a later attempt reaches the provider or the 7-day
-        // cap passes — the session never silently revives.
+        // keeps refusing until a later attempt reaches the provider or the 7-day cap
+        // passes — the session never silently revives.
       }
-      return null;
+      return { status: "ended" };
     }
 
     if (shouldRefreshLastSeen(session.lastSeenAt, now)) {
@@ -130,14 +146,14 @@ export async function getOfficeSession(): Promise<OfficeSession | null> {
       session.lastSeenAt = now;
     }
 
-    return session;
+    return { status: "active", session };
   }
 
   // First office request carrying this provider session: create our row (D17).
   const user = await currentUser();
   const email =
     user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null;
-  if (!email) return null;
+  if (!email) return { status: "none" };
 
   // The one owner row is matched by email (there is no provider-user column).
   const owners = (await sql.query(
@@ -148,7 +164,7 @@ export async function getOfficeSession(): Promise<OfficeSession | null> {
     [email, now.toISOString()],
   )) as { id: string }[];
   const officeUserId = owners[0]?.id;
-  if (!officeUserId) return null;
+  if (!officeUserId) return { status: "none" };
 
   // One clock for the whole row, so the store can judge the two limits from the
   // dates alone and get the same answer the app does (TASK-003 testing.md).
@@ -162,18 +178,29 @@ export async function getOfficeSession(): Promise<OfficeSession | null> {
   )) as Omit<SessionRow, "email">[];
 
   const createdRow = created[0];
-  if (!createdRow) return null;
-  return toSession({ ...createdRow, email });
+  if (!createdRow) return { status: "none" };
+  return { status: "active", session: toSession({ ...createdRow, email }) };
 }
 
 /**
- * The office session, or a redirect to the door. For pages and Server Actions — the
- * server-side check every office route runs (specs/office-access: "Every office page
- * and data request is checked server-side"). A Route Handler that must return a
- * status instead of a redirect calls `getOfficeSession` and answers `401` itself.
+ * The active session, or `null` — for Route Handlers, which answer `401` themselves
+ * rather than redirecting (specs/office-access: "refuses to render the page or
+ * return its data").
+ */
+export async function getOfficeSession(): Promise<OfficeSession | null> {
+  const state = await checkOfficeSession();
+  return state.status === "active" ? state.session : null;
+}
+
+/**
+ * The active session, or a redirect to the right place. For pages and Server Actions
+ * — the server-side check every office route runs (specs/office-access: "Every office
+ * page and data request is checked server-side"). An ended session goes through the
+ * client-side sign-out first, so its dead provider cookie is cleared before the door
+ * is shown; an absent one goes straight to the door.
  */
 export async function requireOfficeSession(): Promise<OfficeSession> {
-  const session = await getOfficeSession();
-  if (!session) redirect(SIGN_IN_PATH);
-  return session;
+  const state = await checkOfficeSession();
+  if (state.status === "active") return state.session;
+  redirect(state.status === "ended" ? SIGN_OUT_PATH : SIGN_IN_PATH);
 }

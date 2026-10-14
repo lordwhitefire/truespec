@@ -1,4 +1,5 @@
 import "./activity.css";
+import { requireOfficeSession } from "@/lib/session";
 import { Activity } from "./activity-client";
 
 /* Activity log — the chips, the match line and the log body are drawn from a
@@ -7,6 +8,7 @@ import { Activity } from "./activity-client";
    So the page is a thin route: it imports the screen's own stylesheet and mounts
    the client log. */
 
-export default function ActivityPage() {
+export default async function ActivityPage() {
+  await requireOfficeSession();
   return <Activity />;
 }
