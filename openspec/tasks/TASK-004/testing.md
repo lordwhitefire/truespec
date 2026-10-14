@@ -13,8 +13,8 @@ still belong to this layer, and the final test must account for each group.
 ## Before you start
 
 - Read `task.md` in this folder. It holds the sixteen "what must be true" statements, the constraints, the
-  three questions put to the owner, and the eight logged conflicts. This file checks those, not a memory
-  of them.
+  four questions put to the owner (1 and 4 answered 2026-10-14; 2 and 3 still open), and the eight logged
+  conflicts. This file checks those, not a memory of them.
 - Get the store into a known state, and keep a record of how: migrations applied, the seed run, and
   whether it was rebuilt or migrated forward. Several groups below read the store directly, so you must be
   able to say what was in it *before* your own actions.
