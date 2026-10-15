@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOfficeSession } from "@/lib/session";
 import { carTemplatePdf } from "@/lib/template";
-import { TEMPLATE_CONTENT_TYPE, TEMPLATE_FILENAME } from "@/lib/template-rules";
+import { readCarCount, TEMPLATE_CONTENT_TYPE, TEMPLATE_FILENAME } from "@/lib/template-rules";
 
 /**
  * The car's blank, at the point where the upload happens (task.md §Q2/D16: "'Create from file'
@@ -26,7 +26,18 @@ import { TEMPLATE_CONTENT_TYPE, TEMPLATE_FILENAME } from "@/lib/template-rules";
  */
 export const dynamic = "force-dynamic";
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
+  // How many cars the blank should hold. Read *first*, before the door: a request asking for a blank
+  // no blank can be is refused without a store call, and saying so reveals nothing an office caller
+  // reads — no data is served either way. (An anonymous caller still gets no bytes, and no blank.)
+  const wanted = readCarCount(new URL(request.url).searchParams.get("cars"));
+  if (!wanted.ok) {
+    return new Response(`${wanted.reason}\n`, {
+      status: 400,
+      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+    });
+  }
+
   const session = await getOfficeSession();
   if (!session) {
     return new Response("Not signed in.\n", {
@@ -37,7 +48,7 @@ export async function GET(): Promise<Response> {
 
   let bytes: Uint8Array;
   try {
-    bytes = await carTemplatePdf();
+    bytes = await carTemplatePdf(wanted.cars);
   } catch {
     return new Response("The template could not be built.\n", {
       status: 500,

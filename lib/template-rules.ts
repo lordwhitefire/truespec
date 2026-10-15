@@ -60,6 +60,41 @@ const WORDS: Readonly<Record<string, string>> = {
   state_id: "State (Available, On Order, Landed or Sold — or a state of yours)",
 };
 
+/**
+ * The character that separates two features on the blank.
+ *
+ * The blank's fields are **single-line**, and a single-line form field cannot hold a newline — so a
+ * list typed on the blank is separated by a comma, and the caption says so. The HTML car form is a
+ * textarea and separates on newlines instead (`lib/car-input.ts`); the two inputs differ, and this
+ * is the one place the blank's own separator is declared. `lib/template-rules.test.ts` ties it to
+ * the caption the owner reads, so the words and the reading cannot drift apart.
+ */
+export const FEATURE_SEPARATOR = ",";
+
+/**
+ * Is this recipe field money — an amount the owner writes in **naira** and the store keeps in
+ * **kobo**? The store's convention names them `*_kobo`, and the test pins the convention against
+ * the recipe rather than letting a name be parsed at runtime and quietly believed.
+ */
+export function isMoneyField(recipeName: string): boolean {
+  return recipeName.endsWith("_kobo");
+}
+
+/**
+ * How the owner is asked for a value — and therefore how the file's answer is read back.
+ *
+ * `kind` is the *store's* word for a value; this is the *form's*. They differ in one place that
+ * matters: the store calls a year, a mileage and a price all `number`, but a price is written as
+ * money and a year is not.
+ */
+export type FieldReading = "text" | "whole" | "money" | "list";
+
+export function readingFor(recipeName: string, kind: Field["kind"]): FieldReading {
+  if (kind === "json") return "list";
+  if (kind === "number") return isMoneyField(recipeName) ? "money" : "whole";
+  return "text";
+}
+
 export type TemplateField = {
   /** The recipe field this blank stands for — the name the record is written with. */
   recipe: string;
@@ -67,8 +102,10 @@ export type TemplateField = {
   form: string;
   /** The words drawn beside it. */
   words: string;
-  /** How its value is written down (a number, a comma-separated list, or plain text). */
+  /** How its value is written down in the record (a number, a comma-separated list, or plain text). */
   kind: Field["kind"];
+  /** How the owner writes it on the blank, and so how the upload reads it back. */
+  reads: FieldReading;
 };
 
 function wordsFor(name: string): string {
@@ -86,6 +123,7 @@ export const CAR_TEMPLATE_FIELDS: readonly TemplateField[] = CAR_RECIPE.map((fie
   form: FORM_NAME[field.name] ?? field.name,
   words: wordsFor(field.name),
   kind: field.kind,
+  reads: readingFor(field.name, field.kind),
 }));
 
 /** The name a filled blank carries a recipe field's value in. `undefined` — the blank never asks. */
@@ -101,6 +139,28 @@ export function templateFormName(recipeName: string): string | undefined {
  * drawing a document nobody wants.
  */
 export const TEMPLATE_MAX_CARS = 20;
+
+/**
+ * How many cars the download was asked for, read from the query string.
+ *
+ * Absent means one — the blank that has always been served, and the common case. Anything that is
+ * not a whole number of cars inside the blank's limit is refused with a reason, rather than quietly
+ * serving a blank other than the one that was asked for.
+ */
+export function readCarCount(
+  value: string | null | undefined,
+): { ok: true; cars: number } | { ok: false; reason: string } {
+  const raw = (value ?? "").trim();
+  if (raw === "") return { ok: true, cars: 1 };
+  if (!/^[0-9]+$/.test(raw)) {
+    return { ok: false, reason: `The number of cars must be a whole number, 1 to ${TEMPLATE_MAX_CARS}.` };
+  }
+  const cars = Number(raw);
+  if (cars < 1 || cars > TEMPLATE_MAX_CARS) {
+    return { ok: false, reason: `One blank holds 1 to ${TEMPLATE_MAX_CARS} cars, not ${cars}.` };
+  }
+  return { ok: true, cars };
+}
 
 function assertCarNumber(car: number): void {
   if (!Number.isInteger(car) || car < 1 || car > TEMPLATE_MAX_CARS) {
@@ -153,4 +213,17 @@ export function readCarFieldName(formName: string): { car: number; recipe: strin
   // "car 1" would make the mapping ambiguous rather than merely redundant.
   if (!base || car < 2 || car > TEMPLATE_MAX_CARS) return undefined;
   return { car, recipe: base.recipe };
+}
+
+/**
+ * Is this a name our own convention builds for a car the blank will not draw — a car past
+ * `TEMPLATE_MAX_CARS`? Such a file was not produced by a template we serve, and reading it as if the
+ * extra cars were simply absent would drop them in silence; the upload refuses the whole file
+ * instead, saying so.
+ */
+export function isCarFieldNameBeyondLimit(formName: string): boolean {
+  const match = /^(.*)_([0-9]+)$/.exec(formName);
+  if (!match) return false;
+  if (!CAR_TEMPLATE_FIELDS.some((field) => field.form === match[1])) return false;
+  return Number(match[2]) > TEMPLATE_MAX_CARS;
 }

@@ -1,5 +1,7 @@
+import { CAR_RECIPE } from "./change-check";
 import { parseCostAmount, SIX_COST_KINDS, type CostKind } from "./money";
 import type { SaleInput } from "./sale";
+import { FEATURE_SEPARATOR, readingFor } from "./template-rules";
 
 /**
  * The car form's one reader.
@@ -231,4 +233,83 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
       sale: salePriceKobo !== null && soldAt !== null ? { salePriceKobo, soldAt } : null,
     },
   };
+}
+
+/** A car's values as a filled blank carries them — keyed by the recipe field they stand for. */
+export type CarFieldStrings = Readonly<Partial<Record<string, string>>>;
+
+/** One car read from a filled blank: what to store, and every value that could not be read. */
+export type ReadCarFieldsResult = {
+  /** The recipe's editable fields the file carried and this reader could read. */
+  values: Record<string, unknown>;
+  /** The state the file named, as the owner wrote it — or `null` when it named none. */
+  stateLabel: string | null;
+  /** Every value the file carried that could not be read, named by its own recipe field. */
+  errors: FieldError[];
+};
+
+/**
+ * Split a feature list written on the blank.
+ *
+ * The blank's fields are single-line, and a single-line field cannot hold a newline — so the list
+ * the owner types on the blank is separated by a comma, the character its caption names. The HTML
+ * car form above is a textarea and splits on newlines instead. One list, two inputs, two
+ * separators — each declared with the input that has it, and never guessed at.
+ */
+function blankFeatureList(raw: string): string[] {
+  return raw
+    .split(FEATURE_SEPARATOR)
+    .map((item) => item.trim())
+    .filter((item) => item !== "");
+}
+
+/**
+ * Judge one car as a filled blank carries it — the *draft's* reader.
+ *
+ * A draft may be incomplete: the owner fills in what he knows now and finishes the record later, so
+ * a field the file left blank is not a failure here. (`readCarInput` above is the *save's* reader;
+ * it requires the record's fields, because it judges the record.) What this reader will not do is
+ * invent anything: a value the file *did* carry and that cannot be read is named in `errors`, field
+ * by field, and that car is refused rather than a wrong number stored.
+ *
+ * The fields are keyed by the **recipe** name, not the blank's own names — the blank's vocabulary is
+ * turned back into the record's before this is called (`readCarFieldName`, lib/template-rules.ts).
+ * The state is the one field with a destination of its own: a hand-filled blank can name a state but
+ * cannot know a key the store minted, so the state comes back as a **label** and the recipe's other
+ * thirteen come back as `values`.
+ */
+export function readCarFields(raw: CarFieldStrings): ReadCarFieldsResult {
+  const values: Record<string, unknown> = {};
+  const errors: FieldError[] = [];
+
+  for (const field of CAR_RECIPE) {
+    // The state is not a recipe value at upload: there is no key to read, only a name to keep.
+    if (field.name === "state_id") continue;
+
+    const carried = raw[field.name];
+    if (blank(carried)) continue;
+
+    switch (readingFor(field.name, field.kind)) {
+      case "text":
+        values[field.name] = text(carried);
+        break;
+      case "list":
+        values[field.name] = blankFeatureList(carried as string);
+        break;
+      case "money": {
+        const parsed = parseCostAmount(carried as string);
+        if (parsed.ok) values[field.name] = parsed.amountMinor;
+        else errors.push({ field: field.name, message: parsed.error });
+        break;
+      }
+      case "whole": {
+        const whole = wholeNumber(carried);
+        if (whole === null) errors.push({ field: field.name, message: "Enter a whole number" });
+        else values[field.name] = whole;
+        break;
+      }
+    }
+  }
+
+  return { values, stateLabel: text(raw.state_id), errors };
 }

@@ -3,12 +3,17 @@ import { test } from "node:test";
 import { CAR_RECIPE } from "./change-check";
 import {
   CAR_TEMPLATE_FIELDS,
+  FEATURE_SEPARATOR,
   TEMPLATE_CONTENT_TYPE,
   TEMPLATE_FILENAME,
   TEMPLATE_MAX_CARS,
   carFieldName,
   carFields,
+  isCarFieldNameBeyondLimit,
+  isMoneyField,
+  readCarCount,
   readCarFieldName,
+  readingFor,
   templateFormName,
 } from "./template-rules";
 
@@ -143,4 +148,69 @@ test("a car's number is a whole number inside the blank's limit", () => {
     assert.throws(() => carFields(bad));
   }
   assert.equal(TEMPLATE_MAX_CARS, 20);
+});
+
+test("a name for a car past the blank's limit is recognised, so the upload can refuse the file", () => {
+  assert.equal(isCarFieldNameBeyondLimit(`brand_${TEMPLATE_MAX_CARS + 1}`), true);
+  assert.equal(isCarFieldNameBeyondLimit("brand_99999"), true);
+  // the last car the blank does draw is not "beyond" anything
+  assert.equal(isCarFieldNameBeyondLimit(`brand_${TEMPLATE_MAX_CARS}`), false);
+  assert.equal(isCarFieldNameBeyondLimit("brand"), false);
+  // and a name that is not ours at all is not one of our cars either
+  assert.equal(isCarFieldNameBeyondLimit("notes_99"), false);
+  assert.equal(isCarFieldNameBeyondLimit("brand_1"), false);
+  assert.equal(isCarFieldNameBeyondLimit("brand_x"), false);
+});
+
+test("how a field is read back follows how it is written: text, whole, money or a list", () => {
+  assert.equal(readingFor("brand", "text"), "text");
+  assert.equal(readingFor("year", "number"), "whole");
+  assert.equal(readingFor("mileage", "number"), "whole");
+  assert.equal(readingFor("was_price_kobo", "number"), "money");
+  assert.equal(readingFor("features", "json"), "list");
+
+  // And the blank agrees with itself: every field carries the reading its own kind implies.
+  for (const field of CAR_TEMPLATE_FIELDS) {
+    assert.equal(field.reads, readingFor(field.recipe, field.kind));
+  }
+});
+
+test("money is the store's `*_kobo` convention, and the convention is asserted against the recipe", () => {
+  // The runtime rule is the name's suffix — cheap, and with nothing to keep in step. This test is
+  // what makes that safe: it pins the money fields to the two prices, so a new `*_kobo` field joins
+  // the money reading by construction and a non-money field cannot end up in it by accident.
+  const money = CAR_RECIPE.filter((field) => isMoneyField(field.name)).map((field) => field.name);
+  assert.deepEqual(money, ["was_price_kobo", "doorstep_price_kobo"]);
+
+  for (const name of money) {
+    const field = CAR_RECIPE.find((f) => f.name === name) as { kind: string };
+    assert.equal(field.kind, "number");
+  }
+  assert.equal(isMoneyField("year"), false, "a year is a number, not an amount of money");
+  assert.equal(isMoneyField("mileage"), false);
+});
+
+test("the blank's list separator is the one its caption names", () => {
+  // The blank's fields are single-line, so its list is comma-separated and the caption says so. If
+  // the two ever drifted apart, the owner would fill in a list the upload read as one long feature.
+  assert.equal(FEATURE_SEPARATOR, ",");
+  const features = CAR_TEMPLATE_FIELDS.find((field) => field.recipe === "features");
+  assert.ok(features);
+  assert.equal(features.reads, "list");
+  assert.ok(features.words.includes("comma"), `the caption names the separator: "${features.words}"`);
+});
+
+test("the download's car count: absent means one, and a number no blank can hold is refused", () => {
+  for (const absent of [null, undefined, "", "   "]) {
+    assert.deepEqual(readCarCount(absent), { ok: true, cars: 1 });
+  }
+  assert.deepEqual(readCarCount(" 3 "), { ok: true, cars: 3 });
+  assert.deepEqual(readCarCount("1"), { ok: true, cars: 1 });
+  assert.deepEqual(readCarCount(String(TEMPLATE_MAX_CARS)), { ok: true, cars: TEMPLATE_MAX_CARS });
+
+  for (const bad of ["0", "-1", "1.5", "2x", "two", "1e2", String(TEMPLATE_MAX_CARS + 1)]) {
+    const read = readCarCount(bad);
+    assert.equal(read.ok, false, `"${bad}" is not a number of cars`);
+    if (!read.ok) assert.ok(read.reason.length > 0, "a refusal says why");
+  }
 });
