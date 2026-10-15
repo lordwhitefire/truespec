@@ -1,7 +1,6 @@
 import { config as loadEnv } from "dotenv";
 import { Client } from "pg";
 import { formatNaira, totalCostKobo, type CostLineInput } from "../lib/money";
-import { SECTION_LABEL } from "../lib/sections";
 
 loadEnv({ path: ".env.local" });
 
@@ -122,13 +121,14 @@ async function customerDetail(client: Client): Promise<Set<string>> {
 }
 
 /**
- * The owner's own office words: a state label that is not one of the three buyer-facing section
- * names (R-SEC-5 — the showroom speaks in sections, never in the office's state vocabulary).
+ * The owner's own office words: the labels of the *secondary* states — the states that are
+ * not one of the four fixed primary states, and so are never shown (D15; R-SEC-5 — the
+ * showroom speaks in sections, never in the office's own state vocabulary). Under D15 a
+ * section and a primary state are one, so the office-private set is exactly the secondaries.
  */
 async function officeStateLabels(client: Client): Promise<Set<string>> {
   const { rows } = await client.query<{ label: string }>(
-    `SELECT DISTINCT label FROM car_state WHERE label <> ALL($1::text[]) ORDER BY label`,
-    [Object.values(SECTION_LABEL)],
+    `SELECT DISTINCT label FROM car_state WHERE kind = 'secondary' ORDER BY label`,
   );
   return new Set(rows.map((r) => r.label));
 }

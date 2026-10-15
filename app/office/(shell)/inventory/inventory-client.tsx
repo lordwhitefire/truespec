@@ -48,6 +48,7 @@ const SECTION_CLASS: Record<Section, string> = {
   available: "av",
   "on order": "ow",
   landed: "ld",
+  sold: "sd",
 };
 
 function stChip(c: InventoryRow) {

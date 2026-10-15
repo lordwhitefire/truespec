@@ -64,3 +64,11 @@ test("R-CNT-3: Sold sits outside the stock total", () => {
   assert.equal(counts.landed, 0);
   assert.equal(counts.onOrder, 1);
 });
+
+test("R-CNT-3: a car in the Sold section also sits outside the stock total", () => {
+  const counts = countStock([car("available"), car("sold"), car("on order")]);
+  assert.equal(counts.sold, 1);
+  assert.equal(counts.available, 1);
+  assert.equal(counts.onOrder, 1);
+  assert.equal(counts.landed, 0);
+});

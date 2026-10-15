@@ -1,24 +1,34 @@
-// The one section definition (R-SEC-1…5). The three fixed sections live here and
+// The one section definition (R-SEC-1…5). The section vocabulary lives here and
 // nowhere else; every section label anywhere in the product reads from this module.
 //
-// Canonical form is lowercase ("available" | "on order" | "landed") — it matches the
-// stored `car_state.section` values and the public payload, so there is one section
-// vocabulary end to end. The buyer-facing label ("Available" / "On Order" / "Landed")
-// is derived from it, never stored as a second identity.
+// Canonical form is lowercase ("available" | "on order" | "landed" | "sold") — it
+// matches the stored `car_state.section` values and the public payload, so there is
+// one section vocabulary end to end. The label ("Available" / "On Order" / "Landed"
+// / "Sold") is derived from it, never stored as a second identity.
+//
+// A section and a primary state now name the same thing (design D15, owner ruling
+// 2026-10-15): the four sections are the four fixed primary states. The showroom
+// presents three of them — PUBLIC_SECTIONS — and Sold is never shown publicly.
 //
 // This module is the only place the section set is named, typed, resolved and
 // validated. No screen keeps a section map of its own (see the TASK-002 model).
 
-export type Section = "available" | "on order" | "landed";
+export type Section = "available" | "on order" | "landed" | "sold";
 
-// R-SEC-1 — exactly three, fixed. Not derived from any owner state list.
-export const SECTIONS = ["available", "on order", "landed"] as const;
+// R-SEC-1 — the section vocabulary is the four fixed primary states, and nothing
+// derived from any owner state list.
+export const SECTIONS = ["available", "on order", "landed", "sold"] as const;
 
-// R-SEC-1 — the buyer-facing names, from the one place.
+// R-SEC-1 — the three the showroom presents. Sold is a section but is never shown,
+// so no public screen may iterate `SECTIONS`; it iterates this.
+export const PUBLIC_SECTIONS: readonly Section[] = ["available", "on order", "landed"];
+
+// R-SEC-1 — the display names, from the one place.
 export const SECTION_LABEL: Record<Section, string> = {
   available: "Available",
   "on order": "On Order",
   landed: "Landed",
+  sold: "Sold",
 };
 
 export function isSection(value: unknown): value is Section {
@@ -38,6 +48,7 @@ export const SECTION_TOKEN: Record<Section, string> = {
   available: "a",
   "on order": "o",
   landed: "l",
+  sold: "s",
 };
 
 export function tokenOf(section: Section): string {
@@ -50,7 +61,7 @@ export function sectionOfToken(value: string): Section | null {
   return SECTIONS.find((section) => SECTION_TOKEN[section] === key) ?? null;
 }
 
-// R-SEC-2 — a state resolves to exactly one of the three sections. A state that maps
+// R-SEC-2 — a state resolves to exactly one of the four sections. A state that maps
 // to none, or to two, cannot exist: resolution raises rather than guessing. The
 // configured section is what the owner's state registry (car_state) says the state
 // means; passing it as an array lets "more than one" be caught instead of silently
@@ -94,14 +105,15 @@ export function inAvailablePresentation(section: Section): boolean {
 
 // R-SEC-3 + R-SEC-4 — the sections a car is presented under, from its section and
 // its new-arrival flag alone. A car in Landed appears under Available too; a car
-// flagged as a new arrival appears under both Landed and Available. The owner's
-// state label is never an input. (The new-arrival flag is meaningful on a car that
-// has landed; the flag on an on-order car is unstated by the specs — raised, not
-// decided here.)
+// flagged as a new arrival appears under both Landed and Available. A Sold car is
+// presented nowhere public — the showroom never shows Sold. The owner's state label
+// is never an input. (The new-arrival flag is meaningful on a car that has landed;
+// the flag on an on-order car is unstated by the specs — raised, not decided here.)
 export function presentedSections(car: {
   section: Section;
   isNewArrival?: boolean;
 }): Section[] {
+  if (car.section === "sold") return [];
   const presented = new Set<Section>([car.section]);
   if (car.section === "available" || car.section === "landed") presented.add("available");
   if (car.section === "landed") presented.add("landed");

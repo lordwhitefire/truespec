@@ -2,6 +2,7 @@ import "server-only";
 import { storeQuery } from "./store-guard";
 import { getConfig } from "./config";
 import { countStock, type StockCounts } from "./counts";
+import { PUBLIC_SECTIONS } from "./sections";
 import { isListed, toPublicCar, type PublicCar, type RawCarRow } from "./serialize";
 
 // The only public read path. Every showroom page, count and list goes through
@@ -31,7 +32,10 @@ function mapRows(rows: RawCarRow[]): PublicCar[] {
 
 export async function getPublicCars(): Promise<PublicCar[]> {
   const rows = (await storeQuery(`${SELECT_CARS} ORDER BY c.ref`)) as RawCarRow[];
-  return mapRows(rows.filter(isListed));
+  // The showroom presents three of the four sections and never Sold (D15): a car is
+  // listed only under a public section, so a Sold car is kept out even if its sale
+  // record were somehow absent.
+  return mapRows(rows.filter(isListed)).filter((car) => PUBLIC_SECTIONS.includes(car.section));
 }
 
 export async function getPublicCar(ref: string): Promise<PublicCar | null> {

@@ -14,7 +14,7 @@ import {
 import { waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { countStock } from "@/lib/counts";
-import { SECTIONS, presentedSections, sectionLabel, tokenOf, type Section } from "@/lib/sections";
+import { PUBLIC_SECTIONS, presentedSections, sectionLabel, tokenOf, type Section } from "@/lib/sections";
 import type { PublicCar } from "@/lib/serialize";
 import { ReferenceCard } from "./ReferenceCard";
 import { carHref, carState, carTitle } from "./car-view";
@@ -355,7 +355,7 @@ export function InventoryBrowser({
                 <div className="sbb">
                   <details className="fs" open>
                     <summary>Status</summary>
-                    {SECTIONS.map((section) => (
+                    {PUBLIC_SECTIONS.map((section) => (
                       <label className="ck" key={section}>
                         <input
                           type="checkbox"

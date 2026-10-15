@@ -17,10 +17,12 @@ import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
 //     never entered is simply absent (or null), which is what leaves a car
 //     incomplete; no total is expanded onto six lines and no arithmetic is added.
 //
-//  2. The section comes from the state registry (`car_state`), resolved by the
-//     one rule (`sectionOfState`), never from the owner's state label. A state
-//     the registry does not map to one section raises (R-SEC-2) — it is not
-//     guessed.
+//  2. The section comes from the car's primary state in the registry (`car_state`),
+//     resolved by the one rule (`sectionOfState`), never from the owner's state
+//     label. Under D15 only a primary state carries a section; a state the registry
+//     does not map to one section raises (R-SEC-2) — it is not guessed. Tombstoned
+//     cars (`car.deleted_at`) are excluded here; they are read only by the clear-out
+//     that waits to remove them.
 
 export type OfficeCarRow = {
   ref: string;
@@ -117,6 +119,7 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
        JOIN car_state s ON s.id = c.state_id
        LEFT JOIN sale ON sale.car_id = c.id
        LEFT JOIN cost_line cl ON cl.car_id = c.id
+      WHERE c.deleted_at IS NULL
       ORDER BY c.ref, cl.kind`,
   )) as RawOfficeRow[];
 
@@ -150,8 +153,11 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
 }
 
 // State label → the section the registry says it means (the only section source).
+// Only a primary state carries a section (D15); a car's state is always a primary.
 async function sectionsByState(): Promise<Map<string, string>> {
-  const rows = (await storeQuery(`SELECT label, section FROM car_state`)) as {
+  const rows = (await storeQuery(
+    `SELECT label, section FROM car_state WHERE kind = 'primary'`,
+  )) as {
     label: string;
     section: string;
   }[];
@@ -168,13 +174,16 @@ export async function getOfficeCarViews(): Promise<OfficeCarView[]> {
 }
 
 /**
- * The owner's state registry in the owner's order — the one source for the office
- * screens' state labels. Each state's section is resolved by the same one rule
- * (`sectionOfState`), so the registry cannot drift from `lib/sections.ts`.
+ * The four primary states, in the owner's order — each carrying the one section it
+ * names (D15: a section and a primary state are one). The office's state chips and
+ * the car form's label→section map read this; a secondary state carries no section
+ * and is read separately, so it does not appear here. Each section is resolved by the
+ * same one rule (`sectionOfState`), so the registry cannot drift from `lib/sections.ts`.
  */
 export async function getOfficeStates(): Promise<OfficeState[]> {
   const rows = (await storeQuery(
-    `SELECT label, section, is_new_arrival FROM car_state ORDER BY sort, label`,
+    `SELECT label, section, is_new_arrival FROM car_state
+      WHERE kind = 'primary' ORDER BY sort, label`,
   )) as { label: string; section: string; is_new_arrival: boolean }[];
   return rows.map((r) => ({
     label: r.label,

@@ -6,7 +6,8 @@
 // group. Sold is counted separately, outside the stock total.
 //
 // A car's section is the one from `lib/sections.ts` — this module holds no section
-// vocabulary of its own.
+// vocabulary of its own. Under D15 a Sold car is the section `sold`; it also carries
+// the `sold` flag from its sale record, and either marks it sold (they coincide).
 
 import type { Section } from "./sections";
 
@@ -32,7 +33,7 @@ export function countStock(cars: readonly Countable[]): StockCounts {
   let sold = 0;
 
   for (const car of cars) {
-    if (car.sold) {
+    if (car.sold || car.section === "sold") {
       sold += 1;
       continue;
     }

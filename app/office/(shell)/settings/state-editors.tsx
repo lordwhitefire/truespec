@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SECTIONS, sectionLabel, type Section } from "@/lib/sections";
+import { PUBLIC_SECTIONS, sectionLabel, type Section } from "@/lib/sections";
 import { type EditorRow } from "./state-seeds";
 import { inkFor } from "./colour";
 
@@ -189,7 +189,7 @@ export function StateEditor({
                     value={row.section}
                     onChange={(e) => setSection(row.id, e.target.value as Section)}
                   >
-                    {SECTIONS.map((s) => (
+                    {PUBLIC_SECTIONS.map((s) => (
                       <option key={s} value={s}>
                         {sectionLabel(s)}
                       </option>

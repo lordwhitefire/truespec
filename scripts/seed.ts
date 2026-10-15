@@ -12,9 +12,10 @@ const N = (naira: number) => Math.round(naira * 100); // naira -> kobo (integer)
 // taken from the public list, so every one already has photographs. Mileage is in
 // km — the unit a buyer reads here; a car that has not landed is 0.
 //
-// It is shaped so every office state has something in it, all three showroom
-// sections look full, one car is sold, and one car's costs are genuinely
-// incomplete rather than merely displayed as such.
+// It is shaped so each of the four primary states has a car in it, all three
+// showroom sections look full, six cars carry a secondary stage, one car is Sold
+// (D15), and one car's costs are genuinely incomplete rather than merely displayed
+// as such.
 type DemoCar = {
   ref: string;
   brand: string;
@@ -26,10 +27,17 @@ type DemoCar = {
   mileage: number;
   price: number; // kobo
   was: number; // kobo, 0 = no "was" price
-  state: string; // car_state label: Available | On the way | At port | Cleared | Landed
+  // The car's one primary state (D15). One of the four fixed primaries —
+  // Available | On Order | Landed | Sold. This is what the showroom groups by.
+  primary: "Available" | "On Order" | "Landed" | "Sold";
+  // The owner's own stage, where the recipe has one — the stage the fleet used to be
+  // described by (On the way | At port | Cleared). A car may carry any number of
+  // secondary states; the demo uses at most one. A secondary carries no section and
+  // is never shown to a buyer.
+  secondary?: "On the way" | "At port" | "Cleared";
   features: string[];
   arrivalNote?: string;
-  sold?: string; // ISO date — a sale row, which is what hides it from the showroom
+  sold?: string; // ISO date — the sale row, alongside the Sold primary
   // Cost lines deliberately not yet entered. A car still on the water has not paid
   // Nigerian trucking or filled its tank; TS-1018 is furthest out, so neither.
   missingCosts?: readonly string[];
@@ -37,34 +45,34 @@ type DemoCar = {
 
 const DEMO: DemoCar[] = [
   // Available — on the lot, fully costed (7)
-  { ref: "TS-1001", brand: "Toyota", model: "Camry", trim: "XSE V6", year: 2021, exterior: "Obsidian black", interior: "Black", mileage: 31000, price: N(34_500_000), was: 0, state: "Available", features: ["Panoramic roof", "Leather upholstery", "Heated and ventilated front seats", "Apple CarPlay and Android Auto", "JBL 9-speaker audio", "Adaptive cruise control", "Quad exhaust tips"] },
-  { ref: "TS-1003", brand: "Lexus", model: "RX 350", trim: "F Sport", year: 2020, exterior: "Sonic grey", interior: "Black", mileage: 41000, price: N(52_000_000), was: 0, state: "Available", features: ["F Sport body kit", "20-inch alloy wheels", "Adaptive variable suspension", "Heated and ventilated front seats", "Lexus Premium Sound", "Panoramic roof", "Power tailgate"] },
-  { ref: "TS-1005", brand: "BMW", model: "X5", trim: "xDrive40i", year: 2021, exterior: "Alpine white", interior: "Black", mileage: 34000, price: N(88_000_000), was: 0, state: "Available", features: ["M Sport package", "Head-up display", "Parking Assistant", "Heated front seats", "Harman Kardon audio", "Panoramic roof", "Adaptive M suspension"] },
-  { ref: "TS-1007", brand: "Honda", model: "Accord", trim: "Touring", year: 2021, exterior: "Graphite", interior: "Black", mileage: 29000, price: N(38_000_000), was: 0, state: "Available", features: ["Wireless charging", "Adaptive cruise control", "Sunroof", "Heated front seats", "12-speaker audio", "Head-up display", "Blind spot monitoring"] },
-  { ref: "TS-1008", brand: "Toyota", model: "RAV4 Prime", trim: "SE", year: 2022, exterior: "Wind chill pearl", interior: "Black", mileage: 12000, price: N(45_500_000), was: N(50_900_000), state: "Available", features: ["Plug-in hybrid", "18-inch alloy wheels", "Heated front seats", "Power tailgate", "Blind spot monitoring", "Qi wireless charging", "JBL audio"] },
-  { ref: "TS-1011", brand: "Mercedes-Benz", model: "C 300", trim: "AMG Line", year: 2018, exterior: "Obsidian black", interior: "Black", mileage: 71000, price: N(29_500_000), was: N(33_000_000), state: "Available", features: ["AMG Line exterior", "Dual-zone climate", "Sunroof", "Garage door opener", "Heated front seats", "Burmester audio", "Keyless entry"] },
-  { ref: "TS-1012", brand: "BMW", model: "X3", trim: "xDrive30i", year: 2019, exterior: "Santorini black", interior: "Black", mileage: 58000, price: N(41_000_000), was: 0, state: "Available", features: ["Adaptive suspension", "Panoramic roof", "Heated front seats", "Harman Kardon audio", "LED headlights", "Parking Assistant", "Leather upholstery"] },
+  { ref: "TS-1001", brand: "Toyota", model: "Camry", trim: "XSE V6", year: 2021, exterior: "Obsidian black", interior: "Black", mileage: 31000, price: N(34_500_000), was: 0, primary: "Available", features: ["Panoramic roof", "Leather upholstery", "Heated and ventilated front seats", "Apple CarPlay and Android Auto", "JBL 9-speaker audio", "Adaptive cruise control", "Quad exhaust tips"] },
+  { ref: "TS-1003", brand: "Lexus", model: "RX 350", trim: "F Sport", year: 2020, exterior: "Sonic grey", interior: "Black", mileage: 41000, price: N(52_000_000), was: 0, primary: "Available", features: ["F Sport body kit", "20-inch alloy wheels", "Adaptive variable suspension", "Heated and ventilated front seats", "Lexus Premium Sound", "Panoramic roof", "Power tailgate"] },
+  { ref: "TS-1005", brand: "BMW", model: "X5", trim: "xDrive40i", year: 2021, exterior: "Alpine white", interior: "Black", mileage: 34000, price: N(88_000_000), was: 0, primary: "Available", features: ["M Sport package", "Head-up display", "Parking Assistant", "Heated front seats", "Harman Kardon audio", "Panoramic roof", "Adaptive M suspension"] },
+  { ref: "TS-1007", brand: "Honda", model: "Accord", trim: "Touring", year: 2021, exterior: "Graphite", interior: "Black", mileage: 29000, price: N(38_000_000), was: 0, primary: "Available", features: ["Wireless charging", "Adaptive cruise control", "Sunroof", "Heated front seats", "12-speaker audio", "Head-up display", "Blind spot monitoring"] },
+  { ref: "TS-1008", brand: "Toyota", model: "RAV4 Prime", trim: "SE", year: 2022, exterior: "Wind chill pearl", interior: "Black", mileage: 12000, price: N(45_500_000), was: N(50_900_000), primary: "Available", features: ["Plug-in hybrid", "18-inch alloy wheels", "Heated front seats", "Power tailgate", "Blind spot monitoring", "Qi wireless charging", "JBL audio"] },
+  { ref: "TS-1011", brand: "Mercedes-Benz", model: "C 300", trim: "AMG Line", year: 2018, exterior: "Obsidian black", interior: "Black", mileage: 71000, price: N(29_500_000), was: N(33_000_000), primary: "Available", features: ["AMG Line exterior", "Dual-zone climate", "Sunroof", "Garage door opener", "Heated front seats", "Burmester audio", "Keyless entry"] },
+  { ref: "TS-1012", brand: "BMW", model: "X3", trim: "xDrive30i", year: 2019, exterior: "Santorini black", interior: "Black", mileage: 58000, price: N(41_000_000), was: 0, primary: "Available", features: ["Adaptive suspension", "Panoramic roof", "Heated front seats", "Harman Kardon audio", "LED headlights", "Parking Assistant", "Leather upholstery"] },
 
-  // On the way — bought, on the water, an arrival note each (3)
-  { ref: "TS-1013", brand: "Range Rover", model: "Sport", trim: "HSE", year: 2021, exterior: "Fuji white", interior: "Black", mileage: 0, price: N(115_000_000), was: 0, state: "On the way", arrivalNote: "Expected arrival: November", missingCosts: ["full_tank"], features: ["Meridian Signature audio", "Terrain Response", "Adaptive air suspension", "Panoramic roof", "Heated and ventilated front seats", "Power tailgate", "21-inch alloy wheels"] },
-  { ref: "TS-1014", brand: "Porsche", model: "Macan", trim: "S", year: 2021, exterior: "Gentian blue", interior: "Black", mileage: 0, price: N(96_000_000), was: 0, state: "On the way", arrivalNote: "Expected arrival: December", features: ["Sport Chrono package", "Bose Surround Sound", "20-inch alloy wheels", "Adaptive air suspension", "Heated front seats", "Power panoramic roof", "Lane change assist"] },
-  { ref: "TS-1018", brand: "BMW", model: "X7", trim: "xDrive40i", year: 2022, exterior: "Alpine white", interior: "Black", mileage: 0, price: N(128_000_000), was: 0, state: "On the way", arrivalNote: "Expected arrival: January", missingCosts: ["trucking_ng", "full_tank"], features: ["Six seats with captain's chairs", "Panoramic roof", "Harman Kardon audio", "Heated front seats", "Driving Assistance Pro", "Air suspension", "Power tailgate"] },
+  // On Order / On the way — bought, on the water, an arrival note each (3)
+  { ref: "TS-1013", brand: "Range Rover", model: "Sport", trim: "HSE", year: 2021, exterior: "Fuji white", interior: "Black", mileage: 0, price: N(115_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: November", missingCosts: ["full_tank"], features: ["Meridian Signature audio", "Terrain Response", "Adaptive air suspension", "Panoramic roof", "Heated and ventilated front seats", "Power tailgate", "21-inch alloy wheels"] },
+  { ref: "TS-1014", brand: "Porsche", model: "Macan", trim: "S", year: 2021, exterior: "Gentian blue", interior: "Black", mileage: 0, price: N(96_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: December", features: ["Sport Chrono package", "Bose Surround Sound", "20-inch alloy wheels", "Adaptive air suspension", "Heated front seats", "Power panoramic roof", "Lane change assist"] },
+  { ref: "TS-1018", brand: "BMW", model: "X7", trim: "xDrive40i", year: 2022, exterior: "Alpine white", interior: "Black", mileage: 0, price: N(128_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: January", missingCosts: ["trucking_ng", "full_tank"], features: ["Six seats with captain's chairs", "Panoramic roof", "Harman Kardon audio", "Heated front seats", "Driving Assistance Pro", "Air suspension", "Power tailgate"] },
 
-  // At port — cleared customs paperwork, not yet released (2)
-  { ref: "TS-1015", brand: "Toyota", model: "Land Cruiser Prado", trim: "VX", year: 2022, exterior: "Alpine white", interior: "Tan", mileage: 0, price: N(92_000_000), was: 0, state: "At port", arrivalNote: "Expected arrival: January", features: ["Full-time four wheel drive", "Low range", "Leather upholstery", "Powered tailgate", "Moonroof", "Heated front seats", "Multi-terrain select"] },
-  { ref: "TS-1016", brand: "Chevrolet", model: "Tahoe", trim: "LT", year: 2020, exterior: "Summit white", interior: "Black", mileage: 0, price: N(74_000_000), was: 0, state: "At port", arrivalNote: "Expected arrival: November", features: ["Rear entertainment system", "Third row seats", "Power liftgate", "Heated second row seats", "Bose audio", "Safety alert system", "Remote start"] },
+  // On Order / At port — cleared customs paperwork, not yet released (2)
+  { ref: "TS-1015", brand: "Toyota", model: "Land Cruiser Prado", trim: "VX", year: 2022, exterior: "Alpine white", interior: "Tan", mileage: 0, price: N(92_000_000), was: 0, primary: "On Order", secondary: "At port", arrivalNote: "Expected arrival: January", features: ["Full-time four wheel drive", "Low range", "Leather upholstery", "Powered tailgate", "Moonroof", "Heated front seats", "Multi-terrain select"] },
+  { ref: "TS-1016", brand: "Chevrolet", model: "Tahoe", trim: "LT", year: 2020, exterior: "Summit white", interior: "Black", mileage: 0, price: N(74_000_000), was: 0, primary: "On Order", secondary: "At port", arrivalNote: "Expected arrival: November", features: ["Rear entertainment system", "Third row seats", "Power liftgate", "Heated second row seats", "Bose audio", "Safety alert system", "Remote start"] },
 
-  // Cleared — the completed gap between At port and Landed (1)
-  { ref: "TS-1017", brand: "Ford", model: "F-150", trim: "Lariat", year: 2021, exterior: "Oxford white", interior: "Black", mileage: 0, price: N(68_000_000), was: 0, state: "Cleared", arrivalNote: "Expected arrival: November", features: ["Pro Power Onboard generator", "Tow package", "Four wheel drive", "B&O audio", "Heated and cooled front seats", "Bed liner", "360-degree camera"] },
+  // On Order / Cleared — the completed gap between At port and Landed (1)
+  { ref: "TS-1017", brand: "Ford", model: "F-150", trim: "Lariat", year: 2021, exterior: "Oxford white", interior: "Black", mileage: 0, price: N(68_000_000), was: 0, primary: "On Order", secondary: "Cleared", arrivalNote: "Expected arrival: November", features: ["Pro Power Onboard generator", "Tow package", "Four wheel drive", "B&O audio", "Heated and cooled front seats", "Bed liner", "360-degree camera"] },
 
   // Landed — this year's group (Landed carries is_new_arrival) (3)
-  { ref: "TS-1019", brand: "Lexus", model: "RX 350", trim: "350", year: 2019, exterior: "Celestial silver", interior: "Black", mileage: 64000, price: N(44_500_000), was: 0, state: "Landed", features: ["Leather upholstery", "Heated and ventilated front seats", "Power tailgate", "Blind spot monitoring", "LED headlights", "Roof rails", "Dual-zone climate"] },
-  { ref: "TS-1020", brand: "Honda", model: "CR-V", trim: "EX-L", year: 2020, exterior: "Platinum white", interior: "Black", mileage: 48000, price: N(36_000_000), was: 0, state: "Landed", features: ["Leather upholstery", "Panoramic sunroof", "Power tailgate", "Heated front seats", "Honda Sensing safety suite", "Wireless charging", "12-speaker audio"] },
-  { ref: "TS-1023", brand: "Mercedes-Benz", model: "E 350", trim: "350", year: 2020, exterior: "Obsidian black", interior: "Tan", mileage: 39000, price: N(48_000_000), was: N(52_500_000), state: "Landed", features: ["Burmester 3D audio", "Ambient lighting", "Heated front seats", "Wireless charging", "Air suspension", "Panoramic sunroof", "Driver Assistance package"] },
+  { ref: "TS-1019", brand: "Lexus", model: "RX 350", trim: "350", year: 2019, exterior: "Celestial silver", interior: "Black", mileage: 64000, price: N(44_500_000), was: 0, primary: "Landed", features: ["Leather upholstery", "Heated and ventilated front seats", "Power tailgate", "Blind spot monitoring", "LED headlights", "Roof rails", "Dual-zone climate"] },
+  { ref: "TS-1020", brand: "Honda", model: "CR-V", trim: "EX-L", year: 2020, exterior: "Platinum white", interior: "Black", mileage: 48000, price: N(36_000_000), was: 0, primary: "Landed", features: ["Leather upholstery", "Panoramic sunroof", "Power tailgate", "Heated front seats", "Honda Sensing safety suite", "Wireless charging", "12-speaker audio"] },
+  { ref: "TS-1023", brand: "Mercedes-Benz", model: "E 350", trim: "350", year: 2020, exterior: "Obsidian black", interior: "Tan", mileage: 39000, price: N(48_000_000), was: N(52_500_000), primary: "Landed", features: ["Burmester 3D audio", "Ambient lighting", "Heated front seats", "Wireless charging", "Air suspension", "Panoramic sunroof", "Driver Assistance package"] },
 
-  // Sold — the sale row is what un-lists it; `car_state` has no Sold label and the
-  // office derives the sold condition from `sale` + `sold_at` (lib/office.ts).
-  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, state: "Available", sold: "2026-09-15", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"] },
+  // Sold — under D15 the car's primary state is Sold (a section of its own), and the
+  // sale row records the sale itself. The showroom never shows a Sold car.
+  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, primary: "Sold", sold: "2026-09-15", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"] },
 ];
 
 // The refs the previous seed wrote — TS-1001…TS-1025. They are demonstration rows
@@ -134,8 +142,10 @@ async function main() {
   const imported: EnquiryImport = JSON.parse(readFileSync("scripts/demo-enquiry-import.json", "utf8"));
 
   try {
-    const stateRows = await client.query<{ id: string; label: string }>("SELECT id, label FROM car_state");
-    const stateByLabel = new Map(stateRows.rows.map((r) => [r.label, r.id]));
+    const stateRows = await client.query<{ id: string; label: string; kind: string }>(
+      "SELECT id, label, kind FROM car_state",
+    );
+    const stateByLabel = new Map(stateRows.rows.map((r) => [r.label, r]));
     const enquiryStateRows = await client.query<{ id: string; label: string }>(
       "SELECT id, label FROM enquiry_state",
     );
@@ -152,8 +162,19 @@ async function main() {
 
     for (let i = 0; i < DEMO.length; i++) {
       const c = DEMO[i];
-      const stateId = stateByLabel.get(c.state);
-      if (!stateId) throw new Error(`seed: car state "${c.state}" not found (run migrations first).`);
+      const primary = stateByLabel.get(c.primary);
+      if (!primary) throw new Error(`seed: primary state "${c.primary}" not found (run migrations first).`);
+      if (primary.kind !== "primary") {
+        throw new Error(`seed: "${c.primary}" is a ${primary.kind} state, not a primary (D15).`);
+      }
+      const stateId = primary.id;
+      const secondary = c.secondary ? stateByLabel.get(c.secondary) : undefined;
+      if (c.secondary && !secondary) {
+        throw new Error(`seed: secondary state "${c.secondary}" not found (run migrations first).`);
+      }
+      if (secondary && secondary.kind !== "secondary") {
+        throw new Error(`seed: "${c.secondary}" is a ${secondary.kind} state, not a secondary (D15).`);
+      }
       const carPhotos = photos.images
         .filter((p) => p.ref === c.ref)
         .sort((a, b) => a.position - b.position);
@@ -224,6 +245,17 @@ async function main() {
                           content_hash=$16, hash_version=$17, is_demo=true
              WHERE id=$1`,
           [carId, ...carFields, carHash, CHANGE_CHECK_VERSION],
+        );
+      }
+
+      // The owner's own stage, where the recipe has one. A car's secondary states are
+      // added where absent and never removed here — nothing is deleted on the owner's
+      // behalf (the demo wipe is the owner's own hand).
+      if (secondary) {
+        await client.query(
+          `INSERT INTO car_secondary_state (car_id, state_id) VALUES ($1,$2)
+             ON CONFLICT (car_id, state_id) DO NOTHING`,
+          [carId, secondary.id],
         );
       }
 
@@ -364,6 +396,7 @@ async function main() {
     await client.query("COMMIT");
     console.log(
       `seed: ${DEMO.length} fleet car(s) synced (found by ref, written only where changed), ` +
+        `${DEMO.filter((c) => c.secondary).length} secondary link(s), ` +
         `${marked.rowCount ?? 0} earlier demo row(s) marked is_demo, ` +
         `${photos.images.length} photo(s) referenced, ` +
         `${ENQUIRIES.length + imported.rows.length} enquiry(ies) synced by handle — nothing deleted.`,
