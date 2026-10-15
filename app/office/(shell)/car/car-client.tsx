@@ -7,8 +7,9 @@
    The product decides edit vs add by route, so the reference's `.demo` mode
    switcher is dropped (plan §9 Q2). */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPortal } from "react-dom";
+import { createCar, type CreateCarResult } from "../../actions/car";
 import {
   costLabelFor,
   formatNaira,
@@ -59,11 +60,11 @@ export type CarFormData = {
 
 export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
 
+/** A secondary state — office-only tracking, carrying no section (D15). */
+export type OfficeSecondaryState = { id: string; label: string };
+
 const imgURL = (id: string, w: number) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
-
-const STATES = ["Available", "On the way", "At port", "Cleared", "Landed"];
-const HELD = "Held for payment";
 
 const BLANK_COSTS: CarCosts = {
   purchase: "",
@@ -88,13 +89,13 @@ const KIND_BY_FIELD: Record<CostField, (typeof SIX_COST_KINDS)[number]> = {
   tank: "full_tank",
 };
 
-type CostErrors = Partial<Record<CostField | "price", string>>;
+type CostErrors = Partial<Record<CostField | "price" | "wasPrice", string>>;
 
 // The live panel — every figure from `lib/money.ts` (naira only; no rate, no
 // dollar). A malformed amount shows its message at its own field and is not
 // counted (R-MON-10); a car with incomplete costs shows no profit (R-MON-8);
 // the cost figure is named by the car's state (R-MON-7). No arithmetic here.
-function compute(priceStr: string, c: CarCosts, section: Section) {
+function compute(priceStr: string, wasStr: string, c: CarCosts, section: Section) {
   const readings = COST_FIELDS.map((field) => ({ field, raw: c[field], parsed: parseCostAmount(c[field]) }));
 
   const costLines: CostLineInput[] = readings.map((r) => ({
@@ -116,6 +117,13 @@ function compute(priceStr: string, c: CarCosts, section: Section) {
   const priceParsed = parseCostAmount(priceStr);
   const priceKobo = priceStr.trim() === "" ? null : priceParsed.ok ? priceParsed.amountMinor : null;
   if (priceStr.trim() !== "" && !priceParsed.ok) errors.price = priceParsed.error;
+
+  // The "was" price is a second amount, judged by the same one predicate at its own
+  // field (R-MON-10) — blank is fine, and means no crossed-out price.
+  if (wasStr.trim() !== "") {
+    const wasParsed = parseCostAmount(wasStr);
+    if (!wasParsed.ok) errors.wasPrice = wasParsed.error;
+  }
 
   const costTxt = entered > 0 ? formatNaira(totalKobo) : "—";
   const priceTxt = priceKobo != null ? formatNaira(priceKobo) : "—";
@@ -193,6 +201,7 @@ function CostInput({
         <input
           className="in cost"
           id={id}
+          name={`cost.${KIND_BY_FIELD[field]}`}
           type="text"
           inputMode="decimal"
           placeholder={placeholder}
@@ -214,35 +223,49 @@ function CostInput({
 export function CarForm({
   mode,
   data,
-  stateSections,
+  primaries,
   secondaries = [],
 }: {
   mode: "edit" | "add";
   data: CarFormData;
-  /** The owner's state registry (label → the one section), from the office adapter. */
-  stateSections: Record<string, Section>;
-  secondaries?: OfficeState[];
+  /** The four fixed primary states, from the registry — the car's one mandatory state. */
+  primaries: OfficeState[];
+  /** The owner's secondary states (office-only tracking) — none or several. */
+  secondaries?: OfficeSecondaryState[];
 }) {
   const isEdit = mode === "edit";
 
-  // A state the registry does not hold (the demo custom state) keeps the car's
-  // own section — the label is never guessed from an unmapped state.
-  const sectionFor = (state: string) => stateSections[state] ?? data.section;
+  // label → the one section, from the registry. A label the registry does not hold
+  // keeps the car's own section — the label is never guessed from an unmapped state.
+  const sectionByLabel = useMemo(
+    () => Object.fromEntries(primaries.map((s) => [s.label, s.section])) as Record<string, Section>,
+    [primaries],
+  );
+  const sectionFor = (label: string) => sectionByLabel[label] ?? data.section;
+  const sectionForId = (id: string) =>
+    primaries.find((s) => s.id === id)?.section ?? data.section;
 
   const [panel, setPanel] = useState(() =>
     compute(
       isEdit ? data.price : "",
+      isEdit ? data.wasPrice ?? "" : "",
       isEdit ? data.costs : BLANK_COSTS,
       sectionFor(isEdit ? data.state : "Available"),
     ),
   );
   const [imgs, setImgs] = useState<string[]>(isEdit ? data.imgs : []);
-  const [curState, setCurState] = useState(isEdit ? data.state : "Available");
+  // The car's one primary state, held by id (the store's key). Add mode starts on the
+  // state the blank form names; edit mode on the car's own.
+  const [curStateId, setCurStateId] = useState(
+    () => primaries.find((s) => s.label === data.state)?.id ?? primaries[0]?.id ?? "",
+  );
   const [soldOpen, setSoldOpen] = useState(false);
   const [delOpen, setDelOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastShow, setToastShow] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [result, setResult] = useState<CreateCarResult | null>(null);
+  const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
 
   useEffect(() => setMounted(true), []);
@@ -265,12 +288,13 @@ export function CarForm({
     [],
   );
 
-  const recalc = (state: string = curState) => {
+  const recalc = (stateId: string = curStateId) => {
     const g = (id: string) =>
       (document.getElementById(id) as HTMLInputElement | null)?.value ?? "";
     setPanel(
       compute(
         g("f-price"),
+        g("f-was"),
         {
           purchase: g("c-purchase"),
           ship: g("c-ship"),
@@ -279,7 +303,7 @@ export function CarForm({
           truckng: g("c-truckng"),
           tank: g("c-tank"),
         },
-        sectionFor(state),
+        sectionForId(stateId),
       ),
     );
   };
@@ -287,9 +311,9 @@ export function CarForm({
   // The cost figure is named by the state (R-MON-7), so changing the state
   // renames it even when no amount changed.
   useEffect(() => {
-    recalc(curState);
+    recalc(curStateId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [curState]);
+  }, [curStateId]);
 
   const hasFieldErrors = Object.keys(panel.errors).length > 0;
 
@@ -299,6 +323,33 @@ export function CarForm({
     if (tmr.current) window.clearTimeout(tmr.current);
     tmr.current = window.setTimeout(() => setToastShow(false), 6000);
   };
+
+  // The form is a real form: every field carries its stored column's name, so the
+  // Server Action reads exactly what the browser sent and nothing is invented on the
+  // way. Add mode writes through `createCar`; a malformed amount (or any other
+  // refusal) never leaves the page — it is a field error, and nothing is saved.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (hasFieldErrors) return;
+    const fd = new FormData(e.currentTarget);
+    setResult(null);
+    startSaving(async () => {
+      if (isEdit) {
+        // Edit wiring is Task 12 — the form shows the store's columns, the write follows.
+        showToast("Saved (demo). Edit writes arrive with the next step.");
+        return;
+      }
+      const res = await createCar(fd);
+      setResult(res);
+      if (res.ok) {
+        showToast(`Saved as <b>${res.ref}</b>. The showroom updates immediately.`);
+      }
+    });
+  };
+
+  // A Server Action's field refusals, one message per field, shown at the field.
+  const serverErrors = result && !result.ok ? result.errors : [];
+  const errFor = (field: string) => serverErrors.find((x) => x.field === field)?.message;
 
   const makeCover = (i: number) =>
     setImgs((prev) => {
@@ -347,7 +398,7 @@ export function CarForm({
       </div>
 
       <div className="cols">
-        <div>
+        <form onSubmit={onSubmit}>
           <section className="sec">
             <h2>
               <span className="n">1</span>The car
@@ -358,6 +409,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-brand"
+                  name="brand"
                   type="text"
                   placeholder="Toyota"
                   defaultValue={isEdit ? data.brand : ""}
@@ -368,6 +420,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-model"
+                  name="model"
                   type="text"
                   placeholder="Sienna"
                   defaultValue={isEdit ? data.model : ""}
@@ -378,6 +431,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-trim"
+                  name="trim"
                   type="text"
                   placeholder="LE"
                   defaultValue={isEdit ? data.trim : ""}
@@ -388,6 +442,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-year"
+                  name="year"
                   type="number"
                   placeholder="2020"
                   defaultValue={isEdit ? data.year : ""}
@@ -398,6 +453,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-mileage"
+                  name="mileage"
                   type="text"
                   placeholder="52,614"
                   defaultValue={isEdit ? data.mileage : ""}
@@ -413,6 +469,7 @@ export function CarForm({
                   <input
                     className="in"
                     id="f-price"
+                    name="price"
                     type="text"
                     inputMode="decimal"
                     placeholder="33,900,000"
@@ -432,10 +489,37 @@ export function CarForm({
                 ) : null}
               </div>
               <div className="f">
+                <label htmlFor="f-was">Was price (₦) — optional</label>
+                <div className="cur">
+                  <span>₦</span>
+                  <input
+                    className="in"
+                    id="f-was"
+                    name="wasPrice"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="36,500,000"
+                    defaultValue={isEdit ? data.wasPrice ?? "" : ""}
+                    onInput={() => recalc()}
+                    aria-invalid={panel.errors.wasPrice ? true : undefined}
+                  />
+                </div>
+                <span className="hint">
+                  Shown crossed out beside the price. Leave blank for no &quot;was&quot;
+                  price.
+                </span>
+                {panel.errors.wasPrice ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {panel.errors.wasPrice}
+                  </span>
+                ) : null}
+              </div>
+              <div className="f">
                 <label htmlFor="f-ext">Exterior colour</label>
                 <input
                   className="in"
                   id="f-ext"
+                  name="exteriorColor"
                   type="text"
                   placeholder="Silver"
                   defaultValue={isEdit ? data.ext : ""}
@@ -446,6 +530,7 @@ export function CarForm({
                 <input
                   className="in"
                   id="f-int"
+                  name="interiorColor"
                   type="text"
                   placeholder="Grey"
                   defaultValue={isEdit ? data.int : ""}
@@ -456,6 +541,7 @@ export function CarForm({
                 <textarea
                   className="in"
                   id="f-feat"
+                  name="features"
                   placeholder={"Reverse camera\nPower sliding doors\nTri-zone AC"}
                   defaultValue={isEdit ? data.feat : ""}
                 ></textarea>
@@ -603,30 +689,72 @@ export function CarForm({
                   Where this car is
                 </label>
                 <div className="stlist" id="states">
-                  {STATES.map((s) => (
+                  {primaries.map((s) => (
                     <button
-                      key={s}
+                      key={s.id}
                       type="button"
-                      className={"stb" + (curState === s ? " on" : "")}
-                      data-st={s}
-                      onClick={() => setCurState(s)}
+                      className={"stb" + (curStateId === s.id ? " on" : "")}
+                      data-st={s.id}
+                      onClick={() => setCurStateId(s.id)}
                     >
-                      {s}
+                      {s.label}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    className={"stb" + (curState === HELD ? " on" : "")}
-                    data-st={HELD}
-                    onClick={() => setCurState(HELD)}
-                  >
-                    Held for payment<span className="cust">custom</span>
-                  </button>
                 </div>
+                {/* The chosen primary state, as the key the action reads. */}
+                <input type="hidden" name="stateId" value={curStateId} />
+                {errFor("stateId") ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {errFor("stateId")}
+                  </span>
+                ) : null}
                 <p className="hint" style={{ marginTop: 10 }}>
                   The showroom follows automatically. Buyers only ever see the three
                   section names — never these labels.
                 </p>
+                <div style={{ marginTop: 14 }}>
+                  <label
+                    style={{
+                      fontSize: "11.5px",
+                      fontWeight: 600,
+                      textTransform: "uppercase",
+                      letterSpacing: ".05em",
+                      color: "var(--mute)",
+                      display: "block",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    Tracking states — optional, office only
+                  </label>
+                  {secondaries.length === 0 ? (
+                    <p className="hint" style={{ margin: 0 }}>
+                      No tracking states yet. Add them in Settings → States.
+                    </p>
+                  ) : (
+                    <div className="stlist">
+                      {secondaries.map((s) => (
+                        <label className="ck" key={s.id}>
+                          <input
+                            type="checkbox"
+                            name="secondaryStateIds"
+                            value={s.id}
+                            defaultChecked={false}
+                          />
+                          <span>{s.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                  {errFor("secondaryStateIds") ? (
+                    <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                      {errFor("secondaryStateIds")}
+                    </span>
+                  ) : null}
+                  <p className="hint" style={{ marginTop: 8 }}>
+                    Stages this car passes through — none or several. They never show to
+                    buyers and never change a count.
+                  </p>
+                </div>
               </div>
               <div style={{ display: "grid", gap: 14, alignContent: "start" }}>
                 <label className="ck">
@@ -648,6 +776,7 @@ export function CarForm({
                   <input
                     className="in"
                     id="f-arr"
+                    name="arrivalNote"
                     type="text"
                     placeholder="Expected arrival: November"
                     defaultValue={isEdit ? data.arr : ""}
@@ -666,41 +795,69 @@ export function CarForm({
               <span className="n">5</span>Private notes
             </h2>
             <div className="f full">
-              <label htmlFor="f-note">Notes to self</label>
+              <label htmlFor="f-note">Notes to self (private)</label>
               <textarea
                 className="in"
                 id="f-note"
+                name="privateNote"
                 placeholder="Duty paid, immaculate. Ready for viewing."
-                defaultValue={isEdit ? data.note : ""}
+                defaultValue={isEdit ? data.privateNote ?? "" : ""}
               ></textarea>
               <span className="hint">
-                For your filing only — never sent to the showroom, even by accident.
+                Office-only — never sent to the showroom.
               </span>
             </div>
           </section>
 
           <div className="saverow">
-            <button
-              className="btn"
-              id="save"
-              type="button"
-              onClick={() => {
-                // A malformed amount blocks the save at its field (R-MON-10) —
-                // the message is already shown there, so nothing is saved.
-                if (hasFieldErrors) return;
-                showToast(
-                  'Saved (demo). The showroom updates immediately. <a href="/car/2019-toyota-sienna-xle" target="_blank">Preview buyer page</a>',
-                );
-              }}
-            >
-              <i className="fa-solid fa-check" /> Save car
+            <button className="btn" id="save" type="submit" disabled={saving}>
+              <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
             </button>
             <a className="btn gh" href="/office/inventory">
               Cancel
             </a>
-            <span className="hint2">Saving puts the car in the showroom immediately.</span>
+            <span className="hint2">
+              {result && !result.ok
+                ? "Some fields need attention — see the messages beside them."
+                : "Saving puts the car in the showroom immediately."}
+            </span>
           </div>
-        </div>
+          {result && !result.ok ? (
+            <div
+              role="alert"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--bad)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--bad)",
+                fontSize: 13,
+              }}
+            >
+              <b>Could not save.</b>
+              <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                {result.errors.map((e) => (
+                  <li key={e.field}>{e.message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {result && result.ok ? (
+            <div
+              role="status"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--ok)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--ok)",
+                fontSize: 13,
+              }}
+            >
+              Saved as <b>{result.ref}</b>. The showroom updates immediately.
+            </div>
+          ) : null}
+        </form>
 
         <aside className="aside" aria-label="Live costing">
           <div className="panel2">

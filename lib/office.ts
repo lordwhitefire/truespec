@@ -52,6 +52,14 @@ export type OfficeCarView = OfficeCarRow & { section: Section };
  */
 export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
 
+/**
+ * A secondary state — a stage the owner tracks, carrying **no section** (D15): a
+ * section is a primary state's alone, so there is nothing here to resolve. Keeping
+ * it a distinct shape is what stops `sectionOfState` being asked for a section that
+ * cannot exist.
+ */
+export type OfficeSecondaryState = { id: string; label: string };
+
 /** The dashboard's figures, each a shared-rule total. */
 export type OfficeDashboard = {
   counts: StockCounts;
@@ -213,20 +221,12 @@ export async function getOfficeDashboard(): Promise<OfficeDashboard> {
   };
 }
 
-export async function getOfficeSecondaryStates(): Promise<OfficeState[]> {
-  const rows = (await storeQuery<
-    { id: string; label: string; section: string; is_new_arrival: boolean; kind: string }[]
-  >(
-    `SELECT id, label, section, is_new_arrival, kind
+export async function getOfficeSecondaryStates(): Promise<OfficeSecondaryState[]> {
+  const rows = await storeQuery<{ id: string; label: string }[]>(
+    `SELECT id, label
        FROM car_state
       WHERE kind = 'secondary'
       ORDER BY sort, label`,
-  )) as { id: string; label: string; section: string; is_new_arrival: boolean; kind: string }[];
-  return rows.map((r) => ({
-    id: r.id,
-    label: r.label,
-    section: sectionOfState(r.label, r.section),
-    isNewArrival: r.is_new_arrival,
-    kind: r.kind,
-  }));
+  );
+  return rows.map((r) => ({ id: r.id, label: r.label }));
 }

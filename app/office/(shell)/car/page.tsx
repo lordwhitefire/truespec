@@ -13,12 +13,13 @@ export const dynamic = "force-dynamic";
    the reference ambient and every link the reference (and our built inventory)
    sends to the car form; `/office/car/new` is add mode.
 
-   Shared fields (brand/model/trim/year/mileage/price/state/new-arrival/arrival
-   note) come from the office read layer, and the car's section from the one rule
-   (through the adapter). The form-only fields the office data model does not own
-   (exterior/interior, features, private notes, photos) are presentational demo
-   values here, exactly as the reference hardcodes them in its own script —
-   data-model work is out of scope for this layer (plan §1). All six cost lines
+   The form saves the columns `car` owns — brand/model/trim/year/exterior/interior/
+   mileage/features, the private note, the "was" price, the arrival note, the
+   doorstep price and the one primary state (Task 11). The shared fields come from
+   the office read layer and the car's section from the one rule (through the
+   adapter). This edit view still fills a few columns with the reference's demo
+   values (private note, was-price, exterior/interior, features, photos) until the
+   edit write lands (Task 12); add mode submits them for real. All six cost lines
    are naira (the rate is gone); the demo amounts are the reference's USD amounts
    at the old ₦1,000 rate, now simply naira. */
 
@@ -31,6 +32,8 @@ const FORM_DEMO = {
   int: "Grey",
   feat: "8 seater\nRear entertainment screen\nReverse camera\nPower sliding doors\nTri-zone AC\nPerfect for family use",
   note: "Duty paid, immaculate. Ready for viewing.",
+  privateNote: "Duty paid, immaculate. Ready for viewing.",
+  wasPrice: "36500000",
   imgs: [
     "1690533683990-cbe074826091",
     "1737488247093-f4484eac67ae",
@@ -73,7 +76,6 @@ export default async function CarPage() {
   // own read). The form renames its live cost figure from this, never from a map
   // of its own (R-MON-7).
   const secondaries = await getOfficeSecondaryStates();
-  const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
 
-  return <CarForm mode="edit" data={data} stateSections={stateSections} secondaries={secondaries} />;
+  return <CarForm mode="edit" data={data} primaries={states} secondaries={secondaries} />;
 }

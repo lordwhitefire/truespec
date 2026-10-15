@@ -42,7 +42,7 @@ async function main() {
     const read = readCarInput({
       brand: "Check", model: "Witness", trim: "T1", year: "2022",
       exteriorColor: "Blue", interiorColor: "Grey", mileage: "1234",
-      features: "Sunroof\nHeated seats", price: "20,000,000", wasPrice: "",
+      features: "Sunroof\nHeated seats", price: "20,000,000", wasPrice: "25,000,000",
       privateNote: "internal", note: "public note", arrivalNote: "",
       stateId: primary.id, secondaryStateIds: [secondary.id],
       costs: { purchase_price: "12,000,000", shipping: "500,000", full_tank: "0" },
@@ -66,10 +66,16 @@ async function main() {
     const ref = run1.rows[0]?.ref ?? "";
     ok("a car is created and a ref is returned", run1.rows.length === 1 && /^TS-\d{4}$/.test(ref), ref);
 
-    const carRow = (await client.query("SELECT ref, content_hash, state_id, features FROM car WHERE id=$1", [id])).rows[0];
+    const carRow = (await client.query("SELECT ref, content_hash, state_id, features, private_note, was_price_kobo, note, doorstep_price_kobo FROM car WHERE id=$1", [id])).rows[0];
     ok("the stored change-check is the server's", carRow?.content_hash === args.contentHash);
     ok("the primary state is stored", carRow?.state_id === primary.id);
     ok("features are stored as a JSON array text", JSON.parse(carRow?.features)?.length === 2);
+    // The two columns the form did not offer before Task 11 (the private note and the
+    // crossed-out "was" price) reach the store through the form's own path.
+    ok("the private note is stored", carRow?.private_note === "internal", String(carRow?.private_note));
+    ok("the public note is stored", carRow?.note === "public note", String(carRow?.note));
+    ok("the was-price is stored in kobo", Number(carRow?.was_price_kobo) === 2500000000, String(carRow?.was_price_kobo));
+    ok("the doorstep price is stored in kobo", Number(carRow?.doorstep_price_kobo) === 2000000000, String(carRow?.doorstep_price_kobo));
 
     const costs1 = Number((await client.query("SELECT count(*) FROM cost_line WHERE car_id=$1", [id])).rows[0].count);
     ok("three cost lines are written", costs1 === 3, String(costs1));

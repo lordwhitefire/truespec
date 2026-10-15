@@ -44,8 +44,7 @@ const BLANK: CarFormData = {
 
 export default async function NewCarPage() {
   await requireOfficeSession();
-  const states = await getOfficeStates();
+  const primaries = await getOfficeStates();
   const secondaries = await getOfficeSecondaryStates();
-  const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
-  return <CarForm mode="add" data={BLANK} stateSections={stateSections} secondaries={secondaries} />;
+  return <CarForm mode="add" data={BLANK} primaries={primaries} secondaries={secondaries} />;
 }
