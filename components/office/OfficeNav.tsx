@@ -16,6 +16,7 @@ const items: { href: string; label: string; icon: string; match?: string }[] = [
   { href: "/office/inventory", label: "Inventory", icon: "fa-car-side" },
   { href: "/office/car/new", match: "/office/car", label: "Add / edit car", icon: "fa-plus" },
   { href: "/office/enquiries", label: "Enquiries", icon: "fa-comments" },
+  { href: "/office/drafts", label: "Drafts", icon: "fa-inbox" },
   { href: "/office/activity", label: "Activity log", icon: "fa-list-check" },
   { href: "/office/settings", label: "Settings", icon: "fa-gear" },
 ];

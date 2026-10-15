@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { setEnquiryState } from "@/app/office/actions/enquiry";
+import { CreateFromFile } from "@/components/office/CreateFromFile";
 import type { EditResult } from "@/lib/edit-result";
 
 /* Enquiries board — the store's rows, grouped by the store's states.
@@ -135,6 +136,11 @@ export function Enquiries({
             The site only records that a WhatsApp tap happened, and on which car. You
             bring the names and numbers back here by importing the enquiry sheet.
           </p>
+        </div>
+        {/* Where the sheet comes in (task.md §Q2). Its rows become **drafts**, not enquiries —
+            nothing lands on this board until the owner saves them at Drafts. */}
+        <div className="hbtns">
+          <CreateFromFile hint="Import the sales desk's enquiry sheet — its rows become drafts." />
         </div>
       </div>
 

@@ -13,6 +13,7 @@ import {
 export const dynamic = "force-dynamic";
 import { costLabelFor, isCostComplete, profitKobo, totalCostKobo } from "@/lib/money";
 import { requireOfficeSession } from "@/lib/session";
+import { CreateFromFile } from "@/components/office/CreateFromFile";
 import { InventoryClient, type InventoryRow } from "./inventory-client";
 import { Tombstones, type TombstoneRow } from "./tombstones";
 
@@ -96,6 +97,9 @@ export default async function InventoryPage() {
             <i className="fa-solid fa-file-arrow-down" />
             Car template
           </a>
+          {/* The other half of the blank: fill it in, then send it back here. Its rows become
+              **drafts**, not cars — nothing enters inventory until the owner saves them at Drafts. */}
+          <CreateFromFile hint="Fill the car template, then send it back — its rows become drafts." />
           <Link className="btn" href="/office/car/new">
             <i className="fa-solid fa-plus" />
             Add a car
