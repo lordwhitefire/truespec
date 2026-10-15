@@ -5,6 +5,7 @@ import { type CostLineInput } from "./money";
 import { sectionOfState, type Section } from "./sections";
 import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
 import { type RegistryState } from "./car-state";
+import { type EnquiryRegistryState } from "./enquiry-state";
 
 // Office read layer (plan §6). Costs and profit live here and reach office
 // screens only — the public path never imports this module. The office reads the
@@ -269,6 +270,134 @@ export async function getCarStateRegistry(): Promise<RegistryState[]> {
     kind: r.kind === "primary" ? "primary" : "secondary",
     section: r.kind === "primary" ? sectionOfState(r.label, r.section) : null,
     cars: toNumber(r.cars) ?? 0,
+  }));
+}
+
+/**
+ * The enquiry-state registry, in the owner's order, as his editor shows it and as the board lays its
+ * columns out (truth 10, truth 15).
+ *
+ * Every row is the owner's — there is no primary/secondary split here, unlike the car states — so the
+ * whole registry is returned and the editor offers all of it. `enquiries` counts **every** enquiry
+ * row that points at the state, which is exactly the set the store's `ON DELETE RESTRICT` refuses on,
+ * so the number beside a state and the store's own refusal can never disagree. There is no `section`
+ * and no `colour`-vs-`is_new_arrival` special case: an enquiry state is a label and a colour, nothing
+ * more (truth 13 — it orders the board's *layout* and asserts nothing about meaning).
+ *
+ * Order is `sort, label`. Ties break by label so the order is total and a screen cannot shuffle.
+ */
+export async function getEnquiryStateRegistry(): Promise<EnquiryRegistryState[]> {
+  const rows = await storeQuery<
+    { id: string; label: string; colour: string; enquiries: string | number }[]
+  >(
+    `SELECT s.id, s.label, s.colour,
+            (SELECT count(*) FROM enquiry WHERE enquiry_state_id = s.id) AS enquiries
+       FROM enquiry_state s
+      ORDER BY s.sort, s.label`,
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    colour: r.colour,
+    enquiries: toNumber(r.enquiries) ?? 0,
+  }));
+}
+
+/**
+ * One enquiry, as the board and its card need it (truth 15).
+ *
+ * Office-only data, and the office-only read: the name and the number are the customer's own details,
+ * which never reach a public path. `note` is the office's note (the enquiry's `note` is the office's
+ * field, not the customer's — the customer speaks through `asked_for`).
+ *
+ * `stateId` is nullable, because the store allows an enquiry with no state yet (`enquiry_state_id` is
+ * nullable and SET NULL as the PDF goes). The board draws those in a group of their own rather than
+ * inventing a state for them. `imported` is `pdf_import_id IS NOT NULL` — whether the row came from a
+ * sheet or was keyed in — so the card can say where it came from without a second table.
+ */
+export type OfficeEnquiry = {
+  id: string;
+  name: string;
+  number: string;
+  askedFor: string;
+  note: string | null;
+  stateId: string | null;
+  /** When it first reached the office, as an ISO instant. */
+  createdAt: string;
+  imported: boolean;
+};
+
+export async function getEnquiries(): Promise<OfficeEnquiry[]> {
+  const rows = await storeQuery<
+    {
+      id: string;
+      name: string;
+      number: string;
+      asked_for: string;
+      note: string | null;
+      enquiry_state_id: string | null;
+      created_at: string | Date;
+      imported: boolean;
+    }[]
+  >(
+    `SELECT e.id, e.name, e.number, e.asked_for, e.note, e.enquiry_state_id, e.created_at,
+            (e.pdf_import_id IS NOT NULL) AS imported
+       FROM enquiry e
+      ORDER BY e.created_at DESC, e.name, e.id`,
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    number: r.number,
+    askedFor: r.asked_for,
+    note: r.note,
+    stateId: r.enquiry_state_id,
+    createdAt: new Date(r.created_at).toISOString(),
+    imported: r.imported,
+  }));
+}
+
+/**
+ * The office's own record of what has been done (truth 15, D20): the raw feed, newest first.
+ *
+ * One row is a `kind` and a `subject` and nothing else — no message, no figure. That is D20's shape,
+ * and it means a screen composes the wording from the kind; nothing here invents a detail the store
+ * never kept. The `subject` is the `TS-####` a car event names.
+ *
+ * `actor` is the operator's email, resolved by the foreign key; it is `null` when their account has
+ * gone (`actor_id` is `ON DELETE SET NULL`), which the screen shows plainly rather than guessing.
+ *
+ * Bounded to the newest 200. The feed is append-only and never rewritten, so an unbounded read is a
+ * screen that grows without limit; the cap keeps the log a screen, and `activity_event_at_idx` is the
+ * index it orders by.
+ */
+export type OfficeActivityEvent = {
+  id: string;
+  kind: string;
+  subject: string;
+  /** ISO instant. */
+  at: string;
+  actor: string | null;
+};
+
+export const ACTIVITY_LIMIT = 200;
+
+export async function getOfficeActivity(): Promise<OfficeActivityEvent[]> {
+  const rows = await storeQuery<
+    { id: string; kind: string; subject: string; at: string | Date; actor: string | null }[]
+  >(
+    `SELECT a.id, a.kind, a.subject, a.at, u.email AS actor
+       FROM activity_event a
+       LEFT JOIN office_user u ON u.id = a.actor_id
+      ORDER BY a.at DESC, a.id
+      LIMIT 200`,
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    kind: r.kind,
+    subject: r.subject,
+    at: new Date(r.at).toISOString(),
+    actor: r.actor,
   }));
 }
 

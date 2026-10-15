@@ -2,55 +2,46 @@
 
 import { Fragment, useState } from "react";
 
-/* Activity log — a faithful port of office-activity.html.
-   The reference draws the chips (`#types`), the match line (`#count`) and the
-   log body (`#log`) from a hardcoded demo timeline; the log has no data layer
-   (plan §1 — data model out of scope). So the timeline and every behaviour live
-   here. The theme toggle is NATIVE to the reference on this page (`.sfoot .srow`
-   + `.thm` + `#thm`) and comes from the shared shell, so the only divergence is
-   the product route URLs. The reference's `naira()` output is written literally
-   so the strings are byte-for-byte what it renders. */
+/* Activity log — the store's own record, filtered on the screen.
 
-type Entry = {
-  d: number;
-  t: string;
-  type: "add" | "edit" | "state" | "sold" | "del" | "imp" | "set";
-  ref?: string;
-  html: string;
-  old?: boolean;
+   The reference drew the chips, the match line and the log from a hardcoded timeline; the log now
+   reads `activity_event` (truth 15, D20). One row is a `kind` and a `subject` and nothing else, so
+   the wording is composed **here** from the kind — and where a kind is one this screen does not yet
+   name, the row is shown plainly as its kind and subject rather than guessed at.
+
+   Nothing is written by this screen. Entries cannot be edited or removed by any path, which is what
+   makes the log worth trusting. */
+
+/** One row of the log, as the page read it. The day and time arrive preformatted in UTC. */
+export type ActivityEntry = {
+  id: string;
+  kind: string;
+  /** The `TS-####` a car event names, or whatever subject the event carries. */
+  subject: string;
+  /** The UTC day, as `2026-10-04` — the group key. */
+  day: string;
+  /** `Today`, `Yesterday`, or the weekday and the date once it is older than that. */
+  dayTitle: string;
+  /** The weekday and the date, always — shown beside Today and Yesterday. */
+  dayFull: string;
+  /** The UTC time, as `08:42`. */
+  clock: string;
+  /** The operator's email, or `null` when their account has gone. */
+  actor: string | null;
 };
 
-const DAYS = [
-  { d: 0, label: "<b>Today</b> · Saturday 4 Oct 2026" },
-  { d: 1, label: "<b>Yesterday</b> · Friday 3 Oct 2026" },
-  { d: 2, label: "Thursday 2 Oct 2026" },
-  { d: 3, label: "Wednesday 1 Oct 2026" },
-  { d: 4, label: "Tuesday 30 Sep 2026" },
-  { d: 5, label: "Monday 29 Sep 2026" },
-  { d: 6, label: "Sunday 28 Sep 2026", old: true },
-  { d: 7, label: "Saturday 27 Sep 2026", old: true },
-  { d: 8, label: "Friday 26 Sep 2026", old: true },
-];
+/** What each kind says, and which chip it belongs to. One word per kind, used by both. */
+const ACTIONS: Record<string, { word: string; category: string }> = {
+  "car.created": { word: "Added a car", category: "add" },
+  "car.updated": { word: "Edited a car", category: "edit" },
+  "car.sold": { word: "Marked a car as Sold", category: "sold" },
+  "car.unsold": { word: "Took a car out of Sold", category: "state" },
+  "car.deleted": { word: "Deleted a car", category: "del" },
+  "car.restored": { word: "Restored a car", category: "del" },
+  "car.removed": { word: "Removed a car for good", category: "del" },
+};
 
-const E: Entry[] = [
-  { d: 0, t: "08:42", type: "state", ref: "TS-1014", html: "Changed state of <b>Land Cruiser Prado TX</b> to <b>At port</b>" },
-  { d: 1, t: "17:05", type: "add", ref: "TS-1012", html: "Added <b>Toyota Camry SE 2021</b> — price ₦34,500,000" },
-  { d: 1, t: "14:31", type: "edit", ref: "TS-1009", html: "Edited costs on <b>Toyota Sienna LE</b> — landed ₦32,655,000 · profit ₦1,245,000" },
-  { d: 1, t: "11:47", type: "imp", html: "Imported enquiry sheet — <b>6 rows</b> added or updated · 1 fixed by hand (“Nego” → Negotiating)" },
-  { d: 2, t: "16:20", type: "add", ref: "TS-1014", html: "Added <b>Land Cruiser Prado TX 2020</b> — price ₦78,000,000" },
-  { d: 2, t: "10:03", type: "state", ref: "TS-1013", html: "Changed state of <b>Toyota Fortuner</b> to <b>On the way</b>" },
-  { d: 3, t: "18:40", type: "add", ref: "TS-1013", html: "Added <b>Toyota Fortuner 2021</b> — price ₦58,000,000" },
-  { d: 4, t: "15:44", type: "del", ref: "TS-1024", html: "Deleted <b>Honda Civic 2016</b> (duplicate entry) — <b>restored via Undo</b> a few seconds later" },
-  { d: 4, t: "11:02", type: "edit", ref: "TS-1009", html: "Added a private note to <b>Sienna LE</b> — “call Kelechi about his offer”" },
-  { d: 5, t: "11:20", type: "sold", ref: "TS-1015", html: "Marked <b>Camry XLE 2018</b> as <b>Sold</b> — sale price ₦31,500,000 · profit ₦3,850,000" },
-  { d: 5, t: "09:14", type: "add", ref: "TS-1007", html: "Added <b>Lexus RX 350 2019</b> — price ₦47,500,000" },
-  { d: 6, t: "19:02", type: "add", ref: "TS-1011", html: "Added <b>Honda CR-V EX-L 2020</b> — price ₦29,400,000", old: true },
-  { d: 6, t: "08:15", type: "set", html: "Settings — full-tank default set to <b>₦110,000</b>", old: true },
-  { d: 7, t: "12:30", type: "edit", ref: "TS-1005", html: "Changed doorstep price on <b>RAV4 XLE AWD</b> — ₦35,200,000 <span style=\"color:var(--mute)\">(was ₦34,800,000)</span>", old: true },
-  { d: 8, t: "09:05", type: "add", ref: "TS-1006", html: "Added <b>Toyota Tacoma TRD Off-Road 2021</b> — price ₦62,000,000", old: true },
-];
-
-const TYPES = [
+const CATEGORIES = [
   { k: "all", label: "All" },
   { k: "add", label: "Added" },
   { k: "edit", label: "Edited" },
@@ -61,41 +52,41 @@ const TYPES = [
   { k: "set", label: "Settings" },
 ] as const;
 
-/* The reference writes each entry's message as one HTML string straight into the
-   <p> (`<b>Umar</b> ${x.html}<span class="tag">…</span>…`), so the bold text and
-   any inline span inside x.html sit directly under the <p>. Reproduce that
-   string-for-string — a React <span> around x.html would add a node the
-   reference does not have. It also keeps the search haystack the same: the
-   reference matches against the raw markup, tags included. */
-const refLink = (r: string) =>
-  `<a class="ref" href="/office/car/${r}" title="Open ${r}">${r}</a>`;
+/** The chip a kind belongs to, or `""` for a kind this screen does not yet name. */
+const categoryOf = (kind: string) => ACTIONS[kind]?.category ?? "";
 
-const entryHtml = (x: Entry) =>
-  `<b>Umar</b> ${x.html}<span class="tag ${x.type}">${
-    TYPES.find((t) => t.k === x.type)!.label
-  }</span>${x.ref ? refLink(x.ref) : ""}<time>${x.t}</time>`;
+/** A kind this screen names reads as its own word; anything else reads as itself. */
+const wordOf = (kind: string) => ACTIONS[kind]?.word ?? kind;
 
-export function Activity() {  const [fType, setFType] = useState<string>("all");
+/** The card's avatar — the operator's own initial, and their email on hover. */
+function operator(actor: string | null): { initial: string; title: string } {
+  if (!actor) return { initial: "?", title: "An operator whose account has since been removed" };
+  return { initial: actor.slice(0, 1).toUpperCase(), title: actor };
+}
+
+export function Activity({ entries }: { entries: ActivityEntry[] }) {
+  const [fType, setFType] = useState<string>("all");
   const [q, setQ] = useState("");
-  const [revealed, setRevealed] = useState(false);
 
-  const pool = E.filter((x) => revealed || !x.old);
-  const show = pool.filter(
-    (x) =>
-      (fType === "all" || x.type === fType) &&
-      (!q || (x.html + " " + (x.ref || "")).toLowerCase().includes(q)),
+  const show = entries.filter(
+    (e) =>
+      (fType === "all" || categoryOf(e.kind) === fType) &&
+      (!q ||
+        `${e.kind} ${wordOf(e.kind)} ${e.subject} ${(e.actor ?? "").toLowerCase()}`.includes(q)),
   );
   const countType = (k: string) =>
-    pool.filter((x) => k === "all" || x.type === k).length;
+    entries.filter((e) => k === "all" || categoryOf(e.kind) === k).length;
+
+  // The days, newest first, in the order the store gave them — no table of days to drift from it.
+  const days = [...new Set(show.map((e) => e.day))];
 
   return (
     <>
       <div className="hrow">
         <h1>Activity log</h1>
         <p className="sub2">
-          Everything done in the office, newest first. One operator: <b>Umar</b>.
-          Entries can&apos;t be edited or removed — that&apos;s what makes the log
-          worth trusting.
+          Every change made to a car, newest first. Entries can&apos;t be edited or
+          removed — that&apos;s what makes the log worth trusting.
         </p>
       </div>
 
@@ -115,7 +106,7 @@ export function Activity() {  const [fType, setFType] = useState<string>("all");
       </div>
 
       <div className="chipf" id="types" role="group" aria-label="Filter by type">
-        {TYPES.map((tp) => (
+        {CATEGORIES.map((tp) => (
           <button
             key={tp.k}
             type="button"
@@ -130,13 +121,13 @@ export function Activity() {  const [fType, setFType] = useState<string>("all");
       </div>
 
       <p className="ecount" id="count">
-        {show.length === pool.length ? (
+        {show.length === entries.length ? (
           <>
-            <b>{pool.length} entries</b> — one operator, newest first
+            <b>{entries.length} entries</b> — newest first
           </>
         ) : (
           <>
-            <b>{show.length}</b> of {pool.length} entries match
+            <b>{show.length}</b> of {entries.length} entries match
           </>
         )}
       </p>
@@ -145,50 +136,78 @@ export function Activity() {  const [fType, setFType] = useState<string>("all");
         {show.length === 0 ? (
           <div className="empty2">
             <i className="fa-solid fa-list-check" />
-            <p>Nothing matches. Clear the search or pick another type.</p>
-            <button
-              className="ghost"
-              type="button"
-              id="clearf"
-              onClick={() => {
-                setFType("all");
-                setQ("");
-              }}
-            >
-              Clear filters
-            </button>
+            {entries.length === 0 ? (
+              <p>
+                Nothing has been done to a car yet. Add one, or change one, and it will
+                appear here.
+              </p>
+            ) : (
+              <p>Nothing matches. Clear the search or pick another type.</p>
+            )}
+            {entries.length > 0 ? (
+              <button
+                className="ghost"
+                type="button"
+                id="clearf"
+                onClick={() => {
+                  setFType("all");
+                  setQ("");
+                }}
+              >
+                Clear filters
+              </button>
+            ) : null}
           </div>
         ) : (
-          DAYS.map((day) => {
-            const rows = show.filter((x) => x.d === day.d);
-            if (!rows.length) return null;
-            // The reference writes `.dayh` and `.entry` straight into #log as
-            // siblings (no per-day wrapper). A keyed Fragment keeps that exact
-            // structure — the wrapper div added a level the reference does not have.
+          days.map((day) => {
+            const rows = show.filter((e) => e.day === day);
+            const first = rows[0];
+            // The reference writes `.dayh` and `.entry` straight into #log as siblings (no per-day
+            // wrapper). A keyed Fragment keeps that exact structure.
             return (
-              <Fragment key={day.d}>
-                <div className="dayh" dangerouslySetInnerHTML={{ __html: day.label }} />
-                {rows.map((x, i) => (
-                  <div className="entry" key={`${day.d}-${x.t}-${i}`}>
-                    <span className="avx">U</span>
-                    <p dangerouslySetInnerHTML={{ __html: entryHtml(x) }} />
-                  </div>
-                ))}
+              <Fragment key={day}>
+                <div className="dayh">
+                  {first.dayTitle === first.dayFull ? (
+                    first.dayFull
+                  ) : (
+                    <>
+                      <b>{first.dayTitle}</b> · {first.dayFull}
+                    </>
+                  )}
+                </div>
+                {rows.map((e) => {
+                  const who = operator(e.actor);
+                  return (
+                    <div className="entry" key={e.id}>
+                      <span className="avx" title={who.title}>
+                        {who.initial}
+                      </span>
+                      <p>
+                        {wordOf(e.kind)}{" "}
+                        {e.kind.startsWith("car.") ? (
+                          <a
+                            className="ref"
+                            href={`/office/car/${e.subject}`}
+                            title={`Open ${e.subject}`}
+                          >
+                            {e.subject}
+                          </a>
+                        ) : (
+                          e.subject
+                        )}
+                        <span className={`tag ${categoryOf(e.kind) || "other"}`}>
+                          {CATEGORIES.find((t) => t.k === categoryOf(e.kind))?.label ?? "Other"}
+                        </span>
+                        <time>{e.clock}</time>
+                      </p>
+                    </div>
+                  );
+                })}
               </Fragment>
             );
           })
         )}
       </div>
-
-      <button
-        className="more2"
-        id="older"
-        type="button"
-        hidden={revealed}
-        onClick={() => setRevealed(true)}
-      >
-        Show 3 older days
-      </button>
 
       <p className="note">
         <i className="fa-solid fa-lock" />

@@ -1,60 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
+import { setEnquiryState } from "@/app/office/actions/enquiry";
+import type { EditResult } from "@/lib/edit-result";
 
-/* Enquiries board — a faithful port of office-enquiries.html's board.
-   The reference draws the board in JS from a hardcoded seed, and enquiries have
-   no data layer (plan §1 — data model out of scope). So the demo seed and every
-   behaviour live here: the five columns, the six cards, drag-and-drop between
-   columns, the enquiry detail modal with its state pills, the three-step PDF
-   import (drop → reading → preview), and the toast.
+/* Enquiries board — the store's rows, grouped by the store's states.
 
-   The only intended divergences from the reference are the shared-shell theme
-   toggle (approved, §10 Q3) and the product route URLs; this screen has no
-   `.demo` switcher to delete. */
+   Two things the reference did that this does not. It drew the board from a hardcoded seed; the
+   board now reads `enquiry` and `enquiry_state` (truth 15). And it let a card be dragged between
+   columns, which implied the columns were stages an enquiry moves through — they are not: the states
+   are labels, and the board is where they are laid out (truth 13, D12). So there is no drag here and
+   no card-move write, and no shape of request could move one.
 
-const COLS = [
-  { k: "new", label: "New", dot: "#3a7bd5" },
-  { k: "talking", label: "Talking", dot: "#b9820b" },
-  { k: "nego", label: "Negotiating", dot: "#c8a24a" },
-  { k: "sold", label: "Sold", dot: "#0e7a3e" },
-  { k: "lost", label: "Lost", dot: "#8a9096" },
-];
+   The one write an enquiry has is on the enquiry's own card: **give it any state, at any time**. That
+   is the spec's own scenario — an enquiry that just arrived can be given Sold the same day, and the
+   change is accepted — and it is an explicit act by the owner, not a step in a pipeline. Setting it
+   changes nothing about any car; the two records are separate. */
 
-type Enq = {
+/** A column, from the registry — the state's id, the name it carries and its colour. */
+export type BoardState = { id: string; label: string; colour: string };
+
+/** A card, from the store — and the two time strings the server formatted (UTC). */
+export type BoardEnquiry = {
   id: string;
   name: string;
-  phone: string;
-  car: string;
-  col: string;
+  number: string;
+  /** What the customer asked for, in the words of the sheet. */
+  askedFor: string;
+  note: string | null;
+  /** The state it carries, or `null` when it has none yet. */
+  stateId: string | null;
   when: string;
   since: string;
-  src: string;
-  note: string;
+  /** Whether it came from an imported sheet or was keyed in. */
+  imported: boolean;
 };
 
-const SEED: Enq[] = [
-  { id: "e1", name: "Chinedu O.", phone: "0803 555 0192", car: "2019 Lexus RX 350", col: "new", when: "18 min", since: "4 Oct 2026", src: "Tap on the RX 350's page", note: "Asked if duty is included in the price. Told him it's one doorstep price." },
-  { id: "e2", name: "Mrs. Adebayo", phone: "0812 555 7734", car: "2021 Camry SE", col: "new", when: "1 hr", since: "4 Oct 2026", src: "Tap on the Camry SE's page", note: "Family car for her husband. Wants something low mileage." },
-  { id: "e3", name: "Emeka U.", phone: "0706 555 4410", car: "2019 Hilux SRV", col: "talking", when: "Yesterday", since: "1 Oct 2026", src: "Tap on the Hilux's page", note: "Wants diesel, asked about the mileage. High but mechanically sound — send the video." },
-  { id: "e4", name: "Kelechi N.", phone: "0810 555 3388", car: "2020 Sienna LE", col: "nego", when: "2 days", since: "28 Sep 2026", src: "Tap on the Sienna's page", note: "Offered ₦32.5M. Thin margin already — hold at ₦33.5M and throw in the tank." },
-  { id: "e5", name: "Tunde A.", phone: "0805 555 9012", car: "2018 Camry XLE", col: "sold", when: "29 Sep", since: "22 Sep 2026", src: "Tap on the Camry XLE's page", note: "Paid full asking. Car delivered 30 Sep. Customer happy." },
-  { id: "e6", name: "Ibrahim S.", phone: "0703 555 2214", car: "2015 Corolla", col: "lost", when: "26 Sep", since: "19 Sep 2026", src: "General tap — home page", note: "Budget ₦8M for a 2015 Corolla. We don't stock that year — wished him well." },
-];
+/** The trailing group for enquiries the store holds with no state — never a state, and never faked. */
+const NO_STATE: BoardState = { id: "", label: "No state", colour: "#8a9096" };
 
 const initials = (n: string) =>
-  n.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+  n
+    .split(" ")
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
-export function Enquiries() {
-  const [enq, setEnq] = useState<Enq[]>(SEED);
+/** The international digits of a Nigerian number, however it was typed (the product's own rule). */
+function intl(number: string): string {
+  const digits = number.replace(/\D/g, "");
+  if (digits.startsWith("234")) return digits;
+  if (digits.startsWith("0")) return `234${digits.slice(1)}`;
+  return digits;
+}
+
+export function Enquiries({
+  states,
+  enquiries,
+}: {
+  states: BoardState[];
+  enquiries: BoardEnquiry[];
+}) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [overlay, setOverlay] = useState<null | "detail" | "import">(null);
-  const [pdf, setPdf] = useState<1 | 2 | 3>(1);
-  const [dragId, setDragId] = useState<string | null>(null);
-  const [overCol, setOverCol] = useState<string | null>(null);
-  const [note, setNote] = useState("");
+  const [overlay, setOverlay] = useState<null | "detail">(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -66,7 +79,7 @@ export function Enquiries() {
     return () => clearTimeout(t);
   }, [msg]);
 
-  // Escape closes every overlay (the reference plumbs this globally).
+  // Escape closes the card.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOverlay(null);
@@ -75,40 +88,43 @@ export function Enquiries() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const cur = enq.find((x) => x.id === openId) ?? null;
+  const cur = enquiries.find((x) => x.id === openId) ?? null;
+  const unstated = enquiries.filter((e) => e.stateId === null);
+  const columns = unstated.length ? [...states, NO_STATE] : states;
 
-  function moveTo(id: string, k: string) {
-    const e = enq.find((x) => x.id === id);
-    if (!e || e.col === k) return;
-    const lbl = COLS.find((c) => c.k === k)!.label;
-    setEnq((prev) =>
-      prev.map((x) => (x.id === id ? { ...x, col: k, when: "just now" } : x)),
-    );
-    setMsg(`Moved ${e.name} to ${lbl}. The car itself is untouched.`);
-  }
+  const tel = (p: string) => `tel:+${intl(p)}`;
+  const wa = (e: BoardEnquiry) =>
+    `https://wa.me/${intl(e.number)}?text=` +
+    encodeURIComponent(`Hello ${e.name}, this is TrueSpec about the ${e.askedFor}.`);
 
   function openDetail(id: string) {
-    const e = enq.find((x) => x.id === id);
-    if (!e) return;
     setOpenId(id);
-    setNote(e.note);
+    setError(null);
     setOverlay("detail");
   }
 
-  function startParse() {
-    setPdf(2);
-    const reduced =
-      typeof matchMedia !== "undefined" &&
-      matchMedia("(prefers-reduced-motion: reduce)").matches;
-    setTimeout(() => setPdf(3), reduced ? 0 : 1100);
+  function give(enquiry: BoardEnquiry, state: BoardState) {
+    const form = new FormData();
+    form.set("id", enquiry.id);
+    form.set("stateId", state.id);
+    setError(null);
+    start(async () => {
+      let result: EditResult;
+      try {
+        result = await setEnquiryState(form);
+      } catch {
+        setError("The store could not be reached — try that again");
+        return;
+      }
+      if (result.ok) {
+        setMsg(
+          `Gave ${enquiry.name} the state ${state.label}. The cars are untouched.`,
+        );
+        return;
+      }
+      setError(result.errors[0]?.message ?? "The store refused that change");
+    });
   }
-
-  const tel = (p: string) => "tel:" + p.replace(/\s/g, "");
-  const wa = (e: Enq) =>
-    `https://wa.me/234${e.phone.replace(/\D/g, "").slice(-10)}?text=` +
-    encodeURIComponent(
-      `Hello ${e.name}, Umar from TrueSpec here — about the ${e.car}.`,
-    );
 
   return (
     <>
@@ -116,54 +132,32 @@ export function Enquiries() {
         <div>
           <h1>Enquiries</h1>
           <p className="sub2">
-            The site only records that a WhatsApp tap happened, and on which car.
-            You bring the names and numbers back here by importing the enquiry
-            sheet.
+            The site only records that a WhatsApp tap happened, and on which car. You
+            bring the names and numbers back here by importing the enquiry sheet.
           </p>
-        </div>
-        <div className="hbtns">
-          <button
-            className="btn"
-            id="importBtn"
-            type="button"
-            onClick={() => {
-              setPdf(1);
-              setOverlay("import");
-            }}
-          >
-            <i className="fa-solid fa-file-import" /> Import enquiry sheet
-          </button>
         </div>
       </div>
 
-      <p className="taps">
-        <i className="fa-brands fa-whatsapp" />
-        <b>4 taps today</b> — 3 on car pages, 1 general. They appear as cards once
-        imported.
-      </p>
+      {states.length === 0 ? (
+        <p className="note">
+          <i className="fa-solid fa-circle-info" />
+          No enquiry state has been set up, so there is nothing to lay the board out in. Add one in{" "}
+          <b>Settings → Customer states</b>.
+        </p>
+      ) : null}
 
       <div className="board" id="board">
-        {COLS.map((col) => {
-          const cards = enq.filter((e) => e.col === col.k);
+        {columns.map((col) => {
+          const cards = enquiries.filter((e) => (e.stateId ?? "") === col.id);
           return (
             <section
-              key={col.k}
-              className={"col" + (overCol === col.k ? " dragover" : "")}
-              data-col={col.k}
+              key={col.id || "none"}
+              className="col"
+              data-col={col.id || "none"}
               aria-label={col.label}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setOverCol(col.k);
-              }}
-              onDragLeave={() => setOverCol(null)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setOverCol(null);
-                if (dragId) moveTo(dragId, col.k);
-              }}
             >
               <div className="ch">
-                <i style={{ background: col.dot }} />
+                <i style={{ background: col.colour }} />
                 {col.label}
                 <span className="n">{cards.length}</span>
               </div>
@@ -172,17 +166,11 @@ export function Enquiries() {
                   cards.map((e) => (
                     <article
                       key={e.id}
-                      className={"card" + (dragId === e.id ? " dragging" : "")}
-                      draggable="true"
+                      className="card"
                       data-id={e.id}
                       tabIndex={0}
                       role="button"
                       aria-label={`Open enquiry: ${e.name}`}
-                      onDragStart={() => setDragId(e.id)}
-                      onDragEnd={() => {
-                        setDragId(null);
-                        setOverCol(null);
-                      }}
                       onClick={() => openDetail(e.id)}
                       onKeyDown={(ev) => {
                         if (ev.key === "Enter") openDetail(e.id);
@@ -195,11 +183,11 @@ export function Enquiries() {
                       </div>
                       <p className="cphone">
                         <i className="fa-solid fa-phone" />
-                        {e.phone}
+                        {e.number}
                       </p>
                       <span className="ccar">
                         <i className="fa-solid fa-car-side" />
-                        {e.car}
+                        {e.askedFor}
                       </span>
                       {e.note ? (
                         <p className="cnote">
@@ -221,9 +209,9 @@ export function Enquiries() {
       <p className="note">
         <i className="fa-solid fa-arrows-left-right" />
         Two tracks, never forced together: <b>enquiry state</b> follows the
-        customer conversation; <b>car state</b> follows the vehicle. Marking a
-        customer Sold does not move the car — that is a separate decision on the
-        car&apos;s own page.
+        customer conversation; <b>car state</b> follows the vehicle. Giving a
+        customer the state Sold does not move the car — that is a separate decision
+        on the car&apos;s own page.
       </p>
 
       {mounted
@@ -247,29 +235,29 @@ export function Enquiries() {
                   </button>
                   <h2 id="dtitle">Enquiry</h2>
                   <p className="ms">
-                    Everything here was typed in by you — the site never saw the
-                    conversation.
+                    The site never saw the conversation — it only recorded the tap.
+                    What is here was brought in by you.
                   </p>
                   <div className="dgrid">
                     <div className="dr">
                       <span>Phone</span>
                       <a
                         id="dPhone"
-                        href={cur ? tel(cur.phone) : "#"}
+                        href={cur ? tel(cur.number) : "#"}
                         style={{
                           textDecoration: "underline",
                           textUnderlineOffset: "2px",
                         }}
                       >
-                        {cur ? cur.phone : ""}
+                        {cur ? cur.number : ""}
                       </a>
                     </div>
                     <div className="dr">
-                      <span>Car</span>
-                      <b id="dCar">{cur ? cur.car : ""}</b>
+                      <span>Asked for</span>
+                      <b id="dCar">{cur ? cur.askedFor : ""}</b>
                     </div>
                     <div className="dr">
-                      <span>Source</span>
+                      <span>Came from</span>
                       <span
                         id="dSrc"
                         style={{
@@ -280,7 +268,7 @@ export function Enquiries() {
                           color: "var(--ink)",
                         }}
                       >
-                        {cur ? cur.src : ""}
+                        {cur ? (cur.imported ? "The imported sheet" : "Keyed in by hand") : ""}
                       </span>
                     </div>
                     <div className="dr">
@@ -304,20 +292,26 @@ export function Enquiries() {
                       <span style={{ display: "block", marginBottom: "8px" }}>
                         Enquiry state
                       </span>
-                      <div className="stpills" id="dPills">
+                      <div className="stpills" id="dPills" aria-busy={pending}>
                         {cur
-                          ? COLS.map((c) => (
+                          ? states.map((s) => (
                               <button
-                                key={c.k}
+                                key={s.id}
                                 type="button"
-                                className={"stb" + (cur.col === c.k ? " on" : "")}
-                                data-mv={c.k}
-                                onClick={() => moveTo(cur.id, c.k)}
+                                className={"stb" + (cur.stateId === s.id ? " on" : "")}
+                                data-mv={s.id}
+                                disabled={pending}
+                                onClick={() => give(cur, s)}
                               >
-                                {c.label}
+                                {s.label}
                               </button>
                             ))
                           : null}
+                        {cur && states.length === 0 ? (
+                          <span className="ms">
+                            No states yet — add one in Settings → Customer states.
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -326,15 +320,17 @@ export function Enquiries() {
                       <span style={{ display: "block", marginBottom: "8px" }}>
                         Notes
                       </span>
-                      <textarea
-                        className="in"
-                        id="dNotes"
-                        placeholder="What was agreed, what he asked for, when to follow up…"
-                        value={note}
-                        onChange={(ev) => setNote(ev.target.value)}
-                      />
+                      <p className="ms" id="dNotes" style={{ margin: 0 }}>
+                        {cur?.note ? cur.note : "Nothing noted yet."}
+                      </p>
                     </div>
                   </div>
+                  {error ? (
+                    <p className="err on" role="alert">
+                      <i className="fa-solid fa-circle-exclamation" />
+                      {error}
+                    </p>
+                  ) : null}
                   <div className="mrow">
                     <a
                       className="wab"
@@ -346,224 +342,10 @@ export function Enquiries() {
                       <i className="fa-brands fa-whatsapp" />
                       WhatsApp them
                     </a>
-                    <a className="call" id="dCall" href={cur ? tel(cur.phone) : "#"}>
+                    <a className="call" id="dCall" href={cur ? tel(cur.number) : "#"}>
                       <i className="fa-solid fa-phone" />
                       Call
                     </a>
-                  </div>
-                </div>
-              </div>
-
-              <div className="ovl" id="ovlP" hidden={overlay !== "import"}>
-                <div
-                  className="mdl"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="ptitle"
-                >
-                  <button
-                    className="mx"
-                    type="button"
-                    data-close
-                    aria-label="Close"
-                    onClick={() => setOverlay(null)}
-                  >
-                    ×
-                  </button>
-
-                  <div id="pdf1" hidden={pdf !== 1}>
-                    <h2 id="ptitle">Import enquiry sheet</h2>
-                    <p className="ms">
-                      Prepared from the fixed template, outside this software.
-                      Nothing is saved until you confirm the preview.
-                    </p>
-                    <div
-                      className="drop"
-                      id="pdrop"
-                      role="button"
-                      tabIndex={0}
-                      aria-label="Choose PDF"
-                      onClick={startParse}
-                      onKeyDown={(ev) => {
-                        if (ev.key === "Enter" || ev.key === " ") {
-                          ev.preventDefault();
-                          startParse();
-                        }
-                      }}
-                    >
-                      <i className="fa-solid fa-file-pdf" />
-                      Drop the PDF here, or click to browse
-                    </div>
-                    <p className="hintf">
-                      The file is read, shown to you as a table, and nothing is
-                      written until you press Confirm.
-                    </p>
-                  </div>
-
-                  <div id="pdf2" hidden={pdf !== 2}>
-                    <h2 id="ptitle2">Reading the sheet…</h2>
-                    <p className="ms">
-                      Checking names, numbers and states against your lists.
-                    </p>
-                    <div className="reading">
-                      <div className="sp" />
-                      Almost there
-                    </div>
-                  </div>
-
-                  <div id="pdf3" hidden={pdf !== 3}>
-                    <h2 id="ptitle3">Check before saving</h2>
-                    <p className="ms">
-                      7 rows found. Fix anything that looks wrong — nothing is
-                      saved until you confirm.
-                    </p>
-                    <div className="twrap">
-                      <table className="t">
-                        <thead>
-                          <tr>
-                            <th />
-                            <th>Name</th>
-                            <th>Phone</th>
-                            <th>Car</th>
-                            <th>State</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Chinedu O.</td>
-                            <td>0803 555 0192</td>
-                            <td>Lexus RX 350</td>
-                            <td>New</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Mrs. Adebayo</td>
-                            <td>0812 555 7734</td>
-                            <td>Camry SE 2021</td>
-                            <td>New</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Emeka U.</td>
-                            <td>0706 555 4410</td>
-                            <td>Hilux SRV</td>
-                            <td>Talking</td>
-                          </tr>
-                          <tr className="flag">
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Fatima B.</td>
-                            <td>0902 555 6621</td>
-                            <td>Prado TX</td>
-                            <td>
-                              <span className="flagchip">
-                                <i className="fa-solid fa-triangle-exclamation" />
-                                Check
-                              </span>
-                              <div className="flagnote">
-                                “Nego” isn&apos;t one of your states.
-                              </div>
-                              <select aria-label="Pick a state" defaultValue="New">
-                                <option>Pick…</option>
-                                <option>New</option>
-                                <option>Talking</option>
-                                <option>Negotiating</option>
-                                <option>Sold</option>
-                                <option>Lost</option>
-                              </select>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Kelechi N.</td>
-                            <td>0810 555 3388</td>
-                            <td>Sienna LE</td>
-                            <td>Negotiating</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                aria-label="Include row"
-                              />
-                            </td>
-                            <td>Tunde A.</td>
-                            <td>0805 555 9012</td>
-                            <td>Camry XLE 2018</td>
-                            <td>Sold</td>
-                          </tr>
-                          <tr>
-                            <td>
-                              <input type="checkbox" aria-label="Include row" />
-                            </td>
-                            <td>Ibrahim S.</td>
-                            <td>0703 555 2214</td>
-                            <td>Corolla 2015</td>
-                            <td>Lost</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="psum">
-                      <b>6 rows</b> will be added or updated.{" "}
-                      <span className="w">1 needs a look</span> — the state isn&apos;t
-                      in your list. 1 row is unticked and will be skipped.
-                    </p>
-                    <div className="mrow">
-                      <button
-                        className="call"
-                        type="button"
-                        data-back
-                        onClick={() => setPdf(1)}
-                      >
-                        Back
-                      </button>
-                      <button
-                        className="btn"
-                        id="pconfirm"
-                        type="button"
-                        style={{ height: "42px" }}
-                        onClick={() => {
-                          setOverlay(null);
-                          setMsg(
-                            "Import confirmed (demo). 6 enquiries added or updated — nothing was really saved.",
-                          );
-                        }}
-                      >
-                        <i className="fa-solid fa-check" /> Confirm import
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>

@@ -9,9 +9,9 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { CarStateEditor } from "./car-state-editor";
-import { StateEditor } from "./state-editors";
-import { CUSTOMER_STATES, CUSTOMER_COUNTS } from "./state-seeds";
+import { EnquiryStateEditor } from "./enquiry-state-editor";
 import type { RegistryState } from "@/lib/car-state";
+import type { EnquiryRegistryState } from "@/lib/enquiry-state";
 
 /* Settings — a faithful port of office-settings.html.
    The whole screen is presentational+local: four cards, each with its own
@@ -51,7 +51,13 @@ function strength(v: string) {
   return s;
 }
 
-export function Settings({ registry = [] }: { registry?: RegistryState[] }) {
+export function Settings({
+  registry = [],
+  enquiryRegistry = [],
+}: {
+  registry?: RegistryState[];
+  enquiryRegistry?: EnquiryRegistryState[];
+}) {
   const [wa, setWa] = useState(WA0);
   const [waSnap, setWaSnap] = useState(WA0);
   const [waSaved, setWaSaved] = useState(false); // clears the "good" outline after save
@@ -448,9 +454,11 @@ export function Settings({ registry = [] }: { registry?: RegistryState[] }) {
               <h2>Customer states</h2>
             </div>
             <p className="cd">
-              The states an enquiry moves through, and the colour each carries on the board.
+              The states an enquiry can be given, and the colour each carries on the board. All of
+              them are yours — nothing here is fixed, and any enquiry can be given any state at any
+              time.
             </p>
-            <StateEditor seed={CUSTOMER_STATES} counts={CUSTOMER_COUNTS} />
+            <EnquiryStateEditor states={enquiryRegistry} />
           </section>
         )}
 

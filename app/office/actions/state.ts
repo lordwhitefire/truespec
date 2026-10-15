@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
 import { storeQuery } from "@/lib/store-guard";
-import type { FieldError } from "@/lib/car-input";
+import type { EditResult } from "@/lib/edit-result";
 import {
   carStateAddStatement,
   carStateHoldersStatement,
@@ -35,7 +35,7 @@ import {
  * finds the row already gone and says so.
  */
 
-export type StateEditResult = { ok: true } | { ok: false; errors: FieldError[] };
+export type StateEditResult = EditResult;
 
 /** The failing half, named so a validator's success type is a *different* shape the compiler can narrow to. */
 type Refusal = Exclude<StateEditResult, { ok: true }>;
