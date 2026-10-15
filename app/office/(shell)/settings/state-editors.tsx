@@ -1,25 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { PUBLIC_SECTIONS, sectionLabel, type Section } from "@/lib/sections";
 import { type EditorRow } from "./state-seeds";
 import { inkFor } from "./colour";
 
-/* The two state editors (RECON-001 v1, ui-plan Q59). One shared table; the
-   car-only controls (group dropdown, "Show as a tab") are gated on `car`.
+/* The enquiry-state editor — the board's states and the colour each carries.
 
-   UI-only: edits are live and in memory, reset on reload — no save button, no
-   storage (owner ruling 2026-10-12, v1.md §5). */
+   Still UI-only: edits are live and in memory, reset on reload. The board it feeds
+   is still the demonstration's own rows rather than the store's (truth 15 wants both
+   editors on real rows; the car states got there first, this is the next one).
+
+   The car editor had its own mode in here — a section per state, and a "show as a
+   tab" switch. Both were the pre-D15 model, and the car states now read the store, so
+   they are gone rather than left behind as a second answer to a settled question. */
 
 let seq = 0;
 const uid = () => `n${Date.now().toString(36)}${seq++}`;
 
 export function StateEditor({
-  car,
   seed,
   counts,
 }: {
-  car: boolean;
   seed: EditorRow[];
   counts: Record<string, number>;
 }) {
@@ -28,12 +29,7 @@ export function StateEditor({
   const countOf = (label: string) => counts[label] ?? 0;
 
   function add() {
-    setRows((r) => [
-      ...r,
-      car
-        ? { id: uid(), label: "New state", colour: "", section: "available", tab: true }
-        : { id: uid(), label: "New state", colour: "" },
-    ]);
+    setRows((r) => [...r, { id: uid(), label: "New state", colour: "" }]);
   }
 
   function rename(id: string, label: string) {
@@ -42,14 +38,6 @@ export function StateEditor({
 
   function recolour(id: string, colour: string) {
     setRows((r) => r.map((x) => (x.id === id ? { ...x, colour } : x)));
-  }
-
-  function setSection(id: string, section: Section) {
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, section } : x)));
-  }
-
-  function setTabFlag(id: string, tab: boolean) {
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, tab } : x)));
   }
 
   const [dragId, setDragId] = useState<string | null>(null);
@@ -85,27 +73,18 @@ export function StateEditor({
   return (
     <div className="edwrap">
       <div className="edscroll">
-        <div className={`edtbl${car ? " edtbl-car" : ""}`}>
+        <div className="edtbl">
           <div className="edhrow" role="row">
-            <span className="edh edh-grip" aria-hidden="true" />
+            <span className="edh" aria-hidden="true" />
             <span className="edh">Name</span>
             <span className="edh">Colour</span>
-            {car && <span className="edh">Section</span>}
-            {car && <span className="edh edh-tab">Show as a tab</span>}
-            <span className="edh edh-num">{car ? "Cars" : "Enquiries"}</span>
-            <span className="edh edh-del" aria-hidden="true" />
+            <span className="edh edh-num">Enquiries</span>
+            <span className="edh" aria-hidden="true" />
           </div>
 
           {rows.map((row) => {
             const used = countOf(row.label);
             const blocked = used > 0;
-            const noun = car
-              ? used === 1
-                ? "car"
-                : "cars"
-              : used === 1
-                ? "enquiry"
-                : "enquiries";
             return (
               <div
                 className={`edrow${dragId === row.id ? " dragging" : ""}${
@@ -182,40 +161,15 @@ export function StateEditor({
                     {row.label || "…"}
                   </span>
                 </span>
-                {car && (
-                  <select
-                    className="edsection"
-                    aria-label={`Section for ${row.label}`}
-                    value={row.section}
-                    onChange={(e) => setSection(row.id, e.target.value as Section)}
-                  >
-                    {PUBLIC_SECTIONS.map((s) => (
-                      <option key={s} value={s}>
-                        {sectionLabel(s)}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {car && (
-                  <label className="edswitch">
-                    <input
-                      type="checkbox"
-                      checked={!!row.tab}
-                      aria-label={`Show ${row.label} as a tab`}
-                      onChange={(e) => setTabFlag(row.id, e.target.checked)}
-                    />
-                    <span className="edtrack">
-                      <span className="edknob" />
-                    </span>
-                  </label>
-                )}
                 <span className="edcount">{used}</span>
                 <span
                   className={`tt${blocked ? " tt-on" : ""}`}
                   tabIndex={blocked ? 0 : -1}
                   data-tip={
                     blocked
-                      ? `${used} ${noun} still in this state — move ${used === 1 ? "it" : "them"} out first.`
+                      ? `${used} ${used === 1 ? "enquiry" : "enquiries"} still in this state — move ${
+                          used === 1 ? "it" : "them"
+                        } out first.`
                       : undefined
                   }
                 >
@@ -246,9 +200,7 @@ export function StateEditor({
 
       <p className="ednote">
         <i className="fa-solid fa-circle-info" />
-        {car
-          ? "Drag a row to set the order states appear in. A state a car sits in cannot be deleted."
-          : "Drag a row to set the order states appear in. A state an enquiry sits in cannot be deleted."}
+        Drag a row to set the order states appear in. A state an enquiry sits in cannot be deleted.
       </p>
     </div>
   );

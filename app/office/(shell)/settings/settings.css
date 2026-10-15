@@ -157,9 +157,7 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .setmain .card{min-width:0}
 .edscroll{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}
 .edtbl{min-width:640px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
-.edtbl-car{min-width:860px}
 .edhrow,.edrow{display:grid;grid-template-columns:36px minmax(140px,1.1fr) minmax(150px,1fr) 80px 52px;align-items:center}
-.edtbl-car .edhrow,.edtbl-car .edrow{grid-template-columns:36px minmax(130px,1fr) minmax(150px,1fr) 122px 118px 72px 52px}
 .edhrow{background:var(--bg);border-bottom:1px solid var(--line);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
 .edh{padding:10px 12px}
 .edh-num{text-align:center}
@@ -175,6 +173,9 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .edin{height:38px;margin:5px 8px;background:var(--bg);color:var(--ink);border:1px solid transparent;border-radius:6px;padding:0 10px;font:inherit;font-size:14px}
 .edin:hover{border-color:var(--line)}
 .edin:focus{border-color:var(--gold);outline:none}
+/* a fixed state: the same cell as a name, with no field to type in (D15) */
+.edro{display:flex;align-items:center;gap:7px;height:38px;margin:5px 8px;padding:0 10px;font-size:14px;font-weight:600;color:var(--mute)}
+.edro i{font-size:11px;opacity:.75}
 .edcolor{display:flex;align-items:center;gap:10px;padding:4px 10px;min-width:0}
 .edpick{width:36px;height:32px;border:1px solid var(--line);border-radius:6px;background:none;padding:2px;cursor:pointer;flex:none}
 .edpick::-webkit-color-swatch-wrapper{padding:0}
@@ -182,17 +183,6 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .edpick::-moz-color-swatch{border:0;border-radius:4px}
 .edsample{font-family:Oswald,sans-serif;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .edsample.neutral{background:transparent;color:var(--ink);border:1px dashed var(--line)}
-.edsection{height:38px;margin:5px 8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:0 8px;font:inherit;font-size:13.5px;cursor:pointer}
-.edsection:focus{border-color:var(--gold);outline:none}
-.edh-tab{white-space:nowrap}
-/* switch (ui-plan Q59 — car states are inventory filters) */
-.edswitch{display:grid;place-items:center;position:relative}
-.edswitch input{position:absolute;opacity:0;width:0;height:0}
-.edtrack{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative;transition:background .2s;display:inline-block;cursor:pointer}
-.edknob{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--bg);transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.35)}
-.edswitch input:checked + .edtrack{background:var(--gold)}
-.edswitch input:checked + .edtrack .edknob{transform:translateX(16px)}
-.edswitch input:focus-visible + .edtrack{outline:2px solid var(--gold);outline-offset:2px}
 .edcount{padding:0 12px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
 .eddel{width:34px;height:34px;border:0;border-radius:6px;background:none;color:var(--mute);display:grid;place-items:center}
 .eddel:hover:not(:disabled){background:var(--bad);color:#fff}

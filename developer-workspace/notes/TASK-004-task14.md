@@ -90,7 +90,8 @@ rewrite.
 
 ## Decisions taken here (with their reasons)
 
-1. **A car cannot be *created* Sold.** *(Flagged — the owner can overturn this.)* Un-marking
+1. **A car cannot be *created* Sold.** *(Ruled by the owner, 2026-10-15: "No — add it, then mark
+   it sold.")* Un-marking
    returns a car to the primary state it held before it sold; a car that never held one has nothing
    to return to, and `prior_state_id` is `NOT NULL`. So add mode offers the three states a car can
    arrive in, and `createCar` refuses Sold as a backstop with a plain message. The owner adds the

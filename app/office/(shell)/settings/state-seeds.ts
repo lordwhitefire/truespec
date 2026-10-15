@@ -1,38 +1,17 @@
-import type { Section } from "@/lib/sections";
-
-// The built-in state lists, as seeds for the two Settings state editors
-// (RECON-001 v1). UI-only: these are the states the office already ships, and
-// the colours it already uses — nothing invented (owner ruling 2026-10-12,
-// v1.md §8/§11/§12).
+// The enquiry board's states, as seeds for the Settings customer-state editor
+// (RECON-001 v1): the five dot colours the board already uses — nothing invented
+// (owner ruling 2026-10-12, v1.md §8/§11/§12).
 //
-//  - Car states: Available --ok green; On the way / At port #3a7bd5 blue;
-//    Cleared --gold; Landed --warn. All five "Show as a tab" ON (they are the
-//    inventory filters the office shows). Special is NOT a row — it is the
-//    ribbon, fixed gold.
-//  - Customer states: the enquiry board's five dot colours.
-//
-// Section identity is NOT defined here. A car state maps to one of the three
-// sections from `lib/sections.ts` — the one definition (R-SEC-1) — and this file
-// only names which one each owner state maps to; the editor renders each with the
-// one label (`sectionLabel`). There is no second section list.
+// The car states used to be seeded here too. They no longer are: a car's states are
+// the store's — the four fixed primaries plus the secondaries the owner creates
+// (`car_state`, edited at /office/settings) — so a seed beside them could only be a
+// second, staler answer to the same question (truth 15).
 
 export type EditorRow = {
   id: string;
   label: string;
   colour: string;
-  /** car editor only — the section the state shows under (one of `Section`) */
-  section?: Section;
-  /** car editor only — an inventory filter, never a showroom tab */
-  tab?: boolean;
 };
-
-export const CAR_STATES: EditorRow[] = [
-  { id: "available", label: "Available", colour: "#0e7a3e", section: "available", tab: true },
-  { id: "on-the-way", label: "On the way", colour: "#3a7bd5", section: "on order", tab: true },
-  { id: "at-port", label: "At port", colour: "#3a7bd5", section: "on order", tab: true },
-  { id: "cleared", label: "Cleared", colour: "#c8a24a", section: "on order", tab: true },
-  { id: "landed", label: "Landed", colour: "#b9820b", section: "landed", tab: true },
-];
 
 export const CUSTOMER_STATES: EditorRow[] = [
   { id: "new", label: "New", colour: "#3a7bd5" },

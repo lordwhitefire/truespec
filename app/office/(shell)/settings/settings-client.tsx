@@ -8,8 +8,10 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { CarStateEditor } from "./car-state-editor";
 import { StateEditor } from "./state-editors";
-import { CAR_STATES, CUSTOMER_STATES, CUSTOMER_COUNTS } from "./state-seeds";
+import { CUSTOMER_STATES, CUSTOMER_COUNTS } from "./state-seeds";
+import type { RegistryState } from "@/lib/car-state";
 
 /* Settings — a faithful port of office-settings.html.
    The whole screen is presentational+local: four cards, each with its own
@@ -49,7 +51,7 @@ function strength(v: string) {
   return s;
 }
 
-export function Settings({ carCounts = {} }: { carCounts?: Record<string, number> }) {
+export function Settings({ registry = [] }: { registry?: RegistryState[] }) {
   const [wa, setWa] = useState(WA0);
   const [waSnap, setWaSnap] = useState(WA0);
   const [waSaved, setWaSaved] = useState(false); // clears the "good" outline after save
@@ -432,10 +434,10 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
               <h2>Car states</h2>
             </div>
             <p className="cd">
-              The states a car moves through. Each maps to one section, carries its own colour,
-              and can show as an inventory filter.
+              The four top states are fixed: the showroom groups by them, and it shows the first
+              three, never Sold. Below them are your own states, in your own order.
             </p>
-            <StateEditor car seed={CAR_STATES} counts={carCounts} />
+            <CarStateEditor states={registry} />
           </section>
         )}
 
@@ -448,7 +450,7 @@ export function Settings({ carCounts = {} }: { carCounts?: Record<string, number
             <p className="cd">
               The states an enquiry moves through, and the colour each carries on the board.
             </p>
-            <StateEditor car={false} seed={CUSTOMER_STATES} counts={CUSTOMER_COUNTS} />
+            <StateEditor seed={CUSTOMER_STATES} counts={CUSTOMER_COUNTS} />
           </section>
         )}
 

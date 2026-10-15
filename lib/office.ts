@@ -4,6 +4,7 @@ import { countStock, type StockCounts } from "./counts";
 import { type CostLineInput } from "./money";
 import { sectionOfState, type Section } from "./sections";
 import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
+import { type RegistryState } from "./car-state";
 
 // Office read layer (plan §6). Costs and profit live here and reach office
 // screens only — the public path never imports this module. The office reads the
@@ -236,6 +237,39 @@ export async function getOfficeSecondaryStates(): Promise<OfficeSecondaryState[]
       ORDER BY sort, label`,
   );
   return rows.map((r) => ({ id: r.id, label: r.label }));
+}
+
+/**
+ * The whole registry, in the owner's order, as his editor shows it: the four fixed primaries first,
+ * then the secondary states he creates.
+ *
+ * Two things are resolved here rather than on the screen. A primary's `section` goes through the one
+ * rule (`sectionOfState`), so the editor cannot drift from `lib/sections.ts`; a secondary's section
+ * is `null`, because a section is a primary state's alone (D15). And `cars` counts **every** car row
+ * that points at the state — tombstoned ones included — because that is exactly the set the store's
+ * `ON DELETE RESTRICT` refuses on, so the number beside a state and the store's own refusal can
+ * never disagree.
+ */
+export async function getCarStateRegistry(): Promise<RegistryState[]> {
+  const rows = await storeQuery<
+    { id: string; label: string; colour: string; kind: string; section: string | null; cars: string | number }[]
+  >(
+    `SELECT c.id, c.label, c.colour, c.kind, c.section,
+            CASE WHEN c.kind = 'primary'
+                 THEN (SELECT count(*) FROM car WHERE state_id = c.id)
+                 ELSE (SELECT count(*) FROM car_secondary_state WHERE state_id = c.id)
+            END AS cars
+       FROM car_state c
+      ORDER BY c.kind, c.sort, c.label`,
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    colour: r.colour,
+    kind: r.kind === "primary" ? "primary" : "secondary",
+    section: r.kind === "primary" ? sectionOfState(r.label, r.section) : null,
+    cars: toNumber(r.cars) ?? 0,
+  }));
 }
 
 /**
