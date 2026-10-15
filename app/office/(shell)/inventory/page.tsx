@@ -89,10 +89,18 @@ export default async function InventoryPage() {
           <h1>Inventory</h1>
           <p className="sub2">Every car, what it cost, and what it made. Only visible here — never in the showroom.</p>
         </div>
-        <Link className="btn" href="/office/car/new">
-          <i className="fa-solid fa-plus" />
-          Add a car
-        </Link>
+        <div className="hbtns">
+          {/* The blank, where the upload will happen (task.md §Q2). A plain link: the response is
+              the file itself, and the browser downloads what the header names. */}
+          <a className="ghost" href="/api/template">
+            <i className="fa-solid fa-file-arrow-down" />
+            Car template
+          </a>
+          <Link className="btn" href="/office/car/new">
+            <i className="fa-solid fa-plus" />
+            Add a car
+          </Link>
+        </div>
       </div>
 
       <InventoryClient rows={rows} states={states} counts={counts} />

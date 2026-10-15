@@ -62,6 +62,10 @@ nav.sn{flex:1;padding:6px 10px;display:grid;gap:2px;align-content:start;overflow
 /* main */
 .main{padding:30px 32px 60px;min-width:0}
 .hrow{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+/* Two actions, one of them secondary (the house arrangement — car.css / enquiries.css carry the
+   same .hbtns). The ghost needs a display of its own to be a box rather than a line of text. */
+.hbtns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hbtns .ghost{display:inline-flex;align-items:center;gap:9px}
 h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .sub2{color:var(--mute);font-size:13.5px;margin-top:3px}
 .btn{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:var(--gt);font-weight:700;font-size:14px;padding:0 22px;height:44px;border-radius:6px;border:0}
@@ -170,6 +174,8 @@ tr.soldrow td{opacity:.62}
  .tbl{display:none}
  .cards{display:grid}
  .hrow .btn{width:100%;justify-content:center}
+ .hrow .hbtns{width:100%}
+ .hrow .hbtns .btn,.hrow .hbtns .ghost{flex:1;justify-content:center;width:auto}
 }
 @media(max-width:560px){
  .toolbar{flex-direction:column;align-items:stretch}
