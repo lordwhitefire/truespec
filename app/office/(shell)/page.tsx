@@ -1,29 +1,41 @@
 import "./office.css";
 import Link from "next/link";
-import { getOfficeDashboard } from "@/lib/office";
+import { getOfficeActivity, getOfficeDashboard, getOfficeTaps } from "@/lib/office";
 import { formatNaira, nairaDigits } from "@/lib/money";
 import { requireOfficeSession } from "@/lib/session";
+import { categoryLabel, categoryOf, operator, toActivityEntries, wordOf } from "@/lib/activity-feed";
+import { shortAge, weekdayDay } from "@/lib/office-time";
 
 // The figures come from the store, so this page renders per request — never from a build-time
 // snapshot of it.
 export const dynamic = "force-dynamic";
 
+/** How many rows a feed panel draws. A feed is "recent" by nature; the log page reads the whole
+ *  bounded feed, and the taps panel's full list is the office's to come (Task 19). */
+const RECENT = 5;
+
 // Dashboard — built to the reference runtime model.
 //
-// The figures are computed by the office read layer (lib/office.ts) from the one
-// `car` table with `cost_line` and `car_state` — plan §6. The two feed panels
-// (activity, WhatsApp taps) stay presentational for now; they are the activity
-// and enquiries screens' data and get DB-backed when those screens are built.
+// Every figure and both feeds come from the store: the counts and the money from `getOfficeDashboard()`
+// (the one shared counting rule, `lib/counts.ts`), the activity rows from `activity_event` and the taps
+// from `tap` (truth 15). Nothing on this page is a seed and nothing is drafted from one — an empty feed
+// says it is empty rather than standing in as real-looking rows (truth 16).
 export default async function DashboardPage() {
   await requireOfficeSession();
-  const d = await getOfficeDashboard();
+  const [d, activity, taps] = await Promise.all([
+    getOfficeDashboard(),
+    getOfficeActivity(),
+    getOfficeTaps(),
+  ]);
+  const now = new Date();
+  const entries = toActivityEntries(activity, now);
 
   return (
     <>
       <div className="hrow">
         <div>
           <h1>Dashboard</h1>
-          <p className="sub2">Saturday morning, 4 October 2026 · things at a glance</p>
+          <p className="sub2">{weekdayDay(now.toISOString())} · things at a glance</p>
         </div>
         <Link className="btn" href="/office/car/new">
           <i className="fa-solid fa-plus" />
@@ -81,7 +93,10 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* counts strip: Available includes landed, never counted twice */}
+      {/* counts strip: the stock counts, from the one shared rule. Available and Landed overlap by
+          this year's arrivals, which the notes say out loud (R-CNT-1); Sold is counted apart, on the
+          profit card. No enquiry total here: the enquiry states are labels, not stages, so there is no
+          "open" to count (D12, the UX decision of 2026-10-14). */}
       <div className="strip">
         <div className="sc">
           <i className="fa-solid fa-circle-check" />
@@ -94,14 +109,14 @@ export default async function DashboardPage() {
           <i className="fa-solid fa-ship" />
           <div>
             <b>{d.counts.onOrder} on order</b>
-            <span>arriving Nov – Jan</span>
+            <span>waiting to arrive</span>
           </div>
         </div>
         <div className="sc">
-          <i className="fa-solid fa-comments" />
+          <i className="fa-solid fa-plane-arrival" />
           <div>
-            <b>5 open enquiries</b>
-            <span>2 new this week</span>
+            <b>{d.counts.landed} landed</b>
+            <span>new ones counted in available</span>
           </div>
         </div>
       </div>
@@ -113,49 +128,37 @@ export default async function DashboardPage() {
             <h2>Recent activity</h2>
             <Link href="/office/activity">Full log</Link>
           </div>
-          <div className="rowl">
-            <span className="avx">U</span>
-            <p>
-              <b>Umar</b> changed state of <b>Toyota Land Cruiser Prado TX</b> to <b>At port</b>
-              <span className="tag state">state</span>
-              <time>Today, 08:42</time>
-            </p>
-          </div>
-          <div className="rowl">
-            <span className="avx">U</span>
-            <p>
-              <b>Umar</b> added <b>Toyota Camry SE 2021</b>
-              <span className="tag add">added</span>
-              <time>Yesterday, 17:05</time>
-            </p>
-          </div>
-          <div className="rowl">
-            <span className="avx">U</span>
-            <p>
-              <b>Umar</b> edited costs on <b>Toyota Sienna LE</b>
-              <span className="tag edit">edited</span>
-              <time>Yesterday, 14:31</time>
-            </p>
-          </div>
-          <div className="rowl">
-            <span className="avx">U</span>
-            <p>
-              <b>Umar</b> marked <b>Toyota Camry XLE 2018</b> as <b>Sold — ₦31.5M</b>
-              <span className="tag sold">sold</span>
-              <time>Mon, 29 Sep, 11:20</time>
-            </p>
-          </div>
-          <div className="rowl">
-            <span className="avx">U</span>
-            <p>
-              <b>Umar</b> added <b>Lexus RX 350 2019</b>
-              <span className="tag add">added</span>
-              <time>Mon, 29 Sep, 09:14</time>
-            </p>
-          </div>
-          <button className="more2" type="button">
-            Show older entries
-          </button>
+          {entries.length === 0 ? (
+            <div className="feed-empty">
+              <i className="fa-solid fa-list-check" />
+              <p>Nothing has been done to a car yet. Add one, or change one, and it will appear here.</p>
+            </div>
+          ) : (
+            entries.slice(0, RECENT).map((e) => {
+              const who = operator(e.actor);
+              return (
+                <div className="rowl" key={e.id}>
+                  <span className="avx" title={who.title}>
+                    {who.initial}
+                  </span>
+                  <p>
+                    {wordOf(e.kind)}{" "}
+                    {e.kind.startsWith("car.") ? (
+                      <b>
+                        <Link href={`/office/car/${e.subject}`} title={`Open ${e.subject}`}>
+                          {e.subject}
+                        </Link>
+                      </b>
+                    ) : (
+                      <b>{e.subject}</b>
+                    )}
+                    <span className={`tag ${categoryOf(e.kind) || "other"}`}>{categoryLabel(e.kind)}</span>
+                    <time>{shortAge(e.at, now)}</time>
+                  </p>
+                </div>
+              );
+            })
+          )}
         </section>
 
         <section className="panel" aria-label="Recent WhatsApp taps">
@@ -163,52 +166,37 @@ export default async function DashboardPage() {
             <h2>Recent WhatsApp taps</h2>
             <Link href="/office/enquiries">All enquiries</Link>
           </div>
-          <div className="wt">
-            <span className="wti">
+          {taps.length === 0 ? (
+            <div className="feed-empty">
               <i className="fa-brands fa-whatsapp" />
-            </span>
-            <p>
-              Tap on <a href="#">2019 Lexus RX 350</a>
-            </p>
-            <time>18 min ago</time>
-          </div>
-          <div className="wt">
-            <span className="wti">
-              <i className="fa-brands fa-whatsapp" />
-            </span>
-            <p>
-              Tap on <a href="#">2021 Toyota Camry SE</a>
-            </p>
-            <time>1 hr ago</time>
-          </div>
-          <div className="wt">
-            <span className="wti">
-              <i className="fa-brands fa-whatsapp" />
-            </span>
-            <p>General tap — home page</p>
-            <time>3 hrs ago</time>
-          </div>
-          <div className="wt">
-            <span className="wti">
-              <i className="fa-brands fa-whatsapp" />
-            </span>
-            <p>
-              Tap on <a href="#">2019 Toyota Hilux SRV</a>
-            </p>
-            <time>Yesterday</time>
-          </div>
-          <div className="wt">
-            <span className="wti">
-              <i className="fa-brands fa-whatsapp" />
-            </span>
-            <p>
-              Tap on <a href="#">2020 Toyota Sienna LE</a>
-            </p>
-            <time>Yesterday</time>
-          </div>
-          <button className="more2" type="button">
-            Show all taps
-          </button>
+              <p>No taps yet. When a buyer taps WhatsApp on a car, it is recorded here.</p>
+            </div>
+          ) : (
+            taps.slice(0, RECENT).map((t) => (
+              <div className="wt" key={t.id}>
+                <span className="wti">
+                  <i className="fa-brands fa-whatsapp" />
+                </span>
+                <p>
+                  {t.carRef === null ? (
+                    <>General tap — {t.page}</>
+                  ) : t.car === null ? (
+                    <>
+                      Tap on <b>{t.carRef}</b>
+                    </>
+                  ) : (
+                    <>
+                      Tap on{" "}
+                      <Link href={`/office/car/${t.carRef}`} title={`Open ${t.carRef}`}>
+                        {t.car}
+                      </Link>
+                    </>
+                  )}
+                </p>
+                <time>{shortAge(t.at, now)}</time>
+              </div>
+            ))
+          )}
         </section>
       </div>
 

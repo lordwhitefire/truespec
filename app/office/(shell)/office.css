@@ -103,6 +103,8 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .tag.edit{background:rgba(47,111,208,.14);color:#3a7bd5}
 .tag.state{background:rgba(200,162,74,.16);color:var(--warn)}
 .tag.sold{background:rgba(192,57,43,.12);color:var(--bad)}
+.tag.del{background:rgba(192,57,43,.12);color:var(--bad)}
+.tag.other{background:rgba(90,95,100,.18);color:var(--mute)}
 /* whatsapp taps */
 .wt{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--line);align-items:center}
 .wt:last-child{border-bottom:0}
@@ -114,6 +116,10 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 /* empty-ish hint at panel bottoms */
 .more2{display:block;text-align:center;padding:12px;font-size:13px;color:var(--mute);background:none;border:0;width:100%;border-top:1px solid var(--line)}
 .more2:hover{color:var(--gold);background:rgba(200,162,74,.06)}
+/* a feed panel with nothing in it yet — it says so, rather than looking like a store that broke */
+.feed-empty{text-align:center;padding:30px 20px;color:var(--mute)}
+.feed-empty i{font-size:24px;color:var(--gold);display:block;margin-bottom:10px}
+.feed-empty p{max-width:340px;margin:0 auto;font-size:13.5px}
 /* pills legend */
 .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .pill{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;border:1px solid var(--line);border-radius:99px;padding:3px 11px;color:var(--mute)}

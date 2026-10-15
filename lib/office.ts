@@ -402,6 +402,62 @@ export async function getOfficeActivity(): Promise<OfficeActivityEvent[]> {
 }
 
 /**
+ * The visitor's side of the same story (truth 15): a tap, as the dashboard's recent-taps panel needs
+ * it, newest first and bounded by `TAP_LIMIT`.
+ *
+ * A tap is three facts and no more — `page`, the car's `TS-####`, and the time. The visitor's address
+ * was dropped in `0011`, so there is nothing here that could identify them, and this read is the
+ * office's, never a public one.
+ *
+ * The car's name is resolved **by the ref** (`LEFT JOIN car ON c.ref = t.car_ref`): a tap's ref
+ * outlives the car, so a tap on a car that has since been removed still reads its code rather than
+ * vanishing or pointing at whatever took the ref (the ref is unique and never reassigned — `0018`).
+ * `car` is `null` when no row holds the ref; `carRef` is kept either way.
+ */
+export type OfficeTap = {
+  id: string;
+  /** The page the tap was made on — the visitor's path, `/` for the home page. */
+  page: string;
+  /** The `TS-####` the tap named, or `null` for a general tap. */
+  carRef: string | null;
+  /** The car's own name (year, model, trim), or `null` when no row holds the ref. */
+  car: string | null;
+  /** ISO instant. */
+  at: string;
+};
+
+/** How many taps the panel reads at most. The feed is append-only; the cap keeps it a panel. */
+export const TAP_LIMIT = 200;
+
+export async function getOfficeTaps(): Promise<OfficeTap[]> {
+  const rows = await storeQuery<
+    {
+      id: string;
+      page: string;
+      car_ref: string | null;
+      at: string | Date;
+      year: number | null;
+      model: string | null;
+      trim: string | null;
+    }[]
+  >(
+    `SELECT t.id, t.page, t.car_ref, t.at, c.year, c.model, c.trim
+       FROM tap t
+       LEFT JOIN car c ON c.ref = t.car_ref
+      ORDER BY t.at DESC, t.id
+      LIMIT $1`,
+    [TAP_LIMIT],
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    page: r.page,
+    carRef: r.car_ref,
+    car: r.model === null ? null : label({ year: r.year, model: r.model, trim: r.trim }),
+    at: new Date(r.at).toISOString(),
+  }));
+}
+
+/**
  * One car, as its own edit form needs it — every column the form writes, its cost
  * lines and its secondary states, found by the `TS-####` the office links by.
  *

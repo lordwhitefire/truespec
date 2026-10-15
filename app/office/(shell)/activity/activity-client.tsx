@@ -1,68 +1,24 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import {
+  CATEGORIES,
+  categoryLabel,
+  categoryOf,
+  operator,
+  wordOf,
+  type ActivityEntry,
+} from "@/lib/activity-feed";
 
 /* Activity log — the store's own record, filtered on the screen.
 
    The reference drew the chips, the match line and the log from a hardcoded timeline; the log now
    reads `activity_event` (truth 15, D20). One row is a `kind` and a `subject` and nothing else, so
-   the wording is composed **here** from the kind — and where a kind is one this screen does not yet
-   name, the row is shown plainly as its kind and subject rather than guessed at.
+   the wording is composed from the kind — by the one rule in `lib/activity-feed.ts`, which the
+   dashboard's recent-activity panel reads too, so the two screens cannot word a row two ways.
 
    Nothing is written by this screen. Entries cannot be edited or removed by any path, which is what
    makes the log worth trusting. */
-
-/** One row of the log, as the page read it. The day and time arrive preformatted in UTC. */
-export type ActivityEntry = {
-  id: string;
-  kind: string;
-  /** The `TS-####` a car event names, or whatever subject the event carries. */
-  subject: string;
-  /** The UTC day, as `2026-10-04` — the group key. */
-  day: string;
-  /** `Today`, `Yesterday`, or the weekday and the date once it is older than that. */
-  dayTitle: string;
-  /** The weekday and the date, always — shown beside Today and Yesterday. */
-  dayFull: string;
-  /** The UTC time, as `08:42`. */
-  clock: string;
-  /** The operator's email, or `null` when their account has gone. */
-  actor: string | null;
-};
-
-/** What each kind says, and which chip it belongs to. One word per kind, used by both. */
-const ACTIONS: Record<string, { word: string; category: string }> = {
-  "car.created": { word: "Added a car", category: "add" },
-  "car.updated": { word: "Edited a car", category: "edit" },
-  "car.sold": { word: "Marked a car as Sold", category: "sold" },
-  "car.unsold": { word: "Took a car out of Sold", category: "state" },
-  "car.deleted": { word: "Deleted a car", category: "del" },
-  "car.restored": { word: "Restored a car", category: "del" },
-  "car.removed": { word: "Removed a car for good", category: "del" },
-};
-
-const CATEGORIES = [
-  { k: "all", label: "All" },
-  { k: "add", label: "Added" },
-  { k: "edit", label: "Edited" },
-  { k: "state", label: "State" },
-  { k: "sold", label: "Sold" },
-  { k: "del", label: "Deleted" },
-  { k: "imp", label: "Imports" },
-  { k: "set", label: "Settings" },
-] as const;
-
-/** The chip a kind belongs to, or `""` for a kind this screen does not yet name. */
-const categoryOf = (kind: string) => ACTIONS[kind]?.category ?? "";
-
-/** A kind this screen names reads as its own word; anything else reads as itself. */
-const wordOf = (kind: string) => ACTIONS[kind]?.word ?? kind;
-
-/** The card's avatar — the operator's own initial, and their email on hover. */
-function operator(actor: string | null): { initial: string; title: string } {
-  if (!actor) return { initial: "?", title: "An operator whose account has since been removed" };
-  return { initial: actor.slice(0, 1).toUpperCase(), title: actor };
-}
 
 export function Activity({ entries }: { entries: ActivityEntry[] }) {
   const [fType, setFType] = useState<string>("all");
@@ -196,7 +152,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
                           e.subject
                         )}
                         <span className={`tag ${categoryOf(e.kind) || "other"}`}>
-                          {CATEGORIES.find((t) => t.k === categoryOf(e.kind))?.label ?? "Other"}
+                          {categoryLabel(e.kind)}
                         </span>
                         <time>{e.clock}</time>
                       </p>
