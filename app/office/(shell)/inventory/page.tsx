@@ -79,7 +79,7 @@ export default async function InventoryPage() {
           <h1>Inventory</h1>
           <p className="sub2">Every car, what it cost, and what it made. Only visible here — never in the showroom.</p>
         </div>
-        <Link className="btn" href="/office/car">
+        <Link className="btn" href="/office/car/new">
           <i className="fa-solid fa-plus" />
           Add a car
         </Link>

@@ -25,7 +25,7 @@ export default async function DashboardPage() {
           <h1>Dashboard</h1>
           <p className="sub2">Saturday morning, 4 October 2026 · things at a glance</p>
         </div>
-        <Link className="btn" href="/office/car">
+        <Link className="btn" href="/office/car/new">
           <i className="fa-solid fa-plus" />
           Add a car
         </Link>

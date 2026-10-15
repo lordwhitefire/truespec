@@ -9,7 +9,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { createCar, type CreateCarResult } from "../../actions/car";
+import { createCar, updateCar, type CreateCarResult, type UpdateCarResult } from "../../actions/car";
 import {
   costLabelFor,
   formatNaira,
@@ -32,6 +32,8 @@ export type CarCosts = {
 };
 
 export type CarFormData = {
+  /** The car's store key — present in edit mode; the row the Server Action updates. */
+  carId?: string;
   ref: string;
   added: string;
   upd: string;
@@ -55,6 +57,8 @@ export type CarFormData = {
   privateNote?: string;
   /** The crossed-out "was" price (Task 11). */
   wasPrice?: string;
+  /** The secondary states the car already carries (edit mode) — shown checked. */
+  secondaryStateIds?: string[];
   imgs: string[];
 };
 
@@ -264,7 +268,7 @@ export function CarForm({
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastShow, setToastShow] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [result, setResult] = useState<CreateCarResult | null>(null);
+  const [result, setResult] = useState<CreateCarResult | UpdateCarResult | null>(null);
   const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
 
@@ -334,16 +338,12 @@ export function CarForm({
     const fd = new FormData(e.currentTarget);
     setResult(null);
     startSaving(async () => {
-      if (isEdit) {
-        // Edit wiring is Task 12 — the form shows the store's columns, the write follows.
-        showToast("Saved (demo). Edit writes arrive with the next step.");
-        return;
-      }
-      const res = await createCar(fd);
+      // Edit mode updates the car the owner opened (the hidden `carId` names it); add
+      // mode makes a new one. Each goes through its own Server Action, which re-checks
+      // the session and recomputes the change-check — nothing sent is trusted.
+      const res = isEdit ? await updateCar(fd) : await createCar(fd);
       setResult(res);
-      if (res.ok) {
-        showToast(`Saved as <b>${res.ref}</b>. The showroom updates immediately.`);
-      }
+      if (res.ok) showToast(`Saved <b>${res.ref}</b>. The showroom updates immediately.`);
     });
   };
 
@@ -703,6 +703,16 @@ export function CarForm({
                 </div>
                 {/* The chosen primary state, as the key the action reads. */}
                 <input type="hidden" name="stateId" value={curStateId} />
+                {/* Edit mode: the car the Server Action updates. Its identity is the
+                    row's own key — never chosen, never edited. */}
+                {isEdit && data.carId ? (
+                  <input type="hidden" name="carId" value={data.carId} />
+                ) : null}
+                {/* The car's public note is one of its editable columns, but this form
+                    has no field for it (the textarea above is the *private* note, as
+                    the reference has it). It rides along unchanged so an edit cannot
+                    silently clear it; a future visible field would replace this one. */}
+                {isEdit ? <input type="hidden" name="note" value={data.note ?? ""} /> : null}
                 {errFor("stateId") ? (
                   <span className="hint" style={{ color: "var(--bad)" }} role="alert">
                     {errFor("stateId")}
@@ -738,7 +748,7 @@ export function CarForm({
                             type="checkbox"
                             name="secondaryStateIds"
                             value={s.id}
-                            defaultChecked={false}
+                            defaultChecked={isEdit && (data.secondaryStateIds ?? []).includes(s.id)}
                           />
                           <span>{s.label}</span>
                         </label>

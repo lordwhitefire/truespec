@@ -68,7 +68,7 @@ const TYPES = [
    reference does not have. It also keeps the search haystack the same: the
    reference matches against the raw markup, tags included. */
 const refLink = (r: string) =>
-  `<a class="ref" href="/office/car" title="Open ${r}">${r}</a>`;
+  `<a class="ref" href="/office/car/${r}" title="Open ${r}">${r}</a>`;
 
 const entryHtml = (x: Entry) =>
   `<b>Umar</b> ${x.html}<span class="tag ${x.type}">${

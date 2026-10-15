@@ -65,20 +65,20 @@ function stChip(c: InventoryRow) {
   );
 }
 
-function moneyCell(v: number | null) {
-  return v == null ? (
-    <a className="inc" href="/office/car">
+function moneyCell(c: InventoryRow) {
+  return c.cost == null ? (
+    <a className="inc" href={`/office/car/${c.ref}`}>
       Costs incomplete
     </a>
   ) : (
-    <span className="money">{formatNaira(v)}</span>
+    <span className="money">{formatNaira(c.cost)}</span>
   );
 }
 
 function profitCell(c: InventoryRow) {
   if (c.profit == null) {
     return (
-      <a className="inc" href="/office/car">
+      <a className="inc" href={`/office/car/${c.ref}`}>
         Costs incomplete
       </a>
     );
@@ -283,13 +283,13 @@ export function InventoryClient({
                   </td>
                   <td>{stChip(c)}</td>
                   <td className="r money">{formatNaira(c.price)}</td>
-                  <td className="r">{moneyCell(c.cost)}</td>
+                  <td className="r">{moneyCell(c)}</td>
                   <td className="r">{profitCell(c)}</td>
                   <td className="r">
                     <div className="acts">
                       <a
                         className="ab"
-                        href="/office/car"
+                        href={`/office/car/${c.ref}`}
                         aria-label={`Edit ${c.name}`}
                         title="Edit"
                       >
@@ -339,7 +339,7 @@ export function InventoryClient({
               <div>
                 <small>Profit</small>
                 {c.profit == null ? (
-                  <a className="inc" href="/office/car">
+                  <a className="inc" href={`/office/car/${c.ref}`}>
                     Costs incomplete
                   </a>
                 ) : (
@@ -365,7 +365,7 @@ export function InventoryClient({
               </div>
             </div>
             <div className="cfoot">
-              <a className="ab" href="/office/car">
+              <a className="ab" href={`/office/car/${c.ref}`}>
                 <i className="fa-solid fa-pen" />
                 <span>Edit</span>
               </a>

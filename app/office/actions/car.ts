@@ -4,8 +4,9 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
 import { storeQuery } from "@/lib/store-guard";
-import { readCarInput, type CarFormInput, type FieldError } from "@/lib/car-input";
+import { readCarInput, type CarColumns, type CarCostLine, type CarFormInput, type FieldError } from "@/lib/car-input";
 import { carCreateStatement } from "@/lib/car-create";
+import { carUpdateStatement } from "@/lib/car-update";
 import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
 
 /**
@@ -27,6 +28,7 @@ import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
  */
 
 export type CreateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
+export type UpdateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -63,16 +65,27 @@ function toCarForm(form: FormData): CarFormInput {
   };
 }
 
-export async function createCar(form: FormData): Promise<CreateCarResult> {
-  const session = await requireOfficeSession();
+type CarFormValue = { columns: CarColumns; costs: CarCostLine[]; secondaryStateIds: string[] };
 
+/**
+ * Read the form and prove its state facts against the registry — the part both writes
+ * share (DRY: the create and the edit judge the same form the same way).
+ *
+ * A Server Action is a public endpoint, so nothing a browser sent is trusted: the
+ * strings are judged by the one reader (`lib/car-input.ts`), the ids are checked to be
+ * ids (a malformed key must be a field refusal, never a SQL error the owner cannot act
+ * on), and the states are checked against the store — the primary is one of the four
+ * fixed primaries, and every secondary still exists as a secondary. The registry is the
+ * truth; a form cannot invent a fifth primary or attach a state that is not there.
+ */
+async function readCarForm(
+  form: FormData,
+): Promise<{ ok: true; value: CarFormValue } | { ok: false; errors: FieldError[] }> {
   const read = readCarInput(toCarForm(form));
   if (!read.ok) return { ok: false, errors: read.errors };
 
   const { columns, costs, secondaryStateIds } = read.value;
 
-  // Ids are the store's keys; a malformed one must be a field refusal, never a SQL
-  // error the owner cannot act on.
   const errors: FieldError[] = [];
   if (!UUID.test(columns.state_id)) errors.push({ field: "stateId", message: "Choose the car's state" });
   for (const id of secondaryStateIds) {
@@ -80,9 +93,6 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   }
   if (errors.length > 0) return { ok: false, errors };
 
-  // Prove the state facts against the registry: the primary is one of the four fixed
-  // primaries, and every secondary still exists as a secondary. The store is the
-  // truth; a form cannot invent a fifth primary or attach a state that is not there.
   const [check] = await storeQuery<{ primary_kind: string | null; secondaries_ok: boolean }[]>(
     `SELECT
        (SELECT kind FROM car_state WHERE id = $1) AS primary_kind,
@@ -102,6 +112,24 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     return { ok: false, errors: [{ field: "secondaryStateIds", message: "One of those states no longer exists" }] };
   }
 
+  return { ok: true, value: { columns, costs, secondaryStateIds } };
+}
+
+/** The office pages a car write changes. */
+function revalidateCarPaths(): void {
+  revalidatePath("/office");
+  revalidatePath("/office/inventory");
+  revalidatePath("/office/cars");
+  revalidatePath("/office/car");
+}
+
+export async function createCar(form: FormData): Promise<CreateCarResult> {
+  const session = await requireOfficeSession();
+
+  const read = await readCarForm(form);
+  if (!read.ok) return { ok: false, errors: read.errors };
+  const { columns, costs, secondaryStateIds } = read.value;
+
   // The key, minted once so a retry is the same car. The change-check is computed
   // here from the values as they will be stored — never from the browser (truth 14).
   const { text, params } = carCreateStatement({
@@ -118,8 +146,41 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   const ref = rows[0]?.ref;
   if (!ref) throw new Error("createCar: the store returned no reference for the new car");
 
-  revalidatePath("/office");
-  revalidatePath("/office/inventory");
-  revalidatePath("/office/cars");
+  revalidateCarPaths();
+  return { ok: true, ref };
+}
+
+export async function updateCar(form: FormData): Promise<UpdateCarResult> {
+  const session = await requireOfficeSession();
+
+  // The car's key, as the edit form carries it. It is the row's name, not a detail —
+  // the statement never writes it and the store's own trigger refuses a write that
+  // would change it.
+  const carId = form.get("carId");
+  if (typeof carId !== "string" || !UUID.test(carId)) {
+    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+  }
+
+  const read = await readCarForm(form);
+  if (!read.ok) return { ok: false, errors: read.errors };
+  const { columns, costs, secondaryStateIds } = read.value;
+
+  // The change-check is recomputed here from the values as they will be stored, so the
+  // hash always matches the row (truth 14). A browser-supplied hash is never read.
+  const { text, params } = carUpdateStatement({
+    id: carId,
+    columns,
+    costs,
+    secondaryStateIds,
+    contentHash: carChangeCheck(columns as unknown as Record<string, unknown>),
+    hashVersion: CHANGE_CHECK_VERSION,
+    actorId: session.officeUserId,
+  });
+  const rows = await storeQuery<{ ref: string }[]>(text, params);
+
+  const ref = rows[0]?.ref;
+  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+
+  revalidateCarPaths();
   return { ok: true, ref };
 }

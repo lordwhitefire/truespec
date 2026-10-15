@@ -230,3 +230,111 @@ export async function getOfficeSecondaryStates(): Promise<OfficeSecondaryState[]
   );
   return rows.map((r) => ({ id: r.id, label: r.label }));
 }
+
+/**
+ * One car, as its own edit form needs it — every column the form writes, its cost
+ * lines and its secondary states, found by the `TS-####` the office links by.
+ *
+ * This is the office read on the office path (server-only; costs never leave it).
+ * The section is resolved by the one rule (`sectionOfState`), exactly as
+ * `getOfficeCarViews` does, so the edit screen and every other office screen name a
+ * car's section from the same source. Tombstoned cars are excluded — a car waiting
+ * to be cleared is not editable.
+ *
+ * `null` means no live car holds that ref, which the route turns into a 404.
+ */
+export type OfficeCarEdit = {
+  id: string;
+  ref: string;
+  brand: string;
+  model: string;
+  trim: string | null;
+  year: number | null;
+  mileage: number | null;
+  exterior_color: string | null;
+  interior_color: string | null;
+  /** The stored feature list, as the JSON array text the column holds. */
+  features: string | null;
+  note: string | null;
+  private_note: string | null;
+  was_price_kobo: number | null;
+  arrival_note: string | null;
+  doorstep_price_kobo: number | null;
+  state: string;
+  section: Section;
+  is_new_arrival: boolean;
+  created_at: string | Date;
+  updated_at: string | Date;
+  cost_lines: CostLineInput[];
+  secondary_state_ids: string[];
+};
+
+type RawOfficeEdit = {
+  id: string;
+  ref: string;
+  brand: string;
+  model: string;
+  trim: string | null;
+  year: number | null;
+  mileage: number | null;
+  exterior_color: string | null;
+  interior_color: string | null;
+  features: string | null;
+  note: string | null;
+  private_note: string | null;
+  was_price_kobo: string | number | null;
+  arrival_note: string | null;
+  doorstep_price_kobo: string | number | null;
+  state: string;
+  section: string;
+  is_new_arrival: boolean;
+  created_at: string | Date;
+  updated_at: string | Date;
+  cost_lines: { kind: string; amountMinor: string | number | null }[];
+  secondary_state_ids: string[];
+};
+
+export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | null> {
+  const rows = (await storeQuery(
+    `SELECT c.id, c.ref, c.brand, c.model, c.trim, c.year, c.mileage,
+            c.exterior_color, c.interior_color, c.features, c.note, c.private_note,
+            c.was_price_kobo, c.arrival_note, c.doorstep_price_kobo,
+            s.label AS state, s.section, s.is_new_arrival,
+            c.created_at, c.updated_at,
+            COALESCE((SELECT jsonb_agg(jsonb_build_object('kind', cl.kind, 'amountMinor', cl.amount_minor))
+                        FROM cost_line cl WHERE cl.car_id = c.id), '[]'::jsonb) AS cost_lines,
+            COALESCE((SELECT jsonb_agg(css.state_id)
+                        FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secondary_state_ids
+       FROM car c
+       JOIN car_state s ON s.id = c.state_id
+      WHERE c.ref = $1 AND c.deleted_at IS NULL`,
+    [ref],
+  )) as RawOfficeEdit[];
+
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    id: r.id,
+    ref: r.ref,
+    brand: r.brand,
+    model: r.model,
+    trim: r.trim,
+    year: r.year,
+    mileage: r.mileage,
+    exterior_color: r.exterior_color,
+    interior_color: r.interior_color,
+    features: r.features,
+    note: r.note,
+    private_note: r.private_note,
+    was_price_kobo: toNumber(r.was_price_kobo),
+    arrival_note: r.arrival_note,
+    doorstep_price_kobo: toNumber(r.doorstep_price_kobo),
+    state: r.state,
+    section: sectionOfState(r.state, r.section),
+    is_new_arrival: r.is_new_arrival,
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+    cost_lines: r.cost_lines.map((c) => ({ kind: c.kind, amountMinor: toNumber(c.amountMinor) })),
+    secondary_state_ids: r.secondary_state_ids,
+  };
+}
