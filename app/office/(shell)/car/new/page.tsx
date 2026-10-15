@@ -1,5 +1,5 @@
 import "../car.css";
-import { getOfficeStates } from "@/lib/office";
+import { getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
 import { requireOfficeSession } from "@/lib/session";
 import { CarForm, type CarFormData } from "../car-client";
 
@@ -7,9 +7,9 @@ import { CarForm, type CarFormData } from "../car-client";
 // snapshot of it.
 export const dynamic = "force-dynamic";
 
-/* Add mode — reached by route (/office/car/new). The reference's add mode
-   (fillAdd) is a blank form, state "Available", no photos, and the two header
-   actions hidden. Nothing is prefilled. */
+/* Add mode — reached by route (/office/car/new). The form must allow picking a
+   primary state and adding any number of secondary states (Task 10/11). Nothing
+   is prefilled. */
 
 const BLANK: CarFormData = {
   ref: "",
@@ -37,12 +37,15 @@ const BLANK: CarFormData = {
   isNew: false,
   arr: "",
   note: "",
+  privateNote: "",
+  wasPrice: "",
   imgs: [],
 };
 
 export default async function NewCarPage() {
   await requireOfficeSession();
   const states = await getOfficeStates();
+  const secondaries = await getOfficeSecondaryStates();
   const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
-  return <CarForm mode="add" data={BLANK} stateSections={stateSections} />;
+  return <CarForm mode="add" data={BLANK} stateSections={stateSections} secondaries={secondaries} />;
 }

@@ -50,7 +50,7 @@ export type OfficeCarView = OfficeCarRow & { section: Section };
  * list: the section comes from the same one rule as everywhere else. Office
  * screens read their state chips from here, never from a map of their own.
  */
-export type OfficeState = { label: string; section: Section; isNewArrival: boolean };
+export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
 
 /** The dashboard's figures, each a shared-rule total. */
 export type OfficeDashboard = {
@@ -182,10 +182,11 @@ export async function getOfficeCarViews(): Promise<OfficeCarView[]> {
  */
 export async function getOfficeStates(): Promise<OfficeState[]> {
   const rows = (await storeQuery(
-    `SELECT label, section, is_new_arrival FROM car_state
+    `SELECT id, label, section, is_new_arrival FROM car_state
       WHERE kind = 'primary' ORDER BY sort, label`,
-  )) as { label: string; section: string; is_new_arrival: boolean }[];
+  )) as { id: string; label: string; section: string; is_new_arrival: boolean }[];
   return rows.map((r) => ({
+    id: r.id,
     label: r.label,
     section: sectionOfState(r.label, r.section),
     isNewArrival: r.is_new_arrival,
@@ -210,4 +211,22 @@ export async function getOfficeDashboard(): Promise<OfficeDashboard> {
       ? { label: label(firstSold), priceKobo: toNumber(firstSold.sale_price_kobo) }
       : null,
   };
+}
+
+export async function getOfficeSecondaryStates(): Promise<OfficeState[]> {
+  const rows = (await storeQuery<
+    { id: string; label: string; section: string; is_new_arrival: boolean; kind: string }[]
+  >(
+    `SELECT id, label, section, is_new_arrival, kind
+       FROM car_state
+      WHERE kind = 'secondary'
+      ORDER BY sort, label`,
+  )) as { id: string; label: string; section: string; is_new_arrival: boolean; kind: string }[];
+  return rows.map((r) => ({
+    id: r.id,
+    label: r.label,
+    section: sectionOfState(r.label, r.section),
+    isNewArrival: r.is_new_arrival,
+    kind: r.kind,
+  }));
 }

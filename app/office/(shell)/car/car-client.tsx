@@ -50,8 +50,14 @@ export type CarFormData = {
   isNew: boolean;
   arr: string;
   note: string;
+  /** Office-only note (Task 11). */
+  privateNote?: string;
+  /** The crossed-out "was" price (Task 11). */
+  wasPrice?: string;
   imgs: string[];
 };
+
+export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
 
 const imgURL = (id: string, w: number) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
@@ -209,11 +215,13 @@ export function CarForm({
   mode,
   data,
   stateSections,
+  secondaries = [],
 }: {
   mode: "edit" | "add";
   data: CarFormData;
   /** The owner's state registry (label → the one section), from the office adapter. */
   stateSections: Record<string, Section>;
+  secondaries?: OfficeState[];
 }) {
   const isEdit = mode === "edit";
 

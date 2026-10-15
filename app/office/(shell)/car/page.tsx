@@ -1,5 +1,5 @@
 import "./car.css";
-import { getOfficeCarViews, getOfficeStates } from "@/lib/office";
+import { getOfficeCarViews, getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
 import { requireOfficeSession } from "@/lib/session";
 import { CarForm, type CarFormData } from "./car-client";
 
@@ -72,7 +72,8 @@ export default async function CarPage() {
   // The owner's state → the one section, from the registry (the office adapter's
   // own read). The form renames its live cost figure from this, never from a map
   // of its own (R-MON-7).
+  const secondaries = await getOfficeSecondaryStates();
   const stateSections = Object.fromEntries(states.map((s) => [s.label, s.section]));
 
-  return <CarForm mode="edit" data={data} stateSections={stateSections} />;
+  return <CarForm mode="edit" data={data} stateSections={stateSections} secondaries={secondaries} />;
 }
