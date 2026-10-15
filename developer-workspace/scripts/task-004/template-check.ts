@@ -27,7 +27,12 @@
  */
 import { PDFDocument, PDFTextField } from "pdf-lib";
 import { carTemplatePdf } from "../../../lib/template";
-import { CAR_TEMPLATE_FIELDS } from "../../../lib/template-rules";
+import {
+  CAR_TEMPLATE_FIELDS,
+  TEMPLATE_MAX_CARS,
+  carFields,
+  readCarFieldName,
+} from "../../../lib/template-rules";
 
 const BASE = process.env.BUILD_URL || "http://127.0.0.1:3210";
 const MARKER = "ZZBRANDZZ"; // plain ASCII that cannot be a PDF word by accident
@@ -121,6 +126,75 @@ async function main() {
     Buffer.from(unpacked).includes(asHex) && !Buffer.from(bytes).includes(asHex),
     `/V <${asHex}> · ${Buffer.from(saved).length} bytes packed, ${Buffer.from(unpacked).length} unpacked`,
   );
+
+  console.log("\na blank big enough for a batch (Task 22: a 10-car file becomes 10 drafts)");
+  const batch = await carTemplatePdf(10);
+  const batchDoc = await PDFDocument.load(batch);
+  ok(
+    "a ten-car blank is ten pages, one car to a page",
+    batchDoc.getPageCount() === 10,
+    `${batchDoc.getPageCount()} page(s)`,
+  );
+
+  const batchNames = batchDoc
+    .getForm()
+    .getFields()
+    .map((f) => f.getName())
+    .sort();
+  const expectedBatch = Array.from({ length: 10 }, (_, i) => i + 1)
+    .flatMap((car) => carFields(car).map((f) => f.form))
+    .sort();
+  ok(
+    "and all 140 of its fields are names this blank's own reader knows",
+    batchNames.length === 140 &&
+      batchNames.every((name) => readCarFieldName(name) !== undefined) &&
+      batchNames.join(" | ") === expectedBatch.join(" | "),
+    `${batchNames.length} field(s)`,
+  );
+  ok(
+    "no two cars share a field name — a name says which car and which detail",
+    new Set(batchNames).size === batchNames.length,
+  );
+  ok(
+    "car one keeps the bare names, every later car is suffixed",
+    readCarFieldName("brand")?.car === 1 &&
+      readCarFieldName("brand_2")?.car === 2 &&
+      readCarFieldName("state")?.recipe === "state_id" &&
+      readCarFieldName("state_10")?.recipe === "state_id" &&
+      readCarFieldName("brand_1") === undefined,
+  );
+
+  const filledBatch = await PDFDocument.load(batch);
+  const filledBatchForm = filledBatch.getForm();
+  const filledCars = [1, 2, 5, 10];
+  for (const car of filledCars) {
+    for (const field of carFields(car)) {
+      filledBatchForm.getTextField(field.form).setText(`${field.recipe}#${car}`);
+    }
+  }
+  const reloadedBatchForm = (await PDFDocument.load(await filledBatch.save())).getForm();
+  const batchWrong = filledCars.flatMap((car) =>
+    carFields(car)
+      .map((f) => ({
+        name: f.form,
+        want: `${f.recipe}#${car}`,
+        got: reloadedBatchForm.getTextField(f.form).getText(),
+      }))
+      .filter((w) => w.got !== w.want),
+  );
+  ok(
+    "each car's values come back under that car, not mixed with another's",
+    batchWrong.length === 0,
+    batchWrong.map((w) => `${w.name}: ${JSON.stringify(w.got)}`).join(", "),
+  );
+
+  let batchRefused = false;
+  try {
+    await carTemplatePdf(TEMPLATE_MAX_CARS + 1);
+  } catch {
+    batchRefused = true;
+  }
+  ok(`a blank beyond ${TEMPLATE_MAX_CARS} cars is refused rather than drawn`, batchRefused);
 
   console.log("\nserved office-only");
   try {

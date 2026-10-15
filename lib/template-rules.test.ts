@@ -5,6 +5,10 @@ import {
   CAR_TEMPLATE_FIELDS,
   TEMPLATE_CONTENT_TYPE,
   TEMPLATE_FILENAME,
+  TEMPLATE_MAX_CARS,
+  carFieldName,
+  carFields,
+  readCarFieldName,
   templateFormName,
 } from "./template-rules";
 
@@ -71,4 +75,72 @@ test("the download is named and typed as a PDF", () => {
   assert.equal(TEMPLATE_FILENAME, "truespec-car-template.pdf");
   assert.match(TEMPLATE_FILENAME, /\.pdf$/);
   assert.equal(TEMPLATE_CONTENT_TYPE, "application/pdf");
+});
+
+// ---------------------------------------------------------------------------------------------
+// A blank may carry a batch (Task 22's "a 10-car file → 10 drafts"), so the names have to tell
+// one car's field from another's — and read back to the same pair, which is what makes the blank
+// and the upload one contract rather than two lists that agree today.
+// ---------------------------------------------------------------------------------------------
+
+test("the first car carries the bare names — a blank for one car is unchanged", () => {
+  assert.deepEqual(carFields(1), CAR_TEMPLATE_FIELDS);
+  for (const field of CAR_TEMPLATE_FIELDS) {
+    assert.equal(carFieldName(field.recipe, 1), field.form);
+  }
+});
+
+test("another car carries the same fourteen, each under its own name", () => {
+  const first = carFields(2);
+  assert.equal(first.length, CAR_TEMPLATE_FIELDS.length);
+  assert.deepEqual(
+    first.map((f) => f.form),
+    CAR_TEMPLATE_FIELDS.map((f) => `${f.form}_2`),
+  );
+  // The words and the kinds are the blank's, not the car's: only the name changes.
+  assert.deepEqual(first.map((f) => f.words), CAR_TEMPLATE_FIELDS.map((f) => f.words));
+  assert.deepEqual(first.map((f) => f.kind), CAR_TEMPLATE_FIELDS.map((f) => f.kind));
+});
+
+test("no two cars can collide — every car's fields are distinct names", () => {
+  const names: string[] = [];
+  for (let car = 1; car <= TEMPLATE_MAX_CARS; car += 1) names.push(...carFields(car).map((f) => f.form));
+  assert.equal(names.length, CAR_TEMPLATE_FIELDS.length * TEMPLATE_MAX_CARS);
+  assert.equal(new Set(names).size, names.length, "two fields share a name across cars");
+});
+
+test("a field name reads back as the car and the field it belongs to", () => {
+  for (let car = 1; car <= 5; car += 1) {
+    for (const field of CAR_TEMPLATE_FIELDS) {
+      assert.deepEqual(readCarFieldName(carFieldName(field.recipe, car)), {
+        car,
+        recipe: field.recipe,
+      });
+    }
+  }
+  // The state's one rename survives the round trip, which is the point of doing it here.
+  assert.deepEqual(readCarFieldName("state_3"), { car: 3, recipe: "state_id" });
+});
+
+test("a name this blank does not write is not guessed at", () => {
+  for (const never of [
+    "",
+    "notes",
+    "brand_",
+    "brand_1", // a second way of saying "car 1" would make the mapping ambiguous
+    "brand_0",
+    "brand_2_2",
+    "brand_x",
+    `brand_${TEMPLATE_MAX_CARS + 1}`,
+  ]) {
+    assert.equal(readCarFieldName(never), undefined, `the blank reads "${never}" back`);
+  }
+});
+
+test("a car's number is a whole number inside the blank's limit", () => {
+  for (const bad of [0, -1, 1.5, TEMPLATE_MAX_CARS + 1, Number.NaN]) {
+    assert.throws(() => carFieldName("brand", bad));
+    assert.throws(() => carFields(bad));
+  }
+  assert.equal(TEMPLATE_MAX_CARS, 20);
 });

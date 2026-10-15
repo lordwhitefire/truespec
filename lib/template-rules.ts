@@ -92,3 +92,65 @@ export const CAR_TEMPLATE_FIELDS: readonly TemplateField[] = CAR_RECIPE.map((fie
 export function templateFormName(recipeName: string): string | undefined {
   return CAR_TEMPLATE_FIELDS.find((field) => field.recipe === recipeName)?.form;
 }
+
+/**
+ * How many cars one blank may carry.
+ *
+ * A blank is a form to fill in by hand, so the count is a small, deliberate one: a batch is a
+ * sitting's worth of cars, not a database. The route refuses more, with a reason, rather than
+ * drawing a document nobody wants.
+ */
+export const TEMPLATE_MAX_CARS = 20;
+
+function assertCarNumber(car: number): void {
+  if (!Number.isInteger(car) || car < 1 || car > TEMPLATE_MAX_CARS) {
+    throw new Error(`a car's number is 1 to ${TEMPLATE_MAX_CARS}, not ${car}`);
+  }
+}
+
+/**
+ * The name one car's field carries inside the PDF, for the nth car (counted from 1).
+ *
+ * **Car 1 keeps the bare names** ("brand"), so a blank for one car — the common case — is exactly
+ * the fourteen names truth 9 names, and adding a second car cannot change the first. Cars 2 and up
+ * carry a `_n` suffix ("brand_2"), because an AcroForm field name is unique in a document: two
+ * pages' "brand" would otherwise be *one* field written twice, and the second car would be read as
+ * a correction to the first.
+ */
+export function carFieldName(recipeName: string, car: number): string {
+  const field = CAR_TEMPLATE_FIELDS.find((f) => f.recipe === recipeName);
+  if (!field) throw new Error(`the car template has no field "${recipeName}"`);
+  assertCarNumber(car);
+  return car === 1 ? field.form : `${field.form}_${car}`;
+}
+
+/** The blank's fields for one car, in the recipe's order — that car's own names, nothing else. */
+export function carFields(car: number): readonly TemplateField[] {
+  assertCarNumber(car);
+  return CAR_TEMPLATE_FIELDS.map((field) => ({
+    ...field,
+    form: car === 1 ? field.form : `${field.form}_${car}`,
+  }));
+}
+
+/**
+ * Reads a field name back into the car it belongs to and the recipe field it stands for — the
+ * exact inverse of `carFieldName`. That inverse is what makes the blank and the upload **one
+ * contract** rather than two lists that happen to agree today.
+ *
+ * `undefined` for a name this blank does not write, so a file carrying fields of its own is read as
+ * *not ours* rather than guessed at.
+ */
+export function readCarFieldName(formName: string): { car: number; recipe: string } | undefined {
+  const bare = CAR_TEMPLATE_FIELDS.find((field) => field.form === formName);
+  if (bare) return { car: 1, recipe: bare.recipe };
+
+  const match = /^(.*)_([0-9]+)$/.exec(formName);
+  if (!match) return undefined;
+  const base = CAR_TEMPLATE_FIELDS.find((field) => field.form === match[1]);
+  const car = Number(match[2]);
+  // `brand_1` is not a name this blank writes: car 1's name is `brand`, and a second way of saying
+  // "car 1" would make the mapping ambiguous rather than merely redundant.
+  if (!base || car < 2 || car > TEMPLATE_MAX_CARS) return undefined;
+  return { car, recipe: base.recipe };
+}
