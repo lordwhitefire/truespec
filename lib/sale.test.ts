@@ -1,77 +1,31 @@
 /**
- * R-SLD — the sold rules, executable.
+ * R-SLD — the sale rules, executable (restated for D15).
  *
- * These tests are the model-check for `developer-workspace/models/TASK-002-model.md`
- * §6 (R-SLD-1…3). Sold is a flag carried by the sale record, never a state; un-marking
- * reverses it cleanly, leaving no real-profit residue (R-MON-6). Filtering sold cars
- * out of the stock count is `counts.test.ts`; the public path is Task 20.
+ * Sold is a primary state and setting it performs the sale (truth 5). The rule this module
+ * owns is that the sale belongs to the Sold state and nowhere else.
+ *
+ * The neighbours keep the rest: the write that follows is `car-update.test.ts` (statement
+ * text) and the witness `developer-workspace/scripts/task-004/sold-car-check.ts` (store);
+ * profit moving from projected to real is `money.test.ts` (R-MON-6); a sold car leaving
+ * the count is `counts.test.ts`.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isSold, salePriceOf, saleTransition, type Sale, type SaleRecord } from "./sale";
-import { profitKobo } from "./money";
+import { saleForState, SOLD_SECTION, type SaleInput } from "./sale";
 
-const SOLD: SaleRecord = { salePriceKobo: 30_000_000, soldAt: "2026-09-15" };
+const SALE: SaleInput = { salePriceKobo: 30_000_000, soldAt: "2026-09-15T12:00:00.000Z" };
 
-test("R-SLD-1: sold-ness comes from the record, never a state", () => {
-  assert.equal(isSold(null), false);
-  assert.equal(isSold(SOLD), true);
+test("R-SLD-1: the Sold state is the one section, and it keeps the sale", () => {
+  assert.equal(SOLD_SECTION, "sold");
+  assert.deepEqual(saleForState(SOLD_SECTION, SALE), SALE);
 });
 
-test("R-SLD-1: marking sets a price and a date", () => {
-  const sold = saleTransition(null, {
-    type: "mark",
-    salePriceKobo: 30_000_000,
-    soldAt: "2026-09-15",
-  });
-  assert.deepEqual(sold, { salePriceKobo: 30_000_000, soldAt: "2026-09-15" });
-  assert.equal(isSold(sold), true);
+test("R-SLD-1: a price and a date sent with any other state are dropped", () => {
+  for (const section of ["available", "on order", "landed"] as const) {
+    assert.equal(saleForState(section, SALE), null, `${section} keeps no sale`);
+  }
 });
 
-test("R-SLD-3: un-marking reverses the record to nothing", () => {
-  const sold = saleTransition(null, {
-    type: "mark",
-    salePriceKobo: 30_000_000,
-    soldAt: "2026-09-15",
-  });
-  const back = saleTransition(sold, { type: "unmark" });
-  assert.equal(back, null);
-  assert.equal(isSold(back), false);
-});
-
-test("R-SLD-3: un-marking a car that is not sold is a no-op", () => {
-  assert.equal(saleTransition(null, { type: "unmark" }), null);
-  // …and stays a no-op however many times it is asked.
-  assert.equal(saleTransition(saleTransition(null, { type: "unmark" }), { type: "unmark" }), null);
-});
-
-test("R-SLD-2 + R-MON-6: a sold car's profit is real; an unsold car's stays projected", () => {
-  const totalCostKobo = 25_000_000;
-  const priceKobo = 32_000_000; // the car's one doorstep price
-
-  const unsold: Sale = null;
-  const projected = profitKobo({ totalCostKobo, priceKobo, salePriceKobo: salePriceOf(unsold) });
-  assert.equal(projected.basis, "projected");
-
-  const sold = saleTransition(null, {
-    type: "mark",
-    salePriceKobo: 30_000_000,
-    soldAt: "2026-09-15",
-  });
-  const real = profitKobo({ totalCostKobo, priceKobo, salePriceKobo: salePriceOf(sold) });
-  assert.equal(real.basis, "real");
-  assert.equal(real.kobo, 5_000_000);
-});
-
-test("R-SLD-3: un-marking leaves no real-profit residue", () => {
-  const sold = saleTransition(null, {
-    type: "mark",
-    salePriceKobo: 30_000_000,
-    soldAt: "2026-09-15",
-  });
-  const back = saleTransition(sold, { type: "unmark" });
-  assert.equal(salePriceOf(back), null);
-  const p = profitKobo({ totalCostKobo: 25_000_000, priceKobo: 32_000_000, salePriceKobo: salePriceOf(back) });
-  assert.equal(p.basis, "projected");
-  assert.equal(p.kobo, 7_000_000);
+test("R-SLD-1: a Sold state with no sale stays no sale — the action decides that, not this", () => {
+  assert.equal(saleForState(SOLD_SECTION, null), null);
 });

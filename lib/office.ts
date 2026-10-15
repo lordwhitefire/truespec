@@ -87,7 +87,11 @@ function label(row: Pick<OfficeCarRow, "year" | "model" | "trim">): string {
 
 // One office row → the shared rules' input. No arithmetic happens here.
 export function toOverviewCar(row: OfficeCarView): OverviewCar {
-  const sold = row.sold_at !== null;
+  // Sold-ness is the car's primary state (truth 5: the state comes first and the sale
+  // action follows from it; D15: the showroom reads only the primary state). The sale
+  // row holds only the money facts, so a car whose state is Sold and a car with a sale
+  // row are the same car — the write that sets one sets the other.
+  const sold = row.section === "sold";
   return {
     section: row.section,
     isNewArrival: row.is_new_arrival,
@@ -212,7 +216,7 @@ export async function getOfficeCounts(): Promise<StockCounts> {
 export async function getOfficeDashboard(): Promise<OfficeDashboard> {
   const views = await getOfficeCarViews();
   const overview = stockOverview(views.map(toOverviewCar));
-  const firstSold = views.find((v) => v.sold_at !== null) ?? null;
+  const firstSold = views.find((v) => v.section === "sold") ?? null;
   return {
     counts: overview.counts,
     moneyTiedUp: overview.moneyTiedUp,
@@ -266,6 +270,16 @@ export type OfficeCarEdit = {
   state: string;
   section: Section;
   is_new_arrival: boolean;
+  /** The sale, while the car is Sold (truth 5) — the two money facts. */
+  sold_at: string | Date | null;
+  sale_price_kobo: number | null;
+  /**
+   * The primary state this car held before it sold — the sale row's own
+   * `prior_state_id`. Un-marking returns the car to it (truth 5). `null` when the car
+   * is not Sold.
+   */
+  prior_state_id: string | null;
+  prior_state_label: string | null;
   created_at: string | Date;
   updated_at: string | Date;
   cost_lines: CostLineInput[];
@@ -291,6 +305,10 @@ type RawOfficeEdit = {
   state: string;
   section: string;
   is_new_arrival: boolean;
+  sold_at: string | Date | null;
+  sale_price_kobo: string | number | null;
+  prior_state_id: string | null;
+  prior_state_label: string | null;
   created_at: string | Date;
   updated_at: string | Date;
   cost_lines: { kind: string; amountMinor: string | number | null }[];
@@ -303,6 +321,7 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
             c.exterior_color, c.interior_color, c.features, c.note, c.private_note,
             c.was_price_kobo, c.arrival_note, c.doorstep_price_kobo,
             s.label AS state, s.section, s.is_new_arrival,
+            sl.sold_at, sl.sale_price_kobo, sl.prior_state_id, ps.label AS prior_state_label,
             c.created_at, c.updated_at,
             COALESCE((SELECT jsonb_agg(jsonb_build_object('kind', cl.kind, 'amountMinor', cl.amount_minor))
                         FROM cost_line cl WHERE cl.car_id = c.id), '[]'::jsonb) AS cost_lines,
@@ -310,6 +329,8 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
                         FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secondary_state_ids
        FROM car c
        JOIN car_state s ON s.id = c.state_id
+       LEFT JOIN sale sl ON sl.car_id = c.id
+       LEFT JOIN car_state ps ON ps.id = sl.prior_state_id
       WHERE c.ref = $1 AND c.deleted_at IS NULL`,
     [ref],
   )) as RawOfficeEdit[];
@@ -335,6 +356,10 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
     state: r.state,
     section: sectionOfState(r.state, r.section),
     is_new_arrival: r.is_new_arrival,
+    sold_at: r.sold_at,
+    sale_price_kobo: toNumber(r.sale_price_kobo),
+    prior_state_id: r.prior_state_id,
+    prior_state_label: r.prior_state_label,
     created_at: r.created_at,
     updated_at: r.updated_at,
     cost_lines: r.cost_lines.map((c) => ({ kind: c.kind, amountMinor: toNumber(c.amountMinor) })),

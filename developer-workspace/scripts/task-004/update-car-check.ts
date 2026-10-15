@@ -87,6 +87,7 @@ async function main() {
       columns: edited.value.columns,
       costs: edited.value.costs,
       secondaryStateIds: edited.value.secondaryStateIds,
+      sale: null,
       contentHash: editHash,
       hashVersion: CHANGE_CHECK_VERSION,
       actorId: actor,

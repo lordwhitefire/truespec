@@ -1,4 +1,5 @@
 import { parseCostAmount, SIX_COST_KINDS, type CostKind } from "./money";
+import type { SaleInput } from "./sale";
 
 /**
  * The car form's one reader.
@@ -42,6 +43,10 @@ export type CarFormInput = {
   secondaryStateIds?: string[];
   /** Naira per cost kind; a blank or absent kind means "not entered". */
   costs?: Partial<Record<CostKind, string>>;
+  /** Naira; the sale price, when the car's state is being set Sold (truth 5). */
+  salePrice?: string;
+  /** The day the car sold, `YYYY-MM-DD`, when the car's state is being set Sold. */
+  saleDate?: string;
 };
 
 /** The car's fourteen editable columns, ready to store. */
@@ -68,6 +73,13 @@ export type CarInputValue = {
   columns: CarColumns;
   costs: CarCostLine[];
   secondaryStateIds: string[];
+  /**
+   * The sale facts the form carried, or `null`. They are only *kept* when the chosen
+   * primary state is Sold — that is the action's judgement against the registry
+   * (`saleForState`), not this reader's, because "which section is this state?" is the
+   * store's fact.
+   */
+  sale: SaleInput | null;
 };
 
 export type FieldError = { field: string; message: string };
@@ -92,6 +104,19 @@ function featureList(raw: string | undefined): string[] {
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line !== "");
+}
+
+/**
+ * The one reading of a sale date (`YYYY-MM-DD`), stored at **noon UTC** — the day the
+ * owner typed, in an instant no display timezone can shift to the day before or after.
+ * `null` for anything that is not a real calendar day (the 31st of February included),
+ * so the field gets its own message rather than a shifted date.
+ */
+function isoDay(raw: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const day = new Date(`${raw}T12:00:00.000Z`);
+  if (Number.isNaN(day.getTime()) || day.toISOString().slice(0, 10) !== raw) return null;
+  return raw;
 }
 
 /**
@@ -152,6 +177,32 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
   const stateId = (input.stateId ?? "").trim();
   if (stateId === "") errors.push({ field: "stateId", message: "Choose the car's state" });
 
+  // --- the sale (truth 5) ---
+  // The two money facts travel together: a price with no date, or a date with no price,
+  // is half a sale and is refused at the field that is missing. Whether a sale is
+  // *required* depends on the chosen state's section, which is the registry's fact — the
+  // action checks that, not this module.
+  const gavePrice = !blank(input.salePrice);
+  const gaveDate = !blank(input.saleDate);
+
+  let salePriceKobo: number | null = null;
+  if (gavePrice) {
+    const parsed = parseCostAmount(input.salePrice as string);
+    if (parsed.ok) salePriceKobo = parsed.amountMinor;
+    else errors.push({ field: "salePrice", message: parsed.error });
+  } else if (gaveDate) {
+    errors.push({ field: "salePrice", message: "Enter the sale price" });
+  }
+
+  let soldAt: string | null = null;
+  if (gaveDate) {
+    const day = isoDay((input.saleDate as string).trim());
+    if (day !== null) soldAt = `${day}T12:00:00.000Z`;
+    else errors.push({ field: "saleDate", message: "Enter the date the car sold" });
+  } else if (gavePrice) {
+    errors.push({ field: "saleDate", message: "Enter the date the car sold" });
+  }
+
   if (errors.length > 0) return { ok: false, errors };
 
   const features = featureList(input.features);
@@ -177,6 +228,7 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
       },
       costs,
       secondaryStateIds: Array.from(new Set(input.secondaryStateIds ?? [])).filter((id) => id.trim() !== ""),
+      sale: salePriceKobo !== null && soldAt !== null ? { salePriceKobo, soldAt } : null,
     },
   };
 }

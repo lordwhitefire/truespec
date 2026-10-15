@@ -9,6 +9,8 @@ import { carCreateStatement } from "@/lib/car-create";
 import { carUpdateStatement } from "@/lib/car-update";
 import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from "@/lib/car-delete";
 import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
+import { isSection, type Section } from "@/lib/sections";
+import { saleForState, SOLD_SECTION, type SaleInput } from "@/lib/sale";
 import { deleteAsset } from "@/lib/sanity";
 
 /**
@@ -68,10 +70,20 @@ function toCarForm(form: FormData): CarFormInput {
       trucking_ng: str("cost.trucking_ng"),
       full_tank: str("cost.full_tank"),
     },
+    salePrice: str("salePrice"),
+    saleDate: str("saleDate"),
   };
 }
 
-type CarFormValue = { columns: CarColumns; costs: CarCostLine[]; secondaryStateIds: string[] };
+type CarFormValue = {
+  columns: CarColumns;
+  costs: CarCostLine[];
+  secondaryStateIds: string[];
+  /** The sale, only while the chosen state is Sold (truth 5); `null` otherwise. */
+  sale: SaleInput | null;
+  /** The section the chosen primary state resolves to — the registry's fact. */
+  section: Section;
+};
 
 /**
  * Read the form and prove its state facts against the registry — the part both writes
@@ -99,9 +111,14 @@ async function readCarForm(
   }
   if (errors.length > 0) return { ok: false, errors };
 
-  const [check] = await storeQuery<{ primary_kind: string | null; secondaries_ok: boolean }[]>(
+  const [check] = await storeQuery<{
+    primary_kind: string | null;
+    primary_section: string | null;
+    secondaries_ok: boolean;
+  }[]>(
     `SELECT
        (SELECT kind FROM car_state WHERE id = $1) AS primary_kind,
+       (SELECT section FROM car_state WHERE id = $1) AS primary_section,
        NOT EXISTS (
          SELECT 1
            FROM jsonb_array_elements_text($2::jsonb) AS s(value)
@@ -111,14 +128,27 @@ async function readCarForm(
        ) AS secondaries_ok`,
     [columns.state_id, JSON.stringify(secondaryStateIds)],
   );
-  if (check.primary_kind !== "primary") {
+  if (check.primary_kind !== "primary" || !isSection(check.primary_section)) {
     return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
   }
   if (!check.secondaries_ok) {
     return { ok: false, errors: [{ field: "secondaryStateIds", message: "One of those states no longer exists" }] };
   }
 
-  return { ok: true, value: { columns, costs, secondaryStateIds } };
+  // The sale belongs to the Sold state and to nothing else (truth 5). A car being set
+  // Sold must carry the two money facts; a car being set anywhere else carries none — a
+  // price sent with another state is dropped, never stored, so a sale row can never sit
+  // beside a car that is not Sold.
+  const section = check.primary_section;
+  const sale = saleForState(section, read.value.sale);
+  if (section === SOLD_SECTION && sale === null) {
+    return {
+      ok: false,
+      errors: [{ field: "salePrice", message: "Enter the sale price and the date it sold" }],
+    };
+  }
+
+  return { ok: true, value: { columns, costs, secondaryStateIds, sale, section } };
 }
 
 /** The office pages a car write changes. */
@@ -135,6 +165,17 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   const read = await readCarForm(form);
   if (!read.ok) return { ok: false, errors: read.errors };
   const { columns, costs, secondaryStateIds } = read.value;
+
+  // A car cannot *start* Sold. Un-marking returns a car to the primary state it held
+  // before it sold (truth 5), and a car that never held one has nothing to return to —
+  // so the sale is recorded on a car that exists, not on one being made. The add form
+  // does not offer Sold; this is the guard behind that.
+  if (read.value.section === SOLD_SECTION) {
+    return {
+      ok: false,
+      errors: [{ field: "stateId", message: "A new car can't start as sold — add it first, then mark it sold" }],
+    };
+  }
 
   // The key, minted once so a retry is the same car. The change-check is computed
   // here from the values as they will be stored — never from the browser (truth 14).
@@ -173,11 +214,15 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
 
   // The change-check is recomputed here from the values as they will be stored, so the
   // hash always matches the row (truth 14). A browser-supplied hash is never read.
+  // The sale, if any, rides this same write: marking Sold writes the sale row (with the
+  // car's *own* pre-write state as the previous state, read by the statement itself),
+  // and leaving Sold removes it — one atomic change, idempotent under a retry.
   const { text, params } = carUpdateStatement({
     id: carId,
     columns,
     costs,
     secondaryStateIds,
+    sale: read.value.sale,
     contentHash: carChangeCheck(columns as unknown as Record<string, unknown>),
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,

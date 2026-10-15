@@ -83,6 +83,10 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
     }
   }
 
+  // The sale, while the car is Sold (truth 5). The day is read in UTC — the same instant
+  // the form writes it at — so the field shows back the day that was chosen.
+  const soldDay = car.sold_at ? asDate(car.sold_at).toISOString().slice(0, 10) : "";
+
   const data: CarFormData = {
     carId: car.id,
     ref: car.ref,
@@ -105,6 +109,10 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
     note: car.note ?? "",
     privateNote: car.private_note ?? "",
     wasPrice: nairaString(car.was_price_kobo),
+    salePrice: car.section === "sold" ? nairaString(car.sale_price_kobo) : "",
+    saleDate: car.section === "sold" ? soldDay : "",
+    priorStateId: car.prior_state_id ?? undefined,
+    priorStateLabel: car.prior_state_label ?? undefined,
     imgs: [],
     secondaryStateIds: car.secondary_state_ids,
   };

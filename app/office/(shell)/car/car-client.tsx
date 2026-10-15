@@ -59,6 +59,12 @@ export type CarFormData = {
   wasPrice?: string;
   /** The secondary states the car already carries (edit mode) — shown checked. */
   secondaryStateIds?: string[];
+  /** The sale, while the car is Sold (truth 5): a plain naira string and `YYYY-MM-DD`. */
+  salePrice?: string;
+  saleDate?: string;
+  /** The primary state the car sold from — where un-marking returns it (truth 5). */
+  priorStateId?: string;
+  priorStateLabel?: string;
   imgs: string[];
 };
 
@@ -249,6 +255,14 @@ export function CarForm({
   const sectionForId = (id: string) =>
     primaries.find((s) => s.id === id)?.section ?? data.section;
 
+  // Sold is a primary state like the other three (D15); what it adds is the sale, which
+  // is why the state's two questions are asked here rather than in the picker itself.
+  const soldPrimaryId = primaries.find((s) => s.section === "sold")?.id;
+  // The date field's default while the owner is choosing Sold. It is only ever read in
+  // the interactive path — a car that is already sold carries its own date — so it cannot
+  // disagree between the server render and the browser.
+  const today = new Date().toISOString().slice(0, 10);
+
   const [panel, setPanel] = useState(() =>
     compute(
       isEdit ? data.price : "",
@@ -263,7 +277,9 @@ export function CarForm({
   const [curStateId, setCurStateId] = useState(
     () => primaries.find((s) => s.label === data.state)?.id ?? primaries[0]?.id ?? "",
   );
-  const [soldOpen, setSoldOpen] = useState(false);
+  // Whether the state being held is Sold — which is what puts the sale facts on the form
+  // (truth 5: the state comes first and the sale action follows from it).
+  const isSoldPicked = sectionForId(curStateId) === "sold";
   const [delOpen, setDelOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastShow, setToastShow] = useState(false);
@@ -277,7 +293,6 @@ export function CarForm({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setSoldOpen(false);
         setDelOpen(false);
       }
     };
@@ -380,8 +395,16 @@ export function CarForm({
             className="btn sold"
             id="mkSold"
             type="button"
-            hidden={!isEdit}
-            onClick={() => setSoldOpen(true)}
+            hidden={!isEdit || !soldPrimaryId}
+            disabled={curStateId === soldPrimaryId}
+            onClick={() => {
+              if (!soldPrimaryId) return;
+              // The same choice the picker makes — Sold is one of the four states, so
+              // marking sold is choosing it and filling in the sale. The save is what
+              // commits, so nothing is recorded by opening this button.
+              setCurStateId(soldPrimaryId);
+              showToast("Sold chosen — enter the sale price and the date, then save.");
+            }}
           >
             <i className="fa-solid fa-flag-checkered" /> Mark as sold
           </button>
@@ -688,8 +711,46 @@ export function CarForm({
                 >
                   Where this car is
                 </label>
+                {/* A sold car says so, names the state it sold from, and offers to go
+                    back there. The button moves the pick below — un-marking is the same
+                    one write as any other state change, so saving is what commits it. */}
+                {isEdit && data.section === "sold" ? (
+                  <div
+                    className="hint"
+                    style={{
+                      marginBottom: 12,
+                      padding: "10px 12px",
+                      border: "1px solid var(--line)",
+                      borderRadius: 8,
+                    }}
+                  >
+                    <b style={{ color: "var(--mute)" }}>This car is sold.</b> Un-marking
+                    reverses the sale and puts the car back in{" "}
+                    <b>{data.priorStateLabel ?? "its previous state"}</b>, keeping its
+                    tracking states.
+                    {data.priorStateId ? (
+                      <>
+                        {" "}
+                        <button
+                          type="button"
+                          className="btn2"
+                          id="unmarkSold"
+                          onClick={() => {
+                            setCurStateId(data.priorStateId as string);
+                            showToast("The sale will be reversed — save to apply.");
+                          }}
+                        >
+                          Move it back
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                ) : null}
                 <div className="stlist" id="states">
-                  {primaries.map((s) => (
+                  {/* Add mode offers the three a car can arrive in: a car cannot start
+                      Sold, because un-marking returns a car to the state it held before
+                      it sold and a car that never held one has nothing to return to. */}
+                  {(isEdit ? primaries : primaries.filter((s) => s.section !== "sold")).map((s) => (
                     <button
                       key={s.id}
                       type="button"
@@ -722,6 +783,64 @@ export function CarForm({
                   The showroom follows automatically. Buyers only ever see the three
                   section names — never these labels.
                 </p>
+                {/* The sale (truth 5). Sold is a primary state, and setting it is what
+                    performs the sale — so the two money facts appear with it and only
+                    with it, and the Server Action stores them on the car's sale row. */}
+                {isSoldPicked ? (
+                  <div style={{ marginTop: 14 }}>
+                    <label
+                      style={{
+                        fontSize: "11.5px",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: ".05em",
+                        color: "var(--mute)",
+                        display: "block",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      The sale — required
+                    </label>
+                    <div className="fgrid">
+                      <div className="f">
+                        <label htmlFor="f-salePrice">Sale price (₦)</label>
+                        <input
+                          className="in"
+                          id="f-salePrice"
+                          name="salePrice"
+                          type="text"
+                          inputMode="numeric"
+                          placeholder="28,000,000"
+                          defaultValue={data.salePrice ?? ""}
+                        />
+                        {errFor("salePrice") ? (
+                          <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                            {errFor("salePrice")}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="f">
+                        <label htmlFor="f-saleDate">Date sold</label>
+                        <input
+                          className="in"
+                          id="f-saleDate"
+                          name="saleDate"
+                          type="date"
+                          defaultValue={data.saleDate ?? today}
+                        />
+                        {errFor("saleDate") ? (
+                          <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                            {errFor("saleDate")}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <p className="hint" style={{ marginTop: 8 }}>
+                      Real profit replaces projected, the car leaves the showroom, and it
+                      stops counting as stock.
+                    </p>
+                  </div>
+                ) : null}
                 <div style={{ marginTop: 14 }}>
                   <label
                     style={{
@@ -953,44 +1072,6 @@ export function CarForm({
                 <b id="m-profit" className={panel.mProfitCls}>
                   {panel.mProfit}
                 </b>
-              </div>
-            </div>
-
-            <div
-              className="ovl"
-              id="ovlS"
-              hidden={!soldOpen}
-              onClick={(e) => {
-                if (e.target === e.currentTarget) setSoldOpen(false);
-              }}
-            >
-              <div className="mdl" role="dialog" aria-modal="true">
-                <h2>Mark as sold?</h2>
-                <p>
-                  The car leaves the showroom immediately and moves to Inventory →
-                  Sold. Record the sale price there. Nothing is deleted.
-                </p>
-                <div className="mrow">
-                  <button
-                    className="btn2"
-                    type="button"
-                    onClick={() => setSoldOpen(false)}
-                  >
-                    Not yet
-                  </button>
-                  <button
-                    className="btn2"
-                    type="button"
-                    id="soldYes"
-                    style={{ borderColor: "var(--ok)", color: "var(--ok)" }}
-                    onClick={() => {
-                      setSoldOpen(false);
-                      showToast("Marked as sold (demo). It moves to Inventory → Sold.");
-                    }}
-                  >
-                    Mark as sold
-                  </button>
-                </div>
               </div>
             </div>
 

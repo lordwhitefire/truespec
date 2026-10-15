@@ -1,4 +1,5 @@
 import type { CarColumns, CarCostLine } from "./car-input";
+import type { SaleInput } from "./sale";
 
 /**
  * The one statement that changes a car.
@@ -26,6 +27,20 @@ import type { CarColumns, CarCostLine } from "./car-input";
  * The two touch disjoint rows (submitted kinds vs. the rest), so they cannot see — or
  * fight — each other inside the one statement. The six-line rule is the store's
  * (`UNIQUE (car_id, kind)`); money is naira only (R-MON-3).
+ *
+ * **The sale rides the same write** (truth 5: Sold is a primary state, and setting it is
+ * what performs the sale). The sale row and the car's `state_id` are one fact, so they
+ * move together or not at all:
+ *
+ *   * marking Sold upserts the sale (price, date) with `prior_state_id` taken from the
+ *     car's **own row before this write** — the previous primary state comes from the
+ *     store, never from the browser;
+ *   * leaving Sold deletes it, so no real-profit residue can survive an un-marking;
+ *   * re-saving an unchanged Sold car keeps the sale's original `prior_state_id`, so
+ *     correcting the price cannot lose the state the car came from.
+ *
+ * The sale is part of the `changed` guard, so correcting only the price is still a real
+ * write — and a retry of any of it is still a true no-op.
  */
 
 export type CarUpdateArgs = {
@@ -34,6 +49,12 @@ export type CarUpdateArgs = {
   columns: CarColumns;
   costs: readonly CarCostLine[];
   secondaryStateIds: readonly string[];
+  /**
+   * The sale facts, when this write is setting the car Sold; `null` otherwise (which is
+   * also what un-marks a sold car). Only the Sold state may carry one — the action drops
+   * it everywhere else through `saleForState` before the statement is built.
+   */
+  sale: SaleInput | null;
   /** The server-computed change-check (truth 14). */
   contentHash: string;
   hashVersion: number;
@@ -44,11 +65,14 @@ export type CarUpdateArgs = {
 export function carUpdateStatement(args: CarUpdateArgs): { text: string; params: unknown[] } {
   const { columns: c } = args;
   const text = `WITH old AS (
-    SELECT c.content_hash,
+    SELECT c.content_hash, c.state_id AS state_id,
            COALESCE((SELECT jsonb_agg(jsonb_build_array(cl.kind, cl.amount_minor) ORDER BY cl.kind)
                        FROM cost_line cl WHERE cl.car_id = c.id), '[]'::jsonb) AS costs,
            COALESCE((SELECT jsonb_agg(css.state_id ORDER BY css.state_id)
-                       FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secs
+                       FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secs,
+           COALESCE((SELECT 's' || s.sale_price_kobo::text || '@'
+                            || to_char(s.sold_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS')
+                       FROM sale s WHERE s.car_id = c.id), '#') AS sold
       FROM car c
      WHERE c.id = $1 AND c.deleted_at IS NULL
   ),
@@ -58,7 +82,11 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
                        FROM jsonb_to_recordset($18::jsonb) AS x(kind text, amount_minor bigint)), '[]'::jsonb) AS costs,
            COALESCE((SELECT jsonb_agg(y.state_id ORDER BY y.state_id)
                        FROM (SELECT DISTINCT (value)::uuid AS state_id
-                               FROM jsonb_array_elements_text($19::jsonb)) y), '[]'::jsonb) AS secs
+                               FROM jsonb_array_elements_text($19::jsonb)) y), '[]'::jsonb) AS secs,
+           CASE WHEN $21::bigint IS NULL AND $22::timestamptz IS NULL THEN '#'
+                ELSE 's' || $21::bigint::text || '@'
+                     || to_char($22::timestamptz AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS')
+           END AS sold
   ),
   changed AS (
     SELECT EXISTS (
@@ -66,6 +94,7 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
        WHERE o.content_hash IS DISTINCT FROM n.content_hash
           OR o.costs IS DISTINCT FROM n.costs
           OR o.secs  IS DISTINCT FROM n.secs
+          OR o.sold  IS DISTINCT FROM n.sold
     ) AS yes
   ),
   upd AS (
@@ -111,9 +140,30 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
        )
     RETURNING 1
   ),
+  ins_sale AS (
+    INSERT INTO sale (car_id, sale_price_kobo, sold_at, prior_state_id)
+    SELECT u.id, $21::bigint, $22::timestamptz, (SELECT o.state_id FROM old o)
+      FROM upd u
+     WHERE $21::bigint IS NOT NULL AND $22::timestamptz IS NOT NULL
+    ON CONFLICT (car_id) DO UPDATE
+       SET sale_price_kobo = EXCLUDED.sale_price_kobo,
+           sold_at = EXCLUDED.sold_at
+    RETURNING 1
+  ),
+  del_sale AS (
+    DELETE FROM sale
+     WHERE car_id IN (SELECT id FROM upd)
+       AND ($21::bigint IS NULL OR $22::timestamptz IS NULL)
+    RETURNING 1
+  ),
   ins_event AS (
     INSERT INTO activity_event (kind, subject, actor_id)
-    SELECT 'car.updated', u.ref, $20::uuid
+    SELECT CASE
+             WHEN (SELECT sold FROM old) = '#' AND (SELECT sold FROM new) <> '#' THEN 'car.sold'
+             WHEN (SELECT sold FROM old) <> '#' AND (SELECT sold FROM new) = '#' THEN 'car.unsold'
+             ELSE 'car.updated'
+           END,
+           u.ref, $20::uuid
       FROM upd u
     RETURNING 1
   )
@@ -142,6 +192,8 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
     JSON.stringify(args.costs.map((cost) => ({ kind: cost.kind, amount_minor: cost.amountMinor }))),
     JSON.stringify(args.secondaryStateIds),
     args.actorId,
+    args.sale?.salePriceKobo ?? null,
+    args.sale?.soldAt ?? null,
   ];
   return { text, params };
 }

@@ -38,6 +38,7 @@ const args: CarUpdateArgs = {
     { kind: "shipping", amountMinor: 150_000_000 },
   ],
   secondaryStateIds: ["33333333-3333-3333-3333-333333333333"],
+  sale: null,
   contentHash: "abc123",
   hashVersion: 1,
   actorId: "44444444-4444-4444-4444-444444444444",
@@ -109,4 +110,54 @@ test("one car.updated row, and the whole write is gated so a retry cannot double
   // The UPDATE only fires when something actually differs, and the cost/secondary/event
   // inserts draw only from `upd` — so a repeat finds `upd` empty and writes nothing.
   assert.match(text, /WHERE id = \$1 AND deleted_at IS NULL AND \(SELECT yes FROM changed\)/);
+});
+
+// --- the sale (task 14) ------------------------------------------------------------
+
+const SOLD: CarUpdateArgs = {
+  ...args,
+  sale: { salePriceKobo: 3_500_000_000, soldAt: "2026-09-15T12:00:00.000Z" },
+};
+
+test("the sale rides the one car write: the row is upserted, never doubled", () => {
+  const { text } = carUpdateStatement(SOLD);
+  assert.match(text, /INSERT INTO sale \(car_id, sale_price_kobo, sold_at, prior_state_id\)/);
+  assert.match(text, /ON CONFLICT \(car_id\) DO UPDATE/);
+  // Correcting the price must not lose the state the car came from.
+  const conflict = text.slice(text.indexOf("ON CONFLICT (car_id)"));
+  assert.doesNotMatch(conflict.slice(0, conflict.indexOf("RETURNING 1")), /prior_state_id\s*=/);
+});
+
+test("the previous state is the car's own row before the write — never the browser's", () => {
+  const { text } = carUpdateStatement(SOLD);
+  // The sale's SELECT takes the state from `old` — the stored row, read by this same
+  // statement before the update — so the previous primary state is the store's, and no
+  // parameter can supply it.
+  assert.match(text, /SELECT u\.id, \$21::bigint, \$22::timestamptz, \(SELECT o\.state_id FROM old o\)/);
+});
+
+test("leaving Sold deletes the sale, so no real-profit residue can survive", () => {
+  const { text } = carUpdateStatement(args); // sale: null — the un-marking shape
+  assert.match(text, /DELETE FROM sale/);
+  assert.match(text, /\$21::bigint IS NULL OR \$22::timestamptz IS NULL/);
+});
+
+test("the sale is part of the change-check, so a price-only correction is a real write", () => {
+  const { text } = carUpdateStatement(args);
+  assert.match(text, /o\.sold\s+IS DISTINCT FROM n\.sold/);
+});
+
+test("the event names the transition: became sold, or stopped being sold", () => {
+  const { text } = carUpdateStatement(args);
+  assert.match(text, /THEN 'car\.sold'/);
+  assert.match(text, /THEN 'car\.unsold'/);
+});
+
+test("the two money facts travel as parameters, and a null pair means no sale", () => {
+  const sold = carUpdateStatement(SOLD).params;
+  assert.equal(sold[20], 3_500_000_000);
+  assert.equal(sold[21], "2026-09-15T12:00:00.000Z");
+  const none = carUpdateStatement(args).params;
+  assert.equal(none[20], null);
+  assert.equal(none[21], null);
 });

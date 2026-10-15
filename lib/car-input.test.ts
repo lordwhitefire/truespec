@@ -117,3 +117,47 @@ test("the reader never returns a hash — the change-check is the server's", () 
   assert.equal("content_hash" in r.value.columns, false);
   assert.equal("hash_version" in r.value.columns, false);
 });
+
+// --- the sale (task 14) -------------------------------------------------------------
+
+test("a form with no sale reads as no sale", () => {
+  const r = read({});
+  assert.equal(r.ok, true);
+  if (r.ok) assert.equal(r.value.sale, null);
+});
+
+test("the two sale money facts read into the sale, the date at noon UTC", () => {
+  const r = read({ salePrice: "18,500,000", saleDate: "2026-09-15" });
+  assert.equal(r.ok, true);
+  if (!r.ok) return;
+  // Noon UTC: the day the owner typed, in an instant no display timezone can shift to
+  // the day before or after.
+  assert.deepEqual(r.value.sale, {
+    salePriceKobo: 1_850_000_000,
+    soldAt: "2026-09-15T12:00:00.000Z",
+  });
+});
+
+test("half a sale is refused at the field that is missing", () => {
+  const noDate = read({ salePrice: "18,500,000" });
+  assert.equal(noDate.ok, false);
+  if (!noDate.ok) assert.deepEqual(noDate.errors.map((e) => e.field), ["saleDate"]);
+
+  const noPrice = read({ saleDate: "2026-09-15" });
+  assert.equal(noPrice.ok, false);
+  if (!noPrice.ok) assert.deepEqual(noPrice.errors.map((e) => e.field), ["salePrice"]);
+});
+
+test("a sale price that is not an amount is refused at salePrice", () => {
+  const r = read({ salePrice: "lots", saleDate: "2026-09-15" });
+  assert.equal(r.ok, false);
+  if (!r.ok) assert.equal(r.errors[0]?.field, "salePrice");
+});
+
+test("a sale date that is not a real calendar day is refused at saleDate", () => {
+  for (const bad of ["2026-02-31", "15/09/2026", "2026-9-15"]) {
+    const r = read({ salePrice: "1,000", saleDate: bad });
+    assert.equal(r.ok, false, `${bad || "(blank)"} is refused`);
+    if (!r.ok) assert.ok(r.errors.some((e) => e.field === "saleDate"), `${bad} names saleDate`);
+  }
+});

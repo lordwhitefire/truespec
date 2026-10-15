@@ -38,6 +38,9 @@ type DemoCar = {
   features: string[];
   arrivalNote?: string;
   sold?: string; // ISO date — the sale row, alongside the Sold primary
+  // The primary state the car held before it sold (truth 5): un-marking returns it to
+  // that state. Required whenever `sold` is set — the sale's own `prior_state_id`.
+  prior?: "Available" | "On Order" | "Landed";
   // Cost lines deliberately not yet entered. A car still on the water has not paid
   // Nigerian trucking or filled its tank; TS-1018 is furthest out, so neither.
   missingCosts?: readonly string[];
@@ -72,7 +75,7 @@ const DEMO: DemoCar[] = [
 
   // Sold — under D15 the car's primary state is Sold (a section of its own), and the
   // sale row records the sale itself. The showroom never shows a Sold car.
-  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, primary: "Sold", sold: "2026-09-15", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"] },
+  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, primary: "Sold", sold: "2026-09-15", prior: "Landed", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"] },
 ];
 
 // The refs the previous seed wrote — TS-1001…TS-1025. They are demonstration rows
@@ -168,6 +171,15 @@ async function main() {
         throw new Error(`seed: "${c.primary}" is a ${primary.kind} state, not a primary (D15).`);
       }
       const stateId = primary.id;
+      // A sold car names the state it sold from, because that is where un-marking puts
+      // it back (truth 5). The demo data is authored, never inferred.
+      const prior = c.prior ? stateByLabel.get(c.prior) : undefined;
+      if (c.sold && !c.prior) {
+        throw new Error(`seed: ${c.ref} is Sold but names no prior state (add \`prior\`).`);
+      }
+      if (c.prior && (!prior || prior.kind !== "primary")) {
+        throw new Error(`seed: prior state "${c.prior}" is not one of the four primaries (D15).`);
+      }
       const secondary = c.secondary ? stateByLabel.get(c.secondary) : undefined;
       if (c.secondary && !secondary) {
         throw new Error(`seed: secondary state "${c.secondary}" not found (run migrations first).`);
@@ -287,14 +299,20 @@ async function main() {
       if (c.sold) {
         // The sale is found by its car and written only where it differs. A car with
         // no sale in the recipe is left alone — nothing is removed on its behalf.
+        // `prior_state_id` is the primary state the car sold from (truth 5). The date is
+        // stored at noon UTC, the same instant the car form writes, so a re-seed and an
+        // office edit agree on the day.
         await client.query(
-          `INSERT INTO sale (car_id, sale_price_kobo, sold_at)
-           VALUES ($1, $2, $3)
+          `INSERT INTO sale (car_id, sale_price_kobo, sold_at, prior_state_id)
+           VALUES ($1, $2, $3, $4)
            ON CONFLICT (car_id) DO UPDATE SET
-             sale_price_kobo = EXCLUDED.sale_price_kobo, sold_at = EXCLUDED.sold_at
+             sale_price_kobo = EXCLUDED.sale_price_kobo,
+             sold_at = EXCLUDED.sold_at,
+             prior_state_id = EXCLUDED.prior_state_id
            WHERE sale.sale_price_kobo IS DISTINCT FROM EXCLUDED.sale_price_kobo
-              OR sale.sold_at IS DISTINCT FROM EXCLUDED.sold_at`,
-          [carId, c.price, new Date(c.sold).toISOString()],
+              OR sale.sold_at IS DISTINCT FROM EXCLUDED.sold_at
+              OR sale.prior_state_id IS DISTINCT FROM EXCLUDED.prior_state_id`,
+          [carId, c.price, new Date(`${c.sold}T12:00:00.000Z`), prior?.id ?? null],
         );
       }
     }
