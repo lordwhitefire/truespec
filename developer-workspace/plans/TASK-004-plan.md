@@ -1,6 +1,6 @@
 # TASK-004 — plan (functionality, Layer 4 of 6)
 
-**Date:** 2026-10-14 · **Status:** approved ("go") — building; Phases 0–2 done (Tasks 1–9, Gate 2). **Next: Phase 3 (the car's life, Tasks 10–14) → Checkpoint B.**
+**Date:** 2026-10-14 · **Status:** approved ("go") — building; Phases 0–2 done (Tasks 1–9, Gate 2); Task 10 done; Task 11 groundwork done. **Next: Phase 3 (the car's life, Tasks 10–14) → Checkpoint B. Do NOT stop unless a decision is needed.**
 **Authority:** `openspec/tasks/TASK-004/task.md` (16→17 truths, 11 handover answers), `openspec/changes/truespec-architecture/{design.md (D15–D20), specs/*, tasks.md §1.6, §4.1, §4.5, §6.1–6.11}`, and the data layer's `openspec/tasks/TASK-003/key-and-hash-v1.md` (the change-check is the server's).
 **Task list target:** this file's **Progress tracker** + Task list (Developer-workspace convention; no `tasks/todo.md` in this project).
 
@@ -311,3 +311,5 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⛔ blocked. **Owner c
 ## Open questions
 
 None — the frontier is empty; every branch was answered in `openspec/tasks/TASK-004/task.md` on 2026-10-14.
+
+**Operating rule:** Do NOT stop for internal gates (leak-check/typecheck/tests/build/store-freshness); stop ONLY when an architectural/product decision is required that is not answered in the task. Continue building Phase 3 (the car's life, Tasks 10–14) until Checkpoint B.
