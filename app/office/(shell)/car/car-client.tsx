@@ -10,6 +10,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { createCar, updateCar, type CreateCarResult, type UpdateCarResult } from "../../actions/car";
+import { uploadCarPhoto } from "../../actions/photo";
 import {
   costLabelFor,
   formatNaira,
@@ -21,6 +22,8 @@ import {
   type CostLineInput,
 } from "@/lib/money";
 import type { Section } from "@/lib/sections";
+import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
+import { Photo } from "@/components/Photo";
 
 export type CarCosts = {
   purchase: string;
@@ -30,6 +33,15 @@ export type CarCosts = {
   truckng: string;
   tank: string;
 };
+
+/**
+ * One photo as the form holds it (truth 7).
+ *
+ * `assetId` is the reference the store keeps — the only thing a save posts. `url` is an address
+ * built on the server so the browser can show the picture; it is never written back, because the
+ * asset-reference column never holds a web address.
+ */
+export type CarPhoto = { assetId: string; url: string };
 
 export type CarFormData = {
   /** The car's store key — present in edit mode; the row the Server Action updates. */
@@ -65,7 +77,8 @@ export type CarFormData = {
   /** The primary state the car sold from — where un-marking returns it (truth 5). */
   priorStateId?: string;
   priorStateLabel?: string;
-  imgs: string[];
+  /** The car's photos, in stored order — position 0 is the cover buyers see first (truth 7). */
+  photos: CarPhoto[];
 };
 
 export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
@@ -73,8 +86,9 @@ export type OfficeState = { id: string; label: string; section: Section; isNewAr
 /** A secondary state — office-only tracking, carrying no section (D15). */
 export type OfficeSecondaryState = { id: string; label: string };
 
-const imgURL = (id: string, w: number) =>
-  `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=70`;
+// The Unsplash address builder that used to sit here is gone: the showroom's photos are Sanity
+// assets now (truth 7), and an address is built from the reference on the server, never derived
+// or stored in the browser.
 
 const BLANK_COSTS: CarCosts = {
   purchase: "",
@@ -271,7 +285,12 @@ export function CarForm({
       sectionFor(isEdit ? data.state : "Available"),
     ),
   );
-  const [imgs, setImgs] = useState<string[]>(isEdit ? data.imgs : []);
+  // The car's photos, in stored order — position 0 is the cover buyers see first (truth 7). Photos
+  // are uploaded the moment they are chosen (bytes first, row later), so this already holds
+  // references the asset store has; what a save posts is each `assetId`, never an address.
+  const [photos, setPhotos] = useState<CarPhoto[]>(isEdit ? data.photos : []);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   // The car's one primary state, held by id (the store's key). Add mode starts on the
   // state the blank form names; edit mode on the car's own.
   const [curStateId, setCurStateId] = useState(
@@ -351,6 +370,10 @@ export function CarForm({
     e.preventDefault();
     if (hasFieldErrors) return;
     const fd = new FormData(e.currentTarget);
+    // The file input is not part of what is saved. Each photo was uploaded the moment it was
+    // chosen, and a save posts only the references (the hidden `photos` fields); dropping the file
+    // keeps a save from carrying the image bytes across a second time.
+    fd.delete("photo");
     setResult(null);
     startSaving(async () => {
       // Edit mode updates the car the owner opened (the hidden `carId` names it); add
@@ -367,14 +390,52 @@ export function CarForm({
   const errFor = (field: string) => serverErrors.find((x) => x.field === field)?.message;
 
   const makeCover = (i: number) =>
-    setImgs((prev) => {
+    setPhotos((prev) => {
       const a = [...prev];
       const [x] = a.splice(i, 1);
       a.unshift(x);
       return a;
     });
   const removeImg = (i: number) =>
-    setImgs((prev) => prev.filter((_, idx) => idx !== i));
+    setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+
+  // The drop zone's one job: put the chosen bytes in the asset store **now** and hold the reference
+  // that comes back (truth 7 — the bytes go first, the row second, so a car is never saved pointing
+  // at bytes that were never uploaded). Nothing about the car is written here: a photo added to a
+  // form that is never saved leaves no record, only an asset the owner's own cleanup reports.
+  //
+  // The size is checked here as well as on the server, from the one rule (`lib/photo-rules.ts`), so
+  // an oversized file is refused before it leaves the browser instead of after a long upload. The
+  // browser's answer is only a courtesy — the server's is the one that decides.
+  const addFiles = async (files: FileList | File[]) => {
+    const chosen = Array.from(files);
+    if (chosen.length === 0) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      for (const file of chosen) {
+        const size = checkPhotoSize(file.size);
+        if (!size.ok) {
+          setUploadError(size.reason);
+          continue;
+        }
+        const fd = new FormData();
+        fd.append("photo", file, file.name);
+        const res = await uploadCarPhoto(fd);
+        if (!res.ok) {
+          setUploadError(res.errors[0]?.message ?? "That photo could not be added.");
+          continue;
+        }
+        setPhotos((prev) =>
+          prev.some((p) => p.assetId === res.assetId)
+            ? prev
+            : [...prev, { assetId: res.assetId, url: res.url }],
+        );
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const h1 = isEdit ? "Edit car" : "Add a car";
   const hsub = isEdit
@@ -580,21 +641,48 @@ export function CarForm({
             <h2>
               <span className="n">2</span>Photos
             </h2>
-            <div
+            <label
               className="drop"
               id="drop"
-              role="button"
-              tabIndex={0}
               aria-label="Add photos"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                void addFiles(e.dataTransfer.files);
+              }}
             >
+              <input
+                type="file"
+                name="photo"
+                className="dropinput"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                disabled={uploading}
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (files) void addFiles(files);
+                  // Cleared so that choosing the same file a second time still uploads it.
+                  e.target.value = "";
+                }}
+              />
               <i className="fa-solid fa-cloud-arrow-up" />
-              Drop photos here or click to browse — first photo is the cover buyers
-              see first
-            </div>
+              {uploading
+                ? "Uploading…"
+                : `Drop photos here or click to browse — first photo is the cover buyers see first. Up to ${megabytes(PHOTO_MAX_BYTES)} each.`}
+            </label>
+            {uploadError ? (
+              <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                {uploadError}
+              </span>
+            ) : null}
             <div className="thumbs" id="thumbs">
-              {imgs.map((id, i) => (
-                <div className="th" key={id}>
-                  <img src={imgURL(id, 300)} alt={`Photo ${i + 1}`} />
+              {photos.map((p, i) => (
+                <div className="th" key={p.assetId}>
+                  <Photo src={p.url} alt={`Photo ${i + 1}`} />
+                  {/* What a save posts: the reference, one field per photo, in this order. The
+                      asset-reference column never holds an address (truth 7), so the address the
+                      server derived for display is never sent back. */}
+                  <input type="hidden" name="photos" value={p.assetId} />
                   {i === 0 ? <span className="cov">Cover</span> : null}
                   <span className="mk">
                     {i > 0 ? (

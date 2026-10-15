@@ -7,6 +7,7 @@ import { getPublicCars, getSetting } from "@/lib/public-cars";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { formatNaira } from "@/lib/money";
 import { waLink } from "@/components/whatsapp";
+import { Photo } from "@/components/Photo";
 
 // The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
 // under this layout renders per request, never from a build-time snapshot. (The three data-heavy
@@ -131,8 +132,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 <h4>Photo gallery</h4>
                 <div className="gl" id="gl">
                   {gallery.map((src, i) => (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img key={i} src={src} alt="" loading="lazy" />
+                    <Photo key={i} src={src} alt="" loading="lazy" />
                   ))}
                 </div>
               </div>

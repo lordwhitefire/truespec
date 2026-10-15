@@ -1,5 +1,6 @@
 import { formatNaira } from "@/lib/money";
 import type { PublicCar } from "@/lib/serialize";
+import { Photo } from "@/components/Photo";
 import { carHref, carState, carTitle, mileageLabel } from "./car-view";
 
 // The reference inventory card (card(c, dk) in truespec.html).
@@ -10,10 +11,7 @@ export function ReferenceCard({ car, dark = false }: { car: PublicCar; dark?: bo
   return (
     <a className="card" href={carHref(car)}>
       <div className="ph">
-        {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt={carTitle(car)} loading="lazy" />
-        ) : null}
+        <Photo src={photo} alt={carTitle(car)} loading="lazy" />
         {st ? (
           <div className="rb">
             <span className={st.rb || undefined}>{st.t}</span>

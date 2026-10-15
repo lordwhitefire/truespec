@@ -39,7 +39,7 @@ const BLANK: CarFormData = {
   note: "",
   privateNote: "",
   wasPrice: "",
-  imgs: [],
+  photos: [],
 };
 
 export default async function NewCarPage() {

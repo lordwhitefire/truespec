@@ -1,4 +1,4 @@
-// TASK-003 browser-check harness — the project's standing method, followed as written in
+// TASK-004 browser-check harness — the project's standing method, followed as written in
 // `developer-workspace/procedures/browser-check.md` (never re-derived from an old task).
 //
 // ONE persistent, visible Chrome. This harness ATTACHES to the Chrome already listening on CDP

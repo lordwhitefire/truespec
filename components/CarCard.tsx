@@ -1,6 +1,7 @@
 import { formatNaira } from "@/lib/money";
 import { sectionLabel, type Section } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
+import { Photo } from "@/components/Photo";
 
 // The card variant is the section itself — no second section type (R-SEC-1).
 export type CardVariant = Section;
@@ -12,8 +13,7 @@ export function CarCard({ car, variant }: { car: PublicCar; variant: CardVariant
   return (
     <a className="card" href={`/car/${car.ref}`}>
       <div className="photo">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={car.photos[0]} alt={`${name} ${car.trim ?? ""}`.trim()} loading="lazy" />
+        <Photo src={car.photos[0]} alt={`${name} ${car.trim ?? ""}`.trim()} loading="lazy" />
         {special ? <span className="ribbon">Special</span> : null}
         {variant === "on order" ? <span className="label">{sectionLabel("on order")}</span> : null}
         {variant === "landed" ? <span className="label landed">{sectionLabel("landed")}</span> : null}

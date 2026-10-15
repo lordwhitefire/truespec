@@ -12,11 +12,11 @@ import type { SaleInput } from "./sale";
  * **It is idempotent** (the precondition the shared store guard retries under, D18). A
  * reply lost on the way back must not double-apply, so the statement first works out
  * whether anything would actually change — the fourteen columns (through the change-
- * check), the cost-line set and the secondary-state set — and does nothing at all when
- * nothing would. That makes a retry a true no-op: the car keeps one `version`, one
- * `updated_at` and **one `car.updated` event**, however many times the call is repeated.
- * The trailing `UNION ALL SELECT ref FROM car …` is what still returns the ref when the
- * statement deliberately changed nothing.
+ * check), the cost-line set, the secondary-state set, the sale and **the photo set in
+ * its order** — and does nothing at all when nothing would. That makes a retry a true
+ * no-op: the car keeps one `version`, one `updated_at` and **one `car.updated` event**,
+ * however many times the call is repeated. The trailing `UNION ALL SELECT ref FROM car …`
+ * is what still returns the ref when the statement deliberately changed nothing.
  *
  * It never touches the car's identity: `id` and `ref` are the row's names, not details,
  * and the store's own `car_identity_is_final` trigger refuses any write that would change
@@ -50,6 +50,14 @@ export type CarUpdateArgs = {
   costs: readonly CarCostLine[];
   secondaryStateIds: readonly string[];
   /**
+   * The photos, in the order the office should store them — position 0 is the cover
+   * (truth 7). The list is the whole set: a photo left out is a photo removed. The
+   * bytes are already in the asset store; only the references are written here, and
+   * each keeps the source it was stored with (`car_photo.origin`) unless it is new,
+   * which makes it an `owner upload`. Never a web address.
+   */
+  photos: readonly string[];
+  /**
    * The sale facts, when this write is setting the car Sold; `null` otherwise (which is
    * also what un-marks a sold car). Only the Sold state may carry one — the action drops
    * it everywhere else through `saleForState` before the statement is built.
@@ -70,6 +78,8 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
                        FROM cost_line cl WHERE cl.car_id = c.id), '[]'::jsonb) AS costs,
            COALESCE((SELECT jsonb_agg(css.state_id ORDER BY css.state_id)
                        FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secs,
+           COALESCE((SELECT jsonb_agg(jsonb_build_array(cp.sanity_asset_id, cp.origin) ORDER BY cp.position)
+                       FROM car_photo cp WHERE cp.car_id = c.id), '[]'::jsonb) AS photos,
            COALESCE((SELECT 's' || s.sale_price_kobo::text || '@'
                             || to_char(s.sold_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS')
                        FROM sale s WHERE s.car_id = c.id), '#') AS sold
@@ -83,6 +93,11 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
            COALESCE((SELECT jsonb_agg(y.state_id ORDER BY y.state_id)
                        FROM (SELECT DISTINCT (value)::uuid AS state_id
                                FROM jsonb_array_elements_text($19::jsonb)) y), '[]'::jsonb) AS secs,
+           COALESCE((SELECT jsonb_agg(jsonb_build_array(p.asset_id,
+                                      COALESCE((SELECT cp0.origin FROM car_photo cp0
+                                                 WHERE cp0.car_id = $1 AND cp0.sanity_asset_id = p.asset_id
+                                                 LIMIT 1), 'owner upload')) ORDER BY p.ord)
+                       FROM jsonb_array_elements_text($23::jsonb) WITH ORDINALITY AS p(asset_id, ord)), '[]'::jsonb) AS photos,
            CASE WHEN $21::bigint IS NULL AND $22::timestamptz IS NULL THEN '#'
                 ELSE 's' || $21::bigint::text || '@'
                      || to_char($22::timestamptz AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS')
@@ -94,6 +109,7 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
        WHERE o.content_hash IS DISTINCT FROM n.content_hash
           OR o.costs IS DISTINCT FROM n.costs
           OR o.secs  IS DISTINCT FROM n.secs
+          OR o.photos IS DISTINCT FROM n.photos
           OR o.sold  IS DISTINCT FROM n.sold
     ) AS yes
   ),
@@ -138,6 +154,23 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
        AND css.state_id NOT IN (
          SELECT (s.value)::uuid FROM jsonb_array_elements_text($19::jsonb) AS s(value)
        )
+    RETURNING 1
+  ),
+  ins_photos AS (
+    INSERT INTO car_photo (car_id, sanity_asset_id, position, origin)
+    SELECT u.id, p.asset_id, (p.ord - 1)::int,
+           COALESCE((SELECT cp0.origin FROM car_photo cp0
+                      WHERE cp0.car_id = u.id AND cp0.sanity_asset_id = p.asset_id LIMIT 1), 'owner upload')
+      FROM upd u
+      CROSS JOIN jsonb_array_elements_text($23::jsonb) WITH ORDINALITY AS p(asset_id, ord)
+    ON CONFLICT (car_id, position) DO UPDATE
+       SET sanity_asset_id = EXCLUDED.sanity_asset_id, origin = EXCLUDED.origin
+    RETURNING 1
+  ),
+  del_photos AS (
+    DELETE FROM car_photo cp
+     WHERE cp.car_id IN (SELECT id FROM upd)
+       AND cp.position >= (SELECT count(*)::int FROM jsonb_array_elements_text($23::jsonb))
     RETURNING 1
   ),
   ins_sale AS (
@@ -194,6 +227,7 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
     args.actorId,
     args.sale?.salePriceKobo ?? null,
     args.sale?.soldAt ?? null,
+    JSON.stringify(args.photos),
   ];
   return { text, params };
 }

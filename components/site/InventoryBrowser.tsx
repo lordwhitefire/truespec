@@ -11,6 +11,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
+import { Photo } from "@/components/Photo";
 import { waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { countStock } from "@/lib/counts";
@@ -592,10 +593,7 @@ function InventoryRow({ car }: { car: PublicCar }) {
     <article className="lc">
       <a className="lph" href={carHref(car)} aria-label={title}>
         <div className="ph">
-          {photo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt={title} loading="lazy" />
-          ) : null}
+          <Photo src={photo} alt={title} loading="lazy" />
           {st ? (
             <div className="rb">
               <span className={st.rb || undefined}>{st.t}</span>

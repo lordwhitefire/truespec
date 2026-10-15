@@ -56,6 +56,7 @@ async function main() {
       columns,
       costs,
       secondaryStateIds,
+      photos: [],
       contentHash: carChangeCheck(columns as unknown as Record<string, unknown>),
       hashVersion: CHANGE_CHECK_VERSION,
       actorId: actor,

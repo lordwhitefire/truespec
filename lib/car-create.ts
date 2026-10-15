@@ -5,8 +5,15 @@ import type { CarColumns, CarCostLine } from "./car-input";
  *
  * Kept here, apart from the action, for two reasons: the action and its witness run
  * the *same* text (no copy to drift), and the statement's shape is visible on its own
- * — a car, its cost lines, its secondary states and its activity row written together
- * in one round-trip, so a half-made car cannot exist.
+ * — a car, its cost lines, its secondary states, its photos and its activity row written
+ * together in one round-trip, so a half-made car cannot exist.
+ *
+ * The photos arrive as the ordered list of asset ids the owner uploaded **before** this
+ * write (truth 7: the bytes go to the store first, the row links after). Their order is
+ * their position — `jsonb_array_elements_text(...) WITH ORDINALITY` numbers them, and
+ * position 0 is the cover the showroom leads with. Every one is an `owner upload`: a car
+ * being made has no earlier source to keep, and the action has already refused anything
+ * that is not a Sanity asset reference (the column never holds a web address).
  *
  * It is **idempotent**: the key is minted by the caller, once, and every retry sends
  * the same `id`. The `ON CONFLICT (id) DO NOTHING` turns a repeat into a no-op, and
@@ -24,6 +31,8 @@ export type CarCreateArgs = {
   columns: CarColumns;
   costs: readonly CarCostLine[];
   secondaryStateIds: readonly string[];
+  /** The photos, in the order to store them — position 0 is the cover (truth 7). */
+  photos: readonly string[];
   /** The server-computed change-check (truth 14). */
   contentHash: string;
   hashVersion: number;
@@ -62,6 +71,13 @@ export function carCreateStatement(args: CarCreateArgs): { text: string; params:
     SELECT 'car.created', nc.ref, $20::uuid
       FROM new_car nc
     RETURNING 1
+  ),
+  ins_photos AS (
+    INSERT INTO car_photo (car_id, sanity_asset_id, position, origin)
+    SELECT nc.id, p.asset_id, (p.ord - 1)::int, 'owner upload'
+      FROM new_car nc
+      CROSS JOIN jsonb_array_elements_text($21::jsonb) WITH ORDINALITY AS p(asset_id, ord)
+    RETURNING 1
   )
   SELECT ref FROM new_car
   UNION ALL
@@ -88,6 +104,7 @@ export function carCreateStatement(args: CarCreateArgs): { text: string; params:
     JSON.stringify(args.costs.map((cost) => ({ kind: cost.kind, amount_minor: cost.amountMinor }))),
     JSON.stringify(args.secondaryStateIds),
     args.actorId,
+    JSON.stringify(args.photos),
   ];
   return { text, params };
 }

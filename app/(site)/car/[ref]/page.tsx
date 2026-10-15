@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/app/(site)/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
+import { Photo } from "@/components/Photo";
 import { carHref } from "@/components/site/car-view";
 import { carWaLink, waLink } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
@@ -170,8 +171,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                       <span className="ld">Landed</span>
                     ) : null}
                   </div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} />
+                  <Photo id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} />
                   <button type="button" className="gb l" aria-label="Previous photo">
                     <i className="fa-solid fa-chevron-left" />
                   </button>
@@ -191,8 +191,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                       aria-label={`Photo ${i + 1}`}
                       data-i={i}
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={p} alt="" />
+                      <Photo src={p} alt="" />
                     </button>
                   ))}
                 </div>
@@ -339,8 +338,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
             {related.map((c) => (
               <a className="rc" href={carHref(c)} key={c.ref}>
                 <div className="ph">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.photos[0]} alt="" loading="lazy" />
+                  <Photo src={c.photos[0]} alt="" loading="lazy" />
                 </div>
                 <div className="bd">
                   <h3>{cardTitle(c)}</h3>
@@ -372,8 +370,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
         <button type="button" className="p" aria-label="Previous">
           <i className="fa-solid fa-chevron-left" />
         </button>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img id="li" alt="" />
+        <Photo id="li" alt="" />
         <button type="button" className="n" aria-label="Next">
           <i className="fa-solid fa-chevron-right" />
         </button>
@@ -460,8 +457,7 @@ function CarLayers({ wa }: { wa: string }) {
         <button type="button" className="p" aria-label="Previous">
           <i className="fa-solid fa-chevron-left" />
         </button>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img id="li" alt="" />
+        <Photo id="li" alt="" />
         <button type="button" className="n" aria-label="Next">
           <i className="fa-solid fa-chevron-right" />
         </button>
@@ -519,8 +515,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
       <div className="main" id="main">
       <div className="w nfbox">
         {car.photos[0] ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Photo
             src={car.photos[0]}
             alt={name}
             style={{
@@ -565,8 +560,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
               {similar.map((c) => (
                 <a className="rc" href={carHref(c)} key={c.ref}>
                   <div className="ph">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={c.photos[0]} alt="" loading="lazy" />
+                    <Photo src={c.photos[0]} alt="" loading="lazy" />
                   </div>
                   <div className="bd">
                     <h3>{[c.brand, c.model, c.year].filter(Boolean).join(" ")}</h3>

@@ -503,6 +503,13 @@ export type OfficeCarEdit = {
   updated_at: string | Date;
   cost_lines: CostLineInput[];
   secondary_state_ids: string[];
+  /**
+   * The car's photos, in the order the office stores them (truth 7 — position 0 is the cover).
+   * The id is what the store keeps and what a save posts back; `origin` is where the photo came
+   * from (`owner upload` for anything the owner supplied), kept so a photo is not relabelled by
+   * passing through the form. The address is derived on the server, never carried in the row.
+   */
+  photos: { assetId: string; origin: string }[];
 };
 
 type RawOfficeEdit = {
@@ -532,6 +539,7 @@ type RawOfficeEdit = {
   updated_at: string | Date;
   cost_lines: { kind: string; amountMinor: string | number | null }[];
   secondary_state_ids: string[];
+  photos: { assetId: string; origin: string }[];
 };
 
 export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | null> {
@@ -545,7 +553,10 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
             COALESCE((SELECT jsonb_agg(jsonb_build_object('kind', cl.kind, 'amountMinor', cl.amount_minor))
                         FROM cost_line cl WHERE cl.car_id = c.id), '[]'::jsonb) AS cost_lines,
             COALESCE((SELECT jsonb_agg(css.state_id)
-                        FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secondary_state_ids
+                        FROM car_secondary_state css WHERE css.car_id = c.id), '[]'::jsonb) AS secondary_state_ids,
+            COALESCE((SELECT jsonb_agg(jsonb_build_object('assetId', cp.sanity_asset_id, 'origin', cp.origin)
+                                       ORDER BY cp.position)
+                        FROM car_photo cp WHERE cp.car_id = c.id), '[]'::jsonb) AS photos
        FROM car c
        JOIN car_state s ON s.id = c.state_id
        LEFT JOIN sale sl ON sl.car_id = c.id
@@ -583,6 +594,7 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
     updated_at: r.updated_at,
     cost_lines: r.cost_lines.map((c) => ({ kind: c.kind, amountMinor: toNumber(c.amountMinor) })),
     secondary_state_ids: r.secondary_state_ids,
+    photos: r.photos,
   };
 }
 

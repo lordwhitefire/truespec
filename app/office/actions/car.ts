@@ -11,7 +11,8 @@ import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from "@/l
 import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
 import { isSection, type Section } from "@/lib/sections";
 import { saleForState, SOLD_SECTION, type SaleInput } from "@/lib/sale";
-import { deleteAsset } from "@/lib/sanity";
+import { deleteAsset, findImageAsset } from "@/lib/sanity";
+import { isAssetRef } from "@/lib/photo-rules";
 
 /**
  * Create a car — the first write behind the door (build step 3).
@@ -79,11 +80,60 @@ type CarFormValue = {
   columns: CarColumns;
   costs: CarCostLine[];
   secondaryStateIds: string[];
+  /** The photos as the form lists them — the whole set, in order, position 0 the cover (truth 7). */
+  photos: string[];
   /** The sale, only while the chosen state is Sold (truth 5); `null` otherwise. */
   sale: SaleInput | null;
   /** The section the chosen primary state resolves to — the registry's fact. */
   section: Section;
 };
+
+/**
+ * The photos the form listed, in order — membership and order only.
+ *
+ * Truth 7: the asset-reference column never holds a web address, so every value is checked to be a
+ * Sanity asset id and a value that is not one is a field refusal rather than a stored address. The
+ * form sends one `photos` field per photo, in the order they are to be stored, so the order is the
+ * browser's — the cover is whichever it put first. A repeated id is kept once: a list that named the
+ * same photo twice would otherwise fill two positions with one picture.
+ */
+function readPhotos(form: FormData): { ok: true; photos: string[] } | { ok: false; errors: FieldError[] } {
+  const photos: string[] = [];
+  for (const raw of form.getAll("photos")) {
+    if (typeof raw !== "string") continue;
+    const id = raw.trim();
+    if (!id) continue;
+    if (!isAssetRef(id)) {
+      return { ok: false, errors: [{ field: "photos", message: "One of those photos could not be read" }] };
+    }
+    if (!photos.includes(id)) photos.push(id);
+  }
+  return { ok: true, photos };
+}
+
+/**
+ * Truth 7's guarantee, asked rather than assumed: "the rows link on save, so a car is never saved
+ * pointing at bytes that were never uploaded."
+ *
+ * The browser's list is a claim, and a Server Action is a public endpoint — so each id is put to the
+ * store and the answer decides. The store says it holds no such asset: a refusal the owner can act
+ * on. The store cannot be reached: also a refusal — but named as one to retry, because saving the row
+ * anyway would leave it pointing at nothing, which is the one thing this check exists to prevent.
+ * `findImageAsset` is the existing proof-of-resolution read, reused rather than invented.
+ */
+async function photosExist(photos: readonly string[]): Promise<string | null> {
+  for (const id of photos) {
+    try {
+      const found = await findImageAsset(id);
+      if (!found) {
+        return "One of those photos is not in the picture store any more. Add it again and save.";
+      }
+    } catch {
+      return "The picture store could not be reached, so nothing was saved. Try again.";
+    }
+  }
+  return null;
+}
 
 /**
  * Read the form and prove its state facts against the registry — the part both writes
@@ -101,6 +151,9 @@ async function readCarForm(
 ): Promise<{ ok: true; value: CarFormValue } | { ok: false; errors: FieldError[] }> {
   const read = readCarInput(toCarForm(form));
   if (!read.ok) return { ok: false, errors: read.errors };
+
+  const photos = readPhotos(form);
+  if (!photos.ok) return { ok: false, errors: photos.errors };
 
   const { columns, costs, secondaryStateIds } = read.value;
 
@@ -148,7 +201,12 @@ async function readCarForm(
     };
   }
 
-  return { ok: true, value: { columns, costs, secondaryStateIds, sale, section } };
+  // Truth 7: the bytes went first, so every id the form lists must really be in the store before a row
+  // may name it. Last, after every cheap refusal, because it is the only check that asks the network.
+  const absent = await photosExist(photos.photos);
+  if (absent) return { ok: false, errors: [{ field: "photos", message: absent }] };
+
+  return { ok: true, value: { columns, costs, secondaryStateIds, photos: photos.photos, sale, section } };
 }
 
 /** The office pages a car write changes. */
@@ -164,7 +222,7 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
 
   const read = await readCarForm(form);
   if (!read.ok) return { ok: false, errors: read.errors };
-  const { columns, costs, secondaryStateIds } = read.value;
+  const { columns, costs, secondaryStateIds, photos } = read.value;
 
   // A car cannot *start* Sold. Un-marking returns a car to the primary state it held
   // before it sold (truth 5), and a car that never held one has nothing to return to —
@@ -184,6 +242,7 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     columns,
     costs,
     secondaryStateIds,
+    photos,
     contentHash: carChangeCheck(columns as unknown as Record<string, unknown>),
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,
@@ -210,7 +269,7 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
 
   const read = await readCarForm(form);
   if (!read.ok) return { ok: false, errors: read.errors };
-  const { columns, costs, secondaryStateIds } = read.value;
+  const { columns, costs, secondaryStateIds, photos } = read.value;
 
   // The change-check is recomputed here from the values as they will be stored, so the
   // hash always matches the row (truth 14). A browser-supplied hash is never read.
@@ -222,6 +281,7 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
     columns,
     costs,
     secondaryStateIds,
+    photos,
     sale: read.value.sale,
     contentHash: carChangeCheck(columns as unknown as Record<string, unknown>),
     hashVersion: CHANGE_CHECK_VERSION,

@@ -7,6 +7,10 @@
  * identity is the `WHERE` key alone, which is the same line the store's
  * `car_identity_is_final` trigger defends from below.
  *
+ * Task 18 adds the photo set: it travels as one ordered parameter of **references** (never
+ * an address), it is part of the change-check, and it is replaced as a set — the submitted
+ * positions upserted, the surplus deleted — so a retry still changes nothing.
+ *
  * It also pins the idempotence the shared store guard retries under (D18): the whole
  * write is gated on the `changed` guard, so a repeat — a retry whose first reply was
  * lost — finds nothing to change and writes no second `car.updated` row.
@@ -38,6 +42,7 @@ const args: CarUpdateArgs = {
     { kind: "shipping", amountMinor: 150_000_000 },
   ],
   secondaryStateIds: ["33333333-3333-3333-3333-333333333333"],
+  photos: [],
   sale: null,
   contentHash: "abc123",
   hashVersion: 1,
@@ -160,4 +165,65 @@ test("the two money facts travel as parameters, and a null pair means no sale", 
   const none = carUpdateStatement(args).params;
   assert.equal(none[20], null);
   assert.equal(none[21], null);
+});
+
+// --- the photos (task 18) ----------------------------------------------------------
+
+const COVER = "image-9ed666f5cc50a9301971efa642aa339408ed297a-1200x800-jpg";
+const SECOND = "image-abc123def456-800x600-png";
+
+const WITH_PHOTOS: CarUpdateArgs = { ...args, photos: [COVER, SECOND] };
+
+test("the photo set travels as one ordered parameter of references — never an address", () => {
+  const { params } = carUpdateStatement(WITH_PHOTOS);
+  assert.deepEqual(JSON.parse(params[22] as string), [COVER, SECOND]);
+  // The order is the meaning (position 0 is the cover), and the values are references the
+  // asset store keeps — a web address in this statement would be the bug (truth 7).
+  assert.equal(carUpdateStatement(args).params[22], "[]");
+});
+
+test("the photo set in its order is part of the change-check", () => {
+  const { text } = carUpdateStatement(WITH_PHOTOS);
+  assert.match(text, /o\.photos IS DISTINCT FROM n\.photos/);
+  // The "before" side is the stored row, read in position order — so reordering is a change.
+  assert.match(text, /jsonb_build_array\(cp\.sanity_asset_id, cp\.origin\) ORDER BY cp\.position/);
+});
+
+test("the stored source is kept, and only a photo the car did not have becomes an owner upload", () => {
+  const { text } = carUpdateStatement(WITH_PHOTOS);
+  // Both the "before" and "after" readings pair the reference with the source it was stored
+  // with; the new set resolves each one from the car's own rows.
+  assert.match(
+    text,
+    /COALESCE\(\(SELECT cp0\.origin FROM car_photo cp0[\s\S]*?LIMIT 1\), 'owner upload'\)/,
+  );
+});
+
+test("photos are replaced as a set: submitted positions upserted, the surplus deleted", () => {
+  const { text } = carUpdateStatement(WITH_PHOTOS);
+  assert.match(text, /INSERT INTO car_photo \(car_id, sanity_asset_id, position, origin\)/);
+  assert.match(text, /ON CONFLICT \(car_id, position\) DO UPDATE/);
+  assert.match(text, /DELETE FROM car_photo cp/);
+  // Position is the ordinality of the submitted list, so the browser's order becomes the
+  // stored order — and the delete takes only positions past the end of it. The two ranges
+  // are disjoint, so like the costs they cannot fight inside the one statement.
+  assert.match(text, /WITH ORDINALITY AS p\(asset_id, ord\)/);
+  assert.match(text, /\(p\.ord - 1\)::int/);
+  assert.match(
+    text,
+    /cp\.position >= \(SELECT count\(\*\)::int FROM jsonb_array_elements_text\(\$23::jsonb\)\)/,
+  );
+});
+
+test("the photo writes draw only from the gated update, so a retry touches nothing", () => {
+  const { text } = carUpdateStatement(WITH_PHOTOS);
+  const ins = text.slice(text.indexOf("ins_photos AS ("));
+  assert.match(ins.slice(0, ins.indexOf("del_photos AS (")), /FROM upd u/);
+  const del = text.slice(text.indexOf("del_photos AS ("));
+  assert.match(del.slice(0, del.indexOf("ins_sale AS (")), /cp\.car_id IN \(SELECT id FROM upd\)/);
+});
+
+test("no web address is ever written into the statement", () => {
+  const { text } = carUpdateStatement(WITH_PHOTOS);
+  assert.doesNotMatch(text, /https?:\/\//);
 });

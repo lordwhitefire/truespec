@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { Photo } from "@/components/Photo";
+
 // Swipeable gallery; arrows additionally on laptop (specs/showroom).
 export function Gallery({ photos, alt }: { photos: string[]; alt: string }) {
   const [index, setIndex] = useState(0);
@@ -24,8 +26,7 @@ export function Gallery({ photos, alt }: { photos: string[]; alt: string }) {
     >
       <div className="stage">
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={src} alt={`${alt} — photo ${index + 1}`} />
+          <Photo src={src} alt={`${alt} — photo ${index + 1}`} />
         ) : (
           <div className="empty" style={{ display: "grid", placeItems: "center", height: "100%" }}>
             No photo
@@ -45,8 +46,7 @@ export function Gallery({ photos, alt }: { photos: string[]; alt: string }) {
       {count > 1 ? (
         <div className="thumbs">
           {photos.map((p, i) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Photo
               key={p}
               src={p}
               alt={`${alt} thumbnail ${i + 1}`}

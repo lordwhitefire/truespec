@@ -2,6 +2,8 @@ import "../car.css";
 import { notFound } from "next/navigation";
 import { getOfficeCarForEdit, getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
 import { requireOfficeSession } from "@/lib/session";
+import { imageUrl } from "@/lib/sanity";
+import { isAssetRef } from "@/lib/photo-rules";
 import { CarForm, type CarCosts, type CarFormData } from "../car-client";
 
 // The car comes from the store, so this page renders per request — never from a
@@ -52,6 +54,22 @@ const FIELD_BY_KIND: Record<string, keyof CarCosts> = {
 // kobo → the plain naira string the form's inputs hold (no symbols, no separators).
 function nairaString(kobo: number | null): string {
   return kobo == null ? "" : String(kobo / 100);
+}
+
+// The stored reference → the address the browser fetches, or nothing at all.
+//
+// The office form holds the car's own photos (truth 7), and a photo the office cannot turn into an
+// address — because the stored value is not a reference — renders as the placeholder rather than
+// taking the whole edit page down with it. That is the read half of the boundary the write half
+// enforces: the column never holds an address, and a value that is not a reference has no address
+// to give.
+function photoURL(assetId: string): string {
+  if (!isAssetRef(assetId)) return "";
+  try {
+    return imageUrl(assetId);
+  } catch {
+    return "";
+  }
 }
 
 export default async function EditCarPage({ params }: { params: Promise<{ ref: string }> }) {
@@ -113,7 +131,7 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
     saleDate: car.section === "sold" ? soldDay : "",
     priorStateId: car.prior_state_id ?? undefined,
     priorStateLabel: car.prior_state_label ?? undefined,
-    imgs: [],
+    photos: car.photos.map((p) => ({ assetId: p.assetId, url: photoURL(p.assetId) })),
     secondaryStateIds: car.secondary_state_ids,
   };
 

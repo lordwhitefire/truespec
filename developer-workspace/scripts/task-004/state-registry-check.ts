@@ -190,6 +190,7 @@ async function main() {
         columns: born.value.columns,
         costs: born.value.costs,
         secondaryStateIds: born.value.secondaryStateIds,
+        photos: [],
         contentHash: carChangeCheck(born.value.columns as unknown as Record<string, unknown>),
         hashVersion: CHANGE_CHECK_VERSION,
         actorId: actor,
