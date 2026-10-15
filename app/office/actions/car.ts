@@ -4,15 +4,14 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
 import { storeQuery } from "@/lib/store-guard";
-import { readCarInput, type CarColumns, type CarCostLine, type CarFormInput, type FieldError } from "@/lib/car-input";
+import { type FieldError } from "@/lib/car-input";
+import { readCarForm } from "@/lib/car-form";
 import { carCreateStatement } from "@/lib/car-create";
 import { carUpdateStatement } from "@/lib/car-update";
 import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from "@/lib/car-delete";
 import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
-import { isSection, type Section } from "@/lib/sections";
-import { saleForState, SOLD_SECTION, type SaleInput } from "@/lib/sale";
-import { deleteAsset, findImageAsset } from "@/lib/sanity";
-import { isAssetRef } from "@/lib/photo-rules";
+import { SOLD_SECTION } from "@/lib/sale";
+import { deleteAsset } from "@/lib/sanity";
 
 /**
  * Create a car — the first write behind the door (build step 3).
@@ -40,174 +39,6 @@ export type RemoveCarResult =
   | { ok: false; errors: FieldError[] };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/** Read the form's strings into the reader's shape. Field names are the form's contract. */
-function toCarForm(form: FormData): CarFormInput {
-  const str = (name: string): string => {
-    const v = form.get(name);
-    return typeof v === "string" ? v : "";
-  };
-  return {
-    brand: str("brand"),
-    model: str("model"),
-    trim: str("trim"),
-    year: str("year"),
-    exteriorColor: str("exteriorColor"),
-    interiorColor: str("interiorColor"),
-    mileage: str("mileage"),
-    features: str("features"),
-    note: str("note"),
-    privateNote: str("privateNote"),
-    wasPrice: str("wasPrice"),
-    arrivalNote: str("arrivalNote"),
-    price: str("price"),
-    stateId: str("stateId"),
-    secondaryStateIds: form.getAll("secondaryStateIds").filter((v): v is string => typeof v === "string"),
-    costs: {
-      purchase_price: str("cost.purchase_price"),
-      shipping: str("cost.shipping"),
-      clearing: str("cost.clearing"),
-      trucking_usa: str("cost.trucking_usa"),
-      trucking_ng: str("cost.trucking_ng"),
-      full_tank: str("cost.full_tank"),
-    },
-    salePrice: str("salePrice"),
-    saleDate: str("saleDate"),
-  };
-}
-
-type CarFormValue = {
-  columns: CarColumns;
-  costs: CarCostLine[];
-  secondaryStateIds: string[];
-  /** The photos as the form lists them — the whole set, in order, position 0 the cover (truth 7). */
-  photos: string[];
-  /** The sale, only while the chosen state is Sold (truth 5); `null` otherwise. */
-  sale: SaleInput | null;
-  /** The section the chosen primary state resolves to — the registry's fact. */
-  section: Section;
-};
-
-/**
- * The photos the form listed, in order — membership and order only.
- *
- * Truth 7: the asset-reference column never holds a web address, so every value is checked to be a
- * Sanity asset id and a value that is not one is a field refusal rather than a stored address. The
- * form sends one `photos` field per photo, in the order they are to be stored, so the order is the
- * browser's — the cover is whichever it put first. A repeated id is kept once: a list that named the
- * same photo twice would otherwise fill two positions with one picture.
- */
-function readPhotos(form: FormData): { ok: true; photos: string[] } | { ok: false; errors: FieldError[] } {
-  const photos: string[] = [];
-  for (const raw of form.getAll("photos")) {
-    if (typeof raw !== "string") continue;
-    const id = raw.trim();
-    if (!id) continue;
-    if (!isAssetRef(id)) {
-      return { ok: false, errors: [{ field: "photos", message: "One of those photos could not be read" }] };
-    }
-    if (!photos.includes(id)) photos.push(id);
-  }
-  return { ok: true, photos };
-}
-
-/**
- * Truth 7's guarantee, asked rather than assumed: "the rows link on save, so a car is never saved
- * pointing at bytes that were never uploaded."
- *
- * The browser's list is a claim, and a Server Action is a public endpoint — so each id is put to the
- * store and the answer decides. The store says it holds no such asset: a refusal the owner can act
- * on. The store cannot be reached: also a refusal — but named as one to retry, because saving the row
- * anyway would leave it pointing at nothing, which is the one thing this check exists to prevent.
- * `findImageAsset` is the existing proof-of-resolution read, reused rather than invented.
- */
-async function photosExist(photos: readonly string[]): Promise<string | null> {
-  for (const id of photos) {
-    try {
-      const found = await findImageAsset(id);
-      if (!found) {
-        return "One of those photos is not in the picture store any more. Add it again and save.";
-      }
-    } catch {
-      return "The picture store could not be reached, so nothing was saved. Try again.";
-    }
-  }
-  return null;
-}
-
-/**
- * Read the form and prove its state facts against the registry — the part both writes
- * share (DRY: the create and the edit judge the same form the same way).
- *
- * A Server Action is a public endpoint, so nothing a browser sent is trusted: the
- * strings are judged by the one reader (`lib/car-input.ts`), the ids are checked to be
- * ids (a malformed key must be a field refusal, never a SQL error the owner cannot act
- * on), and the states are checked against the store — the primary is one of the four
- * fixed primaries, and every secondary still exists as a secondary. The registry is the
- * truth; a form cannot invent a fifth primary or attach a state that is not there.
- */
-async function readCarForm(
-  form: FormData,
-): Promise<{ ok: true; value: CarFormValue } | { ok: false; errors: FieldError[] }> {
-  const read = readCarInput(toCarForm(form));
-  if (!read.ok) return { ok: false, errors: read.errors };
-
-  const photos = readPhotos(form);
-  if (!photos.ok) return { ok: false, errors: photos.errors };
-
-  const { columns, costs, secondaryStateIds } = read.value;
-
-  const errors: FieldError[] = [];
-  if (!UUID.test(columns.state_id)) errors.push({ field: "stateId", message: "Choose the car's state" });
-  for (const id of secondaryStateIds) {
-    if (!UUID.test(id)) errors.push({ field: "secondaryStateIds", message: "One of those states could not be read" });
-  }
-  if (errors.length > 0) return { ok: false, errors };
-
-  const [check] = await storeQuery<{
-    primary_kind: string | null;
-    primary_section: string | null;
-    secondaries_ok: boolean;
-  }[]>(
-    `SELECT
-       (SELECT kind FROM car_state WHERE id = $1) AS primary_kind,
-       (SELECT section FROM car_state WHERE id = $1) AS primary_section,
-       NOT EXISTS (
-         SELECT 1
-           FROM jsonb_array_elements_text($2::jsonb) AS s(value)
-          WHERE NOT EXISTS (
-                  SELECT 1 FROM car_state cs
-                   WHERE cs.id = (s.value)::uuid AND cs.kind = 'secondary')
-       ) AS secondaries_ok`,
-    [columns.state_id, JSON.stringify(secondaryStateIds)],
-  );
-  if (check.primary_kind !== "primary" || !isSection(check.primary_section)) {
-    return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
-  }
-  if (!check.secondaries_ok) {
-    return { ok: false, errors: [{ field: "secondaryStateIds", message: "One of those states no longer exists" }] };
-  }
-
-  // The sale belongs to the Sold state and to nothing else (truth 5). A car being set
-  // Sold must carry the two money facts; a car being set anywhere else carries none — a
-  // price sent with another state is dropped, never stored, so a sale row can never sit
-  // beside a car that is not Sold.
-  const section = check.primary_section;
-  const sale = saleForState(section, read.value.sale);
-  if (section === SOLD_SECTION && sale === null) {
-    return {
-      ok: false,
-      errors: [{ field: "salePrice", message: "Enter the sale price and the date it sold" }],
-    };
-  }
-
-  // Truth 7: the bytes went first, so every id the form lists must really be in the store before a row
-  // may name it. Last, after every cheap refusal, because it is the only check that asks the network.
-  const absent = await photosExist(photos.photos);
-  if (absent) return { ok: false, errors: [{ field: "photos", message: absent }] };
-
-  return { ok: true, value: { columns, costs, secondaryStateIds, photos: photos.photos, sale, section } };
-}
 
 /** The office pages a car write changes. */
 function revalidateCarPaths(): void {
