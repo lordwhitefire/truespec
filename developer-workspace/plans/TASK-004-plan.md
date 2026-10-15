@@ -1,6 +1,6 @@
 # TASK-004 — plan (functionality, Layer 4 of 6)
 
-**Date:** 2026-10-15 · **Status:** approved ("go") — building; Phases 0–2 done (Tasks 1–9, Gate 2); Tasks 10–18 done (the car form writes, edit, delete/tombstone/undo/removal, **Sold / un-mark**, **the car-state registry editor**, **the enquiry board + registry + activity from real rows**, **the dashboard's real feed panels**, **the image flow**). **Checkpoint B reached (reported, not stopped for — the owner's rule). Next: Task 19 (the tap + notice + office badge/list). Do NOT stop unless a decision is needed.**
+**Date:** 2026-10-15 · **Status:** approved ("go") — building; Phases 0–2 done (Tasks 1–9, Gate 2); Tasks 10–19 done (the car form writes, edit, delete/tombstone/undo/removal, **Sold / un-mark**, **the car-state registry editor**, **the enquiry board + registry + activity from real rows**, **the dashboard's real feed panels**, **the image flow**, **the tap + notice + office badge/list**). **Checkpoint B reached (reported, not stopped for — the owner's rule). Next: Task 20 (the car PDF blank). Do NOT stop unless a decision is needed.**
 **Authority:** `openspec/tasks/TASK-004/task.md` (16→17 truths, 11 handover answers), `openspec/changes/truespec-architecture/{design.md (D15–D20), specs/*, tasks.md §1.6, §4.1, §4.5, §6.1–6.11}`, and the data layer's `openspec/tasks/TASK-003/key-and-hash-v1.md` (the change-check is the server's).
 **Task list target:** this file's **Progress tracker** + Task list (Developer-workspace convention; no `tasks/todo.md` in this project).
 
@@ -55,7 +55,7 @@ The office looks finished and saves nothing. This layer makes the office's door 
 | 17 | Dashboard feed panels real; seed files retired | ✅ | **Both feed panels read real rows and the fabricated cell is gone.** The dashboard reads `getOfficeDashboard()` (the one shared counting rule), `getOfficeActivity()` (Task 16's read, reused not copied) and a new `getOfficeTaps()` — newest first, bounded to `TAP_LIMIT = 200`, with the car's **own name resolved by the ref** (`LEFT JOIN car ON c.ref = t.car_ref`), so a tap on a removed car keeps its `TS-####` and reads no name rather than the wrong one, and a general tap (`car_ref` null) has neither. The panels word and time their rows by one shared rule — `lib/activity-feed.ts`, which the log screen now imports too, so the log and the dashboard cannot word the same row two ways (a kind this build does not name reads as itself, never as a blank); the stock counts stay the three `countStock` gives (Available / On Order / Landed this year), with Sold where the spec puts it, on the profit card. **The hardcoded "5 open enquiries" is gone and nothing enquiry-shaped replaced it** — that is on the record already: *"no 'open enquiries' total"* (`design-workspace/decisions/ux-implementation-plan.md:48`), and truth 13/D12 make "open" a stage claim the store does not hold. An empty feed now **says it is empty** instead of standing in as real-looking rows (truth 16). The dead `Show older entries` / `Show all taps` buttons are gone (the taps list is Task 19's); the stale "panels stay presentational" comment is corrected (divergence 4); the fabricated header date and the fabricated "arriving Nov – Jan" sub-line are now real. `activity/page.tsx` + `activity-client.tsx` import the shared wording rule; `office.css` gains `.tag.del`, `.tag.other` and `.feed-empty`. Tests **144/144** (6 new); witness `developer-workspace/scripts/task-004/dashboard-feeds-check.ts` **19/19** (writes and removes exactly its own rows, then checks the store is back to 0/0). Note: `notes/TASK-004-task17.md` |
 | B | **Owner checkpoint B — the car's life + registries live** | ✅ | **reported, not stopped for (the owner's rule)** — `reports/TASK-004-checkpoint-b.md`. Tasks 10–18 built: make / edit / change-check / delete+tombstone+undo / sold+un-mark / the state-registry editor / the enquiry board + activity / the dashboard's real feeds / the image flow. Five gates green, 161/161 tests, a rolled-back witness per write. **Outstanding for the owner's eyes (not a decision): no office screen has been driven in a browser by the developer — every office route is Clerk-gated and the owner's session is the only way in.** |
 | 18 | Images: upload-first/save-second, EXIF, 15 MB, cover/reorder, placeholder | ✅ | **The bytes go to the store first and the row links after, in one write, with the reference column holding a reference and never an address.** The rules that do not touch bytes live in `lib/photo-rules.ts` (the 15 MB cap, the three types, `isAssetRef`); the byte boundary in `lib/photos.ts` (`preparePhoto` → `stripJpeg`/`stripPng`/`stripWebp`, which drop Exif/XMP without re-encoding). `app/office/actions/photo.ts` (`uploadCarPhoto`) writes **no row and names no car** — an upload dropped before save is an orphan, which is `lib/cleanup.ts`'s job (no third `deleteAsset` caller). `lib/car-create.ts` numbers the incoming list `WITH ORDINALITY` (position 0 = cover, every new photo an `owner upload`); `lib/car-update.ts` reads the stored set as ordered `[reference, origin]` pairs, **keeps the source a photo already had** (only a photo the car did not have becomes `owner upload`), and replaces the set disjointly (upsert on `(car_id, position)`, delete `position >= count`) with the set **in its order** in the `changed` guard — so a reorder is a real write and a retry is still a true no-op. `photos` is **required** on both arguments, so the compiler named all six call sites. The action verifies each posted reference with `findImageAsset` (missing → an actionable refusal; unreachable → a retry-worded one) and photos stay optional on save (task.md:245 — no photo means a draft). One shared client component `components/Photo.tsx` now draws every car photo on both the showroom and the office, falling back to a drawn inline-SVG stand-in when the address is empty or the load fails, and staying an `<img>` so no layout moved; `next.config.mjs` raises `experimental.serverActions.bodySizeLimit` to `"16mb"` (Next's 1 MB default could never have carried a 15 MB photo). Tests **161/161**; witness `developer-workspace/scripts/task-004/photo-write-check.ts` **20/20** (a real sharp-built JPEG carrying EXIF, stripped and uploaded and measured back to `784 = 784` bytes, then deleted; the rows half in a rolled-back transaction incl. origin survival, reorder, deletion and the retry no-op); browser `photo-placeholder-check.mjs` **6/6** over three runs, attach-only on `:9222` (6 → 6, no Chrome launched). Note: `notes/TASK-004-task18.md` |
-| 19 | The tap + notice + office badge/list | ⬜ | page + car ref + time only; notice before the tap |
+| 19 | The tap + notice + office badge/list | ✅ | **A tap is three facts and no person — the page, the car's code and the store's own time — and the buyer is told so before it happens.** `lib/tap-rules.ts` is the allowlist (`readTap` reads exactly `page` and `carRef` and ignores every other key) and the only place that knows a car page's path (`carRefInPath`); `lib/origin-rules.ts` is the one same-origin rule — a CSRF guard, **not** authentication, and it trusts `Host` only (`x-forwarded-host` is deliberately not consulted: a caller can set it too). `lib/tap.ts` inserts two columns and never `at`, so the clock is the store's. The write goes through a new `storeQueryOnce` in `lib/store-guard.ts` — **the one store call deliberately not retried**, because a tap is an event and not a state: a retry after a lost reply would count one tap twice, and `testing.md` §9 fails a figure that counts taps the office never received. `app/api/tap/route.ts` exports **POST and nothing else** (405 to everything else, so "no GET changes data" holds by construction), checks the origin **before** reading the body, and answers 403 / 422 / 503 / 204. The buyer's side is `components/site/WhatsAppGate.tsx`, mounted in the site layout: **one document listener catches every `wa.me` link on the showroom** — header, footer, floating button, each car's button, the mobile bar, including the ones built as markup by client behaviours — shows the short notice (three facts + a link to `/privacy` + Continue / Cancel) on the first plain tap, records nothing until the buyer continues, and never blocks them on our bookkeeping (fire-and-forget `keepalive`; Ctrl/Cmd-click before the notice is left alone rather than hijacked). The office's figure is `getOfficeTapCount()` = `count(*) FROM tap` — no window, no "seen" mark (the store has none, and a GET cannot make one) — drawn by `components/office/TapBadge.tsx` on the sidebar's **Dashboard** item, hidden at zero; the mobile bar carries none (a third grid child would grow the fixed bar over the page bottom) — one line to reverse. `/privacy` corrected under the owner's ruling in **four** places (three asked about, plus the "short version" at the top that claimed only browser settings are stored); its "Last updated" date left alone as the owner's. Witnesses: `tap-check.ts` **24/24** (live store, own rows removed — three facts only, store clock, the figure equal to the table, 403 bootleg, 204 same-origin, extras dropped, no GET), `whatsapp-gate-check.mjs` **20/20** attach-only on `:9222`, `tap-badge-check.ts` **9/9**. Tests **187/187**. Five gates green. Note: `notes/TASK-004-task19.md` |
 | 20 | The car PDF blank + serving it at the upload point | ⬜ | the 14 editable details |
 | 21 | Migration `0022` — the draft table | ⬜ | D16 columns; no second table. (`0021` was taken by task 14 — `sale.prior_state_id`) |
 | 22 | Car file → drafts (read, refuse, held file) | ⬜ | one draft per car; nothing in `car` |
@@ -195,10 +195,64 @@ Legend: ⬜ not started · ⏳ in progress · ✅ done · ⛔ blocked. **Owner c
 
 ### Phase 6 — Taps (build step 6)
 
-**Task 19 — The tap + notice + office badge/list** (M)
+**Task 19 — the tap + notice + office badge/list** (M) — **BUILT 2026-10-15; one ruling taken**
+
+*The owner's ruling (asked and answered 2026-10-15):*
+- **The notice is the short form**: the three facts in plain words, a link to the full notice, Continue /
+  Cancel. Not the whole privacy page inside a dialog.
+- **`/privacy` is corrected in the same change** — and in **four** places, not the three I asked about:
+  `#collect` gains the tap, `#whatsapp` says the tap is recorded before you leave, `#retention`'s "We
+  don't store browsing data on our end" becomes "We store no browsing data beyond that tap record", and
+  the **"The short version"** paragraph at the top — which also claimed the only things stored were
+  browser settings, and would have been left false. The **"Last updated: 4 October 2026"** line was left
+  alone: that date is the owner's, not mine.
+- The notice's sentence is the owner's, with one parenthesis added so it stays **true** on the footer and
+  home links, where no car is involved: "the car's code **(when you tap on a car)**".
+
+*Settled from the authority, no ruling needed:*
+- **The badge's figure is every tap the store holds.** `testing.md` §9 is explicit about what fails:
+  "the figure counting taps the office never received, or **missing the ones it did**". So a window
+  (e.g. "today") would fail the second half, and a `seen` mark would need state the store does not have
+  (and the dashboard cannot mark taps seen on load — no GET changes data, task.md:253). The figure is
+  `count(*) FROM tap`.
+- **Placement: the sidebar's Dashboard item**, hidden at zero — the entry that leads to the recent-taps
+  list it announces (Q77 put the alert "in the sidebar"). The **mobile bottom bar carries no badge**: it
+  is a fixed 5-cell grid, a third child would grow the bar over the bottom of every page, and the count
+  is already one tap away on the Home panel. One line to reverse if the owner wants it there.
+- **The record is a POST Route Handler with an explicit origin check** (`app/api/tap/route.ts`), because
+  the tap must work for a visitor who holds no session. `origin-rules.ts` holds the one same-origin rule.
+- **The write is not retried.** It is the first genuinely non-idempotent write in this layer: a tap is an
+  event, not a state, so a retry after a lost reply would count one tap twice. Record once; if the store
+  refuses, the buyer still reaches WhatsApp and one tap is lost — the figure stays honest about what the
+  office actually received.
+- **Every WhatsApp link on the showroom goes through the notice**, not just a car's button: one listener
+  on the document (`components/site/WhatsAppGate.tsx`, mounted in the site layout) covers the header,
+  the footer, the floating button, each car's button and the mobile bar — including the ones built as
+  markup by client behaviours. A new WhatsApp button is behind the notice the day it is written.
+  The notice is shown **once per page load** (client-side navigation keeps the layout, so it is not
+  shown again within a visit); a modified click before the notice has been shown is left alone rather
+  than hijacked.
 - **AC:** the WhatsApp entry shows the privacy notice **before** the tap; a Route Handler records **page + car ref + time only** (explicit origin check) and the buyer then continues to WhatsApp; the office shows a count badge and a recent list (never a popup/alert/sound).
 - **Verify:** proof: a tap writes exactly three facts (and nothing personal); a bootleg POST without origin is refused; the badge/list update on refresh.
 - **Deps:** B. **Files:** `app/api/tap/route.ts`, `components/site/*`, dashboard panel (~4).
+
+*Built:* `lib/origin-rules.ts`, `lib/tap-rules.ts` (+ two test files), `lib/tap.ts`,
+`storeQueryOnce` in `lib/store-guard.ts`, `app/api/tap/route.ts`, `getOfficeTapCount` in `lib/office.ts`,
+`components/office/TapBadge.tsx`, `OfficeNav` + the shell layout, `components/site/WhatsAppGate.tsx`
+(+ its CSS in `app/globals.css`, mounted in the site layout), `/privacy` (four places).
+
+*Verified:* `tap-check.ts` **24/24** (live store, own rows removed) — three facts only, the store's own
+clock, the figure equal to the table, 403 without an origin, 204 with one, extras dropped, no GET
+exported. `whatsapp-gate-check.mjs` **20/20** in the real browser — the notice before the tap, nothing
+recorded until Continue, the row's page + car code, no second notice, a general tap on the home page.
+`tap-badge-check.ts` **9/9** — nothing at zero, the count and its label, `99+`, the office's own colours.
+Both new rule modules are unit-tested (**187/187** in total). Five gates green in the learned order:
+`leak-check` **PASSED** (dev live), `typecheck` clean, `test` 187/187, `build` green (`/api/tap` a
+dynamic route), `store-freshness` **PASSED**.
+
+*Not verified:* the office shell as a **rendered screen** — the office is behind Clerk and the developer
+holds no office session, so the badge in the sidebar was proved as a component (`tap-badge-check.ts`)
+and by typecheck, not by looking at it. Same gap as Checkpoint B.
 
 ### Phase 7 — Uploads and the template (build step 7)
 

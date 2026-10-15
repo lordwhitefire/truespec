@@ -23,8 +23,10 @@ export default function PrivacyPage() {
           <p>
             This site collects almost nothing. There are no accounts, no forms and no analytics. The
             only things stored are a few small settings <b>in your own browser</b> — like your
-            dark-mode choice — and they never leave your device. When you contact us, that happens
-            on WhatsApp, on your phone, with a message you can read before you send it.
+            dark-mode choice — and they never leave your device. The one thing we keep on our side is
+            the record of a WhatsApp tap: which page, the car&rsquo;s code and the time, and nothing
+            about you. When you contact us, that happens on WhatsApp, on your phone, with a message
+            you can read before you send it.
           </p>
           <div className="chips">
             <span className="schip">
@@ -62,6 +64,11 @@ export default function PrivacyPage() {
             <li>
               <b>Nothing for users</b> — We don't create user accounts or profiles.
             </li>
+            <li>
+              <b>A WhatsApp tap</b> — When you tap a WhatsApp link on a car, we record three things so
+              the office knows that car was asked about: the page you tapped from, the car&rsquo;s code
+              and the time. Nothing about you: no name, no number, no message, no address.
+            </li>
           </ul>
         </section>
 
@@ -80,16 +87,19 @@ export default function PrivacyPage() {
           <p>
             Enquiries go to WhatsApp directly (<b>+234 800 000 0000</b>). When you tap "Chat on
             WhatsApp", you leave this site and open WhatsApp. WhatsApp is a separate service with
-            its own privacy policy. We only see what you choose to send us in that WhatsApp chat.
+            its own privacy policy. Before you leave, this site records that the tap happened — the
+            page, the car&rsquo;s code (when there is one) and the time — and nothing else. We only see
+            what you choose to send us in that WhatsApp chat.
           </p>
         </section>
 
         <section id="retention">
           <h2>How long we keep it</h2>
           <p>
-            We don't store browsing data on our end. WhatsApp conversations are kept according to
-            your WhatsApp settings and our normal business retention for sales enquiries. We don't
-            keep copies of full lists of visitors.
+            We store no browsing data beyond that tap record — no name, no number, no message, no
+            address. WhatsApp conversations are kept according to your WhatsApp settings and our
+            normal business retention for sales enquiries. We don't keep copies of full lists of
+            visitors.
           </p>
         </section>
 

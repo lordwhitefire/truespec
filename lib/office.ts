@@ -458,6 +458,23 @@ export async function getOfficeTaps(): Promise<OfficeTap[]> {
 }
 
 /**
+ * How many taps the office has received — the figure behind the badge (truth 8).
+ *
+ * It counts **every row in `tap`**, with no window and no filter, and that is the point: testing.md
+ * §9 fails "the figure counting taps the office never received, or **missing the ones it did**". A
+ * badge that said "today" would miss taps the office is holding, and the store keeps no "seen" mark —
+ * nor can it: the dashboard is a GET, and no GET changes data (task.md line 253). So the honest
+ * figure is the size of the record, and it is the same record the panel below lists.
+ *
+ * The badge hides at zero rather than showing a nought — it is a notice that something arrived, not
+ * a statistic. The panel is where "none" is said in words.
+ */
+export async function getOfficeTapCount(): Promise<number> {
+  const rows = await storeQuery<{ n: number }[]>(`SELECT count(*)::int AS n FROM tap`);
+  return rows[0]?.n ?? 0;
+}
+
+/**
  * One car, as its own edit form needs it — every column the form writes, its cost
  * lines and its secondary states, found by the `TS-####` the office links by.
  *

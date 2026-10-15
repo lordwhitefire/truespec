@@ -3,6 +3,7 @@ import { OfficeBottomNav } from "@/components/office/OfficeBottomNav";
 import { OfficeTopbar } from "@/components/office/OfficeTopbar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { requireOfficeSession } from "@/lib/session";
+import { getOfficeTapCount } from "@/lib/office";
 import { signOutOffice } from "../actions/session";
 
 // The shared Office shell: sidebar (desktop) / topbar (mobile) + bottom nav.
@@ -17,6 +18,10 @@ import { signOutOffice } from "../actions/session";
 // substitute, because it is not re-run on every navigation.
 export default async function OfficeLayout({ children }: { children: React.ReactNode }) {
   const session = await requireOfficeSession();
+  // The visitor's side of the story, read with the page (truth 8): how many WhatsApp taps the office
+  // has received. It is the same figure the dashboard's recent-taps panel is built from, so the badge
+  // and the list can never disagree.
+  const tapCount = await getOfficeTapCount();
 
   return (
     <>
@@ -28,7 +33,7 @@ export default async function OfficeLayout({ children }: { children: React.React
               TrueSpec<small>Office</small>
             </div>
           </div>
-          <OfficeNav />
+          <OfficeNav tapCount={tapCount} />
           <div className="sfoot">
             <b>Signed in as {session.email}</b>
             <div className="srow">

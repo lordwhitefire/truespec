@@ -3,6 +3,7 @@ import "../reference.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Ticker } from "@/components/site/Ticker";
 import { SiteFab } from "@/components/site/SiteFab";
+import { WhatsAppGate } from "@/components/site/WhatsAppGate";
 import { getPublicCars, getSetting } from "@/lib/public-cars";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { formatNaira } from "@/lib/money";
@@ -216,6 +217,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </div>
 
       <SiteFab href={wa("Hello TrueSpec, I have a question.")} />
+
+      {/* Every WhatsApp link on this site passes through here (truth 8): the notice is shown on the
+          way out, and the tap — the page, the car's code and the time, and nothing else — is recorded.
+          It sits at the layout so a new WhatsApp button anywhere below is behind the notice. */}
+      <WhatsAppGate />
     </>
   );
 }

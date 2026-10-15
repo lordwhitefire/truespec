@@ -587,3 +587,73 @@ h3 {
     padding: 36px 0 20px;
   }
 }
+
+/* The WhatsApp notice — the step between a buyer and WhatsApp (truth 8).
+   A native <dialog>, so Esc closes it and the page behind it is inert while it is up; it is a
+   *disclosure*, not a confirmation of a destructive action (the product has exactly two of those).
+   Styled to match the site's cards: the same hairline, the same gold edge, the same radius. */
+.wagn {
+  width: calc(100% - 32px);
+  max-width: 440px;
+  margin: auto;
+  padding: 22px 24px;
+  background: var(--surface);
+  color: var(--body2);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-body);
+}
+
+.wagn::backdrop {
+  background: rgba(16, 18, 20, 0.55);
+}
+
+.wagn h2 {
+  font-family: var(--font-head);
+  font-size: 21px;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.wagn p {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.wagn p b {
+  color: var(--ink);
+}
+
+.wagn-more a {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.wagn-btns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.wagn-cancel {
+  height: 38px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: none;
+  color: var(--body2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wagn-cancel:hover {
+  background: var(--surface-2);
+}
