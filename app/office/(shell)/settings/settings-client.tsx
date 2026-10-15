@@ -12,23 +12,25 @@ import { CarStateEditor } from "./car-state-editor";
 import { EnquiryStateEditor } from "./enquiry-state-editor";
 import type { RegistryState } from "@/lib/car-state";
 import type { EnquiryRegistryState } from "@/lib/enquiry-state";
+import type { OfficeSettings } from "@/lib/settings";
+import { normaliseNigerianMobile, waMeDigits } from "@/lib/phone";
+import { clock, longDay } from "@/lib/office-time";
+import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
 
 /* Settings — a faithful port of office-settings.html.
-   The whole screen is presentational+local: four cards, each with its own
-   validation or dirty-watch and a demo toast (plan §1 — data model out of
-   scope). The theme toggle is NATIVE to the reference here (`.sfoot .srow` +
-   `.thm` + `#thm`), supplied by the shared shell, so the only divergence is the
-   product route URLs. Reference quirks reproduced on purpose:
-   - `#tagN` boots hardcoded at "44" although the tagline is 53 chars — it only
-     updates on input.
+   The two state editors are the owner's real registries. The three settings are now real too
+   (truth 12): the value shown is the value the store holds, the save goes through
+   `app/office/actions/setting.ts`, and the audit line under each card is the row's own
+   `updated_at` rather than a literal. The four cards were a presentational port, holding their
+   values in the browser and announcing "(demo)" — that is what changed here.
+   Reference quirks reproduced on purpose:
    - `#pDirty` boots hidden (`hidden` attribute) because pCheck() is never run at
      boot, even though a value is present; it appears on the first password input.
    - `#pvLink` only updates while the number is valid, so it keeps its last good
-     value when the field goes invalid. */
+     value when the field goes invalid.
+   One quirk is deliberately NOT kept: `#tagN` booted hardcoded at "44" even though the
+   tagline was 53 characters. That was a lie about a real value; it now counts the real one. */
 
-const WA0 = "+234 800 000 0000";
-const TAG0 = "Imported from the USA. Delivered anywhere in Nigeria.";
-const TANK0 = "110000";
 const CURP0 = "demo-only";
 
 /* The Settings sub-menu (ui-plan Q58). One route, panels swapped in place —
@@ -41,8 +43,6 @@ const TABS = [
 ] as const;
 type TabKey = (typeof TABS)[number]["k"];
 
-const waDigits = (v: string) => v.replace(/\D/g, "");
-
 function strength(v: string) {
   let s = 0;
   if (v.length >= 10) s++;
@@ -54,21 +54,29 @@ function strength(v: string) {
 export function Settings({
   registry = [],
   enquiryRegistry = [],
+  settings,
 }: {
   registry?: RegistryState[];
   enquiryRegistry?: EnquiryRegistryState[];
+  settings: OfficeSettings;
 }) {
-  const [wa, setWa] = useState(WA0);
-  const [waSnap, setWaSnap] = useState(WA0);
+  const [wa, setWa] = useState(settings.whatsapp.value);
+  const [waSnap, setWaSnap] = useState(settings.whatsapp.value);
+  const [waErr, setWaErr] = useState<string | null>(null); // the store's own refusal, if any
   const [waSaved, setWaSaved] = useState(false); // clears the "good" outline after save
-  const [pvLink, setPvLink] = useState("wa.me/" + waDigits(WA0));
+  const [waBusy, setWaBusy] = useState(false);
+  const [pvLink, setPvLink] = useState("wa.me/" + waMeDigits(settings.whatsapp.value));
 
-  const [tag, setTag] = useState(TAG0);
-  const [tagSnap, setTagSnap] = useState(TAG0);
-  const [tagN, setTagN] = useState("44"); // reference hardcodes 44 at boot
+  const [tag, setTag] = useState(settings.tagline.value);
+  const [tagSnap, setTagSnap] = useState(settings.tagline.value);
+  const [tagErr, setTagErr] = useState<string | null>(null);
+  const [tagBusy, setTagBusy] = useState(false);
+  const [tagN, setTagN] = useState(String(settings.tagline.value.length));
 
-  const [tank, setTank] = useState(TANK0);
-  const [tankSnap, setTankSnap] = useState(TANK0);
+  const [tank, setTank] = useState(settings.tank.value);
+  const [tankSnap, setTankSnap] = useState(settings.tank.value);
+  const [tankErr, setTankErr] = useState<string | null>(null);
+  const [tankBusy, setTankBusy] = useState(false);
 
   const [curp, setCurp] = useState(CURP0);
   const [newp, setNewp] = useState("");
@@ -113,14 +121,17 @@ export function Settings({
 
   /* ---------- 1. WhatsApp: validation + dead-button preview ---------- */
   const waTrim = wa.trim();
-  const waDigitsOnly = waDigits(waTrim);
+  const waRead = normaliseNigerianMobile(wa);
   const waEmpty = waTrim === "";
-  const waOk = !waEmpty && waDigitsOnly.length >= 10 && waDigitsOnly.length <= 15;
+  const waOk = waRead.ok;
+  // The empty state is this screen's own words (it is about the showroom's buttons, not the number);
+  // every other refusal is the one rule's, so the field and the store cannot disagree.
   const waMsg = waEmpty
     ? "No number set — every chat button on the site is dead until one is saved."
-    : waOk
+    : waRead.ok
       ? ""
-      : "That doesn't look like a full number. Include the country code, e.g. +234 800 000 0000.";
+      : waRead.reason;
+  const waShown = waErr ?? waMsg;
   const waBad = !waEmpty && !waOk;
   const waGood = waOk && !waSaved;
   const waDirty = wa !== waSnap;
@@ -128,33 +139,74 @@ export function Settings({
   function onWaInput(v: string) {
     setWa(v);
     setWaSaved(false);
-    const t = v.trim();
-    const d = waDigits(t);
-    const ok = t !== "" && d.length >= 10 && d.length <= 15;
-    if (ok) setPvLink("wa.me/" + d);
+    setWaErr(null);
+    const read = normaliseNigerianMobile(v);
+    if (read.ok) setPvLink("wa.me/" + waMeDigits(read.value));
   }
 
-  function saveWa() {
+  async function saveWa() {
     if (!waOk) return;
-    setWaSnap(wa);
-    setWaSaved(true);
-    showToast("WhatsApp number saved (demo). Every chat button on the site now uses it.");
+    setWaBusy(true);
+    try {
+      const result = await saveWhatsapp(wa);
+      if (!result.ok) {
+        setWaErr(result.error);
+        showToast(result.error);
+        return;
+      }
+      // Show what the store now holds: the normalised `+234…`, not the way it was typed.
+      setWa(result.value);
+      setWaSnap(result.value);
+      setWaErr(null);
+      setWaSaved(true);
+      setPvLink("wa.me/" + waMeDigits(result.value));
+      showToast("WhatsApp number saved. Every chat button on the site now uses it.");
+    } finally {
+      setWaBusy(false);
+    }
   }
 
   /* ---------- 2. Tagline ---------- */
   const tagDirty = tag !== tagSnap;
 
-  function saveTag() {
-    setTagSnap(tag);
-    showToast("Tagline saved (demo). The home page updates immediately.");
+  async function saveTag() {
+    setTagBusy(true);
+    try {
+      const result = await saveTagline(tag);
+      if (!result.ok) {
+        setTagErr(result.error);
+        showToast(result.error);
+        return;
+      }
+      setTag(result.value);
+      setTagSnap(result.value);
+      setTagN(String(result.value.length));
+      setTagErr(null);
+      showToast("Tagline saved. The home page updates immediately.");
+    } finally {
+      setTagBusy(false);
+    }
   }
 
   /* ---------- 3. Cost default ---------- */
   const tankDirty = tank !== tankSnap;
 
-  function saveTank() {
-    setTankSnap(tank);
-    showToast("Default saved (demo). Full tank is pre-filled on every new car.");
+  async function saveTank() {
+    setTankBusy(true);
+    try {
+      const result = await saveFullTankDefault(tank);
+      if (!result.ok) {
+        setTankErr(result.error);
+        showToast(result.error);
+        return;
+      }
+      setTank(result.value);
+      setTankSnap(result.value);
+      setTankErr(null);
+      showToast("Default saved. Full tank is pre-filled on every new car.");
+    } finally {
+      setTankBusy(false);
+    }
   }
 
   /* ---------- 4. Password ---------- */
@@ -269,9 +321,9 @@ export function Settings({
               inputMode="tel"
               onChange={(e) => onWaInput(e.target.value)}
             />
-            <p className={`err${waOk ? "" : " on"}`} id="waErr">
+            <p className={`err${waBad || waErr ? " on" : ""}`} id="waErr">
               <i className="fa-solid fa-circle-exclamation" />
-              <span id="waErrT">{waMsg}</span>
+              <span id="waErrT">{waShown}</span>
             </p>
             <p className={`okmsg${waOk ? " on" : ""}`} id="waOk">
               <i className="fa-solid fa-circle-check" />
@@ -281,8 +333,8 @@ export function Settings({
           <div className="own">
             <i className="fa-solid fa-user-shield" />
             <span>
-              <b>Owner:</b> this is a placeholder for the demo. Swap in the real number
-              before the client sees it — real numbers never live in demo seed files.
+              <b>Owner:</b> the demonstration ships with a placeholder number. Save your
+              real one here and every chat button on the site follows it.
             </span>
           </div>
           <div className="prev" aria-label="Showroom preview">
@@ -319,7 +371,7 @@ export function Settings({
             </div>
           </div>
           <div className="srow2">
-            <button className="btn" id="waSave" type="button" disabled={!waDirty} onClick={saveWa}>
+            <button className="btn" id="waSave" type="button" disabled={!waDirty || waBusy} onClick={saveWa}>
               Save number
             </button>
             <span className="dirty" id="waDirty" hidden={!waDirty}>
@@ -327,10 +379,12 @@ export function Settings({
               Unsaved change
             </span>
           </div>
-          <p className="audit">
-            <i className="fa-regular fa-clock" />
-            Updated by Umar on 1 Oct 2026, 09:30
-          </p>
+          {settings.whatsapp.updatedAt && (
+            <p className="audit">
+              <i className="fa-regular fa-clock" />
+              Updated {longDay(settings.whatsapp.updatedAt)}, {clock(settings.whatsapp.updatedAt)}
+            </p>
+          )}
         </section>
 
         {/* ============ 2. TAGLINE ============ */}
@@ -356,6 +410,12 @@ export function Settings({
             <p className="cnt">
               <span id="tagN">{tagN}</span>/80
             </p>
+            {tagErr && (
+              <p className="err on">
+                <i className="fa-solid fa-circle-exclamation" />
+                <span>{tagErr}</span>
+              </p>
+            )}
           </div>
           <div className="prev" aria-label="Tagline preview">
             <div className="ptit">
@@ -374,7 +434,7 @@ export function Settings({
             </div>
           </div>
           <div className="srow2">
-            <button className="btn" id="tagSave" type="button" disabled={!tagDirty} onClick={saveTag}>
+            <button className="btn" id="tagSave" type="button" disabled={!tagDirty || tagBusy} onClick={saveTag}>
               Save tagline
             </button>
             <span className="dirty" id="tagDirty" hidden={!tagDirty}>
@@ -382,10 +442,12 @@ export function Settings({
               Unsaved change
             </span>
           </div>
-          <p className="audit">
-            <i className="fa-regular fa-clock" />
-            Updated by Umar on 28 Sep 2026, 19:10
-          </p>
+          {settings.tagline.updatedAt && (
+            <p className="audit">
+              <i className="fa-regular fa-clock" />
+              Updated {longDay(settings.tagline.updatedAt)}, {clock(settings.tagline.updatedAt)}
+            </p>
+          )}
         </section>
 
         {/* ============ 3. COST DEFAULT ============ */}
@@ -414,10 +476,16 @@ export function Settings({
                 />
               </div>
               <p className="hint">Default prefilled on every new car — change per car if needed.</p>
+              {tankErr && (
+                <p className="err on">
+                  <i className="fa-solid fa-circle-exclamation" />
+                  <span>{tankErr}</span>
+                </p>
+              )}
             </div>
           </div>
           <div className="srow2">
-            <button className="btn" id="tankSave" type="button" disabled={!tankDirty} onClick={saveTank}>
+            <button className="btn" id="tankSave" type="button" disabled={!tankDirty || tankBusy} onClick={saveTank}>
               Save default
             </button>
             <span className="dirty" id="tankDirty" hidden={!tankDirty}>
@@ -425,10 +493,12 @@ export function Settings({
               Unsaved change
             </span>
           </div>
-          <p className="audit">
-            <i className="fa-regular fa-clock" />
-            Updated by Umar on 1 Oct 2026, 09:30
-          </p>
+          {settings.tank.updatedAt && (
+            <p className="audit">
+              <i className="fa-regular fa-clock" />
+              Updated {longDay(settings.tank.updatedAt)}, {clock(settings.tank.updatedAt)}
+            </p>
+          )}
         </section>
           </>
         )}
