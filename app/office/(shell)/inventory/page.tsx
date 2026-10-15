@@ -4,6 +4,7 @@ import {
   getOfficeCarViews,
   getOfficeStates,
   getOfficeCounts,
+  getTombstonedCars,
   type OfficeCarView,
 } from "@/lib/office";
 
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
 import { costLabelFor, isCostComplete, profitKobo, totalCostKobo } from "@/lib/money";
 import { requireOfficeSession } from "@/lib/session";
 import { InventoryClient, type InventoryRow } from "./inventory-client";
+import { Tombstones, type TombstoneRow } from "./tombstones";
 
 // Inventory — built to the reference runtime model (office-inventory.html).
 // The table/cards/chips/filter/sort/delete/undo all live in the client
@@ -28,7 +30,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 // "2026-09-29T00:00:00.000Z" → "29 Sep 2026" (as the reference shows it).
 // The Postgres driver hands timestamp columns back as JS Date objects, so
 // accept both shapes and read UTC fields only.
-function soldOn(v: string | Date): string {
+function dayLabel(v: string | Date): string {
   const d = v instanceof Date ? v : new Date(v);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
@@ -40,6 +42,7 @@ function toRow(c: OfficeCarView): InventoryRow {
   const door = c.doorstep_price_kobo === null ? null : Number(c.doorstep_price_kobo);
   const sale = c.sale_price_kobo === null ? null : Number(c.sale_price_kobo);
   return {
+    id: c.id,
     ref: c.ref,
     name: [c.brand, c.model, c.trim].filter(Boolean).join(" "),
     year: c.year,
@@ -58,19 +61,26 @@ function toRow(c: OfficeCarView): InventoryRow {
             priceKobo: sold ? null : door,
             salePriceKobo: sold ? sale : null,
           }).kobo,
-    soldOn: sold ? soldOn(c.sold_at as string | Date) : undefined,
+    soldOn: sold ? dayLabel(c.sold_at as string | Date) : undefined,
     note: c.arrival_note ?? undefined,
   };
 }
 
 export default async function InventoryPage() {
   await requireOfficeSession();
-  const [views, states, counts] = await Promise.all([
+  const [views, states, counts, tombstones] = await Promise.all([
     getOfficeCarViews(),
     getOfficeStates(),
     getOfficeCounts(),
+    getTombstonedCars(),
   ]);
   const rows = views.map(toRow);
+  const waiting: TombstoneRow[] = tombstones.map((t) => ({
+    id: t.id,
+    ref: t.ref,
+    name: t.name,
+    deletedOn: dayLabel(t.deletedAt),
+  }));
 
   return (
     <>
@@ -86,6 +96,8 @@ export default async function InventoryPage() {
       </div>
 
       <InventoryClient rows={rows} states={states} counts={counts} />
+
+      <Tombstones rows={waiting} />
 
       <p className="note">
         <i className="fa-solid fa-lock" />

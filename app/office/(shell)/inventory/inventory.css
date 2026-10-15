@@ -147,6 +147,18 @@ tr.soldrow td{opacity:.62}
 /* note */
 .note{margin-top:18px;font-size:12.5px;color:var(--mute);display:flex;gap:9px;align-items:flex-start}
 .note i{color:var(--gold);margin-top:2px}
+/* ============ WAITING TO BE CLEARED ============ */
+/* The office's own view of its tombstones (truth 6). Deliberately below the stock
+   table: the table lists live cars, this lists the deleted ones the owner may clear. */
+.clearout{margin-top:22px;padding:18px 20px}
+.clearout h2{display:flex;align-items:center;gap:9px;font-size:14px;letter-spacing:.05em;margin-bottom:4px}
+.clearout h2 i{color:var(--gold);font-size:14px}
+.clearout-list{list-style:none;margin-top:14px;display:grid;gap:0}
+.clearout-list li{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.clearout-name b{font-weight:600;font-size:14px}
+.clearout-name small{color:var(--mute);font-size:12px;margin-left:4px}
+.clearout-acts{margin-left:auto;display:flex;gap:8px}
+.clearout .note{margin-top:14px}
 /* ============ RESPONSIVE ============ */
 .cards,.mbar{display:none}
 @media(max-width:1000px){.main{padding:26px 22px 60px}}

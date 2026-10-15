@@ -25,6 +25,8 @@ import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
 //     that waits to remove them.
 
 export type OfficeCarRow = {
+  /** The car's key — what a write names it by (`car.id`), never a `TS-####`. */
+  id: string;
   ref: string;
   brand: string;
   model: string;
@@ -136,6 +138,7 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
     let car = byRef.get(r.id);
     if (!car) {
       car = {
+        id: r.id,
         ref: r.ref,
         brand: r.brand,
         model: r.model,
@@ -337,4 +340,42 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
     cost_lines: r.cost_lines.map((c) => ({ kind: c.kind, amountMinor: toNumber(c.amountMinor) })),
     secondary_state_ids: r.secondary_state_ids,
   };
+}
+
+/**
+ * The cars waiting to be cleared — the office's read of its own tombstones (truth 6).
+ *
+ * A deleted car is hidden from **every** office read (`getOfficeCars` and everything
+ * built on it filter `deleted_at IS NULL`); this is the one place it is still named,
+ * so the owner can see what is waiting and remove it for good whenever he chooses. No
+ * job, rule or clock calls this — and none of them removes a car.
+ */
+export type TombstonedCar = {
+  id: string;
+  ref: string;
+  /** "2018 Camry XLE" — the way the office names a car. */
+  name: string;
+  deletedAt: string | Date;
+};
+
+export async function getTombstonedCars(): Promise<TombstonedCar[]> {
+  const rows = (await storeQuery(
+    `SELECT id, ref, brand, model, trim, deleted_at
+       FROM car
+      WHERE deleted_at IS NOT NULL
+      ORDER BY deleted_at DESC`,
+  )) as {
+    id: string;
+    ref: string;
+    brand: string | null;
+    model: string | null;
+    trim: string | null;
+    deleted_at: string | Date;
+  }[];
+  return rows.map((r) => ({
+    id: r.id,
+    ref: r.ref,
+    name: [r.brand, r.model, r.trim].filter(Boolean).join(" "),
+    deletedAt: r.deleted_at,
+  }));
 }

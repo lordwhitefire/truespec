@@ -7,7 +7,9 @@ import { storeQuery } from "@/lib/store-guard";
 import { readCarInput, type CarColumns, type CarCostLine, type CarFormInput, type FieldError } from "@/lib/car-input";
 import { carCreateStatement } from "@/lib/car-create";
 import { carUpdateStatement } from "@/lib/car-update";
+import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from "@/lib/car-delete";
 import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
+import { deleteAsset } from "@/lib/sanity";
 
 /**
  * Create a car — the first write behind the door (build step 3).
@@ -29,6 +31,10 @@ import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
 
 export type CreateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
 export type UpdateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
+export type DeleteCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
+export type RemoveCarResult =
+  | { ok: true; ref: string; assetsCleared: number; assetsFailed: number }
+  | { ok: false; errors: FieldError[] };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -183,4 +189,96 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
 
   revalidateCarPaths();
   return { ok: true, ref };
+}
+
+/**
+ * Delete a car — the tombstone, never a removal (truth 6, specs/inventory: "Delete with
+ * confirmation and undo").
+ *
+ * The action only ever sets `car.deleted_at`; every office read already excludes it, so
+ * the car leaves every screen at once while its photos, costs, state and sale stay
+ * whole. Undo (below) clears the one column, so the car comes back byte-for-byte.
+ *
+ * **Nothing here removes a car, and no job, rule or clock will** (owner ruling
+ * 2026-10-13). The store guard's retry is safe: a delete is idempotent, so a retry
+ * finds the car already tombstoned and leaves it — it does not write a second event.
+ */
+export async function deleteCar(carId: string): Promise<DeleteCarResult> {
+  const session = await requireOfficeSession();
+  if (!UUID.test(carId)) {
+    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+  }
+
+  const { text, params } = carDeleteStatement({ id: carId, actorId: session.officeUserId });
+  const rows = await storeQuery<{ ref: string }[]>(text, params);
+
+  const ref = rows[0]?.ref;
+  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+
+  revalidateCarPaths();
+  return { ok: true, ref };
+}
+
+/**
+ * Undo a delete — the 8-second window's write, and it is the same write whenever it
+ * arrives (the car is simply not a tombstone any more). Idempotent, so the guard's
+ * retry is safe.
+ */
+export async function undoDeleteCar(carId: string): Promise<DeleteCarResult> {
+  const session = await requireOfficeSession();
+  if (!UUID.test(carId)) {
+    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+  }
+
+  const { text, params } = carRestoreStatement({ id: carId, actorId: session.officeUserId });
+  const rows = await storeQuery<{ ref: string }[]>(text, params);
+
+  const ref = rows[0]?.ref;
+  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+
+  revalidateCarPaths();
+  return { ok: true, ref };
+}
+
+/**
+ * Remove a tombstoned car for good — **the owner's own action, and nothing else's**
+ * (owner ruling 2026-10-13).
+ *
+ * The statement does two things at once and refuses a car that is not a tombstone, so
+ * the delete-then-remove order cannot be skipped: it deletes the row (the foreign keys
+ * carry the photos, cost lines and sale row with it) and returns the car's photo asset
+ * ids **from before the row went**, for this action to clear in the asset store. The
+ * bytes are cleared here and any that would not go are **counted and reported**, never
+ * swallowed — an asset left behind is one the daily job will see as unreferenced
+ * (TASK-006), so nothing sits in the store forever.
+ *
+ * The store guard's retry is safe in effect (a second run finds nothing left to remove),
+ * though a repeat reports honestly that the car is no longer waiting to be cleared.
+ */
+export async function removeCarForever(carId: string): Promise<RemoveCarResult> {
+  const session = await requireOfficeSession();
+  if (!UUID.test(carId)) {
+    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+  }
+
+  const { text, params } = carRemoveStatement({ id: carId, actorId: session.officeUserId });
+  const rows = await storeQuery<{ ref: string | null; assets: string[] }[]>(text, params);
+
+  const row = rows[0];
+  if (!row?.ref) {
+    return { ok: false, errors: [{ field: "carId", message: "That car is not waiting to be cleared" }] };
+  }
+
+  // The rows are gone within the store's own transaction; the bytes are external, so
+  // they are cleared after and reported by count.
+  let assetsCleared = 0;
+  let assetsFailed = 0;
+  for (const assetId of row.assets) {
+    const result = await deleteAsset(assetId);
+    if (result.deleted) assetsCleared += 1;
+    else assetsFailed += 1;
+  }
+
+  revalidateCarPaths();
+  return { ok: true, ref: row.ref, assetsCleared, assetsFailed };
 }

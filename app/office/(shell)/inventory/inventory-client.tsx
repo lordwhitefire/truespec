@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { formatNaira } from "@/lib/money";
 import type { Section } from "@/lib/sections";
 import type { StockCounts } from "@/lib/counts";
+import { deleteCar, undoDeleteCar } from "../../actions/car";
 
 // Inventory client — reproduces the reference office-inventory.html behaviour
 // exactly: state chips (zero-count hidden unless active), search + sort, the
@@ -18,6 +19,8 @@ import type { StockCounts } from "@/lib/counts";
 // state is named for TASK-003.
 
 export type InventoryRow = {
+  /** The car's key — what a write names it by (`car.id`), never a `TS-####`. */
+  id: string;
   ref: string;
   name: string;
   year: number | null;
@@ -106,7 +109,10 @@ export function InventoryClient({
   const [sort, setSort] = useState("new");
   const [del, setDel] = useState<InventoryRow | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastErr, setToastErr] = useState(false);
+  const [undoOn, setUndoOn] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [, startWrite] = useTransition();
 
   const qRef = useRef<HTMLInputElement>(null);
   const undoRef = useRef<InventoryRow | null>(null);
@@ -166,24 +172,56 @@ export function InventoryClient({
     setDel(c);
   }
 
-  function confirmDelete() {
-    if (!del) return;
-    undoRef.current = del;
-    setRows((r) => r.filter((x) => x.ref !== del.ref));
-    setDel(null);
-    setToastMsg(`${del.name} ${del.year} deleted.`);
+  function showToast(message: string, isError: boolean, ms: number) {
     if (tmrRef.current) window.clearTimeout(tmrRef.current);
-    tmrRef.current = window.setTimeout(() => setToastMsg(null), 6000);
+    setToastErr(isError);
+    setToastMsg(message);
+    tmrRef.current = window.setTimeout(() => {
+      setToastMsg(null);
+      setUndoOn(false);
+      undoRef.current = null;
+    }, ms);
   }
 
+  // Delete is a real write now (truth 6): the car is tombstoned on the server, so it
+  // leaves every office read at once while its photos, costs, state and sale stay
+  // whole. The row leaves the screen at once too — optimistically — and comes straight
+  // back if the store refuses.
+  function confirmDelete() {
+    const car = del;
+    if (!car) return;
+    setDel(null);
+    setRows((r) => r.filter((x) => x.id !== car.id));
+    startWrite(async () => {
+      const res = await deleteCar(car.id);
+      if (!res.ok) {
+        setRows((r) => [...r, car].sort((a, b) => a.ref.localeCompare(b.ref)));
+        showToast(res.errors[0]?.message ?? "That car could not be deleted.", true, 6000);
+        return;
+      }
+      undoRef.current = car;
+      setUndoOn(true);
+      // The undo offer lasts exactly the spec's 8-second window; when it closes the car
+      // is a tombstone, and it is listed as waiting to be cleared.
+      showToast(`${car.name} ${car.year} deleted.`, false, 8000);
+    });
+  }
+
+  // Undo within the window clears the tombstone — the one column the delete set — so
+  // the car comes back exactly as it was.
   function undo() {
-    // The reference keeps the toast visible (message stays, the 6 s timer set by
-    // confirmDelete keeps running) — only the row is restored and re-sorted by ref.
     const car = undoRef.current;
-    if (car) {
-      setRows((r) => [...r, car].sort((a, b) => a.ref.localeCompare(b.ref)));
-      undoRef.current = null;
-    }
+    if (!car) return;
+    setUndoOn(false);
+    setRows((r) => [...r, car].sort((a, b) => a.ref.localeCompare(b.ref)));
+    showToast(`${car.name} ${car.year} restored.`, false, 4000);
+    startWrite(async () => {
+      const res = await undoDeleteCar(car.id);
+      if (!res.ok) {
+        setRows((r) => r.filter((x) => x.id !== car.id));
+        showToast(res.errors[0]?.message ?? "That car could not be restored.", true, 6000);
+      }
+    });
   }
 
   const empty = (
@@ -413,10 +451,16 @@ export function InventoryClient({
                 </div>
               </div>
 
-              {/* undo toast */}
-              <div className={`toast${toastMsg ? " show" : ""}`} id="toast" role="status">
+              {/* undo toast — the Undo button is offered only while the delete's 8-second
+                  window is open (`undoOn`); once it closes the car is a tombstone and is
+                  dealt with from the "waiting to be cleared" list below the table. */}
+              <div
+                className={`toast${toastMsg ? " show" : ""}`}
+                id="toast"
+                role={toastErr ? "alert" : "status"}
+              >
                 <span id="tmsg">{toastMsg ?? ""}</span>
-                <button type="button" id="undo" onClick={undo}>
+                <button type="button" id="undo" onClick={undo} hidden={!undoOn}>
                   Undo
                 </button>
               </div>
