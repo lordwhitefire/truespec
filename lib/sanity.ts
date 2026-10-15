@@ -123,9 +123,11 @@ export async function uploadFile(
 /**
  * Remove an asset from the store, by the id the store holds.
  *
- * This is the **only** delete in this door, and it has exactly one caller: the owner-run demo wipe
- * (`scripts/demo-wipe.ts`, TASK-003 Task 24, `npm run demo:wipe`). No job, rule, request path or seed
- * calls it — nothing is deleted on the owner's behalf (`openspec/tasks/TASK-003/task.md`, truth 10).
+ * This is the **only** delete in this door. It has two callers, and both are the owner acting
+ * himself: the demo wipe (`scripts/demo-wipe.ts`, TASK-003 Task 24, `npm run demo:wipe`) and the
+ * owner's own removal of a clear-out car (`removeCarForever`, TASK-004 task 13). No job, rule,
+ * request path or seed calls it — nothing is deleted on the owner's behalf
+ * (`openspec/tasks/TASK-003/task.md`, truth 10).
  *
  * Deleting the asset *document* is what removes the asset (Sanity's guidance for `@sanity/client`:
  * "Deleting an asset document will also trigger deletion of the actual asset"). Two things Sanity
