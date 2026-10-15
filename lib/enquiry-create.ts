@@ -9,6 +9,10 @@
 // not exist for an enquiry; `handle` (the customer's WhatsApp key) is left NULL, because a draft
 // carries the record's editable fields "and nothing else" (truth 9) — the office sets a handle when
 // it has one.
+//
+// **`is_demo` is written here, as a literal** — the same fact as `carCreateStatement` writes, for the
+// same reason (task.md:280-284): an enquiry imported while the demonstration is the fleet is the
+// demonstration's. See `lib/car-create.ts`.
 
 import type { EnquirySeed } from "./draft-save";
 
@@ -33,9 +37,9 @@ export function enquiryCreateStatement(args: EnquiryCreateArgs): EnquiryCreate {
     text: `
       WITH new_enquiry AS (
         INSERT INTO enquiry (
-          id, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version
+          id, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version, is_demo
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
         ON CONFLICT (id) DO NOTHING
         RETURNING id
       )

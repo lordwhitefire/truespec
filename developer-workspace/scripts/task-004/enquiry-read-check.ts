@@ -144,8 +144,8 @@ async function main() {
       String(rows[0]?.source_filename),
     );
     ok(
-      "every draft is an enquiry draft, and not a demo row",
-      rows.every((row) => row.kind === "enquiry" && row.is_demo === false),
+      "every draft is an enquiry draft, and carries the demo marker like a seeded row (task.md:280)",
+      rows.every((row) => row.kind === "enquiry" && row.is_demo === true),
       rows.map((row) => String(row.kind)).join(", "),
     );
     ok(

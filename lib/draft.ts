@@ -21,8 +21,14 @@ import { storeQuery } from "./store-guard";
 /**
  * One row of a batch, as the SQL takes it. Every draft's `id` is minted by the caller and travels
  * *in* the statement, so re-running the same statement (`storeQuery`'s retry, D18) lands on the same
- * keys and inserts nothing twice. `is_demo` is left to its column default, exactly as an
- * owner-created car is (scripts/seed.ts is the only place that sets it true).
+ * keys and inserts nothing twice.
+ *
+ * **`is_demo` is written here, as a literal** — the same fact `carCreateStatement` and
+ * `enquiryCreateStatement` write, for the same reason (task.md:280-284): a file imported while the
+ * demonstration is the fleet is the demonstration's, so the one move that empties the demo empties the
+ * drafts too (task.md:404-407: "drafts carry the demo marker, so the wipe clears them"). See
+ * `lib/car-create.ts`. The column's default is `false`; the statement names the column and its value
+ * rather than leaning on the schema, because leaning on it is how a row slips in unmarked.
  *
  * `kind` travels as a parameter, not as a literal: the reader that read the file is the one that
  * knows whether it was a car blank or an enquiry sheet, so the writer is told. The store's own
@@ -31,9 +37,9 @@ import { storeQuery } from "./store-guard";
  */
 export const DRAFT_INSERT = `
   INSERT INTO draft (
-    id, kind, batch_id, source_filename, source_asset_id, values, state_label
+    id, kind, batch_id, source_filename, source_asset_id, values, state_label, is_demo
   )
-  SELECT d.id, $5, $1, $2, $3, d."values", d.state_label
+  SELECT d.id, $5, $1, $2, $3, d."values", d.state_label, true
     FROM jsonb_to_recordset($4::jsonb) AS d(id uuid, "values" jsonb, state_label text)
   ON CONFLICT (id) DO NOTHING
 `;

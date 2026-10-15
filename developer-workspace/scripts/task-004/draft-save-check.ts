@@ -9,6 +9,11 @@
  * a reload exactly as the file left it, and a draft that is abandoned spends no code and creates
  * nothing.
  *
+ * Two more things it asserts while it is there (Task 25): **an enquiry's save** runs end to end too —
+ * the enquiry has its own rule and its own statement, and the save's half of it had never been run —
+ * and **every content row this layer writes is marked as the demonstration's** (`is_demo`, task.md:280
+ * -284), so the one move that empties the demonstration empties these rows with it.
+ *
  * Everything here is the **real** thing. The save is `runSaveDraft` — the same run the Server Action
  * calls, with the action's only contribution (the actor's id, taken from the session) passed in
  * directly. The values are judged by the office form's own reader (`readCarInput`, through
@@ -77,8 +82,10 @@ async function main() {
 
   const batchId = randomUUID();
   const brand = `Witness Car ${batchId.slice(0, 8)}`;
+  const enquiryName = `Witness Enquiry ${batchId.slice(0, 8)}`;
   let actorId: string | null = null;
   let imageId: string | null = null;
+  let enquiryId: string | null = null;
 
   try {
     // ---------------------------------------------------------------- the actor and the state ---
@@ -99,6 +106,12 @@ async function main() {
       )
     ).rows[0] as { id: string; label: string } | undefined;
     if (!state) throw new Error("no non-sold primary car state to save into");
+
+    // An enquiry may sit in no state — but a file may name one, and a name has to resolve to an id.
+    const enquiryState = (
+      await q(`SELECT id, label FROM enquiry_state ORDER BY sort, label LIMIT 1`)
+    ).rows[0] as { id: string; label: string } | undefined;
+    if (!enquiryState) throw new Error("no enquiry state to save into");
 
     // ------------------------------------------------------------------- ten drafts, one file ---
     const ids: string[] = [];
@@ -190,6 +203,11 @@ async function main() {
           .rows[0].n,
       ) === 1,
     );
+    ok(
+      "the car the office made carries the demo marker (task.md:280 — the demonstration is the fleet)",
+      made?.is_demo === true,
+      String(made?.is_demo),
+    );
 
     // ---------------------------------------------------------- its brothers — untouched (nine) ---
     const waiting = (await q(`SELECT id FROM draft WHERE batch_id = $1`, [batchId])).rows as { id: string }[];
@@ -248,6 +266,60 @@ async function main() {
       incomplete.ok ? "saved" : JSON.stringify(incomplete.errors),
     );
     ok("...and it too is still waiting", (await getDraft(ids[3])) !== null);
+
+    // ------------------------------------------- the other kind — an enquiry's save, end to end ---
+    // The enquiry's save runs the same `runSaveDraft` with its own rule and its own statement. This
+    // closes the gap the task's note named as unverified (only the enquiry's *rule* was unit-tested),
+    // and proves that write carries the demo marker like every other content write in this layer.
+    const enquiryDraftId = randomUUID();
+    await q(
+      `INSERT INTO draft (id, kind, batch_id, source_filename, source_asset_id, values, state_label, is_demo)
+       VALUES ($1, 'enquiry', $2, $3, $4, $5::jsonb, $6, true)`,
+      [
+        enquiryDraftId,
+        batchId,
+        "witness enquiries.pdf",
+        "asset-witness-not-uploaded",
+        JSON.stringify({
+          name: enquiryName,
+          number: "+2348000000001",
+          asked_for: "a small saloon",
+          note: "made by the witness",
+        }),
+        enquiryState.label,
+      ],
+    );
+    const enquiriesBefore = Number((await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n);
+
+    const savedEnquiry = await runSaveDraft(enquiryDraftId, "", actorId);
+    ok(
+      "saving an enquiry draft succeeds — the other kind, the same run",
+      savedEnquiry.ok,
+      savedEnquiry.ok ? "" : JSON.stringify(savedEnquiry.errors),
+    );
+    if (savedEnquiry.ok) {
+      const row = (await q(`SELECT * FROM enquiry WHERE name = $1`, [enquiryName])).rows[0] as
+        | Record<string, unknown>
+        | undefined;
+      enquiryId = (row?.id as string | undefined) ?? null;
+      ok(
+        "one enquiry was made — and only one",
+        Boolean(row) && Number((await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n) === enquiriesBefore + 1,
+      );
+      ok(
+        "it carries what the sheet said, and the state the file named",
+        row?.number === "+2348000000001" &&
+          row?.asked_for === "a small saloon" &&
+          row?.enquiry_state_id === enquiryState.id,
+        `${String(row?.number)} / state ${String(row?.enquiry_state_id)}`,
+      );
+      ok(
+        "that write carries the demo marker too — every content write this layer makes does",
+        row?.is_demo === true,
+        String(row?.is_demo),
+      );
+      ok("the enquiry draft went the moment it became a record", (await getDraft(enquiryDraftId)) === null);
+    }
   } finally {
     // Remove exactly what this run made — and nothing else. The drafts go by the batch it minted, the
     // car by the brand it wrote, the actor by its own id.
@@ -258,16 +330,23 @@ async function main() {
     }
     await q(`DELETE FROM draft WHERE batch_id = $1`, [batchId]);
     await q(`DELETE FROM car WHERE brand LIKE $1`, [`${brand} %`]);
+    if (enquiryId) {
+      await q(`DELETE FROM enquiry WHERE id = $1`, [enquiryId]);
+      enquiryId = null;
+    }
     if (actorId) {
       await q(`DELETE FROM activity_event WHERE actor_id = $1`, [actorId]);
       await q(`DELETE FROM office_user WHERE id = $1`, [actorId]);
     }
     const draftsLeft = Number((await q(`SELECT count(*) AS n FROM draft WHERE batch_id = $1`, [batchId])).rows[0].n);
     const carsLeft = Number((await q(`SELECT count(*) AS n FROM car WHERE brand LIKE $1`, [`${brand} %`])).rows[0].n);
+    const enquiriesLeft = Number(
+      (await q(`SELECT count(*) AS n FROM enquiry WHERE name = $1`, [enquiryName])).rows[0].n,
+    );
     ok(
       "the store is left as it was found — the witness's own rows are gone",
-      draftsLeft === 0 && carsLeft === 0,
-      `${draftsLeft} drafts, ${carsLeft} cars left behind`,
+      draftsLeft === 0 && carsLeft === 0 && enquiriesLeft === 0,
+      `${draftsLeft} drafts, ${carsLeft} cars, ${enquiriesLeft} enquiries left behind`,
     );
     await client.end();
   }

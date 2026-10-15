@@ -207,7 +207,8 @@ async function main() {
         JSON.stringify(["brand", "doorstep_price_kobo", "features", "mileage", "model", "was_price_kobo", "year"].sort()),
       Object.keys(firstRow?.values ?? {}).join(", "));
     ok("the state's name is in state_label", firstRow?.state_label === "On Order", String(firstRow?.state_label));
-    ok("a draft is a car draft, and not a demo row", rows[0]?.kind === "car" && rows[0]?.is_demo === false);
+    ok("a draft is a car draft, and carries the demo marker like a seeded row (task.md:280)",
+      rows[0]?.kind === "car" && rows[0]?.is_demo === true);
     ok("no reference code is given at the upload", !("ref" in (rows[0] ?? {})));
 
     ok("the draft is not a car — the car table is the size it was", (await count("car")) === carsBefore,

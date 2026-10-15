@@ -22,16 +22,20 @@ loadEnv({ path: ".env.local", quiet: true });
  *   - every demo `car` — its cost lines, its photos and its sale go with it (ON DELETE CASCADE);
  *   - every demo `enquiry` — and the imported PDF row it points at. That FK is SET NULL, so the row
  *     would outlive the enquiry; it is removed deliberately, and only when no other enquiry holds it;
+ *   - every demo `draft` — a file's rows waiting to be saved, and **the assets they reference**: the
+ *     file the upload held (`source_asset_id`) and every image the owner added to a row
+ *     (`image_asset_ids`). A draft is not a record, so nothing else hangs off it;
  *   - `tap` rows whose `car_ref` is a demo ref;
  *   - `activity_event` rows naming a demo ref;
- *   - the demo's own assets — the photos and the PDF — by the id the row stores.
+ *   - the demo's own assets — the photos, the PDFs **and the drafts' files and images** — by the id
+ *     the row stores.
  *
- * What is left exactly as it was: every car, enquiry, cost line, photo, sale, PDF row, tap, activity
- * row, setting and asset that is not the demo's. That is **measured, not assumed**: the run takes the
- * ids of every row that is *not* the demo's before the delete, and after it refuses to accept its own
- * work if one of those ids is gone. A row may legitimately *stop* being the demo's — keeping a PDF
- * alive because an enquiry that is not the demo's holds it is the point of the clause — so the check
- * is "nothing that was not the demo's went missing", not "the counts are equal".
+ * What is left exactly as it was: every car, enquiry, draft, cost line, photo, sale, PDF row, tap,
+ * activity row, setting and asset that is not the demo's. That is **measured, not assumed**: the run
+ * takes the ids of every row that is *not* the demo's before the delete, and after it refuses to
+ * accept its own work if one of those ids is gone. A row may legitimately *stop* being the demo's —
+ * keeping a PDF alive because an enquiry that is not the demo's holds it is the point of the clause —
+ * so the check is "nothing that was not the demo's went missing", not "the counts are equal".
  */
 
 // Every row that is not the demo's, by id. These are the rows the wipe promises to leave alone.
@@ -60,6 +64,7 @@ const OWNED_BY_OTHERS: Record<string, { sql: string; params: "refs" | "refsSubje
     params: "refsSubject",
   },
   setting: { sql: "SELECT key AS id FROM setting", params: "none" },
+  draft: { sql: "SELECT id FROM draft WHERE NOT is_demo", params: "none" },
 };
 
 type Db = Client;
@@ -80,11 +85,27 @@ async function idsOwnedByOthers(client: Client, refs: string[], subjectRe: strin
 const countsOf = (ids: Record<string, string[]>) =>
   Object.fromEntries(Object.entries(ids).map(([k, v]) => [k, v.length]));
 
+/**
+ * Every asset a set of demo drafts references — the file the upload held, and the images the owner
+ * added to each row. Distinct, because two rows of one batch share their held file.
+ */
+const draftAssetIdsOf = (rows: { source_asset_id: string; image_asset_ids: string[] }[]): string[] => [
+  ...new Set(rows.flatMap((d) => [d.source_asset_id, ...(d.image_asset_ids ?? [])]).filter(Boolean)),
+];
+
 type Summary = {
   ranAt: string;
   dryRun: boolean;
   assetsDeletedFromStore: boolean;
-  demo: { refs: string[]; cars: number; enquiries: number; photoAssets: number; pdfRows: number };
+  demo: {
+    refs: string[];
+    cars: number;
+    enquiries: number;
+    drafts: number;
+    photoAssets: number;
+    pdfRows: number;
+    draftAssets: number;
+  };
   removed: Record<string, number>;
   assets: { collected: number; deleted: string[]; failed: { assetId: string; reason: string }[] };
   untouched: { before: Record<string, number>; after: Record<string, number>; missing: string[] };
@@ -109,7 +130,7 @@ async function main() {
     ranAt: new Date().toISOString(),
     dryRun,
     assetsDeletedFromStore: withAssets,
-    demo: { refs: [], cars: 0, enquiries: 0, photoAssets: 0, pdfRows: 0 },
+    demo: { refs: [], cars: 0, enquiries: 0, drafts: 0, photoAssets: 0, pdfRows: 0, draftAssets: 0 },
     removed: {},
     assets: { collected: 0, deleted: [], failed: [] },
     untouched: { before: {}, after: {}, missing: [] },
@@ -135,9 +156,26 @@ async function main() {
         "SELECT DISTINCT pdf_import_id FROM enquiry WHERE is_demo AND pdf_import_id IS NOT NULL",
       )
     ).rows.map((r) => r.pdf_import_id);
+    // A demo draft's own assets: the file the upload held, and every image the owner added to the
+    // row. Distinct — two rows of one batch share the held file, and a reader must not be handed the
+    // same id twice.
+    const demoDrafts = (
+      await client.query<{ source_asset_id: string; image_asset_ids: string[] }>(
+        "SELECT source_asset_id, image_asset_ids FROM draft WHERE is_demo",
+      )
+    ).rows;
+    const draftAssets = draftAssetIdsOf(demoDrafts);
 
-    const totals = await client.query<{ car: string; enquiry: string; tap: string; activity_event: string; setting: string }>(
+    const totals = await client.query<{
+      car: string;
+      enquiry: string;
+      draft: string;
+      tap: string;
+      activity_event: string;
+      setting: string;
+    }>(
       `SELECT (SELECT count(*) FROM car) car, (SELECT count(*) FROM enquiry) enquiry,
+              (SELECT count(*) FROM draft) draft,
               (SELECT count(*) FROM tap) tap, (SELECT count(*) FROM activity_event) activity_event,
               (SELECT count(*) FROM setting) setting`,
     );
@@ -149,13 +187,22 @@ async function main() {
 
     const othersBefore = await idsOwnedByOthers(client, refs, subjectRe);
 
-    summary.demo = { refs, cars: refs.length, enquiries: demoEnquiries, photoAssets: photoAssets.length, pdfRows: demoPdfRows };
+    summary.demo = {
+      refs,
+      cars: refs.length,
+      enquiries: demoEnquiries,
+      drafts: demoDrafts.length,
+      photoAssets: photoAssets.length,
+      pdfRows: demoPdfRows,
+      draftAssets: draftAssets.length,
+    };
     summary.untouched.before = countsOf(othersBefore);
 
     say("The demo, as it stands:");
     say(`  ${refs.length} demo car(s) of ${Number(t.car)} — ${refs.join(", ")}`);
     say(`  ${demoEnquiries} demo enquiry(ies) of ${Number(t.enquiry)}`);
-    say(`  ${photoAssets.length} photo asset(s), ${demoPdfRows} imported PDF row(s), ${Number(t.tap)} tap(s), ${Number(t.activity_event)} activity row(s)`);
+    say(`  ${demoDrafts.length} demo draft(s) of ${Number(t.draft)}`);
+    say(`  ${photoAssets.length} photo asset(s), ${demoPdfRows} imported PDF row(s), ${draftAssets.length} draft asset(s), ${Number(t.tap)} tap(s), ${Number(t.activity_event)} activity row(s)`);
     say(`  ${Number(t.setting)} setting row(s); the demo has no setting, and cost lines and sales leave with their car`);
     say("");
     say("Not the demo's (they must all still be here afterwards):");
@@ -194,11 +241,19 @@ async function main() {
           )
         : { rows: [] as { id: string; sanity_asset_id: string }[] };
       const cars = await client.query("DELETE FROM car WHERE is_demo RETURNING id");
+      const drafts = await client.query<{ source_asset_id: string; image_asset_ids: string[] }>(
+        "DELETE FROM draft WHERE is_demo RETURNING source_asset_id, image_asset_ids",
+      );
+      const draftAssetIds = draftAssetIdsOf(drafts.rows);
 
       const stillDemo = await client.query(
-        "SELECT (SELECT count(*) FROM car WHERE is_demo) car, (SELECT count(*) FROM enquiry WHERE is_demo) enquiry",
+        "SELECT (SELECT count(*) FROM car WHERE is_demo) car, (SELECT count(*) FROM enquiry WHERE is_demo) enquiry, (SELECT count(*) FROM draft WHERE is_demo) draft",
       );
-      if (Number(stillDemo.rows[0].car) !== 0 || Number(stillDemo.rows[0].enquiry) !== 0) {
+      if (
+        Number(stillDemo.rows[0].car) !== 0 ||
+        Number(stillDemo.rows[0].enquiry) !== 0 ||
+        Number(stillDemo.rows[0].draft) !== 0
+      ) {
         throw new Error("demo rows survived the delete");
       }
 
@@ -217,6 +272,7 @@ async function main() {
       summary.removed = {
         cars: cars.rowCount ?? 0,
         enquiries: enquiries.rowCount ?? 0,
+        drafts: drafts.rowCount ?? 0,
         pdfRows: pdfs.rows.length,
         taps: taps.rowCount ?? 0,
         activityEvents: activity.rowCount ?? 0,
@@ -226,7 +282,9 @@ async function main() {
 
       // The assets go only after the rows that named them are gone: a row pointing at a missing
       // asset is worse than an orphan asset, and an orphan is the one kind of litter a job may clear.
-      const assetIds = [...new Set([...photoAssets, ...pdfs.rows.map((r) => r.sanity_asset_id)])].filter(Boolean);
+      const assetIds = [
+        ...new Set([...photoAssets, ...pdfs.rows.map((r) => r.sanity_asset_id), ...draftAssetIds]),
+      ].filter(Boolean);
       summary.assets.collected = assetIds.length;
       if (withAssets) {
         for (const assetId of assetIds) {
@@ -268,7 +326,7 @@ function emit(summary: Summary, asJson: boolean) {
   );
   void changed;
   console.log("");
-  console.log("Every car, enquiry, cost line, photo, sale, PDF row, tap, activity row, setting and asset");
+  console.log("Every car, enquiry, draft, cost line, photo, sale, PDF row, tap, activity row, setting and asset");
   console.log("that is not the demo's is exactly as it was.");
 }
 

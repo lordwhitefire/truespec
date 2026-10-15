@@ -23,6 +23,14 @@ import type { CarColumns, CarCostLine } from "./car-input";
  * insert, on a retry from the row that is already committed.
  *
  * Money is Naira only (R-MON-3): every cost line is `NGN` with no rate.
+ *
+ * **`is_demo` is written here, as a literal, and cannot be left out** (task.md:280-284: "anything the
+ * application creates while the demonstration is the fleet is demonstration data … nothing this layer
+ * writes may slip in without it"). A car the owner adds while trying the office out is the
+ * demonstration's, exactly as a seeded car is — so the one move that empties the demo still empties it.
+ * The column's default is `false`; leaning on it is how a row would slip in unmarked, which is why the
+ * statement names the column and its value rather than trusting the schema. The same fact is written
+ * once in each of this layer's three content writes (car, `enquiry`, `draft`).
  */
 
 export type CarCreateArgs = {
@@ -46,9 +54,9 @@ export function carCreateStatement(args: CarCreateArgs): { text: string; params:
     INSERT INTO car (
       id, brand, model, trim, year, exterior_color, interior_color, mileage,
       features, note, private_note, was_price_kobo, arrival_note, doorstep_price_kobo,
-      state_id, content_hash, hash_version
+      state_id, content_hash, hash_version, is_demo
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17, true)
     ON CONFLICT (id) DO NOTHING
     RETURNING id, ref
   ),
