@@ -1,0 +1,182 @@
+import { parseCostAmount, SIX_COST_KINDS, type CostKind } from "./money";
+
+/**
+ * The car form's one reader.
+ *
+ * A Server Action is a public endpoint, so everything a browser sends is untrusted
+ * text until this module has judged it. It turns the form's strings into the car's
+ * fourteen stored columns, its six cost lines and its secondary-state ids — or a
+ * list of field-level refusals, one per bad field, so the form can show each message
+ * beside the input that caused it.
+ *
+ * It is pure: no store, no session, no clock beyond the one it is given. The action
+ * owns those; this owns "is this a well-formed car?".
+ *
+ * What it deliberately does **not** do: it never sees or returns a `content_hash`.
+ * The change-check is the server's, computed from the stored values, never from a
+ * browser (truth 14). It also does not decide whether a state id names a *primary*
+ * state — that is the registry's fact, checked by the action against the store.
+ */
+
+/** The raw strings a car form submits. Every field is text, as HTML sends it. */
+export type CarFormInput = {
+  brand: string;
+  model: string;
+  trim?: string;
+  year: string;
+  exteriorColor?: string;
+  interiorColor?: string;
+  mileage: string;
+  /** Newline-separated feature list, as typed. */
+  features?: string;
+  note?: string;
+  privateNote?: string;
+  /** Naira; blank = no "was" price. */
+  wasPrice?: string;
+  arrivalNote?: string;
+  /** Naira; blank = no price yet (an office-only draft, C3). */
+  price?: string;
+  /** The car's one primary state. */
+  stateId: string;
+  /** The owner's secondary states, any number (or none). */
+  secondaryStateIds?: string[];
+  /** Naira per cost kind; a blank or absent kind means "not entered". */
+  costs?: Partial<Record<CostKind, string>>;
+};
+
+/** The car's fourteen editable columns, ready to store. */
+export type CarColumns = {
+  brand: string;
+  model: string;
+  trim: string | null;
+  year: number;
+  exterior_color: string | null;
+  interior_color: string | null;
+  mileage: number;
+  features: string | null;
+  note: string | null;
+  private_note: string | null;
+  was_price_kobo: number | null;
+  arrival_note: string | null;
+  doorstep_price_kobo: number | null;
+  state_id: string;
+};
+
+export type CarCostLine = { kind: CostKind; amountMinor: number };
+
+export type CarInputValue = {
+  columns: CarColumns;
+  costs: CarCostLine[];
+  secondaryStateIds: string[];
+};
+
+export type FieldError = { field: string; message: string };
+export type CarInputResult = { ok: true; value: CarInputValue } | { ok: false; errors: FieldError[] };
+
+const blank = (s: string | undefined): boolean => s === undefined || s.trim() === "";
+const text = (s: string | undefined): string | null => {
+  const t = (s ?? "").trim();
+  return t === "" ? null : t;
+};
+
+/** A whole, non-negative integer, or null when the text is not one. */
+function wholeNumber(raw: string | undefined): number | null {
+  const t = (raw ?? "").trim().replace(/[,\s]/g, "");
+  if (!/^\d+$/.test(t)) return null;
+  return Number(t);
+}
+
+/** Split a typed feature list into trimmed, non-empty lines. */
+function featureList(raw: string | undefined): string[] {
+  return (raw ?? "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+}
+
+/**
+ * Judge one car form. Returns the storable value, or every field-level refusal
+ * found (not just the first), so the form can mark each field at once.
+ *
+ * @param input the form's strings
+ * @param now   the year "this year" means, for the year bound; injected so the rule is testable
+ */
+export function readCarInput(input: CarFormInput, now: number = new Date().getFullYear()): CarInputResult {
+  const errors: FieldError[] = [];
+
+  // --- required text fields ---
+  const brand = (input.brand ?? "").trim();
+  if (brand === "") errors.push({ field: "brand", message: "Enter the make" });
+  const model = (input.model ?? "").trim();
+  if (model === "") errors.push({ field: "model", message: "Enter the model" });
+
+  // --- year ---
+  const year = wholeNumber(input.year);
+  if (blank(input.year) || year === null) {
+    errors.push({ field: "year", message: "Enter the year" });
+  } else if (year < 1900 || year > now + 1) {
+    errors.push({ field: "year", message: `Enter a year between 1900 and ${now + 1}` });
+  }
+
+  // --- mileage (km) ---
+  const mileage = wholeNumber(input.mileage);
+  if (blank(input.mileage) || mileage === null) {
+    errors.push({ field: "mileage", message: "Enter the mileage in km" });
+  }
+
+  // --- amounts: each is naira, and a malformed one is refused at its own field ---
+  let wasPriceKobo: number | null = null;
+  if (!blank(input.wasPrice)) {
+    const parsed = parseCostAmount(input.wasPrice as string);
+    if (parsed.ok) wasPriceKobo = parsed.amountMinor;
+    else errors.push({ field: "wasPrice", message: parsed.error });
+  }
+
+  let priceKobo: number | null = null;
+  if (!blank(input.price)) {
+    const parsed = parseCostAmount(input.price as string);
+    if (parsed.ok) priceKobo = parsed.amountMinor;
+    else errors.push({ field: "price", message: parsed.error });
+  }
+
+  const costs: CarCostLine[] = [];
+  for (const kind of SIX_COST_KINDS) {
+    const raw = input.costs?.[kind];
+    if (blank(raw)) continue;
+    const parsed = parseCostAmount(raw as string);
+    if (parsed.ok) costs.push({ kind, amountMinor: parsed.amountMinor });
+    else errors.push({ field: `cost.${kind}`, message: parsed.error });
+  }
+
+  // --- the car's one primary state ---
+  const stateId = (input.stateId ?? "").trim();
+  if (stateId === "") errors.push({ field: "stateId", message: "Choose the car's state" });
+
+  if (errors.length > 0) return { ok: false, errors };
+
+  const features = featureList(input.features);
+  return {
+    ok: true,
+    value: {
+      columns: {
+        brand,
+        model,
+        trim: text(input.trim),
+        year: year as number,
+        exterior_color: text(input.exteriorColor),
+        interior_color: text(input.interiorColor),
+        mileage: mileage as number,
+        // Stored as a JSON array text, exactly as the reader already expects.
+        features: features.length > 0 ? JSON.stringify(features) : null,
+        note: text(input.note),
+        private_note: text(input.privateNote),
+        was_price_kobo: wasPriceKobo,
+        arrival_note: text(input.arrivalNote),
+        doorstep_price_kobo: priceKobo,
+        state_id: stateId,
+      },
+      costs,
+      secondaryStateIds: Array.from(new Set(input.secondaryStateIds ?? [])).filter((id) => id.trim() !== ""),
+    },
+  };
+}
