@@ -1,0 +1,42 @@
+/* The office's account surface (truth 12: the password is the provider's, and changing it
+   is delegated). Standalone, like the door — it mounts the provider's own profile UI inside
+   the office's look, and the theme variables come from `door.css`, which it imports first. */
+
+.office-account {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px 60px;
+}
+
+.office-account-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mute);
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+
+.office-account-back:hover {
+  color: var(--gold);
+}
+
+/* The provider's profile UI carries its own card; this only keeps it from stretching
+   edge to edge on a wide screen. */
+.office-account > .cl-rootBox {
+  width: 100%;
+  max-width: 720px;
+  margin-top: 6px;
+}
+
+.office-account-note {
+  color: var(--mute);
+  font-size: 12.5px;
+  max-width: 560px;
+  text-align: center;
+  margin-top: 6px;
+}

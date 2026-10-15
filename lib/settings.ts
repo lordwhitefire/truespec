@@ -3,6 +3,7 @@ import "server-only";
 import { storeQuery } from "./store-guard";
 import { normaliseNigerianMobile } from "./phone";
 import { parseCostAmount } from "./money";
+import type { NoticeInput } from "./notices";
 
 /**
  * The settings that exist, and the only door to the `setting` table (truth 12; `specs/office-settings`).
@@ -29,6 +30,21 @@ import { parseCostAmount } from "./money";
 /** The three keys the store holds — the only keys this module will ever write. */
 export const SETTING_KEYS = ["whatsapp_number", "tagline", "full_tank_default"] as const;
 export type SettingKey = (typeof SETTING_KEYS)[number];
+
+/**
+ * The keys the **daily job** writes (D8/D19) and this module only ever **reads**. They are not
+ * settings the owner edits — the settings screen holds exactly the three above — they are the two
+ * operational notices the office displays rather than mails.
+ *
+ * This is the contract with TASK-006, and it is written down here because this is the reading end:
+ *   - `last_backup_at`       — an ISO 8601 instant, the job's heartbeat after a backup.
+ *   - `storage_used_bytes`   — whole bytes the image store holds, as the job measured it.
+ *   - `storage_warning_bytes` — whole bytes; the figure `storage_used_bytes` is measured against.
+ *                                Absent, `lib/notices.ts` falls back to the spec's 4 GB.
+ * Nothing here is ever computed live from the image store, and no row is invented: a key with no row
+ * reads as `null`, which the notices say out loud rather than papering over.
+ */
+export const NOTICE_KEYS = ["last_backup_at", "storage_used_bytes", "storage_warning_bytes"] as const;
 
 /** The screen's name for a setting, and the key it is stored under. */
 const KEY_FOR_FIELD = {
@@ -64,6 +80,38 @@ export async function readSettings(): Promise<OfficeSettings> {
   };
 
   return { whatsapp: read("whatsapp_number"), tagline: read("tagline"), tank: read("full_tank_default") };
+}
+
+/**
+ * Read the notice rows the daily job writes (D19). Read-only: this module never writes these, and a
+ * key with no row reads as `null` — which `lib/notices.ts` says out loud, rather than turning into a
+ * zero or a guess. A value that is present but not a number (or not a date) is also `null`: the office
+ * refuses to invent one either way.
+ */
+export async function readNotices(): Promise<NoticeInput> {
+  const rows = await storeQuery<{ key: string; value: string }[]>(
+    `SELECT key, value FROM setting WHERE key = ANY($1::text[])`,
+    [NOTICE_KEYS],
+  );
+  const byKey = new Map(rows.map((row) => [row.key, row.value]));
+
+  const number = (key: (typeof NOTICE_KEYS)[number]): number | null => {
+    const raw = byKey.get(key);
+    if (raw === undefined) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const rawBackup = byKey.get("last_backup_at");
+  // A row that is present but unreadable is passed through as written, so `lib/notices.ts` can say
+  // "could not be read" rather than "no backup recorded yet" — the two are different facts.
+  const lastBackupAt = rawBackup === undefined ? null : rawBackup;
+
+  return {
+    lastBackupAt,
+    storageUsedBytes: number("storage_used_bytes"),
+    storageWarningBytes: number("storage_warning_bytes"),
+  };
 }
 
 export type SaveSettingResult = { ok: true; value: string } | { ok: false; error: string };

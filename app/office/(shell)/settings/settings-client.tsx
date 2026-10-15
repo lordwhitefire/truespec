@@ -1,37 +1,40 @@
 "use client";
 
 import {
-  type InputHTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { CarStateEditor } from "./car-state-editor";
 import { EnquiryStateEditor } from "./enquiry-state-editor";
 import type { RegistryState } from "@/lib/car-state";
 import type { EnquiryRegistryState } from "@/lib/enquiry-state";
 import type { OfficeSettings } from "@/lib/settings";
+import type { Notice } from "@/lib/notices";
 import { normaliseNigerianMobile, waMeDigits } from "@/lib/phone";
 import { clock, longDay } from "@/lib/office-time";
 import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
 
 /* Settings — a faithful port of office-settings.html.
-   The two state editors are the owner's real registries. The three settings are now real too
+   The two state editors are the owner's real registries. The three settings are real too
    (truth 12): the value shown is the value the store holds, the save goes through
    `app/office/actions/setting.ts`, and the audit line under each card is the row's own
    `updated_at` rather than a literal. The four cards were a presentational port, holding their
    values in the browser and announcing "(demo)" — that is what changed here.
+   The password card is no longer a form: the provider holds the password, the office holds none,
+   and `Change password` goes to `/office/account`, where the provider's own UI does the work.
+   The System card shows the two operational notices (D19), read from `setting` rows on the server
+   and decided by `lib/notices.ts` — never computed here.
    Reference quirks reproduced on purpose:
-   - `#pDirty` boots hidden (`hidden` attribute) because pCheck() is never run at
-     boot, even though a value is present; it appears on the first password input.
    - `#pvLink` only updates while the number is valid, so it keeps its last good
      value when the field goes invalid.
    One quirk is deliberately NOT kept: `#tagN` booted hardcoded at "44" even though the
-   tagline was 53 characters. That was a lie about a real value; it now counts the real one. */
-
-const CURP0 = "demo-only";
+   tagline was 53 characters. That was a lie about a real value; it now counts the real one.
+   The whole password form and its `#pDirty` unsaved-change flag are gone for the same reason:
+   the office no longer builds a password form at all (truth 12, owner ruling 2026-10-14). */
 
 /* The Settings sub-menu (ui-plan Q58). One route, panels swapped in place —
    no new routes, the URL never changes. */
@@ -43,22 +46,16 @@ const TABS = [
 ] as const;
 type TabKey = (typeof TABS)[number]["k"];
 
-function strength(v: string) {
-  let s = 0;
-  if (v.length >= 10) s++;
-  if (v.length >= 14 && /[A-Z]/.test(v) && /[0-9]/.test(v)) s++;
-  if (v.length >= 18 || (/[^A-Za-z0-9]/.test(v) && v.length >= 12)) s++;
-  return s;
-}
-
 export function Settings({
   registry = [],
   enquiryRegistry = [],
   settings,
+  notices,
 }: {
   registry?: RegistryState[];
   enquiryRegistry?: EnquiryRegistryState[];
   settings: OfficeSettings;
+  notices: Notice[];
 }) {
   const [wa, setWa] = useState(settings.whatsapp.value);
   const [waSnap, setWaSnap] = useState(settings.whatsapp.value);
@@ -77,12 +74,6 @@ export function Settings({
   const [tankSnap, setTankSnap] = useState(settings.tank.value);
   const [tankErr, setTankErr] = useState<string | null>(null);
   const [tankBusy, setTankBusy] = useState(false);
-
-  const [curp, setCurp] = useState(CURP0);
-  const [newp, setNewp] = useState("");
-  const [newp2, setNewp2] = useState("");
-  const [pDirty, setPDirty] = useState(false); // visible flag (boots hidden)
-  const [eyes, setEyes] = useState<Record<string, boolean>>({});
 
   const [tab, setTab] = useState<TabKey>("general");
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -208,59 +199,6 @@ export function Settings({
       setTankBusy(false);
     }
   }
-
-  /* ---------- 4. Password ---------- */
-  const s = strength(newp);
-  const newp2Bad = !!newp2 && newp2 !== newp;
-  const pReady = !!curp && newp.length >= 10 && newp === newp2;
-  const meterClass = "meter" + (s ? ` m${s}` : "");
-  const mtxt = newp
-    ? s === 0
-      ? "Too short — at least 10 characters."
-      : s === 1
-        ? "Okay. A longer phrase would be stronger."
-        : s === 2
-          ? "Good password."
-          : "Strong password."
-    : "At least 10 characters. A long phrase beats a short scramble.";
-
-  function onPwInput(which: "curp" | "newp" | "newp2", v: string) {
-    const c = which === "curp" ? v : curp;
-    const n = which === "newp" ? v : newp;
-    const n2 = which === "newp2" ? v : newp2;
-    if (which === "curp") setCurp(v);
-    else if (which === "newp") setNewp(v);
-    else setNewp2(v);
-    setPDirty(!!(c || n || n2));
-  }
-
-  function savePassword() {
-    if (newp2Bad || newp.length < 10) return;
-    setCurp("");
-    setNewp("");
-    setNewp2("");
-    setPDirty(false);
-    showToast("Password updated (demo). Other signed-in sessions are signed out.");
-  }
-
-  /* ---------- Eyes ---------- */
-  const eyeInput = (id: "curp" | "newp", props: InputHTMLAttributes<HTMLInputElement>) => {
-    const shown = !!eyes[id];
-    return (
-      <div className="pwrap">
-        <input {...props} type={shown ? "text" : "password"} />
-        <button
-          className="eye"
-          type="button"
-          data-eye={id}
-          aria-label={shown ? "Hide password" : "Show password"}
-          onClick={() => setEyes((e) => ({ ...e, [id]: !e[id] }))}
-        >
-          <i className={`fa-regular fa-eye${shown ? "-slash" : ""}`} />
-        </button>
-      </div>
-    );
-  };
 
   return (
     <>
@@ -534,79 +472,54 @@ export function Settings({
 
         {tab === "account" && (
           <>
-        {/* ============ 4. PASSWORD ============ */}
+        {/* ============ 4. PASSWORD (delegated) ============ */}
         <section className="card">
           <div className="ch">
             <i className="fa-solid fa-key" />
             <h2>Password</h2>
           </div>
           <p className="cd">
-            One account, so one password. Changing it signs out anywhere else it was open.
+            One account, so one password. It is the identity provider&apos;s, not the office&apos;s —
+            nothing on this screen stores it, sees it, or changes it. Changing it signs you out
+            anywhere else it was open.
           </p>
-          <div className="f">
-            <label htmlFor="curp">Current password</label>
-            {eyeInput("curp", {
-              className: "in",
-              id: "curp",
-              autoComplete: "current-password",
-              value: curp,
-              onChange: (e) => onPwInput("curp", e.target.value),
-            })}
-          </div>
-          <div className="r2">
-            <div className="f">
-              <label htmlFor="newp">New password</label>
-              {eyeInput("newp", {
-                className: "in",
-                id: "newp",
-                autoComplete: "new-password",
-                value: newp,
-                onChange: (e) => onPwInput("newp", e.target.value),
-              })}
-              <div className={meterClass} id="meter" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </div>
-              <p className="mtxt" id="mtxt">
-                {mtxt}
-              </p>
-            </div>
-            <div className="f">
-              <label htmlFor="newp2">Confirm new password</label>
-              <input
-                className={`in${newp2Bad ? " bad" : ""}`}
-                id="newp2"
-                type="password"
-                autoComplete="new-password"
-                value={newp2}
-                onChange={(e) => onPwInput("newp2", e.target.value)}
-              />
-              <p className={`err${newp2Bad ? " on" : ""}`} id="pErr">
-                <i className="fa-solid fa-circle-exclamation" />
-                Passwords don&apos;t match yet.
-              </p>
-            </div>
-          </div>
           <div className="srow2">
-            <button
-              className="btn"
-              id="pSave"
-              type="button"
-              disabled={!pReady}
-              onClick={savePassword}
-            >
-              Update password
-            </button>
-            <span className="dirty" id="pDirty" hidden={!pDirty}>
-              <i className="fa-solid fa-pencil" />
-              Unsaved change
-            </span>
+            <Link className="btn" id="pChange" href="/office/account">
+              Change password
+            </Link>
           </div>
-          <p className="audit">
-            <i className="fa-regular fa-clock" />
-            Password last changed 12 Sep 2026
+          <p className="hint" style={{ marginTop: 12 }}>
+            <i className="fa-regular fa-circle-question" /> Forgot it? Recovery is an
+            identity-provider operation — it happens at the sign-in screen, not in the office.
           </p>
+        </section>
+
+        {/* ============ 5. SYSTEM (operational notices) ============ */}
+        <section className="card">
+          <div className="ch">
+            <i className="fa-solid fa-heart-pulse" />
+            <h2>System</h2>
+          </div>
+          <p className="cd">
+            Read from what the system records about itself. The office displays these; it never
+            estimates them.
+          </p>
+          <div className="notices">
+            {notices.map((n) => (
+              <div className={`notice ${n.level}`} key={n.kind} data-kind={n.kind}>
+                <i
+                  className={`fa-solid ${
+                    n.level === "warn" ? "fa-triangle-exclamation" : "fa-circle-info"
+                  }`}
+                  aria-hidden="true"
+                />
+                <div>
+                  <b>{n.title}</b>
+                  <span>{n.body}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
           </>
         )}

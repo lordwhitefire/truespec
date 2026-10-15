@@ -1,6 +1,7 @@
 import "./settings.css";
 import { getCarStateRegistry, getEnquiryStateRegistry } from "@/lib/office";
-import { readSettings } from "@/lib/settings";
+import { readNotices, readSettings } from "@/lib/settings";
+import { buildNotices } from "@/lib/notices";
 import { requireOfficeSession } from "@/lib/session";
 import { Settings } from "./settings-client";
 
@@ -15,15 +16,21 @@ export const dynamic = "force-dynamic";
    beside each state straight from the store's own rows.
    The three settings are read here too (truth 12) and written back through
    `app/office/actions/setting.ts`, so the cards show what the store holds rather than
-   a literal — and an audit line can say when the store last changed. */
+   a literal — and an audit line can say when the store last changed.
+   The two operational notices (D19) are read here as well and decided by `lib/notices.ts`,
+   on the server, so the office's own clock is the one the notice is built from. */
 
 export default async function SettingsPage() {
   await requireOfficeSession();
-  const [registry, enquiryRegistry, settings] = await Promise.all([
+  const [registry, enquiryRegistry, settings, noticeRows] = await Promise.all([
     getCarStateRegistry(),
     getEnquiryStateRegistry(),
     readSettings(),
+    readNotices(),
   ]);
+  const notices = buildNotices(noticeRows, new Date());
 
-  return <Settings registry={registry} enquiryRegistry={enquiryRegistry} settings={settings} />;
+  return (
+    <Settings registry={registry} enquiryRegistry={enquiryRegistry} settings={settings} notices={notices} />
+  );
 }
