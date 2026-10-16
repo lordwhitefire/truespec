@@ -28,6 +28,9 @@ import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/act
    and `Change password` goes to `/office/account`, where the provider's own UI does the work.
    The System card shows the two operational notices (D19), read from `setting` rows on the server
    and decided by `lib/notices.ts` — never computed here.
+   The Export card is the office's one download (truth 13): a plain link to `/api/export`, which
+   returns a single ZIP of everything the store holds. It is not `Link` on purpose — a prefetch
+   would build an archive nobody asked for.
    Reference quirks reproduced on purpose:
    - `#pvLink` only updates while the number is valid, so it keeps its last good
      value when the field goes invalid.
@@ -520,6 +523,33 @@ export function Settings({
               </div>
             ))}
           </div>
+        </section>
+
+        {/* ============ 6. EXPORT (one action → one ZIP) ============ */}
+        {/* A plain anchor, never `Link`: Link prefetches when it scrolls into view, which would
+            build a whole archive the owner never asked for. The download is the office's own GET
+            — it needs a session like every other read here, and answers with no body at all
+            without one. */}
+        <section className="card">
+          <div className="ch">
+            <i className="fa-solid fa-box-archive" />
+            <h2>Export</h2>
+          </div>
+          <p className="cd">
+            Take everything with you, in one press: every car with its costs and photos, every
+            enquiry, tap, activity row and setting. It arrives as one ZIP — a nested
+            master.json, one CSV per subject, and a README naming what is inside and when it was
+            made. Nothing is sent anywhere; the file comes straight to your downloads.
+          </p>
+          <div className="srow2">
+            <a className="btn" id="exportBtn" href="/api/export" download>
+              Download the export
+            </a>
+          </div>
+          <p className="hint" style={{ marginTop: 12 }}>
+            <i className="fa-regular fa-circle-question" /> It belongs to the office: opened from
+            outside, with no session, it returns nothing.
+          </p>
         </section>
           </>
         )}
