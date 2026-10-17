@@ -272,3 +272,23 @@ armed on the toast node watches a node React may replace — the working one obs
 and a toast still on screen when the next step arms gets credited to that step (the first copy run's
 tagline step opened with the WhatsApp step's words — each save now waits for the toast to drop `show`
 before arming).
+
+## A restoration reads as a restoration (2026-10-17, signed in, the **live** store)
+
+Task 7. `activity-delete-undo.mjs TS-1011`; readings in `runs/activity-delete-undo/TS-1011.json`.
+One **demo** car deleted and the delete undone at once (net-zero: `deleted_at` null before and after;
+the two events are the point):
+
+| reading | value |
+|---|---|
+| the confirm dialog's words | *"…will be removed. You can undo for a few seconds."* |
+| the delete | toast **“Mercedes-Benz C 300 AMG Line 2018 deleted.”**, POST **200**, table 25 → 24 |
+| the undo | toast **“…restored.”**, POST **200**, table back to **25** |
+| the store's two events | `car.deleted` **22:18:16.850Z**, `car.restored` **22:18:18.222Z** (1.37 s apart) |
+| the log before → after | All **38 → 40** · Deleted **6 → 7** · Restored **6 → 7** · every other chip unmoved |
+| the newest two rows | **“Restored a car TS-1011 · Restored”** above **“Deleted a car TS-1011 · Deleted”** (`tag res` / `tag del`) |
+| counts vs rows | Deleted 7 = the seven rows chipped Deleted · Restored 7 = its rows · All 40 = rows rendered |
+
+Until this change the same kind of pair read *"Restored a car … · Deleted"* and was counted under
+*"Deleted 12"* — `runs/activity-read/before.json` keeps that reading (six deletes + six restores in
+one facet; the store held 6 and 6). No Chrome launched (6 → 6).

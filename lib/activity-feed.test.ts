@@ -5,9 +5,11 @@ import {
   CATEGORIES,
   categoryLabel,
   categoryOf,
+  countOf,
   operator,
   toActivityEntries,
   wordOf,
+  type ActivityEntry,
   type ActivityEvent,
 } from "./activity-feed";
 
@@ -39,6 +41,39 @@ test("every car kind the store can hold is worded", () => {
   for (const kind of ["car.created", "car.updated", "car.sold", "car.unsold", "car.deleted", "car.restored", "car.removed"]) {
     assert.ok(ACTIONS[kind], `${kind} has no word`);
   }
+});
+
+// D31 — one word must not cover two actions. Deleting a car and undoing the delete are two
+// events, and the reader of the log has to be able to tell them apart: in the row's own words, in
+// the chip beside them, and in the counts the chips carry. A restoration counted as a deletion is
+// the log contradicting itself.
+test("a restoration reads, chips and counts as a restoration — never as a deletion", () => {
+  assert.equal(wordOf("car.restored"), "Restored a car");
+  assert.equal(categoryLabel("car.restored"), "Restored");
+  assert.notEqual(categoryOf("car.restored"), categoryOf("car.deleted"));
+  assert.notEqual(categoryLabel("car.restored"), categoryLabel("car.deleted"));
+
+  const entry = (id: string, kind: string): ActivityEntry => ({
+    id,
+    kind,
+    subject: "TS-1001",
+    at: "2026-10-17T09:29:00.000Z",
+    day: "2026-10-17",
+    dayTitle: "Today",
+    dayFull: "Saturday 17 Oct 2026",
+    clock: "09:29",
+    actor: "umar@truespec.example",
+  });
+  const events = [
+    entry("a", "car.deleted"),
+    entry("b", "car.restored"),
+    entry("c", "car.deleted"),
+    entry("d", "car.created"),
+  ];
+
+  assert.equal(countOf(events, "del"), 2, "the deleted chip counts the deletions");
+  assert.equal(countOf(events, "res"), 1, "the restored chip counts the restoration");
+  assert.equal(countOf(events, "all"), 4, "and the total is still every row");
 });
 
 test("the avatar is the operator's own initial, and says so when their account has gone", () => {

@@ -48,7 +48,10 @@ export const ACTIONS: Record<string, { word: string; category: string }> = {
   "car.sold": { word: "Marked a car as Sold", category: "sold" },
   "car.unsold": { word: "Took a car out of Sold", category: "state" },
   "car.deleted": { word: "Deleted a car", category: "del" },
-  "car.restored": { word: "Restored a car", category: "del" },
+  // D31 — one word must not cover two actions. A delete and its undo are two events, so the
+  // restoration has its own chip and its own count rather than reading (and counting) as a
+  // deletion. "Deleted" keeps deleting — and removing for good, whose own word says deletion too.
+  "car.restored": { word: "Restored a car", category: "res" },
   "car.removed": { word: "Removed a car for good", category: "del" },
 };
 
@@ -59,6 +62,7 @@ export const CATEGORIES = [
   { k: "state", label: "State" },
   { k: "sold", label: "Sold" },
   { k: "del", label: "Deleted" },
+  { k: "res", label: "Restored" },
   { k: "imp", label: "Imports" },
   { k: "set", label: "Settings" },
 ] as const;
@@ -72,6 +76,14 @@ export const wordOf = (kind: string): string => ACTIONS[kind]?.word ?? kind;
 /** The chip's own label — `Other` for a kind this build does not yet name. */
 export function categoryLabel(kind: string): string {
   return CATEGORIES.find((t) => t.k === categoryOf(kind))?.label ?? "Other";
+}
+
+/**
+ * How many entries a chip counts. One rule, used by the log for every chip, so a chip's count and
+ * the chip's name cannot come apart — a restoration lands in "Restored" and nowhere else.
+ */
+export function countOf(entries: readonly ActivityEntry[], k: string): number {
+  return entries.filter((e) => k === "all" || categoryOf(e.kind) === k).length;
 }
 
 /** The row's avatar — the operator's own initial, and their email on hover. */

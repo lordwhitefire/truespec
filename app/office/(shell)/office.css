@@ -104,6 +104,7 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .tag.state{background:rgba(200,162,74,.16);color:var(--warn)}
 .tag.sold{background:rgba(192,57,43,.12);color:var(--bad)}
 .tag.del{background:rgba(192,57,43,.12);color:var(--bad)}
+.tag.res{background:rgba(14,122,62,.14);color:var(--ok)}
 .tag.other{background:rgba(90,95,100,.18);color:var(--mute)}
 /* whatsapp taps */
 .wt{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--line);align-items:center}

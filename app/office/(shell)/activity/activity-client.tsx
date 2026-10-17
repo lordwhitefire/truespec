@@ -5,6 +5,7 @@ import {
   CATEGORIES,
   categoryLabel,
   categoryOf,
+  countOf,
   operator,
   wordOf,
   type ActivityEntry,
@@ -30,8 +31,6 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
       (!q ||
         `${e.kind} ${wordOf(e.kind)} ${e.subject} ${(e.actor ?? "").toLowerCase()}`.includes(q)),
   );
-  const countType = (k: string) =>
-    entries.filter((e) => k === "all" || categoryOf(e.kind) === k).length;
 
   // The days, newest first, in the order the store gave them — no table of days to drift from it.
   const days = [...new Set(show.map((e) => e.day))];
@@ -71,7 +70,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
             onClick={() => setFType(tp.k)}
           >
             {tp.label}
-            <em>{countType(tp.k)}</em>
+            <em>{countOf(entries, tp.k)}</em>
           </button>
         ))}
       </div>

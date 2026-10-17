@@ -78,6 +78,7 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .tag.edit{background:rgba(47,111,208,.14);color:#3a7bd5}
 .tag.state{background:rgba(200,162,74,.16);color:var(--warn)}
 .tag.sold,.tag.del{background:rgba(192,57,43,.12);color:var(--bad)}
+.tag.res{background:rgba(14,122,62,.14);color:var(--ok)}
 .tag.imp{background:rgba(47,111,208,.14);color:#3a7bd5}
 .tag.set{background:rgba(90,95,100,.18);color:var(--mute)}
 .tag.other{background:rgba(90,95,100,.18);color:var(--mute)}
