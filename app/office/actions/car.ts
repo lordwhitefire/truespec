@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
-import { storeQueryRefusing } from "@/lib/store-guard";
+import { storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
 import { type FieldError } from "@/lib/car-input";
 import { readCarForm } from "@/lib/car-form";
 import { carCreateStatement } from "@/lib/car-create";
@@ -85,7 +85,18 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   if (!attempt.ok) return attempt;
 
   const ref = attempt.rows[0]?.ref;
-  if (!ref) throw new Error("createCar: the store returned no reference for the new car");
+  if (!ref) {
+    // The store answered without the row for a car it was told to make. A plain repeat cannot land
+    // here — the statement's own `UNION ALL SELECT ref FROM car WHERE id = $1` returns the row the
+    // first attempt made — but a retry sent while the first is still in flight can: the second waits
+    // on the conflict, the first commits, and its fallback read runs under a snapshot older than
+    // that commit. A failed write still reports as a failed write (DR25), never as a throw.
+    return storeRefusal(
+      "carId",
+      "That car could not be saved",
+      new Error("createCar: the store returned no reference for the new car"),
+    );
+  }
 
   revalidateCarPaths();
   return { ok: true, ref };

@@ -57,15 +57,22 @@ holds: none of the messages claims "nothing was lost", and the unit test at
 1. **Enquiries reports its refusal inline, not in a toast** (`:322-325`), while the AC's wording is
    "inventory/others in their own toast". It is in place, in its own words, announced (`role="alert"`)
    and the chrome stays — so the substance of the AC holds — but the surface differs from the literal
-   wording. Left as it is: changing a surface the Architect chose is not this task's call. **Ruling
-   wanted.**
+   wording. **Ruled 2026-10-17: keep the red note.** The owner was asked whether the inline alert
+   should become a toast and chose to keep it — it sits beside the action that failed, which is where
+   the person is already looking. No change made; the AC's "in their own toast" is read as *in their
+   own surface, in place*, which the inline `role="alert"` paragraph satisfies. The toast on that
+   screen carries successes only, which is why it is a `role="status"`.
 2. **`components/retryable.tsx:24` says "Nothing was lost".** That is the store-unreachable page, which
    this task's AC requires **not** to appear for a failed write — and it does not. DR25 governs failed
    *writes*, so this read-failure page is outside it; but it is still a claim of safety printed on a page
    that can follow a failed read, so whichever task owns that page's honesty should look at it.
-3. **Two Task 3 findings are still open** and still need rulings: `app/office/actions/state.ts:114,138,203`
-   still throwing, and `lib/car-create.ts:60-61` `ON CONFLICT (id) DO NOTHING RETURNING` (a retried create
-   can still end with an empty row). See `notes/TASK-005-task3.md` §Findings.
+3. **The Task 3 findings are still open** and still need rulings — read them at
+   `notes/TASK-005-task3.md` §Findings: `app/office/actions/state.ts:114,138,203` still rethrows a
+   store failure (its client catches and reports it in place, so no shell is wiped), and
+   `app/office/actions/car.ts:88` still throws on an empty row from `createCar` where its four
+   siblings return a refusal. (Reading the statement tail this time — `lib/car-create.ts:94-96` — the
+   ordinary repeat is covered by the `UNION ALL … WHERE id = $1` fallback; only the
+   concurrent/retry race is still open.)
 
 ## New files (this task's tooling)
 

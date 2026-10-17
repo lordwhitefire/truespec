@@ -125,16 +125,21 @@ so this adds no new vocabulary, only the join.
    client (`registry-editor.tsx:93`) catches the rejection and reports *"The store could not be
    reached — try that again"* **in place**. So the shell is not wiped; the words are right. Left as-is
    rather than drifting outside the approved file list — say the word and it folds in.
-2. **`createCar`'s post-call guard can still throw** (`app/office/actions/car.ts:84`). The statement
-   is `ON CONFLICT (id) DO NOTHING RETURNING id, ref` (`lib/car-create.ts:60-61`), so on a **retry
-   after a lost reply** the second attempt conflicts, `DO NOTHING` returns **no row**, and
-   `throw new Error("createCar: the store returned no reference for the new car")` fires — a store
-   failure reaching a boundary. Note `lib/store-guard.ts:18` claims every write is
-   `ON CONFLICT … DO UPDATE … RETURNING`, which is true of the others but **not** of this one; and
-   `lib/draft-save-run.ts:134` already handles the same empty-row case as a refusal, so the two
-   halves of the code disagree. Two candidate fixes, both outside this task's file list:
+2. **`createCar`'s post-call guard can still throw** (`app/office/actions/car.ts:88`). The statement
+   ends `SELECT ref FROM new_car UNION ALL SELECT ref FROM car WHERE id = $1`
+   (`lib/car-create.ts:94-96`), so the ordinary repeat **is** covered — the fallback returns the
+   existing ref. The retry-after-a-lost-reply case is the one still open: when the first request is
+   still in flight the second's `ON CONFLICT (id) DO NOTHING` waits, the first commits, and the
+   fallback `SELECT … FROM car WHERE id = $1` runs under this statement's own snapshot — it cannot
+   see a row committed after that snapshot, so the statement can return **no row**, and
+   `throw new Error("createCar: the store returned no reference for the new car")` fires: a store
+   failure reaching a boundary. *(Reasoned from the statement's shape and READ COMMITTED statement
+   snapshots — not yet verified at runtime.)* Note `lib/store-guard.ts:18` claims every write is
+   `ON CONFLICT … DO UPDATE … RETURNING`, true of the others but **not** of this one; and
+   `lib/draft-save-run.ts:134` already treats the same empty row as a refusal, so the two halves of
+   the code disagree. Two candidate fixes, both outside this task's file list:
    (a) make the statement's repeat arm return the existing row (`DO UPDATE SET id = EXCLUDED.id
-   RETURNING id, ref`) — a one-line change, and it makes the guard's own doc true; or (b) treat the
+   RETURNING id, ref`) — a small change, and it makes the guard's own doc true; or (b) treat the
    empty row as a refusal. **Not done** — it changes a statement's semantics, which is the
    architect's call, not mine.
 3. **`lib/tap.ts:23` (`recordTap`) throws**, but its only caller (`app/api/tap/route.ts:48-52`)
@@ -145,3 +150,64 @@ so this adds no new vocabulary, only the join.
    task's.
 5. **The wording is mine** — drafted, not approved. It is the on-disk family's own verbs joined to the
    on-disk clauses; if any of the joins reads wrong, it is one line per action to change.
+
+## Addendum (2026-10-17) — the owner ruled, and the leftover throws are gone
+
+**The ruling.** Asked about findings 1 and 2 as *"four places still fall over instead of saying 'sorry,
+that didn't save'"*: the owner said **fold them in**. Checked properly, it was **six** reads of the same
+bug, not four — reading `state.ts` whole turned up `recolourCarState` (`:154`) and `reorderCarStates`
+(`:168`), which had **no `catch` at all**, so `storeQuery`'s throw left the server action on the first
+store failure of any kind. Those two were the worst of the six, and they are in the same file the
+ruling named, so they were fixed with the rest.
+
+**What changed — six sites, two files, no new vocabulary.**
+
+| file | site | now |
+|---|---|---|
+| `state.ts` | `addCarState` | `storeRefusal("label", "That state could not be added", error)` |
+| `state.ts` | `renameCarState` | `storeRefusal("label", "That state could not be renamed", error)` |
+| `state.ts` | `recolourCarState` | the call is wrapped; `storeRefusal("colour", "That colour could not be saved", error)` |
+| `state.ts` | `reorderCarStates` | the call is wrapped; `storeRefusal("order", "That order could not be saved", error)` |
+| `state.ts` | `removeCarState` | `storeRefusal("id", "That state could not be removed", error)` |
+| `car.ts` | `createCar`'s empty-row guard | `storeRefusal("carId", "That car could not be saved", new Error(…))` |
+
+Every phrase is the one `enquiry.ts` **already uses** for the same five state actions
+(`:114,135,153,171,211`) — this adds no new vocabulary, it makes two files that do the same job say the
+same words. Each action keeps its own, more precise refusals (the duplicate name `23505`, the state a
+car still carries `23001`/`23003`) untouched: only the *fallthrough* changed.
+
+The `createCar` guard now returns rather than throws, using the shared guard so the clause lives in one
+place. It is passed a real `Error` carrying the true story, so the log line still explains itself and
+the clause classifies to *refused* (`isTransientStoreError` is false for it) — never to *unreachable*.
+
+**Witnessed live** (`:3210`, signed in, store = a throwaway copy carrying a trigger that refuses every
+write to `car_state`; the copy was deleted afterwards):
+
+| the write | what the screen said | the action's own POST |
+|---|---|---|
+| add | *That state could not be added — the store refused that change.* | **200** |
+| rename | *That state could not be renamed — the store refused that change.* | **200** |
+| recolour | *That colour could not be saved — the store refused that change.* | **200** |
+| reorder | *That order could not be saved — the store refused that change.* | **200** |
+| remove | *That state could not be removed — the store refused that change.* | **200** |
+
+All five landed in the editor's own `role="alert"` paragraph, with the url, sidebar, topbar and links
+intact, and **no Chrome launched** (6 → 6). The status is the decisive reading: a Server Action that
+*throws* answers **500**, so a 200 is the proof the refusal was **returned**. The copy's store was then
+read directly — still 7 states (4 primary, 3 secondary), nothing moved.
+
+**And the happy path still works** (the copy's trigger dropped): an add really added a row (8 rows, no
+refusal, POST 200) and a remove really removed it (back to 7, no refusal) — net-zero on the copy. The
+fix did not break the success path.
+
+**Still open, deliberately:**
+
+- `removeCarState`'s holder **read** inside its `23001`/`23003` branch (`:198`) can still throw. It runs
+  only *after* the store has answered, it is a read, and its client already reports a rejection in
+  place — so it is the class finding 4 describes (reads), not this ruling's class.
+- `enquiry.ts:224`/`:190` (reads inside write actions) — unchanged, as finding 4 said.
+- `lib/tap.ts:23` — unchanged, as finding 3 said.
+- **Not runtime-verified:** the `createCar` empty-row path itself. The race needs a concurrent create
+  and was not staged; what *was* verified is its ordinary-repeat arm (the statement returns the row the
+  first attempt made), and the guard now returns a refusal rather than throwing. Said plainly rather
+  than implied.

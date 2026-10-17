@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
-import { storeQuery } from "@/lib/store-guard";
+import { storeQuery, storeRefusal } from "@/lib/store-guard";
 import type { EditResult } from "@/lib/edit-result";
 import {
   carStateAddStatement,
@@ -28,6 +28,10 @@ import {
  * and deleting a state a car still carries (the foreign keys are `ON DELETE RESTRICT`). The second
  * is the one truth 10 names: the state a car sits in cannot be deleted, refused by the store, with
  * the reason shown — so the reason carries the store's own count, asked only after it has refused.
+ *
+ * Anything else the store can raise is still a failed write, and still becomes a refusal in this
+ * action's own words (`storeRefusal`) rather than a throw — the same rule, and the same phrases, as
+ * the enquiry-state actions in `enquiry.ts`. A store failure never leaves this file as a throw.
  *
  * Every write is retry-safe (D18). The add's key is minted here, once, before the call, so a retried
  * transient failure converges on the one state; the rename, recolour and reorder each set a value to
@@ -111,7 +115,7 @@ export async function addCarState(form: FormData): Promise<StateEditResult> {
     if (code === "23505") {
       return fail("label", "Another state already has that name — names are shared by both kinds");
     }
-    throw error;
+    return storeRefusal("label", "That state could not be added", error);
   }
 
   revalidateStatePaths();
@@ -135,7 +139,7 @@ export async function renameCarState(form: FormData): Promise<StateEditResult> {
     if (code === "23505") {
       return fail("label", "Another state already has that name — names are shared by both kinds");
     }
-    throw error;
+    return storeRefusal("label", "That state could not be renamed", error);
   }
 
   revalidateStatePaths();
@@ -151,7 +155,12 @@ export async function recolourCarState(form: FormData): Promise<StateEditResult>
   if (!colour.ok) return colour;
 
   const { text, params } = carStateRecolourStatement({ id: id.id, colour: colour.colour });
-  await storeQuery(text, params);
+
+  try {
+    await storeQuery(text, params);
+  } catch (error) {
+    return storeRefusal("colour", "That colour could not be saved", error);
+  }
 
   revalidateStatePaths();
   return { ok: true };
@@ -165,7 +174,12 @@ export async function reorderCarStates(ids: string[]): Promise<StateEditResult> 
   }
 
   const { text, params } = carStateReorderStatement({ ids });
-  await storeQuery(text, params);
+
+  try {
+    await storeQuery(text, params);
+  } catch (error) {
+    return storeRefusal("order", "That order could not be saved", error);
+  }
 
   revalidateStatePaths();
   return { ok: true };
@@ -200,7 +214,7 @@ export async function removeCarState(id: string): Promise<StateEditResult> {
           : "A car still carries this state, so the store won't delete it",
       );
     }
-    throw error;
+    return storeRefusal("id", "That state could not be removed", error);
   }
 
   revalidateStatePaths();

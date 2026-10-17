@@ -166,3 +166,48 @@ nothing was lost (DR25). The research-plan §5 defect does not happen.
   removed while the call is in flight — a first attempt at the delete read `role="status"` and 24 rows
   and looked like a success. Waiting for `#tmsg` to carry text, then reading role + words + rows, is the
   reliable signal.
+
+## The registry editor's writes — the owner's ruling, carried out (2026-10-17, `:3210`, signed in)
+
+The ruling: findings 1–2 of Task 3 fold in. Six throw sites, not four — `state.ts`'s five writes
+(`recolourCarState` and `reorderCarStates` had **no `catch` at all**) and `createCar`'s empty-row guard.
+What changed and why is in `TASK-005-task3.md` §Addendum.
+
+**The store.** A throwaway copy (`task-005-rulings`, `br-fragrant-sun-b2mi3z1d`, branched from
+`production`) carrying a `BEFORE INSERT OR UPDATE OR DELETE` trigger on `car_state` that raises
+`42501` — so the screen renders, the session check passes, and **only the write** is refused. Proven
+before the drive: `SELECT count(*) FROM car_state` → 7, and a probe `INSERT` → `ERROR [42501] the store
+refused that change`. The dev server was pointed at it (the running process carried
+`TASK005_STORE=rulings` and the branch endpoint), then restored to the live store, then the copy was
+deleted.
+
+Run: `node developer-workspace/scripts/task-005/states-in-place.mjs` (readings in
+`runs/states-in-place/states-in-place.json`).
+
+| the write | the words the screen showed | its own POST |
+|---|---|---|
+| add | **That state could not be added — the store refused that change.** | **200** |
+| rename | **That state could not be renamed — the store refused that change.** | **200** |
+| recolour | **That colour could not be saved — the store refused that change.** | **200** |
+| reorder (↑/↓ on the grip) | **That order could not be saved — the store refused that change.** | **200** |
+| remove | **That state could not be removed — the store refused that change.** | **200** |
+
+Each landed in the editor's own `p.err.on[role="alert"]` inside `.edwrap`; the url stayed
+`/office/settings`, and the sidebar, topbar, all links and *"Signed in as rema6…"* were present after
+every one. **Chrome launched by the run: none (6 → 6).**
+
+**The status is the decisive reading, not the words.** A Server Action that *throws* answers **500** —
+and before the fix that is exactly what these five did, which is why the editor's `catch` showed the
+other sentence (*"The store could not be reached — try that again"*). Every POST here answered **200**:
+the refusal was **returned**.
+
+**The store was read directly afterwards:** still 7 states (4 primary, 3 secondary) — five refused
+writes moved nothing.
+
+**And the success path still works.** With the copy's trigger dropped
+(`states-success.mjs`, `runs/states-in-place/states-success.json`): an add really added (7 → **8** rows,
+no alert, POST 200) and a remove really removed it (8 → **7**, no alert) — **net-zero on the copy**.
+
+**Not established:** the `createCar` empty-row path itself. Its race needs a concurrent create and was
+not staged; the guard now returns a refusal rather than throwing, and the ordinary-repeat arm (the
+statement returning the row the first attempt made) is what was read.
