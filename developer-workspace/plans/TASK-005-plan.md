@@ -165,7 +165,7 @@ copy); raised in the report.
 - **Verify:** `npm test` (`lib/activity-feed.test.ts` extended); live: delete → undo → the activity log names the restoration; the counts match the rows.
 - **Deps:** — **Files:** `lib/activity-feed.ts`, `lib/activity-feed.test.ts`, `app/office/(shell)/activity/`.
 
-**> Gate A** — `npm run typecheck` · `npm test` · live: a forced write failure reports in place; a no-op save says nothing changed.
+**> Gate A — ✅ 2026-10-17** — `npm run typecheck` clean · `npm test` **295/295** · live: the forced failure (a Mileage beyond an `int` — statement refused, nothing written) reported **in the form's own panel**: “Could not save. / That car could not be saved — the store refused that change.” (POST 200, chrome intact, net-zero) · the no-op save said **“Nothing changed.”** (audit line unmoved, store byte-identical). Witnesses: `notes/TASK-005-witnesses.md` §Gate A.
 **⛔ Owner checkpoint A** — the reporting changes, shown live, before the long tail.
 
 ### Phase 2 — The not-found family

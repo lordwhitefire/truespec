@@ -292,3 +292,25 @@ the two events are the point):
 Until this change the same kind of pair read *"Restored a car … · Deleted"* and was counted under
 *"Deleted 12"* — `runs/activity-read/before.json` keeps that reading (six deletes + six restores in
 one facet; the store held 6 and 6). No Chrome launched (6 → 6).
+
+## Gate A — the reporting layer, checked live (2026-10-17, signed in)
+
+The plan's Gate A. `npm run typecheck` clean; `npm test` **295/295**. Then the two live checks:
+
+**1. A forced write failure reports in place** (`refusal-in-place.mjs`; readings in
+`runs/refusal-in-place/refusal-in-place.json`). A real fault, net-zero: the car form was given a
+Mileage of **9999999999** — the app accepts any run of digits, Postgres refuses the value it cannot
+fit an `int` (SQLSTATE 22003), the statement rolls back, and nothing is written. The form's own
+result panel said:
+
+> **“Could not save. / That car could not be saved — the store refused that change.”** (role alert)
+
+- the action's own POST answered **200** — a refusal is *returned*, not thrown (a throw answers 500);
+- the URL stayed on the form; the sidebar, nav and *"Signed in as …"* never vanished; the typed words were still there;
+- the inventory read after: **25 cars — 24 in stock, 1 sold, 0 marked rows** — **net-zero: the refused car was never created**.
+
+**2. A no-op save says nothing changed** (`settings-save-reports.mjs noop`): the WhatsApp card typed
+as the stored number in another form → **“Nothing changed.”**, POST 200, the audit line unmoved, the
+store's rows byte-identical (Task 6's full reading, re-driven here for the gate).
+
+Both runs launched no Chrome (6 → 6).
