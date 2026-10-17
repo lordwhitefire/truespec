@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
-import { storeQuery } from "@/lib/store-guard";
+import { storeQuery, storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
 import type { EditResult } from "@/lib/edit-result";
 import { CHANGE_CHECK_VERSION, enquiryChangeCheck } from "@/lib/change-check";
 import {
@@ -110,7 +110,8 @@ export async function addEnquiryState(form: FormData): Promise<EditResult> {
     await storeQuery(text, params);
   } catch (error) {
     if (refusal(error).code === "23505") return fail("label", DUPLICATE_NAME);
-    throw error;
+    // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
+    return storeRefusal("label", "That state could not be added", error);
   }
 
   revalidateEnquiryPaths();
@@ -131,7 +132,7 @@ export async function renameEnquiryState(form: FormData): Promise<EditResult> {
     await storeQuery(text, params);
   } catch (error) {
     if (refusal(error).code === "23505") return fail("label", DUPLICATE_NAME);
-    throw error;
+    return storeRefusal("label", "That state could not be renamed", error);
   }
 
   revalidateEnquiryPaths();
@@ -147,7 +148,11 @@ export async function recolourEnquiryState(form: FormData): Promise<EditResult> 
   if (!colour.ok) return colour;
 
   const { text, params } = enquiryStateRecolourStatement({ id: id.id, colour: colour.colour });
-  await storeQuery(text, params);
+  const attempt = await storeQueryRefusing(text, params, {
+    field: "colour",
+    action: "That colour could not be saved",
+  });
+  if (!attempt.ok) return attempt;
 
   revalidateEnquiryPaths();
   return { ok: true };
@@ -161,7 +166,11 @@ export async function reorderEnquiryStates(ids: string[]): Promise<EditResult> {
   }
 
   const { text, params } = enquiryStateReorderStatement({ ids });
-  await storeQuery(text, params);
+  const attempt = await storeQueryRefusing(text, params, {
+    field: "order",
+    action: "That order could not be saved",
+  });
+  if (!attempt.ok) return attempt;
 
   revalidateEnquiryPaths();
   return { ok: true };
@@ -198,7 +207,8 @@ export async function removeEnquiryState(id: string): Promise<EditResult> {
           : "An enquiry is still in this state, so the store won't delete it",
       );
     }
-    throw error;
+    // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
+    return storeRefusal("id", "That state could not be removed", error);
   }
 
   revalidateEnquiryPaths();
@@ -253,7 +263,8 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
   } catch (error) {
     const { code } = refusal(error);
     if (code === "23503") return fail("stateId", "That state is no longer in the office");
-    throw error;
+    // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
+    return storeRefusal("stateId", "That enquiry could not be given that state", error);
   }
 
   revalidateEnquiryPaths();

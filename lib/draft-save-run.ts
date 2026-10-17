@@ -12,7 +12,7 @@
 
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { storeQuery } from "./store-guard";
+import { storeQueryRefusing } from "./store-guard";
 import { type FieldError } from "./car-input";
 import { carFormFacts } from "./car-form";
 import { carCreateStatement } from "./car-create";
@@ -130,7 +130,12 @@ export async function runSaveDraft(
       hashVersion: CHANGE_CHECK_VERSION,
       actorId,
     });
-    const rows = await storeQuery<{ ref: string }[]>(text, params);
+    const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+      field: "draftId",
+      action: "That car could not be created",
+    });
+    if (!attempt.ok) return attempt;
+    const rows = attempt.rows;
     if (!rows[0]?.ref) {
       return { ok: false, errors: [{ field: "draftId", message: "The car could not be created. Try again." }] };
     }
@@ -159,7 +164,12 @@ export async function runSaveDraft(
       contentHash: enquiryChangeCheck(record),
       hashVersion: CHANGE_CHECK_VERSION,
     });
-    const rows = await storeQuery<{ id: string }[]>(text, params);
+    const attempt = await storeQueryRefusing<{ id: string }[]>(text, params, {
+      field: "draftId",
+      action: "That enquiry could not be created",
+    });
+    if (!attempt.ok) return attempt;
+    const rows = attempt.rows;
     if (!rows[0]?.id) {
       return { ok: false, errors: [{ field: "draftId", message: "The enquiry could not be created. Try again." }] };
     }
@@ -167,6 +177,24 @@ export async function runSaveDraft(
 
   // The draft has become the record: it is no longer waiting. Truth 9 — "saving one draft creates one
   // record and leaves its brother drafts untouched", so only this row goes.
-  await deleteDraft(draft.id);
+  //
+  // If this last write fails the record already exists, and that changes what must be said: the
+  // message names the exact half-done state and does **not** invite a retry, because saving the same
+  // draft again would make a second record (DR25: never an unverified reassurance, never advice that
+  // makes things worse).
+  try {
+    await deleteDraft(draft.id);
+  } catch (error) {
+    console.error("[store] write failed — the draft could not be cleared after its record was made", error);
+    return {
+      ok: false,
+      errors: [
+        {
+          field: "draftId",
+          message: "The record was made, but the draft could not be cleared — reload before saving it again.",
+        },
+      ],
+    };
+  }
   return { ok: true, kind: draft.kind };
 }

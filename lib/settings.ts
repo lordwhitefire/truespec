@@ -1,6 +1,6 @@
 import "server-only";
 
-import { storeQuery } from "./store-guard";
+import { storeQuery, storeQueryRefusing } from "./store-guard";
 import { normaliseNigerianMobile } from "./phone";
 import { parseCostAmount } from "./money";
 import type { NoticeInput } from "./notices";
@@ -154,11 +154,18 @@ export async function saveSetting(field: SettingField, raw: string): Promise<Sav
   const read = readSettingValue(key, raw);
   if (!read.ok) return read;
 
-  await storeQuery(
+  const attempt = await storeQueryRefusing(
     `INSERT INTO setting (key, value) VALUES ($1, $2)
        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
     [key, read.value],
+    { field: "value", action: "That setting could not be saved" },
   );
+
+  // A store that could not be reached is a refusal here too (D32, DR25): the previous value stays
+  // exactly where it was, and the card says so in its own words instead of the office losing its
+  // chrome. `SaveSettingResult`'s failure arm already carries one sentence, so the message is passed
+  // through rather than wrapped in a second shape.
+  if (!attempt.ok) return { ok: false, error: attempt.errors[0].message };
 
   return { ok: true, value: read.value };
 }

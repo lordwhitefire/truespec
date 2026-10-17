@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
-import { storeQuery } from "@/lib/store-guard";
+import { storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
 import { type FieldError } from "@/lib/car-input";
 import { imageUrl } from "@/lib/sanity";
 import { isAssetRef } from "@/lib/photo-rules";
@@ -75,7 +75,13 @@ export async function deleteDraftAction(form: FormData): Promise<DeleteDraftResu
     return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
   }
 
-  await deleteDraft(id);
+  // The record's own delete is a write like any other: a store that cannot be reached is refused
+  // here rather than thrown, so the drafts screen keeps its chrome (D32).
+  try {
+    await deleteDraft(id);
+  } catch (error) {
+    return storeRefusal("draftId", "That draft could not be deleted", error);
+  }
   revalidateDraftPaths();
   return { ok: true };
 }
@@ -107,7 +113,7 @@ export async function addDraftImage(form: FormData): Promise<DraftImageResult> {
     return { ok: false, errors: [{ field: "photos", message: "One of those photos could not be read" }] };
   }
 
-  const rows = await storeQuery<{ id: string }[]>(
+  const attempt = await storeQueryRefusing<{ id: string }[]>(
     `UPDATE draft
         SET image_asset_ids = CASE
               WHEN COALESCE(image_asset_ids, '{}') @> ARRAY[$2]::text[]
@@ -117,7 +123,10 @@ export async function addDraftImage(form: FormData): Promise<DraftImageResult> {
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
+    { field: "photos", action: "That photo could not be added" },
   );
+  if (!attempt.ok) return attempt;
+  const rows = attempt.rows;
   if (rows.length === 0) {
     return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
   }
@@ -145,13 +154,16 @@ export async function removeDraftImage(form: FormData): Promise<DraftImageResult
     return { ok: false, errors: [{ field: "photos", message: "That photo could not be read" }] };
   }
 
-  const rows = await storeQuery<{ id: string }[]>(
+  const attempt = await storeQueryRefusing<{ id: string }[]>(
     `UPDATE draft
         SET image_asset_ids = array_remove(COALESCE(image_asset_ids, '{}'), $2)
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
+    { field: "photos", action: "That photo could not be removed" },
   );
+  if (!attempt.ok) return attempt;
+  const rows = attempt.rows;
   if (rows.length === 0) {
     return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
   }
@@ -183,7 +195,7 @@ export async function makeDraftCover(form: FormData): Promise<{ ok: true } | { o
     return { ok: false, errors: [{ field: "photos", message: "That photo could not be read" }] };
   }
 
-  const rows = await storeQuery<{ id: string }[]>(
+  const attempt = await storeQueryRefusing<{ id: string }[]>(
     `UPDATE draft
         SET image_asset_ids = CASE
               WHEN COALESCE(image_asset_ids, '{}') @> ARRAY[$2]::text[]
@@ -193,7 +205,10 @@ export async function makeDraftCover(form: FormData): Promise<{ ok: true } | { o
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
+    { field: "photos", action: "That could not be made the cover" },
   );
+  if (!attempt.ok) return attempt;
+  const rows = attempt.rows;
   if (rows.length === 0) {
     return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
   }

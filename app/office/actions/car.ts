@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
-import { storeQuery } from "@/lib/store-guard";
+import { storeQueryRefusing } from "@/lib/store-guard";
 import { type FieldError } from "@/lib/car-input";
 import { readCarForm } from "@/lib/car-form";
 import { carCreateStatement } from "@/lib/car-create";
@@ -78,9 +78,13 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,
   });
-  const rows = await storeQuery<{ ref: string }[]>(text, params);
+  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+    field: "carId",
+    action: "That car could not be saved",
+  });
+  if (!attempt.ok) return attempt;
 
-  const ref = rows[0]?.ref;
+  const ref = attempt.rows[0]?.ref;
   if (!ref) throw new Error("createCar: the store returned no reference for the new car");
 
   revalidateCarPaths();
@@ -118,9 +122,13 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,
   });
-  const rows = await storeQuery<{ ref: string }[]>(text, params);
+  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+    field: "carId",
+    action: "That change could not be saved",
+  });
+  if (!attempt.ok) return attempt;
 
-  const ref = rows[0]?.ref;
+  const ref = attempt.rows[0]?.ref;
   if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
 
   revalidateCarPaths();
@@ -146,9 +154,13 @@ export async function deleteCar(carId: string): Promise<DeleteCarResult> {
   }
 
   const { text, params } = carDeleteStatement({ id: carId, actorId: session.officeUserId });
-  const rows = await storeQuery<{ ref: string }[]>(text, params);
+  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+    field: "carId",
+    action: "That car could not be deleted",
+  });
+  if (!attempt.ok) return attempt;
 
-  const ref = rows[0]?.ref;
+  const ref = attempt.rows[0]?.ref;
   if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
 
   revalidateCarPaths();
@@ -167,9 +179,13 @@ export async function undoDeleteCar(carId: string): Promise<DeleteCarResult> {
   }
 
   const { text, params } = carRestoreStatement({ id: carId, actorId: session.officeUserId });
-  const rows = await storeQuery<{ ref: string }[]>(text, params);
+  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+    field: "carId",
+    action: "That car could not be restored",
+  });
+  if (!attempt.ok) return attempt;
 
-  const ref = rows[0]?.ref;
+  const ref = attempt.rows[0]?.ref;
   if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
 
   revalidateCarPaths();
@@ -198,9 +214,13 @@ export async function removeCarForever(carId: string): Promise<RemoveCarResult> 
   }
 
   const { text, params } = carRemoveStatement({ id: carId, actorId: session.officeUserId });
-  const rows = await storeQuery<{ ref: string | null; assets: string[] }[]>(text, params);
+  const attempt = await storeQueryRefusing<{ ref: string | null; assets: string[] }[]>(text, params, {
+    field: "carId",
+    action: "That car could not be removed",
+  });
+  if (!attempt.ok) return attempt;
 
-  const row = rows[0];
+  const row = attempt.rows[0];
   if (!row?.ref) {
     return { ok: false, errors: [{ field: "carId", message: "That car is not waiting to be cleared" }] };
   }

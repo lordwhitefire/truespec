@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "./db";
 import { runWithRetry } from "./store-retry-rules";
+import { writeFailedMessage } from "./store-refusal-rules";
 
 /**
  * The one place a store call becomes retryable (design D18).
@@ -50,4 +51,58 @@ export async function storeQueryOnce<T = unknown>(
 ): Promise<T> {
   const sql = db();
   return (await sql.query(text, params)) as T;
+}
+
+/**
+ * The refusal a write returns when its store call failed — structurally the same shape every office
+ * action already returns for a field rule, so a caller handles a rule refusal and a store refusal
+ * the same way.
+ */
+export type StoreRefusal = { ok: false; errors: { field: string; message: string }[] };
+
+/**
+ * Run a **write**'s store call so that a store failure becomes a refusal in the action's own words,
+ * never a throw (D32, DR25).
+ *
+ * `storeQuery` throws when the store cannot be reached, which is right for a *read* — an `error.tsx`
+ * boundary turns that into a retryable state. It is wrong for a *write*: a rejected Server Action
+ * called inside a React transition reaches the nearest boundary, and the boundary **replaces the
+ * whole office chrome**. That is the measured §5 defect — a failed delete answered with a page-wide
+ * *"We couldn't load this"* and the action's own *"That car could not be deleted."* never appeared,
+ * because a throw never reaches the caller's `!result.ok` branch. So a write catches here and
+ * returns the refusal its caller already knows how to show, in place.
+ *
+ * This is the pattern `photosExist` (`lib/car-form.ts:106-118`) already used around a read, applied
+ * to the write statements: catch, and answer with words.
+ *
+ * The failure is not swallowed — it is logged, so a defect that is not really an unreachable store
+ * stays visible to whoever is looking. `writeFailedMessage` decides only what the *person* is told,
+ * and it never claims a safety it has not checked.
+ */
+export async function storeQueryRefusing<T = unknown>(
+  text: string,
+  params: unknown[],
+  refusal: { field: string; action: string },
+): Promise<{ ok: true; rows: T } | StoreRefusal> {
+  try {
+    return { ok: true, rows: await storeQuery<T>(text, params) };
+  } catch (error) {
+    return storeRefusal(refusal.field, refusal.action, error);
+  }
+}
+
+/**
+ * The refusal a failed write returns — and the log line that keeps the failure visible.
+ *
+ * Shared by `storeQueryRefusing` and by the call sites that carry their own `catch`, because the
+ * store's **own** refusal (a duplicate name, a foreign key still holding the row) is caught there
+ * and keeps its own, more precise words — but everything *else* it can raise is still a failed write
+ * and must still be a refusal rather than a throw.
+ *
+ * `action` is the action's own phrase (*"That state could not be added"*); `field` is the field it
+ * belongs beside, so the screen can show it where the person is looking.
+ */
+export function storeRefusal(field: string, action: string, error: unknown): StoreRefusal {
+  console.error(`[store] write failed — ${action}`, error);
+  return { ok: false, errors: [{ field, message: writeFailedMessage(action, error) }] };
 }

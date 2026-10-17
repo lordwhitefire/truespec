@@ -77,9 +77,9 @@ copy); raised in the report.
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 1 | Workspace artefacts + green baseline | ☐ | |
-| 2 | Current truth for the surfaces this layer touches | ☐ | |
-| 3 | Write actions refuse instead of throwing | ☐ | |
+| 1 | Workspace artefacts + green baseline | ☑ | `4e79e1f` — brief + plan; baseline green (typecheck clean, 285/285, dev 200 on `/` and `/office`). |
+| 2 | Current truth for the surfaces this layer touches | ☑ | `1047d04` — `notes/TASK-005-current-truth.md`, five APIs with sources. |
+| 3 | Write actions refuse instead of throwing | ☑ | `storeQueryRefusing` + `lib/store-refusal-rules.ts`; 7 files; 292/292; forced failure refused both ways (`notes/TASK-005-witnesses.md`). Two findings to rule on — `notes/TASK-005-task3.md` §Findings. |
 | 4 | The refusal reaches the screen the person is in | ☐ | |
 | 5 | A save reports what actually changed (car) | ☐ | |
 | 6 | A save reports what actually changed (settings) | ☐ | |
