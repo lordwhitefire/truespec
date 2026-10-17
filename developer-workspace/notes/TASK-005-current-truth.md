@@ -1,0 +1,105 @@
+# TASK-005 — current truth for the surfaces this layer touches
+
+**Loaded 2026-10-17**, before any code. Sources fetched live; the installed package read directly. Anything not
+verified is marked **UNVERIFIED**. Environment: `truespec`, Next.js **15.5.27**, React 19.3.0.
+
+This is the material the plan's tasks lean on. Where a fact below changes a plan decision, the decision is noted.
+
+## 1. Native `<dialog>` / `showModal()` (Task 13, 14, 16)
+
+Sources: MDN `HTMLDialogElement.showModal()`, `HTMLDialogElement: cancel event`, `::backdrop`; W3C WCAG H102;
+whatwg/html issue #7732; Chromium issue 351867704; MDN `overscroll-behavior`. Baseline widely available since
+March 2022 (Chrome 37+, Edge 79+, Firefox 98+, Safari 15.4+).
+
+- `showModal()` puts the dialog in the **top layer**, creates **`::backdrop`**, makes everything outside it
+  **inert** (blocks pointer/keyboard and hides from AT) — so **Tab cannot leave**: the trap is the platform's.
+- Focus moves into the dialog (first focusable, or `[autofocus]`). **`close()` restores focus to the previously
+  focused element automatically** (HTML spec; WCAG H102). → Task 14's "returns to whatever opened it" is free,
+  but is still driven and checked (the pasted case: focus must return after the *offer* closes, too).
+- Escape closes by default (fires a cancelable, non-bubbling `cancel`, then `close`).
+- **Escape cannot be reliably hard-blocked** (we do not need to — the requirement says Escape closes *that*
+  dialog): `preventDefault()` on `cancel` fails on a second Esc in Chrome (issue 351867704) and Chrome 126+ may
+  skip `cancel` with no user activation. The declarative `closedby`/`requestClose()` route is **not Baseline**
+  (Safari lacks it). **Decision:** do not fight Escape; do not build on `closedby`.
+- **Clicking the backdrop does NOT close a dialog by default** — outside-tap closing is something a developer
+  adds (`event.target === dialog`). → Task 16 is simpler than feared: destructive confirms get **no** outside
+  handler (nothing to switch off); non-destructive dialogs get the explicit handler they need.
+- **Background scroll is NOT locked by the platform** (mobile/iOS especially). **Decision:** lock with
+  `body:has(dialog[open]) { overflow: hidden; }` plus `overscroll-behavior: contain` on the dialog (works on
+  Chrome 144+ without JS; the `:has()` rule carries the rest) — checked live in Task 14.
+- Accessible name: give it via **`aria-labelledby`** (pointing at the visible title) or `aria-label`. Never add
+  `tabindex` to the `<dialog>` element.
+- `<form method="dialog">` closes the dialog and sets `returnValue` **without submitting**; inside such a form a
+  bare `<button>` defaults to `type="submit"` — **any non-closing button needs `type="button"`**.
+
+## 2. Next.js 15.5 — `useLinkStatus`, `loading.tsx`, soft navigation (Task 33)
+
+Sources: nextjs.org docs `useLinkStatus` (page updated 2025-09-02), `loading.js` (updated 2026-09-23),
+`not-found.js` (updated 2026-10-06); installed `next@15.5.27`.
+
+- `useLinkStatus()` returns `{ pending: boolean }`, must be called in a **Client Component rendered inside a
+  `<Link>`** (context provider wraps only that link's subtree: `next/dist/client/app-dir/link.js:368-371`,
+  hook `:375-377`). Outside a Link it returns the default — it does **not** throw.
+- Docs prefer `loading.js` + prefetching over the hook; the hook is for inline feedback on a specific link.
+- **A per-segment `loading.tsx` is the documented soft-navigation pending state** (Suspense; holds while the
+  target segment's RSC payload loads). **Decision (Task 33):** per-segment `loading.tsx` for the office screens
+  is the mechanism; a navigation-level pending indicator is optional garnish, not the load-bearing piece.
+- Caveat to respect: if the destination is prefetched/cached, **no** loading UI shows — so the waiting sign must
+  not be claimed for every navigation, only a genuinely slow one.
+
+## 3. `navigator.onLine` (Tasks 34, 35)
+
+Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline cookbook.
+
+- It is a **link-presence hint, not reachability**: LAN-only counts as online; OS heuristics differ (Windows
+  probes a Microsoft host). MDN calls it "inherently unreliable".
+- **Decision:** the offline state is conservative — `navigator.onLine` **plus** a real fetch-failure signal
+  (a caught network `TypeError`), slow to appear and quick to withdraw, exactly as the design plan requires.
+  No feature is gated on `onLine` alone. (The approved wording is kept verbatim.)
+
+## 4. `prefers-reduced-motion` (Task 11)
+
+Sources: MDN `prefers-reduced-motion`; web.dev. Baseline since January 2020.
+
+- The repo already kills motion globally in every office stylesheet (`*{animation:none!important;
+  transition:none!important}`) and that is **acceptable**.
+- But motion removed must not remove **meaning**: where a value is carried by movement, a **static alternative**
+  is required. → Task 11: under reduce, the bar is replaced by a static **"8 s"** label (which is also the
+  failsafe clock).
+- JS query, if needed: `matchMedia('(prefers-reduced-motion: reduce)')`. `PreferenceManager.reducedMotion` is
+  experimental — not used.
+
+## 5. `notFound()` and a dynamic segment's params (Tasks 8, 9)
+
+Sources: nextjs.org docs `not-found.js` (updated 2026-10-06), `notFound()` (2026-09-23); installed source.
+
+- `notFound()` **before streaming starts** → the response is **404** (after streaming starts the status stays
+  200 with the not-found UI). Unmatched routes are handled at the routing level (root/global not-found) and
+  answer **404**.
+- A not-found component receives **no props**. To read the dynamic segment, a **Client Component** inside a
+  co-located `not-found.tsx` calls `useParams()`: `PathParamsContext` is provided at the router level
+  (`app-router.js:460`, value from `getSelectedParams` `:370-372`), above the LayoutRouter tree where the
+  not-found boundary renders (`layout-router.js:369,485`; `http-access-fallback/error-boundary.js:57-75`), so
+  the current URL's params are readable for a URL that **matched** `[ref]`.
+- **UNVERIFIED (empirical)** — source-derived, not runtime-tested, and the docs do not state it. **Decision:**
+  Task 8 drives it live (`curl -sI` for the status; the browser for the view and the ref shown) before the change
+  is called done. If it does not hold, the fallback is a `not-found.tsx` that reads the ref from the URL itself.
+
+## 6. What this changes in the plan
+
+- Task 13/14/16: dialog facts above (no fighting Escape; no outside handler on destructive; explicit scroll lock).
+- Task 33: per-segment `loading.tsx` is the mechanism; `useLinkStatus` only if a link-level sign is wanted.
+- Task 8: the `useParams` route is a **high-confidence but unverified** path — it is driven live, not assumed.
+- Tasks 34/35: offline state = `onLine` **plus** fetch-failure, conservative timing.
+
+## 7. Skill check (recorded, per the plan)
+
+This layer drives a real browser. Installed and standing: `developer-workspace/procedures/browser-check.md`
+(attach-only CDP `:9222`, build `:3210`, reference `:3211`, never `:3000`, no screenshots) on top of the
+`runtime-divergence` method, with `playwright-core` present. The `browser-testing-with-devtools` skill covers the
+same ground via Chrome DevTools MCP; it is **not installed here** and is not required for this layer's checks —
+raised with the owner, not installed unasked.
+
+**Environment note (2026-10-17):** the automation Chrome is **not** listening on `:9222`, and the reference server
+is down. Per the standing procedure the Chrome is **attach-only — never launched by us**. Live checks are blocked
+until it is up; the build server (`next dev -p 3210`) was started and answers 200.
