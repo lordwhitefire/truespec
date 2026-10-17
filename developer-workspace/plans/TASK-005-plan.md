@@ -79,8 +79,8 @@ copy); raised in the report.
 |---|------|--------|-------|
 | 1 | Workspace artefacts + green baseline | ☑ | `4e79e1f` — brief + plan; baseline green (typecheck clean, 285/285, dev 200 on `/` and `/office`). |
 | 2 | Current truth for the surfaces this layer touches | ☑ | `1047d04` — `notes/TASK-005-current-truth.md`, five APIs with sources. |
-| 3 | Write actions refuse instead of throwing | ☑ | `storeQueryRefusing` + `lib/store-refusal-rules.ts`; 7 files; 292/292; forced failure refused both ways (`notes/TASK-005-witnesses.md`). Two findings to rule on — `notes/TASK-005-task3.md` §Findings. |
-| 4 | The refusal reaches the screen the person is in | ☐ | |
+| 3 | Write actions refuse instead of throwing | ☑ | `f675926` — `storeQueryRefusing` + `lib/store-refusal-rules.ts`; 7 files; 292/292; forced failure refused both ways (`notes/TASK-005-witnesses.md`). Two findings to rule on — `notes/TASK-005-task3.md` §Findings. |
+| 4 | The refusal reaches the screen the person is in | ☑ | No source change needed — Task 3's refusal already lands in place. Witnessed live, signed in, in all three named places (car form `role="alert"` panel; settings inline + toast; inventory toast `role="alert"`, row back to 25). Store checked directly: `production` 25 cars / 0 tombstoned. `notes/TASK-005-task4.md`; readings in `notes/TASK-005-witnesses.md`. Enquiries reports inline rather than in a toast — one ruling wanted. |
 | 5 | A save reports what actually changed (car) | ☐ | |
 | 6 | A save reports what actually changed (settings) | ☐ | |
 | 7 | The record names what happened | ☐ | |
