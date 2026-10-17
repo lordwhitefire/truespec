@@ -381,7 +381,16 @@ export function CarForm({
       // the session and recomputes the change-check — nothing sent is trusted.
       const res = isEdit ? await updateCar(fd) : await createCar(fd);
       setResult(res);
-      if (res.ok) showToast(`Saved <b>${res.ref}</b>. The showroom updates immediately.`);
+      // The words follow the fact, not the call (DR23): a save that moved something says what it
+      // saved; a save that changed nothing says exactly that, and never claims a save. The fact is
+      // the store's own reply — and a failure never takes this branch, so "Nothing changed." can
+      // never stand in for a failure (DR25).
+      if (res.ok)
+        showToast(
+          res.changed
+            ? `Saved <b>${res.ref}</b>. The showroom updates immediately.`
+            : "Nothing changed.",
+        );
     });
   };
 
@@ -1071,7 +1080,15 @@ export function CarForm({
                 fontSize: 13,
               }}
             >
-              Saved as <b>{result.ref}</b>. The showroom updates immediately.
+              {result.changed ? (
+                <>
+                  Saved as <b>{result.ref}</b>. The showroom updates immediately.
+                </>
+              ) : (
+                // The store answered that nothing moved: the car is exactly as it was, and the
+                // screen says so rather than claiming a save (DR23).
+                <>Nothing changed.</>
+              )}
             </div>
           ) : null}
         </form>

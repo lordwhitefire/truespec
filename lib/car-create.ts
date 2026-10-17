@@ -20,7 +20,9 @@ import type { CarColumns, CarCostLine } from "./car-input";
  * because only the `new_car` CTE's row feeds the cost/secondary/event inserts, a
  * repeat writes none of them again. The trailing `UNION ALL SELECT … WHERE id = $1`
  * is what lets a repeat still return the ref: on the first attempt it comes from the
- * insert, on a retry from the row that is already committed.
+ * insert, on a retry from the row that is already committed. It also carries **which of
+ * the two happened** (`changed`), so the action can pass the fact on and the screen can
+ * say *"Nothing changed."* instead of claiming a save that did nothing (DR23).
  *
  * Money is Naira only (R-MON-3): every cost line is `NGN` with no rate.
  *
@@ -87,9 +89,9 @@ export function carCreateStatement(args: CarCreateArgs): { text: string; params:
       CROSS JOIN jsonb_array_elements_text($21::jsonb) WITH ORDINALITY AS p(asset_id, ord)
     RETURNING 1
   )
-  SELECT ref FROM new_car
+  SELECT ref, true AS changed FROM new_car
   UNION ALL
-  SELECT ref FROM car WHERE id = $1`;
+  SELECT ref, false AS changed FROM car WHERE id = $1`;
 
   const params: unknown[] = [
     args.id,

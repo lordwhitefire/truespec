@@ -211,3 +211,30 @@ no alert, POST 200) and a remove really removed it (8 → **7**, no alert) — *
 **Not established:** the `createCar` empty-row path itself. Its race needs a concurrent create and was
 not staged; the guard now returns a refusal rather than throwing, and the ordinary-repeat arm (the
 statement returning the row the first attempt made) is what was read.
+
+## A save that changed nothing says so (2026-10-17, `:3210`, signed in, the **live** store)
+
+Task 5. Car **TS-1001**, a demo car (`is_demo = true`). Drive: `car-save-reports.mjs`; readings in
+`runs/car-save-reports/car-save-reports.json`.
+
+| the save | what the screen said | its own POST |
+|---|---|---|
+| nothing changed | **Nothing changed.** — the result panel *and* the toast | **200** |
+| one field changed (the arrival note) | **Saved as TS-1001. The showroom updates immediately.** | **200** |
+| the field put back | **Saved as TS-1001. The showroom updates immediately.** | **200** |
+
+The url stayed `/office/car/TS-1001`; no red box ever appeared; the sidebar, nav and *"Signed in as
+rema6…"* were intact after every save; **no Chrome launched by the run (6 → 6)**.
+
+**The store, read directly before and after:** `car.version` 1 → **3**; `activity_event` rows for
+TS-1001 2 → **4**; `car.arrival_note` `null` → **`null`**; office cars 25 (25 demo) → **25 (25 demo)**.
+The two *real* saves are the only writes — **three no-op saves were clicked and the version rose by
+exactly two** — so the no-op words are true at the store, not only on the screen.
+
+**A harness fact, recorded because it cost a run:** a click sent **before React hydrates** is swallowed
+and the browser submits the form itself — a GET that rewrites the url with every field in it (three
+such GETs, no POST anywhere). In dev the car page is 1779 modules compiled on demand;
+`car-hydration-probe.mjs` watched `<nextjs-portal>` appear **5424 ms** after `domcontentloaded`, with no
+portal and `window.next` undefined at 3900 ms. The drive now waits on that portal and on each save's
+own POST response. The toast is also a `role="status"`, so the result panel has to be found from the
+save button rather than by role alone (`car-save-probe.mjs` listed both, and their words).

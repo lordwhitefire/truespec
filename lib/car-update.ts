@@ -15,8 +15,13 @@ import type { SaleInput } from "./sale";
  * check), the cost-line set, the secondary-state set, the sale and **the photo set in
  * its order** — and does nothing at all when nothing would. That makes a retry a true
  * no-op: the car keeps one `version`, one `updated_at` and **one `car.updated` event**,
- * however many times the call is repeated. The trailing `UNION ALL SELECT ref FROM car …`
- * is what still returns the ref when the statement deliberately changed nothing.
+ * however many times the call is repeated. The trailing `SELECT ref, false … FROM car …`
+ * is what still returns the ref when the statement deliberately changed nothing — and it
+ * carries **which of the two happened** (`changed`), so the action can pass the fact on and
+ * the screen can say *"Nothing changed."* instead of claiming a save that never happened
+ * (DR23). The second branch is guarded by `NOT EXISTS (SELECT 1 FROM upd)` because the
+ * fallback reads the statement's own snapshot: when the write *did* happen the car row is
+ * still visible to it, and without the guard the statement would return two rows.
  *
  * It never touches the car's identity: `id` and `ref` are the row's names, not details,
  * and the store's own `car_identity_is_final` trigger refuses any write that would change
@@ -200,9 +205,10 @@ export function carUpdateStatement(args: CarUpdateArgs): { text: string; params:
       FROM upd u
     RETURNING 1
   )
-  SELECT ref FROM upd
-  UNION
-  SELECT ref FROM car WHERE id = $1 AND deleted_at IS NULL`;
+  SELECT ref, true AS changed FROM upd
+  UNION ALL
+  SELECT ref, false AS changed FROM car
+   WHERE id = $1 AND deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM upd)`;
 
   const params: unknown[] = [
     args.id,

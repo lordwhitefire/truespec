@@ -117,6 +117,19 @@ test("one car.updated row, and the whole write is gated so a retry cannot double
   assert.match(text, /WHERE id = \$1 AND deleted_at IS NULL AND \(SELECT yes FROM changed\)/);
 });
 
+test("the statement says which arm answered — the write, or the car as it already was", () => {
+  const { text } = carUpdateStatement(args);
+  // Task 5 (DR23): the screen may only stop claiming a save when the store's own reply says
+  // whether anything moved. `true` comes from `upd` (the UPDATE fired), `false` from the
+  // fallback — the car the statement deliberately left alone.
+  assert.match(text, /SELECT ref, true AS changed FROM upd/);
+  assert.match(text, /SELECT ref, false AS changed FROM car/);
+  // The fallback reads the statement's own snapshot, where the car's row is visible **whether or
+  // not** the UPDATE fired. Without the guard a changed write answers twice — once per arm — and
+  // the action, which reads the first row, would be handed the no-op arm's word for it.
+  assert.match(text, /WHERE id = \$1 AND deleted_at IS NULL AND NOT EXISTS \(SELECT 1 FROM upd\)/);
+});
+
 // --- the sale (task 14) ------------------------------------------------------------
 
 const SOLD: CarUpdateArgs = {

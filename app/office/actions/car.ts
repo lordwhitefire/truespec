@@ -31,8 +31,18 @@ import { deleteAsset } from "@/lib/sanity";
  * half-made car cannot exist, and a retry converges on the one it already made.
  */
 
-export type CreateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
-export type UpdateCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
+/**
+ * A save carries **what actually happened** to the store, not just that the call came back:
+ * `changed` is the statement's own answer to "did anything move?" — false when a save changed
+ * nothing (DR23: the screen then says *"Nothing changed."*, never *"Saved"*). It is read from
+ * the store's reply, so it can never be the browser's claim about itself (truth 14).
+ */
+export type CreateCarResult =
+  | { ok: true; ref: string; changed: boolean }
+  | { ok: false; errors: FieldError[] };
+export type UpdateCarResult =
+  | { ok: true; ref: string; changed: boolean }
+  | { ok: false; errors: FieldError[] };
 export type DeleteCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
 export type RemoveCarResult =
   | { ok: true; ref: string; assetsCleared: number; assetsFailed: number }
@@ -78,14 +88,14 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,
   });
-  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+  const attempt = await storeQueryRefusing<{ ref: string; changed: boolean }[]>(text, params, {
     field: "carId",
     action: "That car could not be saved",
   });
   if (!attempt.ok) return attempt;
 
-  const ref = attempt.rows[0]?.ref;
-  if (!ref) {
+  const row = attempt.rows[0];
+  if (!row?.ref) {
     // The store answered without the row for a car it was told to make. A plain repeat cannot land
     // here — the statement's own `UNION ALL SELECT ref FROM car WHERE id = $1` returns the row the
     // first attempt made — but a retry sent while the first is still in flight can: the second waits
@@ -99,7 +109,7 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   }
 
   revalidateCarPaths();
-  return { ok: true, ref };
+  return { ok: true, ref: row.ref, changed: row.changed };
 }
 
 export async function updateCar(form: FormData): Promise<UpdateCarResult> {
@@ -133,17 +143,19 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
     hashVersion: CHANGE_CHECK_VERSION,
     actorId: session.officeUserId,
   });
-  const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
+  const attempt = await storeQueryRefusing<{ ref: string; changed: boolean }[]>(text, params, {
     field: "carId",
     action: "That change could not be saved",
   });
   if (!attempt.ok) return attempt;
 
-  const ref = attempt.rows[0]?.ref;
-  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+  const row = attempt.rows[0];
+  if (!row?.ref) {
+    return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+  }
 
   revalidateCarPaths();
-  return { ok: true, ref };
+  return { ok: true, ref: row.ref, changed: row.changed };
 }
 
 /**
