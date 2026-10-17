@@ -238,3 +238,37 @@ such GETs, no POST anywhere). In dev the car page is 1779 modules compiled on de
 portal and `window.next` undefined at 3900 ms. The drive now waits on that portal and on each save's
 own POST response. The toast is also a `role="status"`, so the result panel has to be found from the
 save button rather than by role alone (`car-save-probe.mjs` listed both, and their words).
+
+## A settings card that changed nothing says so (2026-10-17, signed in, the **live** store)
+
+Task 6. `settings-save-reports.mjs noop`; readings in `runs/settings-save-reports/noop.json`. The
+WhatsApp card, stored `+2348146927170`, typed as **`0814 692 7170`** — a real text difference that is no
+change to the setting itself:
+
+| reading | value |
+|---|---|
+| the *"Unsaved change"* note | **shown** (so Save was pressable) |
+| the toast, recorded as it appeared | **“Nothing changed.”** — never a claim of a save |
+| its own POSTs | **200, 200** (action + refresh), no page reload |
+| the card's audit line before / after | *"Updated 16 Oct 2026, 11:55"* / **the same** |
+| the input after the save | back to what the store holds (`+2348146927170`) |
+| the store's three rows before / after | **byte-identical** — `whatsapp_number.updated_at` still `2026-10-16T11:55:53.863Z` |
+
+The no-op wrote **nothing at all**. The changed arm was driven on a throwaway copy
+(`br-sweet-wind-b2u6d5yg`, deleted afterwards): the tagline really changed → **“Tagline saved. The home
+page updates immediately.”** (POST 200, audit line 18:52 → 18:53, `updated_at` 18:52:24 → 18:53:55),
+then put back → the same words and the original value restored. In the same copy run the WhatsApp no-op
+again said *“Nothing changed.”* and the copy's WhatsApp row stayed unmoved. No Chrome launched by any run
+(6 → 6).
+
+The statement's three arms were also read directly at the store on the copy
+(`settings-statement-probe.mjs`): a key with no row → written, `changed true`; a different value →
+written, `changed true`, timestamp moved; the same value → **`changed false`, timestamp unmoved**; one
+row answered each time.
+
+**Harness facts, recorded because they cost three runs:** the card's toast hides after four seconds, so
+its words must be **recorded as they appear** (the first attempt read an empty string); a recorder
+armed on the toast node watches a node React may replace — the working one observes `document.body`;
+and a toast still on screen when the next step arms gets credited to that step (the first copy run's
+tagline step opened with the WhatsApp step's words — each save now waits for the toast to drop `show`
+before arming).

@@ -25,6 +25,9 @@ import type { NoticeInput } from "./notices";
  *
  * A write is an **upsert**, so a key whose row is somehow absent is written rather than silently
  * missed, and `updated_at` moves with it — the audit line on the screen says what the store says.
+ * **A save that would change nothing writes nothing at all** (DR23): the statement compares the
+ * stored value with the one about to be written, so the audit line cannot move behind a card that
+ * is about to say *"Nothing changed."*, and the reply carries the fact so the card can say it.
  */
 
 /** The three keys the store holds — the only keys this module will ever write. */
@@ -114,7 +117,9 @@ export async function readNotices(): Promise<NoticeInput> {
   };
 }
 
-export type SaveSettingResult = { ok: true; value: string } | { ok: false; error: string };
+export type SaveSettingResult =
+  | { ok: true; value: string; changed: boolean }
+  | { ok: false; error: string };
 
 /**
  * The rule for one setting: what may be stored, and what the field says when it may not. Pure — it
@@ -154,9 +159,33 @@ export async function saveSetting(field: SettingField, raw: string): Promise<Sav
   const read = readSettingValue(key, raw);
   if (!read.ok) return read;
 
-  const attempt = await storeQueryRefusing(
-    `INSERT INTO setting (key, value) VALUES ($1, $2)
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
+  // One round-trip, and **a save that would change nothing writes nothing** (DR23). The stored value
+  // is compared with the one about to be written *inside* the statement, so a repeat does not move
+  // `updated_at` behind the card's back — the audit line under the card stays true — and the reply
+  // says which of the two happened. The comparison is the store's, never the browser's: the value
+  // has already been judged above, and the row the statement reads is the row that decides.
+  //
+  // The three arms answer exactly one row between them:
+  //   · no row yet        → `cur` is NULL, `NULL IS DISTINCT FROM $2` is true → the insert lands → `true`
+  //   · a different value → `changed.yes` true → the update lands (timestamp and all) → `true`
+  //   · the same value    → `changed.yes` false → the update is skipped, `upsert` is empty and the
+  //                         fallback answers the stored row → `false`
+  // The fallback is guarded by `NOT EXISTS (SELECT 1 FROM upsert)` because it reads the statement's
+  // own snapshot, where a written row is visible too; without the guard a real save would answer
+  // twice and the action, which reads the first row, would be handed the no-op arm's word.
+  const attempt = await storeQueryRefusing<{ value: string; changed: boolean }[]>(
+    `WITH cur AS (SELECT value FROM setting WHERE key = $1),
+     changed AS (SELECT (SELECT value FROM cur) IS DISTINCT FROM $2::text AS yes),
+     upsert AS (
+       INSERT INTO setting (key, value) VALUES ($1, $2)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()
+         WHERE (SELECT yes FROM changed)
+         RETURNING value
+     )
+     SELECT value, true AS changed FROM upsert
+     UNION ALL
+     SELECT value, false AS changed FROM setting
+      WHERE key = $1 AND NOT EXISTS (SELECT 1 FROM upsert)`,
     [key, read.value],
     { field: "value", action: "That setting could not be saved" },
   );
@@ -167,5 +196,12 @@ export async function saveSetting(field: SettingField, raw: string): Promise<Sav
   // through rather than wrapped in a second shape.
   if (!attempt.ok) return { ok: false, error: attempt.errors[0].message };
 
-  return { ok: true, value: read.value };
+  const row = attempt.rows[0];
+  if (!row) {
+    // Unreachable by construction — every arm above answers the stored row — but a store that
+    // answers nothing is a refusal here, never a crash and never a claimed save.
+    return { ok: false, error: "That setting could not be saved" };
+  }
+
+  return { ok: true, value: row.value, changed: row.changed };
 }

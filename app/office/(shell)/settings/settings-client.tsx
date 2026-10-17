@@ -154,7 +154,14 @@ export function Settings({
       setWaErr(null);
       setWaSaved(true);
       setPvLink("wa.me/" + waMeDigits(result.value));
-      showToast("WhatsApp number saved. Every chat button on the site now uses it.");
+      // The words follow the store's own answer (DR23): a save that wrote nothing because the
+      // number was already exactly this one says so, and never claims a save. A refusal never
+      // reaches this line — it returns above.
+      showToast(
+        result.changed
+          ? "WhatsApp number saved. Every chat button on the site now uses it."
+          : "Nothing changed.",
+      );
     } finally {
       setWaBusy(false);
     }
@@ -176,7 +183,7 @@ export function Settings({
       setTagSnap(result.value);
       setTagN(String(result.value.length));
       setTagErr(null);
-      showToast("Tagline saved. The home page updates immediately.");
+      showToast(result.changed ? "Tagline saved. The home page updates immediately." : "Nothing changed.");
     } finally {
       setTagBusy(false);
     }
@@ -197,7 +204,9 @@ export function Settings({
       setTank(result.value);
       setTankSnap(result.value);
       setTankErr(null);
-      showToast("Default saved. Full tank is pre-filled on every new car.");
+      showToast(
+        result.changed ? "Default saved. Full tank is pre-filled on every new car." : "Nothing changed.",
+      );
     } finally {
       setTankBusy(false);
     }
