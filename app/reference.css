@@ -75,7 +75,8 @@ footer li b { color: #fff; font-weight: 600; }
 /* ---------- AVATAR / SPEAK LINE / MODALS / TOAST ---------- */
 .av { width: 52px; height: 52px; border-radius: 50%; background: var(--gold); color: var(--gt); display: grid; place-items: center; font-family: Oswald, sans-serif; font-weight: 700; font-size: 24px; flex: none; }
 .speak { margin: 0 0 26px; background: var(--chip-bg); border: 1px solid var(--chip-line); border-left: 3px solid var(--gold); padding: 12px 16px; font-size: 14px; color: var(--ink); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
-.speak:empty { display: none; }
+/* The live region stays in the accessibility tree at all times (DR13): while empty it collapses to nothing — never display:none, which would remove it from the tree. */
+.speak:empty { display: flex; height: 0; margin: 0; padding: 0; border: 0; overflow: hidden; }
 @keyframes speakin { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .speak.pop { animation: speakin 0.35s; }
 .lnk { background: none; border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }

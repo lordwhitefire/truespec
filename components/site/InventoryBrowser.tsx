@@ -465,7 +465,8 @@ export function InventoryBrowser({
               {/* Umar's answer to every filter tap appears here */}
               <p id="speak" className="speak" role="status" aria-live="polite" />
               <div className="tb">
-                <h2 id="ttl" role="status">
+                {/* The result's heading must not announce a second time — the page's one live region is above (DR13). */}
+                <h2 id="ttl">
                   {all ? (
                     <>
                       All <em>inventory</em>

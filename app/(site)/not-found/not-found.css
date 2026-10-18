@@ -71,7 +71,13 @@
   font-size: 14px;
 }
 .speak:empty {
-  display: none;
+  /* The live region stays in the accessibility tree at all times (DR13): while empty it collapses to nothing. */
+  display: flex;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
 }
 @keyframes speakin {
   from {

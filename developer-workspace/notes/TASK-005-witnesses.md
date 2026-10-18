@@ -742,3 +742,20 @@ Office byte-identical before/after (the office sections of the two readings file
 no office file in the diff): *“No cars match. Clear the search or pick another state.”* +
 “Clear filters”; count “0 of 25 cars match”. Readings `runs/task22/before.json` / `after.json`;
 drive `empty-result.mjs`; Chrome 3 → 3.
+
+## Task 23 — the live result is announced exactly once (2026-10-18, live, read-only)
+
+| reading | before | after |
+|---|---|---|
+| inventory `#speak` while empty — display | `none` | **`flex`** |
+| inventory `#speak` while empty — own AX node (full-tree membership) | **not in the tree** (`partialRole: none`) | **present, role `status`, height 0** |
+| car page `#speak` while empty — display / AX | `none` / not in the tree | **`flex` / present, `status`** |
+| inventory unignored `status` nodes (rest · zero) | **2 · 2** | **1 · 1** |
+| `#ttl` — DOM role / AX role | `status` / `status` | **none / `heading`** |
+| `/not-found` route `.speak` | absent | absent (page renders no region) |
+
+The emptiness was reached with one labelled DOM probe per surface (clear → read → restore), because
+no page in dev rests empty (StrictMode announces on mount; `CarBehaviors` greets; the 404 lands a
+theme line). AX reads are `Accessibility.getFullAXTree` membership of the element's own node — the
+source DevTools' accessibility pane uses. Readings `runs/task23/before.json` / `after.json`; drive
+`speak-region.mjs`; Chrome 3 → 3. Zero announcement re-read: "No cars match those filters."
