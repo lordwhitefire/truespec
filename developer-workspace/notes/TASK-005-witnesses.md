@@ -364,3 +364,21 @@ Snapshots: `runs/chrome-before/{car,home}.json`, `runs/chrome-after/{car,home}.j
 
 The view's words and structure are the ones recorded before the change (`05:467-479`); the JSX moved
 verbatim into `car-parts.tsx`. No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Task 9 — the office's own not-found family (2026-10-18, dev `:3210`, live store, signed in)
+
+`office-404.mjs`; readings in `runs/office-404/live.json`; signed-out matrix by curl.
+
+| reading | value |
+|---|---|
+| `/office/nonsense` (signed in, browser) | **404** · office view inside the shell (sidebar, topbar, *“Signed in as …”*) |
+| `/office/car/nonsense-ref` (signed in, browser) | **404** · same view; the URL keeps the ref |
+| the view's words | *“That page isn't in the office”* · *“No office screen matches that address. Nothing was lost.”* · *“Back to the dashboard”* → `/office` |
+| office routes sweep (browser) | `/office` 200 · inventory 200 · activity 200 · drafts 200 · enquiries 200 · settings 200 · car new 200 · car editor 200 — each with the shell |
+| `/office/car` | followed the **307** → `/office/inventory` |
+| `/nonsense` (site) | **404** · *“We couldn't find that page”* · chrome-less · two row links + home link — **not merged** |
+| signed-out curl, office addresses | **307 → /office/sign-in** for `/office`, inventory, activity, drafts, enquiries, settings, car, car/new, car/nonsense-ref, nonsense, nonsense/deeper/still, account · `/office/sign-in` 200 |
+| the waking line | in the served HTML of `/office`, `/office/inventory`, `/office/activity`; none in `/office/car/TS-1001` or the two 404s |
+| baseline (before this task) | `/office/nonsense` 404 showroom view · `/office/car/nonsense-ref` **200** · `/office`, `/office/inventory` signed out **200** + client redirect |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295.

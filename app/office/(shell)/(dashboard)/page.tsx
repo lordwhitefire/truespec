@@ -1,4 +1,4 @@
-import "./office.css";
+import "../office.css";
 import Link from "next/link";
 import { getOfficeActivity, getOfficeDashboard, getOfficeTaps } from "@/lib/office";
 import { formatNaira, nairaDigits } from "@/lib/money";
