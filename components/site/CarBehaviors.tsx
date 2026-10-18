@@ -106,6 +106,9 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
     };
 
     // ---- MODAL — shared 2-per-visit budget --------------------------------
+    // The dialog is the platform's (Task 13): escaping, trapping and the top layer are its own.
+    // Its `close` event is where the page unlocks, so Escape and our own close end the same way.
+    const ovl = $<HTMLDialogElement>("ovl");
     let covering = store.sget("covering", 0);
     const openModal = (title: string, body: string) => {
       if (covering >= 2) return;
@@ -115,23 +118,18 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       if (t) t.textContent = title;
       const b = $("mbody");
       if (b) b.innerHTML = body;
-      const ovl = $("ovl");
-      if (ovl) ovl.hidden = false;
+      if (ovl && !ovl.open) ovl.showModal();
       document.body.classList.add("lock");
       $("mx")?.focus();
     };
     const closeModal = () => {
-      const ovl = $("ovl");
-      if (ovl) ovl.hidden = true;
+      if (ovl?.open) ovl.close();
       document.body.classList.remove("lock");
     };
+    on(ovl, "close", () => document.body.classList.remove("lock"));
     on($("mx"), "click", closeModal);
-    on($("ovl"), "click", (e) => {
+    on(ovl, "click", (e) => {
       if ((e.target as HTMLElement).id === "ovl") closeModal();
-    });
-    on(window, "keydown", (e) => {
-      const ovl = $("ovl");
-      if ((e as KeyboardEvent).key === "Escape" && ovl && !ovl.hidden) closeModal();
     });
 
     // ---- Umar's greeting: return visitor first, then status ---------------
@@ -361,8 +359,7 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Benin City"];
       const WHEN = ["20 min ago", "45 min ago", "1 hr ago", "this morning"];
       const fire = () => {
-        const ovl = $("ovl");
-        if (ovl && !ovl.hidden) {
+        if (ovl?.open) {
           window.setTimeout(fire, 12000);
           return;
         }

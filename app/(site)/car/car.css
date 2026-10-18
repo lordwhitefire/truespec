@@ -161,6 +161,11 @@ button.chip:hover { border-color: var(--gold); color: var(--ink); transform: tra
 /* ---------- UMAR MODAL + PROOF TOAST ---------- */
 .av { width: 52px; height: 52px; border-radius: 50%; background: var(--gold); color: var(--gt); display: grid; place-items: center; font-family: Oswald, sans-serif; font-weight: 700; font-size: 24px; flex: none; }
 .ovl { position: fixed; inset: 0; z-index: 95; background: rgba(10, 11, 13, 0.62); display: grid; place-items: center; padding: 20px; }
+/* The modal is the platform's dialog (Task 13). It keeps the overlay's look, but a closed dialog
+   must not paint: an author `display` would otherwise beat the platform's display:none. */
+dialog.ovl{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0}
+dialog.ovl:not([open]){display:none}
+dialog.ovl::backdrop{background:transparent}
 body.lock { overflow: hidden; }
 .mdl { background: var(--bg); color: var(--ink); max-width: 460px; width: 100%; border-radius: 10px; padding: 26px; position: relative; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5); }
 .mx { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--mute); font-size: 20px; cursor: pointer; }

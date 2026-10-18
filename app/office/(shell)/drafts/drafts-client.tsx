@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Photo } from "@/components/Photo";
 import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
+import { Dialog } from "@/components/office/Dialog";
 import { uploadCarPhoto } from "../../actions/photo";
 import {
   addDraftImage,
@@ -403,30 +404,28 @@ function DraftRow({
         </span>
       </div>
 
-      {delOpen ? (
-        <div className="ovl" role="dialog" aria-modal="true" aria-label="Delete this draft?">
-          <div className="mdl">
-            <button type="button" className="mx" aria-label="Close" onClick={() => setDelOpen(false)}>
-              <i className="fa-solid fa-xmark" aria-hidden="true" />
+      <Dialog open={delOpen} onClose={() => setDelOpen(false)} label="Delete this draft?">
+        <div className="mdl">
+          <button type="button" className="mx" aria-label="Close" onClick={() => setDelOpen(false)}>
+            <i className="fa-solid fa-xmark" aria-hidden="true" />
+          </button>
+          <h2>Delete this draft?</h2>
+          <p className="ms">
+            It was read from the uploaded file and has not become a record. Deleting it creates
+            nothing and spends no code; the file it came from is left where the owner’s own cleanup
+            finds it.
+          </p>
+          <div className="mrow">
+            <button type="button" className="btn" onClick={remove} disabled={pending}>
+              <i className="fa-solid fa-trash-can" aria-hidden="true" />
+              {pending ? "Deleting…" : "Delete draft"}
             </button>
-            <h2>Delete this draft?</h2>
-            <p className="ms">
-              It was read from the uploaded file and has not become a record. Deleting it creates
-              nothing and spends no code; the file it came from is left where the owner’s own cleanup
-              finds it.
-            </p>
-            <div className="mrow">
-              <button type="button" className="btn" onClick={remove} disabled={pending}>
-                <i className="fa-solid fa-trash-can" aria-hidden="true" />
-                {pending ? "Deleting…" : "Delete draft"}
-              </button>
-              <button type="button" className="btn gh" onClick={() => setDelOpen(false)} disabled={pending}>
-                Keep it
-              </button>
-            </div>
+            <button type="button" className="btn gh" onClick={() => setDelOpen(false)} disabled={pending}>
+              Keep it
+            </button>
           </div>
         </div>
-      ) : null}
+      </Dialog>
     </article>
   );
 }

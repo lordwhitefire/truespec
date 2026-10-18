@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { formatNaira } from "@/lib/money";
 import type { Section } from "@/lib/sections";
 import type { StockCounts } from "@/lib/counts";
+import { Dialog } from "@/components/office/Dialog";
 import { deleteCar, undoDeleteCar } from "../../actions/car";
 
 // Inventory client — reproduces the reference office-inventory.html behaviour
@@ -449,15 +450,14 @@ export function InventoryClient({
         ? createPortal(
             <>
               {/* delete confirmation — portaled to body so the DOM order matches the reference */}
-              <div
-                className="ovl"
+              <Dialog
+                open={del !== null}
+                onClose={() => setDel(null)}
                 id="ovl"
-                hidden={!del}
-                onClick={(e) => {
-                  if (e.target === e.currentTarget) setDel(null);
-                }}
+                labelledBy="dlt"
+                dismissOnBackdrop
               >
-                <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="dlt">
+                <div className="mdl">
                   <h2 id="dlt">Delete this car?</h2>
                   <p id="dltw">
                     {del
@@ -473,7 +473,7 @@ export function InventoryClient({
                     </button>
                   </div>
                 </div>
-              </div>
+              </Dialog>
 
               {/* undo toast — the Undo button is offered only while the delete's 8-second
                   window is open (`undoOn`); once it closes the car is a tombstone and is

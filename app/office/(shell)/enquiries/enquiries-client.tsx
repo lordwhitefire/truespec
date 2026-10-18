@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { setEnquiryState } from "@/app/office/actions/enquiry";
+import { Dialog } from "@/components/office/Dialog";
 import { CreateFromFile } from "@/components/office/CreateFromFile";
 import type { EditResult } from "@/lib/edit-result";
 
@@ -79,15 +80,6 @@ export function Enquiries({
     const t = setTimeout(() => setMsg(null), 4000);
     return () => clearTimeout(t);
   }, [msg]);
-
-  // Escape closes the card.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOverlay(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
   const cur = enquiries.find((x) => x.id === openId) ?? null;
   const unstated = enquiries.filter((e) => e.stateId === null);
@@ -223,13 +215,13 @@ export function Enquiries({
       {mounted
         ? createPortal(
             <>
-              <div className="ovl" id="ovlD" hidden={overlay !== "detail"}>
-                <div
-                  className="mdl"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="dtitle"
-                >
+              <Dialog
+                open={overlay === "detail"}
+                onClose={() => setOverlay(null)}
+                id="ovlD"
+                labelledBy="dtitle"
+              >
+                <div className="mdl">
                   <button
                     className="mx"
                     type="button"
@@ -354,7 +346,7 @@ export function Enquiries({
                     </a>
                   </div>
                 </div>
-              </div>
+              </Dialog>
 
               <div className="toast" id="toast" role="status">
                 <span id="tmsg">{msg ?? ""}</span>

@@ -115,3 +115,9 @@ textarea.in{height:auto;min-height:70px;padding:9px 12px;resize:vertical}
 .bnav a.on{color:var(--gold);background:rgba(200,162,74,.12)}
 @media(max-width:820px){.bnav{display:grid}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* The confirmation is the platform's dialog (Task 13). It keeps the overlay's look, but a closed
+   dialog must not paint: an author `display` would otherwise beat the platform's display:none. */
+dialog.ovl{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0}
+dialog.ovl:not([open]){display:none}
+dialog.ovl::backdrop{background:transparent}

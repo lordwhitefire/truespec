@@ -38,7 +38,7 @@ const WHEN = ["20 min ago", "45 min ago", "1 hr ago", "this morning"];
 export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: string }) {
   useEffect(() => {
     const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const ovl = document.getElementById("ovl");
+    const ovl = document.getElementById("ovl") as HTMLDialogElement | null;
     const ask = document.getElementById("ask");
     const mx = document.getElementById("mx");
     const toast = document.getElementById("toast");
@@ -66,12 +66,12 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
       const mb = document.getElementById("mbody");
       if (mt) mt.textContent = title;
       if (mb) mb.innerHTML = body;
-      ovl.hidden = false;
+      if (!ovl.open) ovl.showModal();
       lock(true);
       document.getElementById("mx")?.focus();
     }
     function closeModal() {
-      if (ovl) ovl.hidden = true;
+      if (ovl?.open) ovl.close();
       lock(false);
     }
 
@@ -117,9 +117,9 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     function tryFarewell() {
       if (farewellShown || Date.now() - t0 < 7000) return;
       farewellShown = true;
-      const wasOpen = ovl ? !ovl.hidden : false;
+      const wasOpen = ovl ? ovl.open : false;
       openModal(SAY.farewellT, farewellBody);
-      if (ovl && !ovl.hidden && !wasOpen) scrollGrid();
+      if (ovl?.open && !wasOpen) scrollGrid();
     }
     const onMouseOut = (e: MouseEvent) => {
       if (!e.relatedTarget && e.clientY <= 0) tryFarewell();
@@ -146,7 +146,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     let hideToastTimer: number | undefined;
     if (!store.sget("toast", false)) {
       const fire = () => {
-        if (ovl && !ovl.hidden) {
+        if (ovl?.open) {
           toastTimer = window.setTimeout(fire, 12000);
           return;
         }
@@ -213,16 +213,15 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     const onOvlClick = (e: MouseEvent) => {
       if ((e.target as HTMLElement)?.id === "ovl") closeModal();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && ovl && !ovl.hidden) closeModal();
-    };
+    // Escape is the platform's own: its `close` event is where the page unlocks.
+    const onOvlClose = () => lock(false);
     const onToastX = () => {
       if (toast) toast.hidden = true;
     };
 
     mx?.addEventListener("click", closeModal);
     ovl?.addEventListener("click", onOvlClick);
-    document.addEventListener("keydown", onKey);
+    ovl?.addEventListener("close", onOvlClose);
     document.addEventListener("click", onClick);
     document.addEventListener("mouseout", onMouseOut);
     document.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -236,7 +235,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
       if (hideToastTimer) window.clearTimeout(hideToastTimer);
       mx?.removeEventListener("click", closeModal);
       ovl?.removeEventListener("click", onOvlClick);
-      document.removeEventListener("keydown", onKey);
+      ovl?.removeEventListener("close", onOvlClose);
       document.removeEventListener("click", onClick);
       document.removeEventListener("mouseout", onMouseOut);
       document.removeEventListener("touchstart", onTouchStart);
@@ -248,8 +247,8 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
 
   return (
     <>
-      <div className="ovl" id="ovl" hidden>
-        <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+      <dialog className="ovl" id="ovl" aria-labelledby="mtitle">
+        <div className="mdl">
           <button className="mx" id="mx" type="button" aria-label="Close">
             &times;
           </button>
@@ -261,7 +260,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
           </div>
           <div id="mbody" />
         </div>
-      </div>
+      </dialog>
       <div className="toast" id="toast" role="status" hidden>
         <span id="toasttxt" />
         <button id="toastx" type="button" aria-label="Dismiss">

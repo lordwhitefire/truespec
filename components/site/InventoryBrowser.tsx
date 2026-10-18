@@ -179,18 +179,20 @@ export function InventoryBrowser({
     document.body.classList.add("lock");
     return true;
   }, []);
+  // The modal is the platform's dialog (Task 13). It is mounted by `modal`, so it is shown once it
+  // exists; Escape arrives as `cancel`, and `close()` runs before the state removes it.
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
   const closeModal = useCallback(() => {
+    const dialog = dialogRef.current;
+    if (dialog?.open) dialog.close();
     setModal(null);
     document.body.classList.remove("lock");
   }, []);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [closeModal]);
+    const dialog = dialogRef.current;
+    if (modal && dialog && !dialog.open) dialog.showModal();
+  }, [modal]);
 
   // farewell — desktop exit intent + mobile flick, at least 7s dwell
   useEffect(() => {
@@ -539,8 +541,18 @@ export function InventoryBrowser({
       </div>
 
       {modal ? (
-        <div className="ovl" id="ovl" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+        <dialog
+          ref={dialogRef}
+          className="ovl"
+          id="ovl"
+          aria-labelledby="mtitle"
+          onCancel={(e) => {
+            e.preventDefault();
+            closeModal();
+          }}
+          onClick={(e) => e.target === e.currentTarget && closeModal()}
+        >
+          <div className="mdl">
             <button className="mx" id="mx" type="button" aria-label="Close" onClick={closeModal}>
               &times;
             </button>
@@ -552,7 +564,7 @@ export function InventoryBrowser({
             </div>
             <div id="mbody">{modal.body}</div>
           </div>
-        </div>
+        </dialog>
       ) : null}
 
       {toast ? (

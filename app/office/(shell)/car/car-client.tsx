@@ -10,6 +10,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { createCar, updateCar, type CreateCarResult, type UpdateCarResult } from "../../actions/car";
+import { Dialog } from "@/components/office/Dialog";
 import { uploadCarPhoto } from "../../actions/photo";
 import {
   costLabelFor,
@@ -1180,16 +1181,15 @@ export function CarForm({
               </div>
             </div>
 
-            <div
-              className="ovl"
+            <Dialog
+              open={delOpen}
+              onClose={() => setDelOpen(false)}
               id="ovlD"
-              hidden={!delOpen}
-              onClick={(e) => {
-                if (e.target === e.currentTarget) setDelOpen(false);
-              }}
+              labelledBy="car-del-title"
+              dismissOnBackdrop
             >
-              <div className="mdl" role="dialog" aria-modal="true">
-                <h2>Delete this car?</h2>
+              <div className="mdl">
+                <h2 id="car-del-title">Delete this car?</h2>
                 <p>
                   You can undo for a few seconds after. Deleting removes it from the
                   showroom and the office lists.
@@ -1215,7 +1215,7 @@ export function CarForm({
                   </button>
                 </div>
               </div>
-            </div>
+            </Dialog>
 
             <div
               className={"toast" + (toastShow ? " show" : "")}

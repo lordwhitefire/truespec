@@ -140,6 +140,11 @@ textarea.in{height:auto;min-height:96px;padding:10px 12px;resize:vertical;line-h
 .mbar .ok{color:var(--ok)}.mbar .loss{color:var(--bad)}
 /* ============ MODAL + TOAST ============ */
 .ovl{position:fixed;inset:0;z-index:60;background:rgba(10,11,13,.62);display:grid;place-items:center;padding:20px}
+/* The confirmation is the platform's dialog (Task 13). It keeps the overlay's look, but a closed
+   dialog must not paint: an author `display` would otherwise beat the platform's display:none. */
+dialog.ovl{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0}
+dialog.ovl:not([open]){display:none}
+dialog.ovl::backdrop{background:transparent}
 .mdl{background:var(--bg);color:var(--ink);max-width:400px;width:100%;border-radius:10px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
 .mdl h2{font-size:17px;margin-bottom:8px}
 .mdl p{font-size:14px;color:var(--mute);margin-bottom:18px}

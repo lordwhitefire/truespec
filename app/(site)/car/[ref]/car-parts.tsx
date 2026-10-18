@@ -60,8 +60,8 @@ export function CarLayers({ wa }: { wa: string }) {
 
       <div className="stoast" id="stoast" />
 
-      <div className="ovl" id="ovl" hidden>
-        <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+      <dialog className="ovl" id="ovl" aria-labelledby="mtitle">
+        <div className="mdl">
           <button className="mx" id="mx" type="button" aria-label="Close">
             &times;
           </button>
@@ -73,7 +73,7 @@ export function CarLayers({ wa }: { wa: string }) {
           </div>
           <div id="mbody" />
         </div>
-      </div>
+      </dialog>
 
       <div className="ptoast" id="ptoast" role="status" hidden>
         <span id="ptxt" />

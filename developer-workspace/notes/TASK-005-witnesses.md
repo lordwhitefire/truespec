@@ -467,3 +467,33 @@ TS-1046), all removed for good — net-zero **25 → 25** every time.
 | net-zero | removed for good · 25 → 25 | two throwaways removed · 25 → 25 | removed for good · 25 → 25 |
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Task 13 — every confirmation is the platform's dialog (2026-10-18, dev `:3210`, live signed in)
+
+`dialogs.mjs`; readings in `runs/dialogs/readings.json`. Each dialog opened through its own trigger
+(a click, or the showroom's exit-intent gesture after its dwell), read in the DOM, then closed.
+
+| screen | element | open | `:modal` | display | rect / viewport | name | inner role |
+|---|---|---|---|---|---|---|---|
+| office inventory | `DIALOG#ovl` | true | true | grid | 1425×900 / 1440×900 | Delete this car? | null |
+| office car form | `DIALOG#ovlD` | true | true | grid | 1425×900 / 1440×900 | Delete this car? | null |
+| office drafts | `DIALOG` | true | true | grid | 1425×900 / 1440×900 | Delete this draft? | null |
+| office enquiries | `DIALOG#ovlD` | true | true | grid | 1440×900 / 1440×900 | Enquiry | null |
+| showroom home | `DIALOG#ovl` | true | true | grid | 1440×900 / 1440×900 | What are you after? | null |
+| showroom car | `DIALOG#ovl` | true | true | grid | 1440×900 / 1440×900 | Before you go | null |
+| showroom inventory | `DIALOG#ovl` | true | true | grid | 1440×900 / 1440×900 | Before you go | null |
+
+| closed | reading |
+|---|---|
+| office inventory / car / drafts / enquiries | mounted · `open=false` · computed `display:none` |
+| showroom home / car | mounted · `open=false` · computed `display:none` |
+| showroom inventory | **unmounted** (mounted with its state; `close()` ran before the state removed it) |
+
+| the look, kept | reading |
+|---|---|
+| no UA box | `border-top-width 0` · padding 20px · dialog fills the layout viewport |
+| the panel | `.mdl` centred on the dialog: (713, 450) office · (720, 450) showroom |
+| the dim | dialog background `rgba(10,11,13,.62)` · `::backdrop` `rgba(0,0,0,0)` |
+| Escape, showroom | `cancel` then `close` 69 ms apart · page `lock` removed |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295.
