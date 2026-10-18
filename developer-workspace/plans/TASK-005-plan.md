@@ -251,7 +251,7 @@ copy); raised in the report.
 - **Verify:** live, keyboard only: delete a middle row → focus on the next row's control; delete the last → focus on the heading; refuse a save (empty required field) → focus lands on that field; a form-level refusal → on the error block.
 - **Deps:** 4, 13. **Files:** `app/office/(shell)/inventory/inventory-client.tsx`, `app/office/(shell)/car/car-client.tsx`.
 
-**> Gate D** — live, keyboard only: every dialog is native, focus enters/stays/returns, Escape, no scroll behind, tap-outside rules, focus after a removal and after a refusal.
+**> Gate D — ✅ 2026-10-18** — fresh pass, live signed in, **7/7 screens**: every confirmation is a native `<DIALOG>` (open, `:modal`, `display:grid`, viewport-sized, named from the accessibility tree, inner `role` gone); keyboard focus entered the safe control (`#no` / Close), **0 page controls** behind ever took focus (the `BODY` stops are Chrome's own cycle), `overflow:hidden` held `y = 0` against a wheel, Escape closed exactly one dialog, URL unchanged, second Escape no change, focus returned to the opener (the enquiry `ARTICLE` included). At **375×812**, a real click at (6,6) kept the three destructive confirmations open (closed via **Keep it**) and closed the enquiry detail + three showroom offers. Removal/refusal (§Task 17): next row's delete control, `H1#inv-h`, `#f-price`, `#f-brand`, `#formErr`; throwaways net-zero **25 → 25**. Witnesses: `notes/TASK-005-witnesses.md` §Gate D; drives `dialogs.mjs`, `focus.mjs`, `tap-outside.mjs`, `focus-removal-refusal.mjs` (readings in `runs/`). Typecheck clean · 295/295 (Task 17; no source change since).
 
 ### Phase 5 — Inert controls
 

@@ -598,3 +598,42 @@ refusal; for a server refusal, the first visible field named by the errors, else
 (`tabIndex={-1}`, already `role="alert"`).
 
 Typecheck clean · 295/295 · no Chrome launched (7 → 7 processes) · notes `TASK-005-task17.md`.
+
+## Gate D — dialogs, focus, Escape, scroll, outside taps (2026-10-18, dev `:3210`, live signed in)
+
+Fresh pass after Phase 4: `dialogs.mjs` (7/7), `focus.mjs` (7/7, keyboard), `tap-outside.mjs`
+(375×812, the one pointer gesture), and the Task 17 removal/refusal drive from the same day.
+Readings in `runs/dialogs/`, `runs/focus/`, `runs/tap-outside/`, `runs/task17/`. No store writes;
+Chrome 6 → 6 in each (attach-only).
+
+| screen | element / name | entered (safe) | page controls | `BODY` edge stops | scroll behind | Escape → focus | outside tap |
+|---|---|---|---|---|---|---|---|
+| office inventory | `DIALOG` · *Delete this car?* | `BUTTON#no` | 0 | 3 | hidden · y 0 · 2242 px | closed · `BUTTON` opener | **kept open**, closed via Keep it |
+| office car form | `DIALOG` · *Delete this car?* | `BUTTON` | 0 | 2 | hidden · y 0 · 2311 px | closed · `#delBtn` opener | **kept open**, closed via Keep it |
+| office drafts | `DIALOG` · *Delete this draft?* | `BUTTON[Close]` | 0 | 2 | hidden · y 0 · 7852 px | closed · `BUTTON` opener | **kept open**, closed via Keep it |
+| office enquiries | `DIALOG` · *Enquiry* | `BUTTON[Close]` | 0 | 0 | hidden · y 0 · 900 px | closed · `ARTICLE` opener | **closed** · `ARTICLE` |
+| showroom home | `DIALOG` · *Before you go* | `BUTTON#mx` | 0 | 1 | hidden · y 0 · 4874 px | closed · `A` opener | **closed** · body unlocked |
+| showroom car | `DIALOG` · *Before you go* | `BUTTON#mx` | 0 | 2 | hidden · y 0 · 2452 px | closed · `A` opener | **closed** · body unlocked |
+| showroom inventory | `DIALOG` · *Before you go* | `BUTTON#mx` | 0 | 2 | hidden · y 0 · 3068 px | closed · `A` opener | **closed**, unmounted |
+
+All seven were `open`, `:modal`, `display:grid`, viewport-sized, with the name above read from the
+accessibility tree; the inner `role`/`aria-modal` is gone. The `BODY` stops are Chrome's own modal
+edge (the minimal two-button control read `A → B → BODY → A` in Task 14); **no control behind a
+dialog ever took focus**. Escape closed exactly one dialog, the URL was unchanged, a second Escape
+did nothing, and the wheel left `y = 0` with `overflow:hidden` in every case; the showroom's own
+`.lock` restored to `hidden auto` after its non-destructive closes.
+
+Outside taps were a real click at **(6,6)** (375×812), where `elementFromPoint` was the dialog: the
+three destructive confirmations stayed open and closed only through **Keep it**; the enquiry detail
+and the three showroom offers closed. Focus after the enquiry close was its `ARTICLE` opener.
+
+Focus after a removal / a refusal (from §Task 17, same day): middle visible inventory row → the next
+row's delete control (`data-car-id` matched); last visible row → `H1#inv-h`; invalid price/was-price
+→ `#f-price`; empty brand → `#f-brand`; tampered `carId` (form-level) → `#formErr`, car unchanged;
+two throwaways created through the office and removed for good, **net-zero 25 → 25**.
+
+Honest: `focus.mjs` and the delete flows are keyboard; the outside-tap check is necessarily a
+pointer gesture. The showroom home's dialog is the exit-intent *Before you go* (the dev StrictMode
+welcome artifact noted in Task 14), not the welcome. `dialogs.mjs` opens the drafts dialog without
+deleting a draft; `focus.mjs` and `tap-outside.mjs` write nothing. Gate D added no source change, so
+Task 17's `npm run typecheck` clean · **295/295** still stands.
