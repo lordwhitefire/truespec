@@ -347,3 +347,20 @@ while the page is still awaiting the store, and the status is fixed at that flus
 
 Snapshots: `runs/chrome-before/{car,home}.json`, `runs/chrome-after/{car,home}.json`, taken with
 `chrome-snapshot.mjs` (attach-only). Typecheck clean · 295/295 · no Chrome launched (6 → 6).
+
+## Task 8 — a dead car answers a real 404 (2026-10-18, dev `:3210`, live store)
+
+`car-404.mjs`; readings in `runs/car-404/live.json`.
+
+| reading | value |
+|---|---|
+| a car, `/car/TS-1001` | **200** · *“2021 Toyota Camry XSE V6 \| TrueSpec Automotive”* |
+| the sold car, `/car/TS-1025` | **200** · *“That one found a new owner”* |
+| a dead ref, `/car/TS-9999` | **404** · *“Car not found \| TrueSpec Automotive”* |
+| the view | crumbs *Home › Not found* · `h1` *“We could not find that car”* · the paragraph · **Message Umar** → `wa.me/2348146927170…` · **See all cars** → `/#cars` |
+| the chrome + shells | header ✓ footer ✓ `footer#contact` ✓ · related ✓ mbar ✓ lightbox ✓ overlay ✓ both toasts ✓ · *“More cars”* |
+| the URL | `http://127.0.0.1:3210/car/TS-9999` — the typed ref kept, no redirect |
+| `curl -sI` / GET | **404 / 404** (dead) · 200 / 200 (live and sold) |
+
+The view's words and structure are the ones recorded before the change (`05:467-479`); the JSX moved
+verbatim into `car-parts.tsx`. No Chrome launched (6 → 6). Typecheck clean · 295/295.

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import "@/app/(site)/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { Photo } from "@/components/Photo";
@@ -8,6 +9,7 @@ import { formatNaira } from "@/lib/money";
 import { sectionLabel, tokenOf } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { getPublicCarForView, getPublicCars, getSetting } from "@/lib/public-cars";
+import { CarLayers, RelatedShell } from "./car-parts";
 
 export const dynamic = "force-dynamic";
 
@@ -80,10 +82,9 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
     getSetting("whatsapp_number"),
     getPublicCars(),
   ]);
-  if (!car) {
-    const unknownNum = (await getSetting("whatsapp_number")) ?? "";
-    return notFoundView(unknownNum);
-  }
+  // A car that is not there answers a real 404: thrown before the response streams, it sends the
+  // status and lets the co-located boundary render the view this page used to render inline.
+  if (!car) notFound();
 
   // Separate sold from unknown - sold cars exist but are not listed
   if (car.sold) {
@@ -415,81 +416,6 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   );
 }
 
-function RelatedShell() {
-  return (
-    <section className="rel">
-      <div className="w">
-        <div className="rh rv">
-          <h2 id="rt">More cars</h2>
-          <div className="rn">
-            <button type="button" aria-label="Previous">
-              <i className="fa-solid fa-chevron-left" />
-            </button>
-            <button type="button" aria-label="Next">
-              <i className="fa-solid fa-chevron-right" />
-            </button>
-          </div>
-        </div>
-        <div className="rt" id="rt2" />
-      </div>
-    </section>
-  );
-}
-
-function CarLayers({ wa }: { wa: string }) {
-  return (
-    <>
-      <div className="mbar" id="mbar">
-        <div>
-          <small>Doorstep price</small>
-          <div className="num" id="mp" />
-        </div>
-        <a className="wab" id="mw" href={wa} target="_blank" rel="noopener noreferrer">
-          <i className="fa-brands fa-whatsapp" />
-          <span id="mwTxt">Chat now</span>
-        </a>
-      </div>
-
-      <div className="lb" id="lb">
-        <button type="button" className="x" aria-label="Close">
-          <i className="fa-solid fa-xmark" />
-        </button>
-        <button type="button" className="p" aria-label="Previous">
-          <i className="fa-solid fa-chevron-left" />
-        </button>
-        <Photo id="li" alt="" />
-        <button type="button" className="n" aria-label="Next">
-          <i className="fa-solid fa-chevron-right" />
-        </button>
-      </div>
-
-      <div className="stoast" id="stoast" />
-
-      <div className="ovl" id="ovl" hidden>
-        <div className="mdl" role="dialog" aria-modal="true" aria-labelledby="mtitle">
-          <button className="mx" id="mx" type="button" aria-label="Close">
-            &times;
-          </button>
-          <div className="mdlh">
-            <div className="av" aria-hidden="true">
-              U
-            </div>
-            <h2 id="mtitle" />
-          </div>
-          <div id="mbody" />
-        </div>
-      </div>
-
-      <div className="ptoast" id="ptoast" role="status" hidden>
-        <span id="ptxt" />
-        <button id="ptx" type="button" aria-label="Dismiss">
-          &times;
-        </button>
-      </div>
-    </>
-  );
-}
-
 function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
   const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
   const month = car.soldAt
@@ -581,48 +507,6 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
 
       <RelatedShell />
       <CarLayers wa={soldWa} />
-    </>
-  );
-}
-
-function notFoundView(num: string) {
-  const waSource = waLink(
-    num,
-    "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: ",
-  );
-  return (
-    <>
-      <div className="crumbs">
-        <div className="w" id="crumb">
-          <a href="/">Home</a>
-          <i className="fa-solid fa-chevron-right" />
-          <b>Not found</b>
-        </div>
-      </div>
-
-      <div className="main" id="main">
-      <div className="w nfbox">
-        <div className="av" aria-hidden="true">
-          U
-        </div>
-        <h1>We could not find that car</h1>
-        <p>
-          That car may have sold, or the link is old. Tell me what you were after and I&apos;ll
-          find one like it — or browse what&apos;s on the lot now.
-        </p>
-        <div className="row">
-          <a className="wab big" href={waSource} target="_blank" rel="noopener noreferrer">
-            <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
-          </a>
-          <a className="btn" href="/#cars">
-            <i className="fa-solid fa-grip" /> See all cars
-          </a>
-        </div>
-      </div>
-      </div>
-
-      <RelatedShell />
-      <CarLayers wa={waSource} />
     </>
   );
 }
