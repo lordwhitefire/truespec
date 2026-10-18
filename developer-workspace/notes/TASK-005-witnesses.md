@@ -452,3 +452,18 @@ the office, deleted, expired, then removed for good; net-zero.
 | the failsafe's margin (found here) | old 10 000 ms was 2 000 ms over the window; a 1 fps tab ate up to 2.1 s of it (first run: offer window **10 267 ms**) — widened to **12 000 ms**, re-verified above |
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Gate C — the bar drains its full window and the offer closes at expiry (2026-10-18, dev `:3210`, live store, signed in)
+
+The three Phase-3 drives on the committed code, one throwaway each (TS-1038, TS-1041/1042,
+TS-1046), all removed for good — net-zero **25 → 25** every time.
+
+| reading | Task 10 (`undo-bar`) | Task 11 (`undo-mechanics`) | Task 12 (`undo-expiry`) |
+|---|---|---|---|
+| the drain | clock `0 → 8016 ms` · `scaleX 1 → 0` | `scaleX = 1 − elapsed/8000` at every sample | `currentTime 8 000 ms` at the last mounted reading |
+| the closer | animation's end (window 8 524 ms), failsafe never won | animation's end (window 8 336 ms) | animation end t=12 666 vs failsafe due t=15 891 — **animation by 3.2 s** |
+| the offer at expiry | toast down, Undo gone | — | `#undo` present, **hidden**; toast down; bar and label gone |
+| the store | tombstoned and listed | tombstoned and listed | tombstone, absent from the live table, same `deleted_at` after 4 s, listed after reload |
+| net-zero | removed for good · 25 → 25 | two throwaways removed · 25 → 25 | removed for good · 25 → 25 |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295.

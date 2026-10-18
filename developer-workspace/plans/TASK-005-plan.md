@@ -222,7 +222,7 @@ copy); raised in the report.
 - **Verify:** live: create a throwaway demo car → delete → let the offer expire → undo is gone, the car is deleted (tombstone), the inventory lists it as waiting to be cleared. Net-zero: the throwaway is then removed and the store read back.
 - **Deps:** 10, 11. **Files:** `app/office/(shell)/inventory/inventory-client.tsx`, `developer-workspace/notes/TASK-005-witnesses.md`.
 
-**> Gate C** — live: the bar drains for its full 8 s on a throwaway demo car and the offer closes at expiry.
+**> Gate C — ✅ 2026-10-18** — live on a throwaway demo car (**TS-1046**, created through the office, deleted, expired, removed for good; net-zero **25 → 25**): the bar drained its full window (the animation's own clock read **8 000 ms** at its last mounted moment, `scaleX = 1 − elapsed/8000` at every sample, never a width) and the offer **closed at expiry** — the animation's own end t=12 666 vs the 12 000 ms failsafe due t=15 891, so the animation was the closer by 3.2 s; after the close `#undo` was hidden, the car a tombstone, and nothing restored it. Witnesses: `notes/TASK-005-witnesses.md` §Task 10–12 and §Gate C; drives `undo-bar.mjs`, `undo-mechanics.mjs`, `undo-expiry.mjs` (readings in `runs/`).
 
 ### Phase 4 — Dialogs and focus
 
