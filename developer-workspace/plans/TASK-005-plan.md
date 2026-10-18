@@ -203,7 +203,7 @@ copy); raised in the report.
 > own shell. Free consequence of the move: office redirects are real 3xx again (signed out → **307**
 > to `/office/sign-in`; `/office/car` → 307 to the inventory).
 
-**> Gate B** — status codes driven with `curl` and the browser: dead car → 404 with its view; `/office/nonsense` → office not-found.
+**> Gate B — ✅ 2026-10-18** — status codes driven both ways. `curl`: dead car **404** · live car and inventory **200** · `/office/nonsense` signed out **307 → /office/sign-in** (the door; the signed-in 404 read in the browser). Browser, signed in: the dead car **404** with its view, chrome, ways forward (10/10 verdicts); `/office/nonsense` and `/office/car/nonsense-ref` **404** with the office view inside the office shell (11/11), neighbours intact, the site-wide not-found not merged. Witnesses: `notes/TASK-005-witnesses.md` §Gate B; drives `car-404.mjs`, `office-404.mjs` (readings in `runs/`).
 
 ### Phase 3 — The undo window
 

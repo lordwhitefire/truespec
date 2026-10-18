@@ -382,3 +382,15 @@ verbatim into `car-parts.tsx`. No Chrome launched (6 → 6). Typecheck clean · 
 | baseline (before this task) | `/office/nonsense` 404 showroom view · `/office/car/nonsense-ref` **200** · `/office`, `/office/inventory` signed out **200** + client redirect |
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Gate B — the status family (2026-10-18, dev `:3210`, live store)
+
+| reading | value |
+|---|---|
+| `curl -sI /car/TS-9999` | **404** |
+| `curl -sI /car/TS-1001` · `/inventory` | 200 · 200 |
+| `curl -sI /office/nonsense` (signed out) | **307 → /office/sign-in** |
+| browser, signed in — dead car | **404** · its view, chrome, ways forward — 10/10 verdicts |
+| browser, signed in — office | `/office/nonsense` and `/office/car/nonsense-ref` **404** · the office view inside the shell — 11/11 verdicts |
+
+Drives: `car-404.mjs`, `office-404.mjs` (`runs/car-404/`, `runs/office-404/`). No Chrome launched (6 → 6).
