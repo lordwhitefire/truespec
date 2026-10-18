@@ -807,3 +807,19 @@ announcement answers changes; Task 22's note separates the dev StrictMode fill f
 truth; the §Task 23 note's "no page rests empty in dev" was that session's quirk reading). The
 drive's upload leg retries on the intermittent store; none was needed. Typecheck clean ·
 `npm test` **295/295**. Drive `gate-f.mjs`; readings `runs/gate-f/readings.json`; Chrome 3 → 3.
+
+## Task 26 — a car with no photos, and a photo that failed (2026-10-18, live, read-only)
+
+| reading | before | after |
+|---|---|---|
+| A. no photos (TS-1029) — the box | `#gi` src **`undefined`** (a literal), alt `… photo NaN`, counter `NaN / 0`, 2 arrows, thumbs container present | **drawn box** (`data:image/svg…`), alt `… photo 1`; **no counter, 0 arrows, no thumbnails** |
+| A. click the box (and the closed lightbox) | lightbox opens, `#li` src `undefined` | **nothing opens**; `#li` the drawn box |
+| A. machine scan (innerText + every img src/alt) | `NaN` in text · `gi: undefined` · `li: undefined` · alt `… photo NaN` | **clean** |
+| B. one photo (TS-1033) | `1 / 1` · **2 arrows** · 1 thumb | `1 / 1` · **0 arrows** · 1 thumb |
+| C. broken at load (TS-1001, `*sanity.io*` blocked before the load) | `#gi` drawn (re-kick accident); **3 thumbnails broken** (`cdn…`, nw 0) | **`#gi` drawn; 3 thumbnails drawn** |
+| D. the showroom's cards, same block | 23 imgs — **0 drawn, 23 broken** | **23 drawn, 0 broken** |
+| console errors | 2 × 404 (the `undefined` fetches) | none |
+
+`galRect` 832×499 on every leg (the box unchanged wherever it was already right). Drive
+`photo-box.mjs` (CDN block lifted in `finally`); readings `runs/task26/before.json` / `after.json`;
+Chrome 3 → 3.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ImgHTMLAttributes } from "react";
+import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
 
 /**
  * The one image the showroom and the office draw (truth 7).
@@ -9,7 +9,10 @@ import { useState, type ImgHTMLAttributes } from "react";
  * CDN that is briefly unreachable. Truth 7: "when an asset is missing or the asset store is briefly
  * unreachable, the page renders the placeholder rather than breaking." A raw `<img>` cannot do that:
  * it draws the browser's broken-image icon and moves on. So every photo goes through here, and the
- * failure is caught at the only place it is visible — the element that tried to load it.
+ * failure is caught at the only place it is visible — the element that tried to load it: an error
+ * after hydration arrives through `onError`, and one that already happened *before* hydration is
+ * read off the element itself — a finished load with no pixels (`complete && naturalWidth === 0`,
+ * DR6; the case that kept the browser's broken icon on the showroom's cards and thumbnails).
  *
  * The placeholder is a drawn stand-in, not a blank: an inline SVG (`data:` address, so it needs no
  * network and can never itself fail) on the same grey as the rest of the surface. It is used when
@@ -44,11 +47,23 @@ export type PhotoProps = ImgHTMLAttributes<HTMLImageElement> & {
 
 export function Photo({ src, alt, onError, ...rest }: PhotoProps) {
   const [failed, setFailed] = useState(false);
+  const el = useRef<HTMLImageElement | null>(null);
+
+  // A load that failed *before* hydration leaves no event behind (measured: error events fired
+  // into a document with no listener, and nothing swapped). Its outcome is still visible on the
+  // element: the load finished and produced no pixels (DR6). Checked once after mount — a
+  // still-loading image is untouched, and a later failure still arrives through `onError` below.
+  useEffect(() => {
+    const im = el.current;
+    if (im && im.complete && im.naturalWidth === 0) setFailed(true);
+  }, []);
+
   const shown = !src || failed ? PHOTO_PLACEHOLDER : src;
 
   return (
     <img
       {...rest}
+      ref={el}
       src={shown}
       alt={alt}
       // Once shown, the placeholder is sticky: swapping back to a source that is already known to

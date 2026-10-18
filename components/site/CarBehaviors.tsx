@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 
+import { PHOTO_PLACEHOLDER } from "../Photo";
+
 type Props = {
   photos: string[];
   alt: string;
@@ -161,10 +163,14 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
     });
 
     // ---- gallery ----------------------------------------------------------
+    // A car with no photos has nothing to page, count or zoom: the drawn box stands in the frame
+    // alone, and every write below is skipped so none of its arithmetic can reach the screen —
+    // no `undefined` src, no `NaN / 0`, no `photo NaN` (DR5).
     const imgs = photos;
     let gi = 0;
     let gt: number | undefined;
     const show = (i: number) => {
+      if (!imgs.length) return;
       gi = (i + imgs.length) % imgs.length;
       const im = $<HTMLImageElement>("gi");
       const g = $("gal");
@@ -182,7 +188,11 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
             void (g as HTMLElement | null)?.offsetWidth;
             g?.classList.add("go");
           };
-          im.onerror = () => im.classList.remove("sw");
+          // A driven photo that fails lands on the drawn box, like a load-time failure (DR6).
+          im.onerror = () => {
+            im.classList.remove("sw");
+            im.src = PHOTO_PLACEHOLDER;
+          };
         }
         if (li) li.src = src;
       };
@@ -210,6 +220,7 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       }),
     );
     const openLb = () => {
+      if (!imgs.length) return;
       const li = $<HTMLImageElement>("li");
       if (li) li.src = imgs[gi];
       $("lb")?.classList.add("open");

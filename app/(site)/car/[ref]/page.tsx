@@ -173,29 +173,39 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                     ) : null}
                   </div>
                   <Photo id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} />
-                  <button type="button" className="gb l" aria-label="Previous photo">
-                    <i className="fa-solid fa-chevron-left" />
-                  </button>
-                  <button type="button" className="gb r" aria-label="Next photo">
-                    <i className="fa-solid fa-chevron-right" />
-                  </button>
-                  <div className="cn" id="cn">
-                    <i className="fa-regular fa-image" /> 1 / {car.photos.length}
+                  {/* No photos: the drawn box stands alone — nothing to count, step through or
+                      thumbnail (DR5). One photo keeps its counter and loses the arrows. */}
+                  {car.photos.length > 1 ? (
+                    <>
+                      <button type="button" className="gb l" aria-label="Previous photo">
+                        <i className="fa-solid fa-chevron-left" />
+                      </button>
+                      <button type="button" className="gb r" aria-label="Next photo">
+                        <i className="fa-solid fa-chevron-right" />
+                      </button>
+                    </>
+                  ) : null}
+                  {car.photos.length > 0 ? (
+                    <div className="cn" id="cn">
+                      <i className="fa-regular fa-image" /> 1 / {car.photos.length}
+                    </div>
+                  ) : null}
+                </div>
+                {car.photos.length > 0 ? (
+                  <div className="thumbs" id="thumbs">
+                    {car.photos.map((p, i) => (
+                      <button
+                        key={p + i}
+                        type="button"
+                        className={i === 0 ? "on" : undefined}
+                        aria-label={`Photo ${i + 1}`}
+                        data-i={i}
+                      >
+                        <Photo src={p} alt="" />
+                      </button>
+                    ))}
                   </div>
-                </div>
-                <div className="thumbs" id="thumbs">
-                  {car.photos.map((p, i) => (
-                    <button
-                      key={p + i}
-                      type="button"
-                      className={i === 0 ? "on" : undefined}
-                      aria-label={`Photo ${i + 1}`}
-                      data-i={i}
-                    >
-                      <Photo src={p} alt="" />
-                    </button>
-                  ))}
-                </div>
+                ) : null}
               </div>
 
               <div className="tabs rv" id="tabs" role="tablist" aria-label="Car information">
