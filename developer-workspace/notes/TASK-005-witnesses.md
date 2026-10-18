@@ -786,3 +786,24 @@ The from-file leg drives the office's own control with `build-refused-pdf.ts` (e
 → 422, nothing stored, no asset held); the car-form leg is a refused save (`#f-mileage` unreadable,
 `#f-year` 1500, make/model blank). Drive `refusal-voice.mjs`; readings `runs/task25/before.json` /
 `after.json`; Chrome 3 → 3.
+
+## Gate F — the empty result once, the announcement, the count, the refusals (2026-10-18, live signed in)
+
+One fresh pass, `gate-f.mjs` — all read-only; the from-file leg answered **422 on the first
+attempt** (nothing stored, no asset held):
+
+| check | reading |
+|---|---|
+| region at rest, before the result changes | **empty** on a fresh load; its empty node **present in the accessibility tree, role `status`, unignored** (the `.speak:empty` collapse rule — Task 23's ground). No announcement fires on mount (a separate MutationObserver probe saw no `#speak` mutation in 12 s) |
+| zero state — the announcement | `#speak` = **"No cars match those filters."** exactly — bare: no link, no promise |
+| zero state — the promise on the screen | printed **once** ("source it in the USA" ×1, "tell me what you're after" ×1) — in the empty block only |
+| zero state — the count | `#ttl` **"0 MATCHING CARS"** · `#cnt` **"0 OF 19 CARS"** · the only clear: `#clr` "Clear all filters", filter panel |
+| zero state — unignored `status` nodes | **1** |
+| from-file refusals (fixture: two pages, every page refused) | `"Mileage" — Enter a whole number; "Doorstep price" — Enter a naira amount, e.g. 12500 or 12500.50` · `"Year" — Enter a whole number; "Was price" — Enter a naira amount…` |
+| car form, refused save | `Enter the make` · `Enter the model` · `Enter a year between 1900 and 2027` · `Enter the mileage in km` |
+
+Fresh loads leaving the region empty is the designed behavior (a load is not a change — the
+announcement answers changes; Task 22's note separates the dev StrictMode fill from production
+truth; the §Task 23 note's "no page rests empty in dev" was that session's quirk reading). The
+drive's upload leg retries on the intermittent store; none was needed. Typecheck clean ·
+`npm test` **295/295**. Drive `gate-f.mjs`; readings `runs/gate-f/readings.json`; Chrome 3 → 3.
