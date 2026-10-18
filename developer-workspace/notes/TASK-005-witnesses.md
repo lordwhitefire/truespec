@@ -545,3 +545,24 @@ Draft `deleteDraftAction → deleteDraft` is permanent with no undo; the confirm
 say `Delete` — flagged, not changed (copy outside the approved slots). No live tombstone exists
 (25 live cars, none deleted); Task 12's live removal covers that action. Typecheck clean · 295/295 ·
 no Chrome launched (6 → 6).
+
+## Task 16 — a tap outside closes only what is not destructive (2026-10-18, 375×812, live signed in)
+
+`tap-outside.mjs`; readings `runs/tap-outside/readings.json`. Real click at **(6,6)**, on the dim
+outside `.mdl` (`elementFromPoint` = the dialog). Destructive dialogs then closed through *Keep it*;
+no writes.
+
+| screen | kind | outside tap | safe / other close | focus after |
+|---|---|---|---|---|
+| office inventory | destructive | **kept open** (1 dialog) | Keep it closes | `BUTTON` opener |
+| office car form | destructive | **kept open** | Keep it closes | `BUTTON#delBtn` opener |
+| office drafts | destructive | **kept open** | Keep it closes | `BUTTON` opener |
+| office enquiry detail | non-destructive | **closes** (0 dialogs) | — | `ARTICLE` opener |
+| showroom inventory offer | non-destructive | **closes**, unmounted | — | `BODY` |
+| showroom home offer | non-destructive | **closes** | — | `BODY` |
+| showroom car offer | non-destructive | **closes** | — | `BODY` |
+
+The phone inventory hides the desktop table; the card list's own `button.ab.del` opened the
+confirmation. Body locked while open, restored after the non-destructive closes (`visible` office,
+`hidden auto` showroom). The showroom offers were verified, not edited. Typecheck clean · 295/295 ·
+no Chrome launched (6 → 6).

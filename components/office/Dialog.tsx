@@ -28,7 +28,10 @@ export function Dialog({
   labelledBy?: string;
   label?: string;
   id?: string;
-  /** Temporary: callers that closed on an outside tap before the conversion keep doing so. */
+  /**
+   * Task 16's one rule: a non-destructive dialog opts in and closes on an outside tap; a
+   * confirmation never passes this, so only Escape or its safe control can dismiss it.
+   */
   dismissOnBackdrop?: boolean;
   children: ReactNode;
 }) {

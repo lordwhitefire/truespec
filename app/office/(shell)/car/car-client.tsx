@@ -1176,7 +1176,6 @@ export function CarForm({
               onClose={() => setDelOpen(false)}
               id="ovlD"
               labelledBy="car-del-title"
-              dismissOnBackdrop
             >
               <div className="mdl">
                 <h2 id="car-del-title">Delete this car?</h2>

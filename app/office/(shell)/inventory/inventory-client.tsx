@@ -447,7 +447,6 @@ export function InventoryClient({
                 onClose={() => setDel(null)}
                 id="ovl"
                 labelledBy="dlt"
-                dismissOnBackdrop
               >
                 <div className="mdl">
                   <h2 id="dlt">Delete this car?</h2>

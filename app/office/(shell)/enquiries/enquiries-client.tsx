@@ -225,6 +225,7 @@ export function Enquiries({
                 onClose={() => setOverlay(null)}
                 id="ovlD"
                 labelledBy="dtitle"
+                dismissOnBackdrop
               >
                 <div className="mdl">
                   <button
