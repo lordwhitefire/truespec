@@ -170,7 +170,10 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
  * 2026-10-13). The store guard's retry is safe: a delete is idempotent, so a retry
  * finds the car already tombstoned and leaves it — it does not write a second event.
  */
-export async function deleteCar(carId: string): Promise<DeleteCarResult> {
+export async function deleteCar(
+  carId: string,
+  opts: { revalidate?: boolean } = {},
+): Promise<DeleteCarResult> {
   const session = await requireOfficeSession();
   if (!UUID.test(carId)) {
     return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
@@ -186,7 +189,13 @@ export async function deleteCar(carId: string): Promise<DeleteCarResult> {
   const ref = attempt.rows[0]?.ref;
   if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
 
-  revalidateCarPaths();
+  // The car form's own delete holds its undo offer on the page it stands on, and revalidating
+  // `/office/car` would re-render that page mid-offer — the car is a tombstone now, so the
+  // editor route answers 404 and the offer would be unmounted before anyone could take it. It
+  // passes `revalidate: false`; both ways out of the offer land on a fresh render anyway — undo
+  // revalidates below, and the window's end navigates to the inventory, which fetches fresh.
+  // Every other caller keeps the default: the car leaves every screen at once.
+  if (opts.revalidate !== false) revalidateCarPaths();
   return { ok: true, ref };
 }
 

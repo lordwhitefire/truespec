@@ -659,3 +659,22 @@ The live tree carried the owner's uncommitted `TapNotice` link (a real `<a>`); t
 constructed blob of `OfficeTopbar.tsx` with only the Task 18 change, so the owner's hunks stay
 uncommitted. `office.css` needed no change (nothing targeted the placeholder; `.ico` is shared).
 Typecheck clean · 295/295 · notes `TASK-005-task18.md`.
+
+## Task 19 — the car form's delete really deletes (2026-10-18, live signed in)
+
+`car-delete-offer.mjs`; readings `runs/task19/readings.json`. Two throwaways created through the
+form and both removed for good by the end; **net-zero 25 → 25**; Chrome 6 → 6 (attach-only).
+
+| leg | reading |
+|---|---|
+| 1 · delete → offer → undo → reload | tombstone set; offer *“… A 2020 deleted.”* with Undo visible and the bar mounted (`undodrain` / **8000 ms**); `#delBtn` hidden; Undo → toast *“… restored.”*, **store** `deleted_at = null`, **full reload** shows the car (brand field, delete button back) |
+| 2 · delete → window expires | scaleX sampled `1.000 → 0.858 → 0.756 → 0.656 → 0.554 → 0.454`; window ran out in **8 451 ms** (the bar's own end); pushed to `/office/inventory`; tombstone set, listed, removed for good |
+| 3 · cleanup | the undo test's car deleted again, window ran out, tombstone removed for good |
+| net | **25 → 25** |
+
+The drive found a real defect first: `deleteCar`'s `revalidateCarPaths()` re-rendered the current
+editor route, and a tombstoned car's editor answers 404 — the page was read live as
+*“THAT PAGE ISN'T IN THE OFFICE”* with the offer unmounted (case 1 only passed by winning the race;
+case 2, which sampled the bar first, lost it). The action now takes `{ revalidate: false }`, passed
+by the car form only; both ways out of the offer land on fresh renders (undo revalidates; expiry
+navigates to the inventory). Typecheck clean · 295/295 · notes `TASK-005-task19.md`.

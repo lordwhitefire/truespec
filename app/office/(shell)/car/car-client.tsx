@@ -9,7 +9,15 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { createCar, updateCar, type CreateCarResult, type UpdateCarResult } from "../../actions/car";
+import { useRouter } from "next/navigation";
+import {
+  createCar,
+  deleteCar,
+  undoDeleteCar,
+  updateCar,
+  type CreateCarResult,
+  type UpdateCarResult,
+} from "../../actions/car";
 import { Dialog } from "@/components/office/Dialog";
 import { uploadCarPhoto } from "../../actions/photo";
 import {
@@ -308,8 +316,25 @@ export function CarForm({
   const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
   const formErrRef = useRef<HTMLDivElement | null>(null);
+  // The delete offer on this screen (Task 19): off until the store confirms the delete, then
+  // the same 8-second window the inventory offers, with the same bar and the same restore.
+  const [undoOn, setUndoOn] = useState(false);
+  const undoRef = useRef<{ id: string; label: string } | null>(null);
+  const [reduced, setReduced] = useState(false);
+  const [, startDelete] = useTransition();
+  const router = useRouter();
 
   useEffect(() => setMounted(true), []);
+
+  // Motion preference, read in the browser: under reduced motion the bar does not run — the
+  // same measure stays on screen as a static "8 s" label (Task 11), and the timer is the clock.
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(
     () => () => {
@@ -368,11 +393,72 @@ export function CarForm({
   }, [result]);
 
   const showToast = (html: string) => {
+    // A plain message supersedes any delete offer (there is nothing to undo behind it).
+    setUndoOn(false);
+    undoRef.current = null;
     setToastMsg(html);
     setToastShow(true);
     if (tmr.current) window.clearTimeout(tmr.current);
     tmr.current = window.setTimeout(() => setToastShow(false), 6000);
   };
+
+  // The delete offer is the inventory's, on this screen (Task 19): the same window, the same
+  // bar — its own animation end is the clock (Task 10) — and the same restore. When the window
+  // closes with no undo the car is a tombstone and this form has no car left to hold; the
+  // office inventory is where a tombstone is dealt with.
+  function closeOffer() {
+    if (tmr.current) window.clearTimeout(tmr.current);
+    tmr.current = null;
+    setToastShow(false);
+    setUndoOn(false);
+    undoRef.current = null;
+  }
+
+  function expireOffer() {
+    closeOffer();
+    router.push("/office/inventory");
+  }
+
+  function showOffer(html: string) {
+    setToastMsg(html);
+    setToastShow(true);
+    if (tmr.current) window.clearTimeout(tmr.current);
+    // The bar's own end is the clock; this timeout is the failsafe, deliberately longer than
+    // the window (Task 12). Under reduced motion there is no bar: this timer is the clock and
+    // the static "8 s" label is the measure (Task 11).
+    tmr.current = window.setTimeout(expireOffer, reduced ? 8000 : 12_000);
+  }
+
+  function doDelete() {
+    const id = data.carId;
+    if (!id) return;
+    startDelete(async () => {
+      // `revalidate: false`: this page is the one holding the offer, and the car it belongs to is
+      // about to be a tombstone — the action's revalidation would swap this editor out for the
+      // office 404 while the offer was still running (see `deleteCar`). Undo revalidates, and the
+      // window's end lands on the inventory, which is fetched fresh.
+      const res = await deleteCar(id, { revalidate: false });
+      if (!res.ok) {
+        showToast(res.errors[0]?.message ?? "That car could not be deleted.");
+        return;
+      }
+      const label = `${data.brand} ${data.model} ${data.year}`.replace(/\s+/g, " ").trim();
+      undoRef.current = { id, label };
+      setUndoOn(true);
+      showOffer(`${label} deleted.`);
+    });
+  }
+
+  function undoDelete() {
+    const car = undoRef.current;
+    if (!car) return;
+    setUndoOn(false);
+    showToast(`${car.label} restored.`);
+    startDelete(async () => {
+      const res = await undoDeleteCar(car.id);
+      if (!res.ok) showToast(res.errors[0]?.message ?? "That car could not be restored.");
+    });
+  }
 
   // The form is a real form: every field carries its stored column's name, so the
   // Server Action reads exactly what the browser sent and nothing is invented on the
@@ -501,7 +587,7 @@ export function CarForm({
             className="btn danger"
             id="delBtn"
             type="button"
-            hidden={!isEdit}
+            hidden={!isEdit || undoOn}
             onClick={() => setDelOpen(true)}
           >
             <i className="fa-solid fa-trash-can" /> Delete
@@ -1228,7 +1314,7 @@ export function CarForm({
                     id="delYes"
                     onClick={() => {
                       setDelOpen(false);
-                      showToast("Car deleted (demo).");
+                      doDelete();
                     }}
                   >
                     Delete
@@ -1249,7 +1335,8 @@ export function CarForm({
               <button
                 type="button"
                 id="tundo"
-                hidden
+                hidden={!undoOn}
+                onClick={undoDelete}
                 style={{
                   background: "none",
                   border: 0,
@@ -1261,6 +1348,26 @@ export function CarForm({
               >
                 Undo
               </button>
+              {/* The offer's clock, the inventory's (Task 10): the bar drains for exactly the
+                  8000 ms window and its own animation end closes the offer. aria-hidden — the
+                  offer's words carry the meaning; under reduced motion a static "8 s" is the
+                  same measure in words (Task 11). */}
+              {undoOn ? (
+                reduced ? (
+                  <span className="usec" aria-hidden="true">
+                    8 s
+                  </span>
+                ) : (
+                  <span className="utick" aria-hidden="true">
+                    <span
+                      className="ubar"
+                      onAnimationEnd={(e) => {
+                        if (e.animationName === "undodrain") expireOffer();
+                      }}
+                    />
+                  </span>
+                )
+              ) : null}
             </div>
           </>,
           document.body,
