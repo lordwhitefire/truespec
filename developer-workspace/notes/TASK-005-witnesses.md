@@ -637,3 +637,25 @@ pointer gesture. The showroom home's dialog is the exit-intent *Before you go* (
 welcome artifact noted in Task 14), not the welcome. `dialogs.mjs` opens the drafts dialog without
 deleting a draft; `focus.mjs` and `tap-outside.mjs` write nothing. Gate D added no source change, so
 Task 17's `npm run typecheck` clean · **295/295** still stands.
+
+## Task 18 — the dead Search control goes (2026-10-18, 375×812, live signed in)
+
+`topbar-search.mjs`; readings `runs/task18/readings.json`. Read-only; viewport restored; no Chrome
+launched (6 → 6).
+
+| route | `.topbar` controls (all `<a>` with `href`) | search |
+|---|---|---|
+| `/office` | Settings · WhatsApp taps | none |
+| `/office/inventory` | Settings · WhatsApp taps | none |
+| `/office/activity` | Settings · WhatsApp taps | none |
+| `/office/settings` | Dashboard · WhatsApp taps | none |
+
+`.topbar` is `display:flex` at 375; every control is an anchor with a destination
+(`allReal=true`), nothing `searchish`, the brand a `<span>`. Search still lives where it filters:
+inventory `#q` `TS-1001` → **1** card of 25 (desktop table `display:none` at this width); activity
+`#q` `removed` → **12 of 80** entries. Both cleared after.
+
+The live tree carried the owner's uncommitted `TapNotice` link (a real `<a>`); the commit stages a
+constructed blob of `OfficeTopbar.tsx` with only the Task 18 change, so the owner's hunks stay
+uncommitted. `office.css` needed no change (nothing targeted the placeholder; `.ico` is shared).
+Typecheck clean · 295/295 · notes `TASK-005-task18.md`.
