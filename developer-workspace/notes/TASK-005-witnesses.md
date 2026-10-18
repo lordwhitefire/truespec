@@ -394,3 +394,22 @@ No Chrome launched (6 → 6). Typecheck clean · 295/295.
 | browser, signed in — office | `/office/nonsense` and `/office/car/nonsense-ref` **404** · the office view inside the shell — 11/11 verdicts |
 
 Drives: `car-404.mjs`, `office-404.mjs` (`runs/car-404/`, `runs/office-404/`). No Chrome launched (6 → 6).
+
+## Task 10 — the undo offer shows eight seconds draining (2026-10-18, dev `:3210`, live store, signed in)
+
+`undo-bar.mjs`; readings in `runs/undo-bar/t10.json`. Throwaway demo car **TS-1038** (created
+through the office's own form, deleted through the inventory, removed for good at the end).
+
+| reading | value |
+|---|---|
+| the bar's registered timing | `duration 8000` · `iterations 1` · `easing linear` · `fill forwards` |
+| the drain (in-page sampler, every 100 ms) | `scaleX` **1 → 0** · the animation's own clock **0 → 8016 ms** |
+| the drain's rate | exactly **8000 ms per unit**, linear (0.848 @ 1 217 ms · 0.473 @ 4 216 ms · 0.098 @ 7 216 ms) |
+| the offer closed | at the animation's end: bar gone, toast down, Undo gone — `shown false`, `undo false` |
+| window, animation start → close | **8 524 ms** (8 000 + 524 ms commit/paint lag on the busy dev thread) — the 10 000 ms failsafe never won |
+| the store after expiry | **tombstone** (`deleted_at` set) and listed in *“Waiting to be cleared”* |
+| removal for good | row gone · section unmounted · store row **absent** · live count **25 → 25** |
+| the start gap (handed to Task 11) | bar's element in the DOM at t=4 094; animation `startTime` t=5 775 — **1 681 ms** of full bar with the clock not yet running |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295. One earlier throwaway (TS-1037) was created
+and removed while correcting the drive; store read back, count unchanged.

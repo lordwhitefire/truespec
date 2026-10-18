@@ -172,15 +172,21 @@ export function InventoryClient({
     setDel(c);
   }
 
+  // One close for the offer and the toast it lives in: the bar's own end and the failsafe
+  // timeout both land here (Task 10).
+  function closeOffer() {
+    if (tmrRef.current) window.clearTimeout(tmrRef.current);
+    tmrRef.current = null;
+    setToastMsg(null);
+    setUndoOn(false);
+    undoRef.current = null;
+  }
+
   function showToast(message: string, isError: boolean, ms: number) {
     if (tmrRef.current) window.clearTimeout(tmrRef.current);
     setToastErr(isError);
     setToastMsg(message);
-    tmrRef.current = window.setTimeout(() => {
-      setToastMsg(null);
-      setUndoOn(false);
-      undoRef.current = null;
-    }, ms);
+    tmrRef.current = window.setTimeout(closeOffer, ms);
   }
 
   // Delete is a real write now (truth 6): the car is tombstoned on the server, so it
@@ -202,8 +208,11 @@ export function InventoryClient({
       undoRef.current = car;
       setUndoOn(true);
       // The undo offer lasts exactly the spec's 8-second window; when it closes the car
-      // is a tombstone, and it is listed as waiting to be cleared.
-      showToast(`${car.name} ${car.year} deleted.`, false, 8000);
+      // is a tombstone, and it is listed as waiting to be cleared. The window's clock is
+      // the bar's own animation (Task 10) — its end closes the offer. This timeout is
+      // only the failsafe: deliberately longer than the window, so it can never be the
+      // thing that closes the offer first.
+      showToast(`${car.name} ${car.year} deleted.`, false, 10_000);
     });
   }
 
@@ -463,6 +472,20 @@ export function InventoryClient({
                 <button type="button" id="undo" onClick={undo} hidden={!undoOn}>
                   Undo
                 </button>
+                {/* The offer's clock: a bar that starts full and drains for exactly the 8000 ms
+                    window; its own end closes the offer (Task 10). aria-hidden — the offer's
+                    words carry the meaning; the bar is the measure. It mounts with the offer,
+                    so every offer gets a fresh bar. */}
+                {undoOn ? (
+                  <span className="utick" aria-hidden="true">
+                    <span
+                      className="ubar"
+                      onAnimationEnd={(e) => {
+                        if (e.animationName === "undodrain") closeOffer();
+                      }}
+                    />
+                  </span>
+                ) : null}
               </div>
             </>,
             document.body,
