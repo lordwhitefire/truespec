@@ -526,3 +526,22 @@ Names from `ariaSnapshot`: *Delete this car? · Delete this draft? · Enquiry ·
 Enter bug found live: an enquiry card opened the dialog and the same keystroke pressed the
 just-focused Close (`open true@7322`, `false@7344`, `close@8165`); `preventDefault` on the card's
 Enter branch fixes it. Typecheck clean · 295/295 · no Chrome launched (6 → 6).
+
+## Task 15 — destructive actions named and ordered (2026-10-18, dev `:3210`, live signed in)
+
+`destructive-labels.mjs`; readings `runs/destructive-labels/readings.json`. Read-only — every
+dialog closed through its safe control (or Escape); nothing written.
+
+| dialog | first (safe) | second (destructive) | class | name |
+|---|---|---|---|---|
+| drafts | `Keep it` | **`Remove for good`** | `btn` | Delete this draft? |
+| inventory | `Keep it` | `Delete` | `btn2 danger` | Delete this car? |
+| car form | `Keep it` | `Delete` | `btn2 danger` | Delete this car? |
+| enquiry detail | — | no destructive action (five state buttons) | — | Enquiry |
+| tombstone (source; 0 live rows) | `Keep it` | `Remove for good` | `btn2 danger` | inline confirm |
+
+Draft `deleteDraftAction → deleteDraft` is permanent with no undo; the confirmation now says
+`Remove for good` and the safe control is first. Entry words (card trigger, dialog question) still
+say `Delete` — flagged, not changed (copy outside the approved slots). No live tombstone exists
+(25 live cars, none deleted); Task 12's live removal covers that action. Typecheck clean · 295/295 ·
+no Chrome launched (6 → 6).

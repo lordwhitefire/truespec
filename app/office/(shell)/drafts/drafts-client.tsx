@@ -416,12 +416,14 @@ function DraftRow({
             finds it.
           </p>
           <div className="mrow">
-            <button type="button" className="btn" onClick={remove} disabled={pending}>
-              <i className="fa-solid fa-trash-can" aria-hidden="true" />
-              {pending ? "Deleting…" : "Delete draft"}
-            </button>
+            {/* The safe way out comes first; the draft is the one deletion that cannot be undone
+                (owner's ruling 2026-10-17), so its action carries the permanent words. */}
             <button type="button" className="btn gh" onClick={() => setDelOpen(false)} disabled={pending}>
               Keep it
+            </button>
+            <button type="button" className="btn" onClick={remove} disabled={pending}>
+              <i className="fa-solid fa-trash-can" aria-hidden="true" />
+              {pending ? "Removing…" : "Remove for good"}
             </button>
           </div>
         </div>
