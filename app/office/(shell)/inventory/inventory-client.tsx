@@ -117,12 +117,23 @@ export function InventoryClient({
   const qRef = useRef<HTMLInputElement>(null);
   const undoRef = useRef<InventoryRow | null>(null);
   const tmrRef = useRef<number | null>(null);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     return () => {
       if (tmrRef.current) window.clearTimeout(tmrRef.current);
     };
+  }, []);
+
+  // Motion preference, read in the browser: under reduced motion the bar does not run — the
+  // same measure stays on screen as a static "8 s" label (Task 11).
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   useEffect(() => {
@@ -209,10 +220,11 @@ export function InventoryClient({
       setUndoOn(true);
       // The undo offer lasts exactly the spec's 8-second window; when it closes the car
       // is a tombstone, and it is listed as waiting to be cleared. The window's clock is
-      // the bar's own animation (Task 10) — its end closes the offer. This timeout is
-      // only the failsafe: deliberately longer than the window, so it can never be the
-      // thing that closes the offer first.
-      showToast(`${car.name} ${car.year} deleted.`, false, 10_000);
+      // the bar's own animation (Task 10) — its end closes the offer — and this timeout
+      // is only the failsafe: deliberately longer than the window, so it can never be the
+      // thing that closes the offer first. Under reduced motion there is no bar to run:
+      // the static "8 s" label is the measure, and this timer is the clock (Task 11).
+      showToast(`${car.name} ${car.year} deleted.`, false, reduced ? 8000 : 10_000);
     });
   }
 
@@ -475,16 +487,24 @@ export function InventoryClient({
                 {/* The offer's clock: a bar that starts full and drains for exactly the 8000 ms
                     window; its own end closes the offer (Task 10). aria-hidden — the offer's
                     words carry the meaning; the bar is the measure. It mounts with the offer,
-                    so every offer gets a fresh bar. */}
+                    so every offer gets a fresh bar. Under reduced motion the motion is replaced
+                    by the same measure in words — a static "8 s" — and the timer above is the
+                    clock (Task 11). */}
                 {undoOn ? (
-                  <span className="utick" aria-hidden="true">
-                    <span
-                      className="ubar"
-                      onAnimationEnd={(e) => {
-                        if (e.animationName === "undodrain") closeOffer();
-                      }}
-                    />
-                  </span>
+                  reduced ? (
+                    <span className="usec" aria-hidden="true">
+                      8 s
+                    </span>
+                  ) : (
+                    <span className="utick" aria-hidden="true">
+                      <span
+                        className="ubar"
+                        onAnimationEnd={(e) => {
+                          if (e.animationName === "undodrain") closeOffer();
+                        }}
+                      />
+                    </span>
+                  )
                 ) : null}
               </div>
             </>,

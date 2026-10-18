@@ -413,3 +413,24 @@ through the office's own form, deleted through the inventory, removed for good a
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295. One earlier throwaway (TS-1037) was created
 and removed while correcting the drive; store read back, count unchanged.
+
+## Task 11 — the bar's mechanics are constrained (2026-10-18, dev `:3210`, live store, signed in)
+
+`undo-mechanics.mjs`; readings in `runs/undo-mechanics/live.json`. Two throwaways: **TS-1041**
+(normal motion), **TS-1042** (reduced motion); both removed for good; net-zero.
+
+| reading | value |
+|---|---|
+| normal — `aria-hidden` | **true** on the bar's strip |
+| normal — the motion | keyframes carry `transform` only (no `width`); bar layout width **held** |
+| normal — layout | toast's layout box **held** · document scroll height **held** · bar width **held** across the drain |
+| normal — registered / curve | `8000 ms · 1 · linear`; `scaleX = 1 − elapsed/8000` at **every** sample (±0.02) |
+| normal — the clock's start | click t=1 661 → offer t=3 988 → **animation start t=5 691, on a logged frame**; offer→clock 1 703 ms, click→close **12 366 ms ≠ 8 000** |
+| normal — frame cadence | **1 017 ms** between frames (this automation tab) — why the start lags the DOM |
+| normal — window | clock → close **8 336 ms**; tombstoned, listed, removed |
+| reduced — the preference | seen (`matchMedia` true) |
+| reduced — the bar's place | **no `.ubar` ever**, **no animations (0)**, static label **“8 s”** |
+| reduced — window | **8 067 ms** offer-up → closed; Undo offered throughout; tombstoned, listed, removed |
+| net-zero | live car count **25 → 25** |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295.

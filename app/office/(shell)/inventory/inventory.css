@@ -151,6 +151,9 @@ tr.soldrow td{opacity:.62}
 .utick{position:absolute;left:0;right:0;bottom:0;height:3px;overflow:hidden}
 .ubar{display:block;height:100%;background:var(--gold);transform-origin:left;animation:undodrain 8000ms linear forwards}
 @keyframes undodrain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+/* reduced motion (Task 11): the same measure in words — the offer's clock is the timer, the
+   bar never runs. Quiet, gold, beside the words it belongs to. */
+.usec{font-size:12px;color:var(--gold);letter-spacing:.05em;white-space:nowrap;font-variant-numeric:tabular-nums}
 .toast.show{transform:translate(-50%,0)}
 .toast button{background:none;border:0;color:var(--gold);font-weight:700;font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;text-decoration:underline}
 .toast button:hover{color:#f0c45a}
