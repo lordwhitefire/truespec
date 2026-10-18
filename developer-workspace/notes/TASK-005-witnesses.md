@@ -712,3 +712,19 @@ One rule, moved: `.nav .wab { display: none; }` left the car page's sheet and no
 same width behaves the same on every showroom page. `SiteFab.tsx` unchanged (Files-line
 discrepancy: DR15 leaves the fab car-page-absent — the car page's bar is its phone chat).
 Typecheck clean · 295/295 · notes `TASK-005-task21.md`.
+
+## Gate E — the More sheet, the dead Search, the car form's delete+undo (2026-10-18, live signed in)
+
+Aggregated for the gate; every line was read live. Attach-only drives — none launched a Chrome
+(this session's Chrome was started once by the owner's instruction after the shutdown; the drive
+guards read 3 → 3 / 4 → 4 / 6 → 6 throughout).
+
+| item | widths | reading |
+|---|---|---|
+| More sheet paths + current marking | 375 / 768 / 1280 | §Task 20 — open `:modal` “More”, focus entered “Drafts”, rows `[Drafts, Activity log, Settings]`, the Tab cycle stays inside, Escape / outside tap / choice all close, current row marked on drafts/activity/settings; at 1280 `.bnav` `none` and the sidebar reads the same order/wording |
+| dead Search gone | 375 / 768 / 1280 | `topbar-search.mjs` (375: four routes, top bar all-`<a>`, inventory/activity filtering works) + `gate-e-widths.mjs`: at 375/768 the top bar is `display:flex` with **0 buttons and 0 search-ish controls** — only real destinations (Settings link, taps badge); at 1280 the top bar is `display:none` |
+| car form’s delete+undo real | 375 (+ desktop in §Task 19) | `car-delete-offer.mjs` `VIEWPORT=375`: tombstone → offer with the bar (`undodrain` 8000 ms) → Undo → store `deleted_at = null` + full reload shows the car; second throwaway: scaleX `1.000 → 0.467`, window ended **8 461 ms** → pushed, tombstone listed, removed for good; cleanup leg; **net-zero 25 → 25** |
+| delete dialog affordance | 375 / 768 / 1280 | `gate-e-widths.mjs`: `#delBtn` visible; dialog opens `:modal` “Delete this car?”; **Keep it** closes; focus returns to `#delBtn` |
+
+Readings: `runs/gate-e/readings.json`, `runs/gate-e-car-375/readings.json`, `runs/task19/`,
+`runs/task20/`, `runs/task18/`. Typecheck clean · 295/295 (no source change since Task 21).

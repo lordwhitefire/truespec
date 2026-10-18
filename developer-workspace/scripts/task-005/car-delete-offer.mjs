@@ -14,7 +14,9 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { BASE, attach, assertOurs, detach, guardCount, chromiumCount, twoTabs } from "./_lib.mjs";
 
-const RUNS = new URL("./runs/task19/", import.meta.url).pathname;
+const RUNS = process.env.RUNS_DIR
+  ? new URL(`./${process.env.RUNS_DIR}/`, import.meta.url).pathname
+  : new URL("./runs/task19/", import.meta.url).pathname;
 mkdirSync(RUNS, { recursive: true });
 
 const env = readFileSync(new URL("../../../.env.local", import.meta.url), "utf8");
@@ -151,9 +153,18 @@ async function deleteFromForm(page, ref) {
   return { before, delBtnVisible, offered, offer, deleted };
 }
 
+let restoreViewport = null;
 try {
   await assertOurs(browser);
   const { b: page } = await twoTabs(browser);
+  // Optional width for gate runs: `VIEWPORT=375 node car-delete-offer.mjs`. The tab is ours; the
+  // human's 1440×900 is restored on the way out.
+  if (process.env.VIEWPORT) {
+    const width = Number(process.env.VIEWPORT);
+    await page.setViewportSize({ width, height: width <= 560 ? 812 : width <= 820 ? 1024 : 900 });
+    r.viewport = width;
+    restoreViewport = () => page.setViewportSize({ width: 1440, height: 900 });
+  }
   const countBefore = await liveCount();
   r.countBefore = countBefore;
 
@@ -376,6 +387,7 @@ try {
   console.log(`net-zero: ${countBefore} → ${r.net.countAfter} → ${r.net.pass ? "PASS" : "FAIL"}`);
   console.log(`TASK 19: ${r.pass ? "PASS" : "FAIL"}`);
 } finally {
+  if (restoreViewport) await restoreViewport().catch(() => {});
   if (!r.pass) {
     for (const c of r.created) {
       if (!c.ref) continue;
