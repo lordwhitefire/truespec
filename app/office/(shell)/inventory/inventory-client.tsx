@@ -221,10 +221,13 @@ export function InventoryClient({
       // The undo offer lasts exactly the spec's 8-second window; when it closes the car
       // is a tombstone, and it is listed as waiting to be cleared. The window's clock is
       // the bar's own animation (Task 10) — its end closes the offer — and this timeout
-      // is only the failsafe: deliberately longer than the window, so it can never be the
-      // thing that closes the offer first. Under reduced motion there is no bar to run:
-      // the static "8 s" label is the measure, and this timer is the clock (Task 11).
-      showToast(`${car.name} ${car.year} deleted.`, false, reduced ? 8000 : 10_000);
+      // is only the failsafe, deliberately longer than the window so it can never be the
+      // thing that closes the offer first. It carries a wide margin (4 s) because the
+      // animation's clock waits for a rendering frame, and a stalled frame must not hand
+      // the close to the failsafe (measured: a 1 fps tab ate 2.1 s of the old 2 s margin;
+      // Task 12). Under reduced motion there is no bar to run: the static "8 s" label is
+      // the measure, and this timer is the clock (Task 11).
+      showToast(`${car.name} ${car.year} deleted.`, false, reduced ? 8000 : 12_000);
     });
   }
 

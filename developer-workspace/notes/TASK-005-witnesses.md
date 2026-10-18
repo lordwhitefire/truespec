@@ -434,3 +434,21 @@ and removed while correcting the drive; store read back, count unchanged.
 | net-zero | live car count **25 → 25** |
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Task 12 — the end of the window is true (2026-10-18, dev `:3210`, live store, signed in)
+
+`undo-expiry.mjs`; readings in `runs/undo-expiry/live.json`. Throwaway **TS-1046**, created through
+the office, deleted, expired, then removed for good; net-zero.
+
+| reading | value |
+|---|---|
+| offer up t=3 891 → clock t=4 666 (775 ms) → gone t=13 202 | clock window **8 536 ms** · offer window 9 311 ms |
+| closers | animation's own end t=**12 666** · failsafe due t=**15 891** → **animation**, by 3.2 s |
+| the bar at its end | animation `currentTime` **8 000 ms**, still mounted — then the close |
+| after expiry | `#undo` present, **hidden** · toast down · bar **absent** · label **absent** |
+| the deletion stands | tombstone `deleted_at` `2026-10-18T03:36:10.670Z` · live table rows **0** · live count = baseline |
+| nothing hard-erases (SD10) | same `deleted_at` after a further 4 s · tombstone count unchanged · still listed after a reload |
+| the owner clears it | **Remove for good** → store **null** · live count **25 → 25** |
+| the failsafe's margin (found here) | old 10 000 ms was 2 000 ms over the window; a 1 fps tab ate up to 2.1 s of it (first run: offer window **10 267 ms**) — widened to **12 000 ms**, re-verified above |
+
+No Chrome launched (6 → 6). Typecheck clean · 295/295.
