@@ -192,7 +192,8 @@ body.lock { overflow: hidden; }
   .mbar { display: flex; }
   .gb { opacity: 1; width: 40px; height: 40px; }
   .main { padding-bottom: 90px; }
-  .nav .wab { display: none; }
+  /* `.nav .wab` is hidden here too, but the rule lives in reference.css now —
+     it applies to every showroom page, not just this one (DR15). */
   .tick { display: none; }
 }
 @media (max-width: 560px) {

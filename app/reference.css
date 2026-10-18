@@ -263,6 +263,12 @@ a.fab { display: none; }
   .sv .ha.l { left: 6px; }
   .sv .ha.r { right: 6px; }
   a.fab { display: grid; }
+  /* One piece of chrome, one behaviour (DR15): at phone widths the nav's chat
+     control is hidden on EVERY showroom page. The phone already affords chat
+     elsewhere — the floating button on home and inventory, the car page's own
+     bar — so nothing is lost. (This used to live in the car page's sheet only,
+     which made the same chrome behave two ways at the same width.) */
+  .nav .wab { display: none; }
   .sv .st a { display: none; }
   .sv .sl { padding: 0; }
   .tick { display: none; }

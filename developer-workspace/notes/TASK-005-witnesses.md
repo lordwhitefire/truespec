@@ -696,3 +696,19 @@ Mechanism: cell is a real control (`aria-expanded`/`aria-haspopup="dialog"`/`ari
 path and close the sheet on choice. Styles travel with the shell component in the new
 `MoreSheet.css` — `office.css` is not loaded shell-wide and needed no change (Files-line
 discrepancy, recorded). Typecheck clean · 295/295 · notes `TASK-005-task20.md`.
+
+## Task 21 — the nav chat control behaves the same at every width (2026-10-18, live signed in)
+
+`showroom-chat.mjs`; readings `runs/task21/readings.json`. Read-only; Chrome 6 → 6 (attach-only).
+
+| width | reading |
+|---|---|
+| 375 | nav chat hidden on **home, inventory, car** (the same); floating fab visible on home + inventory, absent on the car page (DR15); car's own `.mbar` `display:flex`, and it comes up on scroll (`show` true) |
+| 768 | nav chat hidden on all three; `.mbar` flex |
+| 1440 | nav chat **visible** on all three; fab `display:none`; `.mbar` `none` |
+
+One rule, moved: `.nav .wab { display: none; }` left the car page's sheet and now lives in
+`reference.css`'s `@media (max-width: 820px)` block (imported once by the `(site)` layout), so the
+same width behaves the same on every showroom page. `SiteFab.tsx` unchanged (Files-line
+discrepancy: DR15 leaves the fab car-page-absent — the car page's bar is its phone chat).
+Typecheck clean · 295/295 · notes `TASK-005-task21.md`.
