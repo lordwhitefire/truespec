@@ -129,16 +129,15 @@ export function InventoryBrowser({
     window.history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : ""));
   }, [status, make, year, color, min, max, sort, view]);
 
-  const announce = useCallback(
-    (n: number) => {
-      speak(
-        n
-          ? `<b>${n} car${n === 1 ? "" : "s"} match</b> — every price is the full doorstep price.`
-          : `Nothing matches those filters. <a target="_blank" rel="noopener noreferrer" href="${waSource}">Tell me what you're after</a> and I'll source it in the USA.`,
-      );
-    },
-    [waSource],
-  );
+  // Umar's answer carries the fact that changed, not the pitch (DR8). At zero that is the bare
+  // result; the sourcing promise lives on the page, in the empty block below — not in the region.
+  const announce = useCallback((n: number) => {
+    speak(
+      n
+        ? `<b>${n} car${n === 1 ? "" : "s"} match</b> — every price is the full doorstep price.`
+        : "No cars match those filters.",
+    );
+  }, []);
 
   const clearAll = () => {
     setStatus(new Set());
@@ -579,7 +578,7 @@ export function InventoryBrowser({
   );
 }
 
-const SAY_EMPTY = "Nothing here yet — tell me the car you're after and I'll source it in the USA.";
+const SAY_EMPTY = "No cars match those filters. Tell me what you're after and I'll source it in the USA.";
 const SAY_EMPTY_BTN = "Message me on WhatsApp";
 
 function parsePrice(v: string): number | null {

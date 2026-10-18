@@ -728,3 +728,17 @@ guards read 3 → 3 / 4 → 4 / 6 → 6 throughout).
 
 Readings: `runs/gate-e/readings.json`, `runs/gate-e-car-375/readings.json`, `runs/task19/`,
 `runs/task20/`, `runs/task18/`. Typecheck clean · 295/295 (no source change since Task 21).
+
+## Task 22 — the empty result says it once (2026-10-18, live, read-only)
+
+| reading (showroom over-filtered to zero) | before | after |
+|---|---|---|
+| promise printings on the screen | **2** — `#speak` + the empty block | **1** — the empty block |
+| `#speak` at zero | the full promise **with an `<a>`** | **“No cars match those filters.”**, no link |
+| empty block | “Nothing here yet — tell me the car you're after and I'll source it in the USA.” | **“No cars match those filters. Tell me what you're after and I'll source it in the USA.”** |
+| heading · count · clear | 0 MATCHING CARS · 0 OF 19 CARS · `#clr` in the filter panel only | unchanged |
+
+Office byte-identical before/after (the office sections of the two readings files are identical;
+no office file in the diff): *“No cars match. Clear the search or pick another state.”* +
+“Clear filters”; count “0 of 25 cars match”. Readings `runs/task22/before.json` / `after.json`;
+drive `empty-result.mjs`; Chrome 3 → 3.
