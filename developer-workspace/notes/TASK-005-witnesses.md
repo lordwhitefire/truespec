@@ -566,3 +566,35 @@ The phone inventory hides the desktop table; the card list's own `button.ab.del`
 confirmation. Body locked while open, restored after the non-destructive closes (`visible` office,
 `hidden auto` showroom). The showroom offers were verified, not edited. Typecheck clean · 295/295 ·
 no Chrome launched (6 → 6).
+
+## Task 17 — focus survives a removal and a refusal (2026-10-18, dev `:3210`, live signed in)
+
+`focus-removal-refusal.mjs`; readings `runs/task17/readings.json`. Two throwaway demo cars
+(**TS-1047**, **TS-1048**) created through the office's own form, used, undone after each removal,
+then removed for good through the tombstones section — **net-zero 25 → 25**, both refs absent at
+the end. The list was filtered to the two throwaways so each case was deterministic; the client
+focuses from the visible (filtered) `list`.
+
+| case | action | focus after | pass |
+|---|---|---|---|
+| middle row | delete TS-1047 (first of the two visible) | `BUTTON.ab.del`, `data-car-id` = TS-1048's id — the next row's equivalent control | ✓ |
+| last row | delete TS-1048 (last of the two visible) | `H1#inv-h` — the list's heading | ✓ |
+| client refusal | price `abc`, was-price `def`; submit | `INPUT#f-price` (first visible `aria-invalid` in DOM order; `f-price` then `f-was`) | ✓ |
+| server field refusal | add form, brand empty; submit | `INPUT#f-brand`; block *“Could not save. Enter the make”* | ✓ |
+| form-level refusal | edit TS-1001, hidden `carId` tampered to `not-a-car-id`; submit | `DIV#formErr` (*“Could not save. This car could not be identified”*); the car's `updated_at` unchanged | ✓ |
+
+Delete flows were keyboard-only: focus the row's delete control, Enter; the platform puts focus on
+*Keep it*; Tab to *Delete*; Enter. The reading is taken after the row leaves. Undo restored each
+row. The refusal cases wrote nothing: the client case returns before the Server Action; the
+empty-brand add is refused before any insert; the tampered-id edit is refused before any update.
+
+Mechanism: both inventory delete controls carry `data-car-id`; `confirmDelete` records the next
+visible row's id (or `heading`) before the optimistic removal; a `useEffect` on `rows` runs one task
+after the native dialog's close (which first tries to restore focus to the removed opener) and
+focuses the next visible delete control or `#inv-h`. `inventory/page.tsx`'s `<h1>Inventory</h1>`
+gained `id="inv-h"` and `tabIndex={-1}` — beyond the plan's Files line, required by the AC; the page
+was not owner-dirty. The car form focuses the first visible `aria-invalid` field for a client
+refusal; for a server refusal, the first visible field named by the errors, else `#formErr`
+(`tabIndex={-1}`, already `role="alert"`).
+
+Typecheck clean · 295/295 · no Chrome launched (7 → 7 processes) · notes `TASK-005-task17.md`.

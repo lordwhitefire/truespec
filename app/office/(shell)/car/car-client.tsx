@@ -307,6 +307,7 @@ export function CarForm({
   const [result, setResult] = useState<CreateCarResult | UpdateCarResult | null>(null);
   const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
+  const formErrRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -346,6 +347,26 @@ export function CarForm({
 
   const hasFieldErrors = Object.keys(panel.errors).length > 0;
 
+  // Where a refusal sends the caret (Task 17): the first invalid field the person can reach, in
+  // the order the fields appear on the form; a refusal that names no visible field (the store's
+  // form-level answer) goes to the form's error block instead.
+  function focusServerRefusal(errors: readonly { field: string }[]) {
+    const names = new Set(errors.map((e) => e.field));
+    const first = Array.from(document.querySelectorAll<HTMLElement>("[name]")).find((el) => {
+      if (!names.has(el.getAttribute("name") ?? "")) return false;
+      if (el instanceof HTMLInputElement && el.type === "hidden") return false;
+      return el.getClientRects().length > 0 && !el.hasAttribute("disabled");
+    });
+    (first ?? formErrRef.current)?.focus();
+  }
+
+  useEffect(() => {
+    if (!result || result.ok || result.errors.length === 0) return;
+    focusServerRefusal(result.errors);
+    // A new refusal object is the signal; the fields it names are rendered by the same commit.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result]);
+
   const showToast = (html: string) => {
     setToastMsg(html);
     setToastShow(true);
@@ -359,7 +380,14 @@ export function CarForm({
   // refusal) never leaves the page — it is a field error, and nothing is saved.
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (hasFieldErrors) return;
+    if (hasFieldErrors) {
+      // The panel already marks the fields it judges; the first one on the form takes the caret.
+      const first = Array.from(
+        document.querySelectorAll<HTMLElement>('[aria-invalid="true"]'),
+      ).find((el) => el.getClientRects().length > 0);
+      (first ?? formErrRef.current)?.focus();
+      return;
+    }
     const fd = new FormData(e.currentTarget);
     // The file input is not part of what is saved. Each photo was uploaded the moment it was
     // chosen, and a save posts only the references (the hidden `photos` fields); dropping the file
@@ -1041,6 +1069,9 @@ export function CarForm({
           </div>
           {result && !result.ok ? (
             <div
+              ref={formErrRef}
+              id="formErr"
+              tabIndex={-1}
               role="alert"
               style={{
                 marginTop: 12,

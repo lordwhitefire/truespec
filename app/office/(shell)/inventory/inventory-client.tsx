@@ -118,6 +118,9 @@ export function InventoryClient({
   const qRef = useRef<HTMLInputElement>(null);
   const undoRef = useRef<InventoryRow | null>(null);
   const tmrRef = useRef<number | null>(null);
+  // Where focus goes after a deletion: the next visible row's delete control, or the heading
+  // when the deleted row was the last one (Task 17). Set before the row leaves, read after.
+  const pendingFocusRef = useRef<string | "heading" | null>(null);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -148,6 +151,28 @@ export function InventoryClient({
     else if (sort === "pf") l = [...l].sort((a, b) => (b.profit ?? -1) - (a.profit ?? -1));
     return l;
   }, [rows, fState, q, sort]);
+
+  // The caret after a row leaves (Task 17). The confirmation's native close puts focus back on
+  // the opener — the delete control of the row that has just gone — so the browser has nowhere
+  // to put it. One task later (after that close has run) focus the equivalent control of the
+  // next visible row, or the list's heading when there is no next row.
+  useEffect(() => {
+    const target = pendingFocusRef.current;
+    if (target === null) return;
+    pendingFocusRef.current = null;
+    const t = window.setTimeout(() => {
+      if (target === "heading") {
+        document.getElementById("inv-h")?.focus();
+        return;
+      }
+      // Both the table and the phone cards render this car; only one shape is on screen.
+      const next = Array.from(
+        document.querySelectorAll<HTMLElement>(`button.ab.del[data-car-id="${target}"]`),
+      ).find((el) => el.getClientRects().length > 0);
+      (next ?? document.getElementById("inv-h"))?.focus();
+    }, 0);
+    return () => window.clearTimeout(t);
+  }, [rows]);
 
   // The chips come from the owner's registry; only the counts are view facet
   // counts, except Sold, which is the counting rule's own sold figure.
@@ -200,6 +225,9 @@ export function InventoryClient({
   function confirmDelete() {
     const car = del;
     if (!car) return;
+    const at = list.findIndex((x) => x.id === car.id);
+    pendingFocusRef.current =
+      at >= 0 && at < list.length - 1 ? list[at + 1].id : "heading";
     setDel(null);
     setRows((r) => r.filter((x) => x.id !== car.id));
     startWrite(async () => {
@@ -353,6 +381,7 @@ export function InventoryClient({
                       <button
                         className="ab del"
                         type="button"
+                        data-car-id={c.id}
                         aria-label={`Delete ${c.name}`}
                         title="Delete"
                         onClick={() => openDelete(c)}
@@ -427,6 +456,7 @@ export function InventoryClient({
               <button
                 className="ab del"
                 type="button"
+                data-car-id={c.id}
                 style={{ flex: "0 0 46px" }}
                 onClick={() => openDelete(c)}
               >

@@ -87,7 +87,10 @@ export default async function InventoryPage() {
     <>
       <div className="hrow">
         <div>
-          <h1>Inventory</h1>
+          {/* The list's heading: where focus goes when the last visible row is deleted (Task 17). */}
+          <h1 id="inv-h" tabIndex={-1}>
+            Inventory
+          </h1>
           <p className="sub2">Every car, what it cost, and what it made. Only visible here — never in the showroom.</p>
         </div>
         <div className="hbtns">
