@@ -773,3 +773,16 @@ source DevTools' accessibility pane uses. Readings `runs/task23/before.json` / `
 The office fix: `#emptyC` moved inside `.cards` (its `#emptyT`/`.panel.tbl` pattern); screenshots
 `before-office-1440.png` / `after-office-1440.png` / `after-office-375.png` in the same folder.
 Drive `honest-count.mjs`; readings `runs/task24/before.json` / `after.json`; Chrome 3 → 3.
+
+## Task 25 — a refusal keeps its own voice (2026-10-18, live, read-only)
+
+| reading | before | after |
+|---|---|---|
+| from-file, page 1 | `"Mileage" — enter a whole number; "Doorstep price" — enter a naira amount…` | **`… — Enter a whole number; … — Enter a naira amount…`** |
+| from-file, page 2 | `"Year" — enter a whole number; "Was price" — enter a naira amount…` | **`… — Enter a whole number; … — Enter a naira amount…`** |
+| car form, save refused | `Enter the make` · `Enter the model` · `Enter a year between 1900 and 2027` · `Enter the mileage in km` | identical |
+
+The from-file leg drives the office's own control with `build-refused-pdf.ts` (every page refused
+→ 422, nothing stored, no asset held); the car-form leg is a refused save (`#f-mileage` unreadable,
+`#f-year` 1500, make/model blank). Drive `refusal-voice.mjs`; readings `runs/task25/before.json` /
+`after.json`; Chrome 3 → 3.

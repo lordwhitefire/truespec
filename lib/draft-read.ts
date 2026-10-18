@@ -55,14 +55,15 @@ function labelFor(recipeName: string): string {
   return words.replace(/\s*\(.*$/, "");
 }
 
-/** What could not be read, in the field's own words — the reason a car was refused. */
+/**
+ * What could not be read, in the field's own words — the reason a car was refused.
+ *
+ * The message is quoted exactly as its field wrote it — capital first letter included (DR12):
+ * a refusal quotes a rule the owner must satisfy, and rewriting its casing for the sentence's
+ * comfort can change what it appears to demand.
+ */
 function refusalReason(errors: readonly { field: string; message: string }[]): string {
-  return errors
-    .map((error) => {
-      const message = error.message.charAt(0).toLowerCase() + error.message.slice(1);
-      return `"${labelFor(error.field)}" — ${message}`;
-    })
-    .join("; ");
+  return errors.map((error) => `"${labelFor(error.field)}" — ${error.message}`).join("; ");
 }
 
 /** A PDF's header may sit after a short run of bytes; the first kilobyte is where a reader looks. */

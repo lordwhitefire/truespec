@@ -137,6 +137,10 @@ test("a value that cannot be read refuses that car, naming the field — it neve
   assert.equal(read.refusals[0].page, 2);
   assert.match(read.refusals[0].reason, /Mileage/);
   assert.match(read.refusals[0].reason, /Doorstep price/);
+  // The rule's own capitalisation and wording survive into the sentence (DR12): the refusal
+  // quotes the field, it does not flatten it into the house style.
+  assert.match(read.refusals[0].reason, /"Mileage" — Enter a whole number/);
+  assert.match(read.refusals[0].reason, /"Doorstep price" — Enter a naira amount/);
 });
 
 test("an absent field is absent — a draft holds only what the file carried", async () => {
