@@ -759,3 +759,17 @@ no page in dev rests empty (StrictMode announces on mount; `CarBehaviors` greets
 theme line). AX reads are `Accessibility.getFullAXTree` membership of the element's own node — the
 source DevTools' accessibility pane uses. Readings `runs/task23/before.json` / `after.json`; drive
 `speak-region.mjs`; Chrome 3 → 3. Zero announcement re-read: "No cars match those filters."
+
+## Task 24 — the honest count, and clearing lives in the panel (2026-10-18, live, read-only)
+
+| reading | before | after |
+|---|---|---|
+| office 1440 — empty blocks visible (`.empty2`) | **2**, both "…pick another state. \| Clear filters" | **1** |
+| office 1440 — "Clear filters" visible | **2** | **1** |
+| office 375 — visible | 1 (the cards') | 1 (unchanged) |
+| office block text · count | — | **byte-identical** · "0 of 25 cars match" |
+| showroom zero (1440 · 375): heading · band · clear | "0 MATCHING CARS" · "0 OF 19 CARS" · `#clr` in the panel only, `emptyHasClear:false` | identical |
+
+The office fix: `#emptyC` moved inside `.cards` (its `#emptyT`/`.panel.tbl` pattern); screenshots
+`before-office-1440.png` / `after-office-1440.png` / `after-office-375.png` in the same folder.
+Drive `honest-count.mjs`; readings `runs/task24/before.json` / `after.json`; Chrome 3 → 3.

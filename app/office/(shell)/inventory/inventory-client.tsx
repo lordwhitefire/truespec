@@ -465,8 +465,11 @@ export function InventoryClient({
             </div>
           </article>
         ))}
+        {/* The cards view's empty state lives inside `.cards` so it hides and shows with the
+            cards — its table sibling does the same inside `.panel.tbl`; rendered outside, the
+            empty block (and its Clear filters) printed twice on one screen at desktop. */}
+        <div id="emptyC">{list.length === 0 ? empty : null}</div>
       </div>
-      <div id="emptyC">{list.length === 0 ? empty : null}</div>
 
       {mounted
         ? createPortal(
