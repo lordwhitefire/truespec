@@ -426,10 +426,20 @@ export type OfficeTap = {
   at: string;
 };
 
-/** How many taps the panel reads at most. The feed is append-only; the cap keeps it a panel. */
+/** How many taps the dashboard panel reads at most. The feed is append-only; the cap keeps it a panel. */
 export const TAP_LIMIT = 200;
 
-export async function getOfficeTaps(): Promise<OfficeTap[]> {
+/**
+ * The taps, newest first, each with the car's own name resolved by the ref.
+ *
+ * `limit` defaults to `TAP_LIMIT`, because the reader that matters — the dashboard's recent-taps
+ * panel — is a panel, and a panel shows the newest few. Pass `null` for the **whole record**: the
+ * Taps tab on the Enquiries page is not a panel, and neither is an export (`lib/export.ts` reads the
+ * table uncapped for the same reason — "an export is not a panel"). A list a person asked for must
+ * not be quietly short. There is one query either way; `getAllOfficeTaps()` is this one with the cap
+ * lifted.
+ */
+export async function getOfficeTaps(limit: number | null = TAP_LIMIT): Promise<OfficeTap[]> {
   const rows = await storeQuery<
     {
       id: string;
@@ -444,9 +454,8 @@ export async function getOfficeTaps(): Promise<OfficeTap[]> {
     `SELECT t.id, t.page, t.car_ref, t.at, c.year, c.model, c.trim
        FROM tap t
        LEFT JOIN car c ON c.ref = t.car_ref
-      ORDER BY t.at DESC, t.id
-      LIMIT $1`,
-    [TAP_LIMIT],
+      ORDER BY t.at DESC, t.id${limit === null ? "" : " LIMIT $1"}`,
+    limit === null ? [] : [limit],
   );
   return rows.map((r) => ({
     id: r.id,
@@ -455,6 +464,16 @@ export async function getOfficeTaps(): Promise<OfficeTap[]> {
     car: r.model === null ? null : label({ year: r.year, model: r.model, trim: r.trim }),
     at: new Date(r.at).toISOString(),
   }));
+}
+
+/**
+ * The **whole** tap record, uncapped — what the Taps tab on the Enquiries page lists. It is
+ * `getOfficeTaps()` with the panel's cap lifted: the same table, the same join, the same one query,
+ * so the list and the shell's count can never disagree. (Truth 8: the figure is the taps the office
+ * actually received; a list that dropped the ones past a cap would be the same lie, in rows.)
+ */
+export async function getAllOfficeTaps(): Promise<OfficeTap[]> {
+  return getOfficeTaps(null);
 }
 
 /**
@@ -472,6 +491,49 @@ export async function getOfficeTaps(): Promise<OfficeTap[]> {
 export async function getOfficeTapCount(): Promise<number> {
   const rows = await storeQuery<{ n: number }[]>(`SELECT count(*)::int AS n FROM tap`);
   return rows[0]?.n ?? 0;
+}
+
+/**
+ * How many taps are **new since the office last looked** — the figure the badge now shows (owner
+ * ruling, 2026-10-16).
+ *
+ * It counts the taps newer than the office's own seen-watermark (`tap_seen`, migration 0023): the
+ * badge appears when taps arrive, clears when the taps list is viewed, and climbs again as more
+ * arrive. With no watermark yet (never looked), every tap is new — the honest reading. It counts the
+ * same `tap` record the Taps tab lists, so the notice and the list can never disagree.
+ *
+ * `getOfficeTapCount()` above stays the **all-time** figure: this is the notice's, that is the
+ * record's.
+ */
+export async function getNewOfficeTapCount(): Promise<number> {
+  const rows = await storeQuery<{ n: number }[]>(
+    `SELECT count(*)::int AS n
+       FROM tap
+      WHERE at > COALESCE((SELECT seen_through FROM tap_seen WHERE id), '-infinity'::timestamptz)`,
+  );
+  return rows[0]?.n ?? 0;
+}
+
+/**
+ * Advance the office's seen-watermark to the time of the tap the office has just looked at (owner
+ * ruling, 2026-10-16). It is called when the Taps tab is viewed, from a **POST** Server Action —
+ * never a GET (`task.md:253`; the page is a GET and a GET must not change data).
+ *
+ * The caller names a **tap id that was actually rendered**; the store resolves its own `at`, so the
+ * watermark can only ever be a time a `tap` row really holds — a caller cannot fast-forward it into
+ * the future — and any tap that arrived after the list was drawn stays "new". The watermark only
+ * moves **forward** (`GREATEST`), so a stale caller can never un-see later taps. An id that no row
+ * holds writes nothing.
+ */
+export async function markTapsSeenThrough(tapId: string): Promise<void> {
+  await storeQuery(
+    `INSERT INTO tap_seen (id, seen_through, updated_at)
+     SELECT true, t.at, now() FROM tap t WHERE t.id = $1
+     ON CONFLICT (id) DO UPDATE
+       SET seen_through = GREATEST(tap_seen.seen_through, EXCLUDED.seen_through),
+           updated_at = now()`,
+    [tapId],
+  );
 }
 
 /**
