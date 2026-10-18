@@ -314,3 +314,36 @@ as the stored number in another form → **“Nothing changed.”**, POST 200, t
 store's rows byte-identical (Task 6's full reading, re-driven here for the gate).
 
 Both runs launched no Chrome (6 → 6).
+
+## Task 8 — the status reading, and the wall it hits (2026-10-18, before any commit)
+
+`notFound()` in the car page with a co-located boundary: the dead ref renders **the same view**
+(crumbs, heading, paragraph, both ways forward, related shell, mobile bar, lightbox, overlay, toasts)
+with the chrome and title intact — but the answer is **200**, in dev and in a production build
+(`next start :3211`, stopped after the probe).
+
+| reading | dev `:3210` | production `:3211` |
+|---|---|---|
+| a car (`TS-1001`) | 200 | 200 |
+| the sold car (`TS-1025`) | 200 | 200 |
+| a dead ref (`TS-9999`) | **200** | **200** |
+
+The cause, isolated with a throwaway probe page (removed afterwards): with `app/loading.tsx` in place
+both an async and a synchronous `notFound()` page answer **200**; with the file moved aside both
+answer **404**. The root store-waking boundary (TASK-004, `7982435`, design D18) flushes the shell
+while the page is still awaiting the store, and the status is fixed at that flush. Full record:
+`notes/TASK-005-task8-blocked.md`. **Task 8 is paused for the owner's ruling.**
+
+## Task 8a — the waiting line moved, the 404 freed (2026-10-18, dev `:3210`, live store)
+
+| reading | value |
+|---|---|
+| `/` | **200** · the initial HTML carries the waking line |
+| `/inventory` | **200** · the initial HTML carries the waking line |
+| `/privacy` | **200** · no waking line |
+| `/car/TS-1001` · `/car/TS-1025` | **200** · no waking line |
+| `/car/TS-9999` | **404** (`curl -sI` and `curl` agree) |
+| chrome, before → after | `#site-header` **identical** (1 578 chars), `#site-footer` **identical** (2 406), `a.fab` **identical** (215 on `/`, absent on the car page), the number `+2348146927170` — normalising React's `<!--$-->` markers and the ticker's active-line class |
+
+Snapshots: `runs/chrome-before/{car,home}.json`, `runs/chrome-after/{car,home}.json`, taken with
+`chrome-snapshot.mjs` (attach-only). Typecheck clean · 295/295 · no Chrome launched (6 → 6).

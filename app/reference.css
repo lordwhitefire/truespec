@@ -61,7 +61,7 @@ footer h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; color:
 footer h4 em { color: var(--gold); font-style: normal; }
 footer p { margin: 0; }
 footer ul { margin: 0; padding: 0; }
-.gl { display: flex; gap: 8px; flex-wrap: wrap; }
+.gl { display: flex; gap: 8px; flex-wrap: wrap; min-height: 62px; }
 .gl img { width: 62px; height: 62px; object-fit: cover; background: #33383d; }
 .sq { display: flex; gap: 8px; }
 .sq a { width: 46px; height: 46px; background: #33383d; display: grid; place-items: center; color: #fff; }

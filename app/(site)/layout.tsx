@@ -1,3 +1,4 @@
+import { cache, Suspense } from "react";
 import "../globals.css";
 import "../reference.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -11,9 +12,9 @@ import { waLink } from "@/components/whatsapp";
 import { Photo } from "@/components/Photo";
 
 // The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
-// under this layout renders per request, never from a build-time snapshot. (The three data-heavy
-// public pages declare this themselves as well; this is the declaration the two client pages,
-// /privacy and /not-found, cannot make for themselves.)
+// under this layout renders per request, never from a build-time snapshot. (The data-heavy public
+// pages declare this themselves as well; this is the declaration the client pages, /privacy and
+// /not-found, cannot make for themselves.)
 export const dynamic = "force-dynamic";
 
 // Public-area fonts — matches the reference car page, which loads Oswald 600;700
@@ -25,6 +26,17 @@ const fonts = (
     rel="stylesheet"
   />
 );
+
+// The chrome's store reads live in small Suspense islands, not in the layout's own body
+// (plan Task 8a). An `await` in the layout holds the entire page back, and a loading boundary
+// above the layout is what makes a page's `notFound()` answer a streamed 200 — Next fixes the
+// status at the first flush. With the layout synchronous and only the chrome's own parts
+// suspended, a page can still answer a real 404, and every page that reads the store keeps its
+// own "waking the store" boundary in its segment's `loading.tsx`.
+const chromeData = cache(async () => {
+  const [number, cars] = await Promise.all([getSetting("whatsapp_number"), getPublicCars()]);
+  return { num: number ?? "", cars };
+});
 
 function carTitle(c: PublicCar): string {
   return [c.year, c.brand, c.model, c.trim].filter(Boolean).join(" ");
@@ -51,17 +63,79 @@ function buildTicker(cars: PublicCar[]): string[] {
   return out.slice(0, 4);
 }
 
-export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const [number, cars] = await Promise.all([getSetting("whatsapp_number"), getPublicCars()]);
-  const num = number ?? "";
-  const wa = (text: string) => waLink(num, text);
+const WA_QUESTION = "Hello TrueSpec, I have a question.";
+
+async function WhatsAppNumber() {
+  const { num } = await chromeData();
+  return <b>{num || "+234 800 000 0000"}</b>;
+}
+
+async function HeaderChat() {
+  const { num } = await chromeData();
+  return (
+    <a className="wab" href={waLink(num, WA_QUESTION)} target="_blank" rel="noopener noreferrer">
+      <i className="fa-brands fa-whatsapp" />
+      Chat on WhatsApp
+    </a>
+  );
+}
+
+async function TickerLines() {
+  const { cars } = await chromeData();
+  return <Ticker lines={buildTicker(cars)} />;
+}
+
+async function FooterGallery() {
+  const { cars } = await chromeData();
   const gallery = cars
     .filter((c) => c.section === "available")
     .slice(0, 4)
     .map((c) => c.photos[0])
     .filter(Boolean);
-  const ticker = buildTicker(cars);
+  return (
+    <>
+      {gallery.map((src, i) => (
+        <Photo key={i} src={src} alt="" loading="lazy" />
+      ))}
+    </>
+  );
+}
 
+async function FooterWhatsAppIcon() {
+  const { num } = await chromeData();
+  return (
+    <a
+      href={waLink(num, WA_QUESTION)}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="WhatsApp"
+    >
+      <i className="fa-brands fa-whatsapp" />
+    </a>
+  );
+}
+
+async function FooterWhatsAppButton() {
+  const { num } = await chromeData();
+  return (
+    <a
+      className="wab big"
+      href={waLink(num, WA_QUESTION)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <i className="fa-brands fa-whatsapp" />
+      WhatsApp us
+    </a>
+  );
+}
+
+async function SiteFabLive() {
+  const { num } = await chromeData();
+  return <SiteFab href={waLink(num, WA_QUESTION)} />;
+}
+
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {fonts}
@@ -85,7 +159,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <i className="fa-brands fa-whatsapp" />
               <div>
                 <small>WhatsApp</small>
-                <b>{num || "+234 800 000 0000"}</b>
+                <Suspense fallback={<b>&nbsp;</b>}>
+                  <WhatsAppNumber />
+                </Suspense>
               </div>
             </div>
             <div className="inf hide">
@@ -102,17 +178,20 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
         <div className="nav">
           <div className="w">
-            <Ticker lines={ticker} />
+            <Suspense fallback={<div className="tick" id="tick" aria-live="off" />}>
+              <TickerLines />
+            </Suspense>
             <ThemeToggle />
-            <a
-              className="wab"
-              href={wa("Hello TrueSpec, I have a question.")}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Suspense
+              fallback={
+                <span className="wab" aria-hidden="true">
+                  <i className="fa-brands fa-whatsapp" />
+                  Chat on WhatsApp
+                </span>
+              }
             >
-              <i className="fa-brands fa-whatsapp" />
-              Chat on WhatsApp
-            </a>
+              <HeaderChat />
+            </Suspense>
           </div>
         </div>
       </div>
@@ -132,9 +211,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               <div>
                 <h4>Photo gallery</h4>
                 <div className="gl" id="gl">
-                  {gallery.map((src, i) => (
-                    <Photo key={i} src={src} alt="" loading="lazy" />
-                  ))}
+                  <Suspense fallback={null}>
+                    <FooterGallery />
+                  </Suspense>
                 </div>
               </div>
               <div>
@@ -157,14 +236,15 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                   <a href="#" aria-label="Instagram">
                     <i className="fa-brands fa-instagram" />
                   </a>
-                  <a
-                    href={wa("Hello TrueSpec, I have a question.")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="WhatsApp"
+                  <Suspense
+                    fallback={
+                      <a aria-hidden="true">
+                        <i className="fa-brands fa-whatsapp" />
+                      </a>
+                    }
                   >
-                    <i className="fa-brands fa-whatsapp" />
-                  </a>
+                    <FooterWhatsAppIcon />
+                  </Suspense>
                   <a href="#" aria-label="Facebook">
                     <i className="fa-brands fa-facebook-f" />
                   </a>
@@ -177,15 +257,16 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             <div className="fg" style={{ border: 0, margin: 0, paddingBottom: 30 }}>
               <div>
                 <h4>Chat with us</h4>
-                <a
-                  className="wab big"
-                  href={wa("Hello TrueSpec, I have a question.")}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Suspense
+                  fallback={
+                    <span className="wab big" aria-hidden="true">
+                      <i className="fa-brands fa-whatsapp" />
+                      WhatsApp us
+                    </span>
+                  }
                 >
-                  <i className="fa-brands fa-whatsapp" />
-                  WhatsApp us
-                </a>
+                  <FooterWhatsAppButton />
+                </Suspense>
               </div>
               <div>
                 <h4>Chat hours</h4>
@@ -216,7 +297,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         </footer>
       </div>
 
-      <SiteFab href={wa("Hello TrueSpec, I have a question.")} />
+      <Suspense fallback={null}>
+        <SiteFabLive />
+      </Suspense>
 
       {/* Every WhatsApp link on this site passes through here (truth 8): the notice is shown on the
           way out, and the tap — the page, the car's code and the time, and nothing else — is recorded.
