@@ -678,3 +678,21 @@ editor route, and a tombstoned car's editor answers 404 — the page was read li
 case 2, which sampled the bar first, lost it). The action now takes `{ revalidate: false }`, passed
 by the car form only; both ways out of the offer land on fresh renders (undo revalidates; expiry
 navigates to the inventory). Typecheck clean · 295/295 · notes `TASK-005-task19.md`.
+
+## Task 20 — the More cell reaches three destinations (2026-10-18, live signed in)
+
+`more-sheet.mjs`; readings `runs/task20/readings.json`. Read-only; Chrome 6 → 6 (attach-only).
+
+| width | reading |
+|---|---|
+| 375 | cell `BUTTON` "More", icon `fa-ellipsis`, `aria-expanded=false`, `haspopup=dialog`, `controls=more-sheet`; Enter opens: `:modal` true, name "More", focus entered "Drafts"; rows `[Drafts, Activity log, Settings]` + hrefs; Tab cycle `Activity log → Settings → BODY → Drafts` (no page control behind); Escape returns focus to the cell; outside tap (6,6) closes, focus back; choice "Activity log" (Tab+Enter) → `/office/activity`, sheet closed, cell lit, reopened sheet current="Activity log" |
+| 375 | drafts: cell lit, current "Drafts" · settings: cell lit, current "Settings" |
+| 768 | `.bnav` grid, `:modal` true, same rows |
+| 1280 | `.bnav` none; sidebar `[Drafts, Activity log, Settings]` — the order/wording checked against |
+
+Mechanism: cell is a real control (`aria-expanded`/`aria-haspopup="dialog"`/`aria-controls`), icon
+`fa-ellipsis` (a gear read as Settings); `MoreSheet.tsx` is the platform `Dialog` with
+`dismissOnBackdrop` (navigation, not destructive); rows carry `aria-current="page"` on the current
+path and close the sheet on choice. Styles travel with the shell component in the new
+`MoreSheet.css` — `office.css` is not loaded shell-wide and needed no change (Files-line
+discrepancy, recorded). Typecheck clean · 295/295 · notes `TASK-005-task20.md`.
