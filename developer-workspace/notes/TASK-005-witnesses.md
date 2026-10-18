@@ -497,3 +497,32 @@ No Chrome launched (6 → 6). Typecheck clean · 295/295.
 | Escape, showroom | `cancel` then `close` 69 ms apart · page `lock` removed |
 
 No Chrome launched (6 → 6). Typecheck clean · 295/295.
+
+## Task 14 — focus, scroll, name, Escape (2026-10-18, dev `:3210`, live signed in)
+
+`focus.mjs`; readings in `runs/focus/readings.json`. Office four opened by keyboard (focus the
+opener, Enter); showroom through its own exit-intent gesture after the dwell. First focus read after
+the platform's fixup.
+
+| screen | first focus | page controls reached | body stops | overflow before → open → after | wheel | focus back | dialogs |
+|---|---|---|---|---|---|---|---|
+| office inventory | `BUTTON#no` (Keep it) | 0 | 3 | visible → hidden → visible | 0 → 0 | `BUTTON` opener | 1 → 0 |
+| office car form | `BUTTON` (Keep it) | 0 | 3 | visible → hidden → visible | 0 → 0 | `BUTTON#delBtn` opener | 1 → 0 |
+| office drafts | `BUTTON` (Close) | 0 | 2 | visible → hidden → visible | 0 → 0 | `BUTTON` opener | 1 → 0 |
+| office enquiries | `BUTTON` (Close) | 0 | 0 | visible → hidden → visible | 0 → 0 | `ARTICLE` opener | 1 → 0 |
+| showroom home | `BUTTON#mx` (Close) | 0 | 2 | hidden auto → hidden → hidden auto | 0 → 0 | `A` last focus | 1 → 0 |
+| showroom car | `BUTTON#mx` (Close) | 0 | 2 | hidden auto → hidden → hidden auto | 0 → 0 | `A` last focus | 1 → 0 |
+| showroom inventory | `BUTTON#mx` (Close) | 0 | 2 | hidden auto → hidden → hidden auto | 0 → 0 | `A` last focus | 1 → 0 |
+
+Tab cycle: `office inventory #no → #yes → BODY → #no …`; `office car Keep it → #delYes → BODY …`;
+`office drafts Close → button → button → BODY …`; `office enquiries Close → A#dPhone → …` (eight
+focusables, no edge reached); every showroom `#mx → link → button → BODY …`. The `BODY` stop is
+Chrome's own modal edge — a minimal two-button dialog in the same browser produced
+`A → B → BODY → A`, and no control behind the dialog was ever focusable during any tour.
+
+Escape: one dialog closed each time, URL unchanged, focus on the opener, second Escape no change.
+Names from `ariaSnapshot`: *Delete this car? · Delete this draft? · Enquiry · Before you go*.
+
+Enter bug found live: an enquiry card opened the dialog and the same keystroke pressed the
+just-focused Close (`open true@7322`, `false@7344`, `close@8165`); `preventDefault` on the card's
+Enter branch fixes it. Typecheck clean · 295/295 · no Chrome launched (6 → 6).

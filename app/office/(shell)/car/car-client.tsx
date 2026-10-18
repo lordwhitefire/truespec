@@ -310,16 +310,6 @@ export function CarForm({
 
   useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setDelOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   useEffect(
     () => () => {
       if (tmr.current) window.clearTimeout(tmr.current);

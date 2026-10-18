@@ -137,14 +137,6 @@ export function InventoryClient({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setDel(null);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   const list = useMemo(() => {
     let l = rows.filter(
       (c) =>

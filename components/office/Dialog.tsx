@@ -41,6 +41,18 @@ export function Dialog({
     else if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  // The page behind does not scroll while a confirmation is up (Task 14). The office pages carry no
+  // shared sheet, so the lock is the body's own style, restored to whatever it was.
+  useEffect(() => {
+    if (!open) return;
+    const body = document.body;
+    const previous = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = previous;
+    };
+  }, [open]);
+
   return (
     <dialog
       ref={ref}

@@ -171,7 +171,12 @@ export function Enquiries({
                       aria-label={`Open enquiry: ${e.name}`}
                       onClick={() => openDetail(e.id)}
                       onKeyDown={(ev) => {
-                        if (ev.key === "Enter") openDetail(e.id);
+                        if (ev.key === "Enter") {
+                          // The platform's Enter default would activate whatever the dialog has just
+                          // focused (the close control), closing it in the same keystroke.
+                          ev.preventDefault();
+                          openDetail(e.id);
+                        }
                       }}
                     >
                       <div className="ctop">
