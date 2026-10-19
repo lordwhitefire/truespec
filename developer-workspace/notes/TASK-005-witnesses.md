@@ -931,3 +931,25 @@ Screenshots for the four documents this gate adds (missing car, site 404, root 4
 `runs/gate-g/{cleared,saved}-{375,1440}-…` (cleared all four at both widths; saved at 1440).
 Drive `gate-g.mjs`; readings `runs/gate-g/cleared.json` / `saved.json`. No source change since
 Task 30 — typecheck clean, **304/304**.
+
+## Task 31 — A boundary inside each shell (2026-10-19, live)
+
+Two boundaries were added **inside** the shells: `app/(site)/error.tsx` and
+`app/office/(shell)/error.tsx`; `office.css` scopes the office retry to the content area. The two
+outer boundaries were not touched. Each failure was forced with a temporary injected `throw`,
+driven at **375 × 812** and **1440 × 900**, then the file restored (the owner-dirty shell layout
+byte-identical, sha256 `297e509e…`; no witness text remains). Attached Chrome 3 → 3.
+
+| forced failure | status | chrome | retry |
+|---|---|---|---|
+| site page `/inventory` | 200 | site header and footer, floating control; the retry is between them | `role="alert"`; exact title/note/button; **“Try again”** reset works |
+| office page `/office/inventory` | 200 | `.shell` grid, topbar at 375 / sidebar at 1440, `main.main`, signed-in identity | retry in `main.main`, `min-height: 0`; exact; **“Try again”** works |
+| site layout `(site)/layout.tsx` | 500 | **none** (no header/footer) | full-page retry; exact; **“Try again”** works |
+| office shell `(shell)/layout.tsx` | 500 | **none** (no shell/sidebar/topbar) | full-page retry; exact; **“Try again”** works |
+
+No leg showed a count or an empty block (`0 OF`, `0 cars`, `No cars match` absent; no
+`.empty`/`.feed-empty` visible). The inner legs' console entries are the injected throw's dev stack
+(4 each); the outer legs' 2 × 500 are the existing root-boundary response to a layout throw.
+Store untouched. Screenshots: `runs/task31/{site-page,office-page}-{375,1440}.jpeg`; the two outer
+legs' captures timed out and are readings only. Drive `task31.mjs`; readings `runs/task31/`.
+Typecheck clean · **304/304**. Note `notes/TASK-005-task31.md`.
