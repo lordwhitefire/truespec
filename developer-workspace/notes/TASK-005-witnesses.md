@@ -841,3 +841,14 @@ Two distinct colours per car, never a flat grey; same car → same pair after re
 two pairs; no animation; the box occupies a photo's shape and size. Drive `photo-gradient.mjs`
 (CDN block lifted in `finally`); readings `runs/task27/before.json` / `after.json`, sample frames
 beside them; Chrome 3 → 3.
+
+## Task 28 — the gradient is deterministic, and tested (2026-10-19)
+
+Moved to `lib/photo-gradient.ts` with the hash documented in the module (walk → avalanche with
+two seeds → HSL bounds) and held by `lib/photo-gradient.test.ts`: same ref → same output; a
+**golden table** pins 12 real references (hash edit = every car's colour changes, test fails);
+stops inside the documented bounds; two cars never share a gradient; adjacent refs ≥ 20° apart
+(measured 36°: 155° vs 119°); spread ≥ 180° (measured 270°); source has no `Math.random`/`Date`/
+`performance`; empty code still valid. `npm test` **303/303** (295 + 8) · typecheck clean · live
+after the move: TS-1029 `rgb(41, 66, 56) → rgb(61, 48, 105)`, TS-1030 `rgb(41, 66, 41) →
+rgb(90, 109, 55)`, `aria-hidden="true"`, no console errors — unchanged.
