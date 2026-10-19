@@ -1120,3 +1120,18 @@ The settings tagline draft held only `{v, base, value}`. **0** `next-action` pos
 non-GETs, none with `next-action`); **0** console / **0** page / **0** HTTP. Both test drafts removed;
 `[]` `ts-draft:` keys; Chrome **6 → 6**. Typecheck clean · **311/311**. Drive `task40.mjs`; readings
 `runs/task40/task40.json`; note `notes/TASK-005-task40.md`.
+
+## Checkpoint C — the offline drive (2026-10-19, approved live)
+
+Fresh attach-only run of `task38.mjs` on the real office, 1440 × 900, signed in. The exact offline
+line passed the 1200 ms check; the car brand “Task38 kept probe” returned after a reload with
+`ts-draft:car:new` present and no recovery line on the plain reload; the exact recovery line
+appeared **3 ms** after reconnect; Cancel cleared the car draft, the settings Save cleared its draft
+and took the line down, and sign-out (a sessionless incognito context) cleared every `ts-draft:` key
+while keeping `ts-theme` and `not-a-draft`. Settings demo **0 → 5000 → 0**; final reload read **0**;
+exactly **2** `next-action` posts, both after Save clicks; 8 other non-GETs external; **0** console /
+**0** page / **0** HTTP; `[]` `ts-draft:` keys after; Chrome **6 → 6**; Chrome left on `/office`; the
+owner's main session was never signed out. Task 39 remains closed, not done. The disabled-Save leg is
+Task 35's witness; this checkpoint covers the plan's four parts. Readings
+`runs/task38/task38.json`; log `runs/task38/checkpoint-c.log`; note
+`notes/TASK-005-checkpoint-c.md`.

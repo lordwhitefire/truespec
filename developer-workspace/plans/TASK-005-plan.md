@@ -410,7 +410,7 @@ copy); raised in the report.
 - **Deps:** 36. **Files:** `lib/device-draft.test.ts`, `developer-workspace/notes/TASK-005-witnesses.md`.
   - **Files-line note (2026-10-19, built):** the test is the only product-tree file; `task40.mjs` and `notes/TASK-005-task40.md` are verification artifacts. The test pins the car payload to the car form's own fields, including the car's own `arrivalNote`/`privateNote`, and asserts there is no customer/enquiry key, no photo input, and no photo bytes. Live: the inventory count stayed `25 cars — 24 in stock, 1 sold` before, with the car draft, and with both drafts; 0 server actions; `npm test` 311/311. Interpretation: SD11's “name, number or note” means customer/enquiry data; the car's own notes are car columns.
 
-**⛔ Owner checkpoint C** — the offline drive shown live: the banner, the kept draft, the return, the erase-on-act.
+**✅ Owner checkpoint C — approved 2026-10-19** — fresh live drive on the real office: the banner passed its 1200 ms check, the car draft returned after a reload, the exact recovery line showed **3 ms** after reconnect, and Cancel / the settings Save / sign-out erased the drafts (sign-out in a sessionless incognito context; the owner's session untouched). Settings demo **0 → 5000 → 0**; exactly **2** intended saves; 0 console/page/HTTP; Chrome **6 → 6**; test drafts cleaned. `notes/TASK-005-checkpoint-c.md`; witnesses §Checkpoint C.
 
 ### Phase 11 — Witness, gates, report
 
