@@ -5,14 +5,13 @@ not done (Task 39).** Every gate that could run on this tree is green: typecheck
 **311/311**, `leak-check` **PASSED** (21 public routes), `npm run build` exit 0, and the store is
 net-zero for this layer. One gate is **not** run: the rendered office reconciliation, blocked by the
 expired Clerk session. The nineteen testing groups in `testing.md` remain **deferred** — this
-report is their handover, not their run. Nothing is pushed; the branch is 45 commits ahead of
-`origin/main`.
+report is their handover, not their run. Nothing is pushed.
 
 This is the closing report for the 44-task plan in `developer-workspace/plans/TASK-005-plan.md`.
 Task 39 is **closed — not done** by the owner's ruling of 2026-10-19; the plan tracker marks it
 **☒**, and this report counts **43 built/closed, 1 not done** — it does **not** claim 44 built
-tasks. Checkpoint C was approved and committed (`a555115`); checkpoint D is this report, awaiting
-the owner's read.
+tasks. Checkpoint C was approved and committed (`a555115`); checkpoint D is this report,
+**approved 2026-10-19**.
 
 ## What this layer was
 
@@ -179,8 +178,9 @@ service worker). All are named above, none is reported as passed.
   `9822731`, Task 42 `a5bf83a`, Task 43 `6b8c7b4`, Task 44 (this report and its copy). Checkpoint C
   is `a555115`; Task 39's closure is `10236c0`.
 
-## Checkpoint D
+## Checkpoint D — approved
 
-This report is the checkpoint-D artifact. It has not been approved. The owner should read it —
-especially the Q11 widening, the Task 39 closure, the “Reload” flag, and the deferred nineteen
-groups — before the testing pass starts. No push has been made.
+This report is the checkpoint-D artifact. **The owner approved it on 2026-10-19.** The Q11
+widening, the Task 39 closure, the showroom “Reload” flag, and the deferred nineteen groups were
+read before approval. The testing handover in `openspec/tasks/TASK-005/testing.md` is released;
+no push has been made.

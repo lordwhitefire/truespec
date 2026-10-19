@@ -121,7 +121,7 @@ copy); raised in the report.
 | 41 | The owner's rulings, written down | ☑ | `notes/TASK-005-rulings.md`: Q11–Q18 recorded from the live grilling transcript (session `ses_eb63...`), with the exact owner answers, the Q11 “adds no feature” widening, the Q15→Task 39 later closure, Q16a residual, and the traceability table. No code. |
 | 42 | Witness pass — benchmarks 1–11, driven live | ☑ | `reports/TASK-005-witnesses.md` + `notes/TASK-005-witnesses.md`: 3/4/6/10/11 fresh; 1/2/5/7/8/9 carried from their live task runs after the Clerk session expired; B1’s 8 s carried as allowed, 215/1 227 ms explicitly not re-measured; B12 person-only. |
 | 43 | Gates, reconcile, net-zero | ☑ | `notes/TASK-005-gates.md`: typecheck 0 · tests 311/311 · leak-check 21 routes PASS · build 0 · dev restarted · store 25 live / 0 tombstones / no throwaway refs / 25 demo all created 15–16 Oct (0 new) / settings original. Learned order run: leak-check before stopping dev and building; rendered office reconcile not run (expired session). |
-| 44 | Report, and the handover to the testing pass | ☑ | `reports/TASK-005.md` + copy at `openspec/tasks/TASK-005/TASK-005-report.md`: 43 built/closed, **Task 39 closed not done**; Q11 “no feature” widening, showroom “Reload” flag, all 19 groups deferred, Group 17 person-only, 8 s window matches, 215/1 227 ms not re-measured, rendered reconcile blocked by expired session. Checkpoint D awaiting the owner. |
+| 44 | Report, and the handover to the testing pass | ☑ | `reports/TASK-005.md` + copy at `openspec/tasks/TASK-005/TASK-005-report.md`: 43 built/closed, **Task 39 closed not done**; Q11 “no feature” widening, showroom “Reload” flag, all 19 groups deferred, Group 17 person-only, 8 s window matches, 215/1 227 ms not re-measured, rendered reconcile blocked by expired session. **Checkpoint D approved 2026-10-19**; testing handover released. |
 
 ---
 
@@ -434,7 +434,7 @@ copy); raised in the report.
 - **Verify:** the report exists at `developer-workspace/reports/TASK-005.md` with a copy at `openspec/tasks/TASK-005/TASK-005-report.md`; every claim traceable to a witness or a command.
 - **Deps:** 43. **Files:** `developer-workspace/reports/TASK-005.md`, `openspec/tasks/TASK-005/TASK-005-report.md`.
 
-**⛔ Owner checkpoint D** — the closing report read before handover.
+**✅ Owner checkpoint D — approved 2026-10-19** — the closing report at `developer-workspace/reports/TASK-005.md` (copy `openspec/tasks/TASK-005/TASK-005-report.md`) was read and approved; the testing handover in `openspec/tasks/TASK-005/testing.md` is released. All nineteen groups remain for the testing pass; the office session was expired at handover and Chrome is on `/office/sign-in`. `notes/TASK-005-checkpoint-d.md`.
 
 ---
 
