@@ -13,10 +13,12 @@
   `main.main`. It imports `./office.css`: the shell layout imports no stylesheet of its own (each
   page carries its own), so the boundary must carry the shell's.
 - **`app/office/(shell)/office.css`.** One scoped rule,
-  `.main > .ts-store-state{min-height:0;padding:48px 24px}` — the shared state brings a
-  viewport-tall block; inside the office content column the retry should be where the page was,
-  not a second full screen between the chrome. The site retry keeps the shared full-page height;
-  the plan's Files line includes no site-CSS change and the AC is placement.
+  `.main > .ts-store-state[role="alert"]{min-height:0;padding:48px 24px}` — the shared state brings
+  a viewport-tall block; inside the office content column the retry should be where the page was,
+  not a second full screen between the chrome. The selector names the alert, so the **waking**
+  state keeps its shared full-page height; only the retry is compacted. The site retry keeps the
+  shared full-page height; the plan's Files line includes no site-CSS change and the AC is
+  placement.
 - **No change to `app/error.tsx` or `app/office/error.tsx`.** They stay exactly where they are:
   a boundary cannot catch a throw from its own segment's layout, so these two remain the only
   catch for the site layout's read and the office shell's session read. That case is shown live
