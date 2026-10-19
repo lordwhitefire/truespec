@@ -123,6 +123,10 @@ copy); raised in the report.
 | 43 | Gates, reconcile, net-zero | ☑ | `notes/TASK-005-gates.md`: typecheck 0 · tests 311/311 · leak-check 21 routes PASS · build 0 · dev restarted · store 25 live / 0 tombstones / no throwaway refs / 25 demo all created 15–16 Oct (0 new) / settings original. Learned order run: leak-check before stopping dev and building; rendered office reconcile not run (expired session). |
 | 44 | Report, and the handover to the testing pass | ☑ | `reports/TASK-005.md` + copy at `openspec/tasks/TASK-005/TASK-005-report.md`: 43 built/closed, **Task 39 closed not done**; Q11 “no feature” widening, showroom “Reload” flag, all 19 groups deferred, Group 17 person-only, 8 s window matches, 215/1 227 ms not re-measured, rendered reconcile blocked by expired session. **Checkpoint D approved 2026-10-19**; testing handover released. |
 | 45 | The welcome popup fits a phone (owner-reported) | ☑ | Cause (checked live): the home page’s featured strip overflowed on phones; Chrome expanded the mobile layout viewport to the content width (492 on a 375 screen) and the fixed dialog stretched with it (panel 452, ✕ off-screen). Fix, exactly as proposed: `contain: layout` on the strip + per-row count from `document.documentElement.clientWidth` (thresholds unchanged; desktop unchanged). Verified on the fixed build (fresh run, 18 configurations + taps): phones 375/360/430 — `innerWidth` = screen, no sideways pan, panel in-screen, ✕ tappable, strip `per=1`; plain 280→1440 — no overflow, per 1/2/3 at ≤568/667–768/1440; taps ✕/Skip/SUV correct (SUV → `/inventory?body=SUV`); resize reflows. Typecheck 0, tests **311/311**. Check now 4 windows/run (was 22), all closed; Chromium 6→6. `notes/TASK-005-welcome-responsive.md`; `scripts/task-005/welcome-diag.mjs`, readings `runs/welcome-responsive/`. |
+| 46 | The plan for inventory browsing (owner request) | ☑ | Brief + Phase 13 written **before any product code**: the ask decoded — the five filter groups start collapsed (items vs sub-items), the results paged 9 at a time with numbered pages; current truth with paths/lines; decisions; runtime matrix. `briefs/TASK-005-inventory-browsing.md`. |
+| 47 | The filter groups start closed | ☐ | — |
+| 48 | The inventory is paged, nine cars at a time | ☐ | — |
+| 49 | Runtime check, recorded, and the report addendum | ☐ | — |
 
 ---
 
@@ -446,6 +450,131 @@ copy); raised in the report.
 - **AC:** the featured strip can no longer widen the page (layout containment), and its per-row count is derived from the honest device width (`document.documentElement.clientWidth` — 1 under 560, 2 under 1000, 3 at 1000+), never the expandable `innerWidth`; the welcome dialog stays on-screen at phone widths (panel within the viewport, ✕ tappable, Skip/choices unchanged); desktop rendering unchanged.
 - **Verify:** live phone emulation 375/360/430 — `innerWidth` = screen width, no horizontal document overflow, panel in-screen, ✕ tap closes; 768 → 2 per row, 1440 → 3 per row; `npm run typecheck`; `npm test`; fresh `welcome-diag.mjs` run.
 - **Deps:** —. **Files:** `components/site/FeaturedSlider.tsx`, `app/reference.css`, `developer-workspace/scripts/task-005/welcome-diag.mjs`, `developer-workspace/notes/TASK-005-welcome-responsive.md`.
+
+---
+
+### Phase 13 — Inventory browsing (owner request, 2026-10-19, after checkpoint D)
+
+**Owner ask (2026-10-19, verbatim).** “when you click filter option, there is this drop down,
+right? We have a kind of each drop down, like, have items, and these items have sub-items. So, like,
+the sub-items should not show. You understand? Unless you click this icon, you click it for it to
+show.” … “the cars. I feel like the cars should be paginated. Everything should not just show. It
+should be limited to, the ones that can show before it happens.” Confirmed before the plan: **9
+cars per page**, **numbered pages with Prev/Next**; and “write the plan before you start after you
+are done check at runtime and record it in the report”.
+
+**Decoded.** (1) On `/inventory`, the five filter groups in the “Refine search” sidebar start
+**collapsed**; their options (checkbox rows / price inputs) appear only when the group’s summary —
+the +/− icon — is clicked, and hide again on a second click. (2) The car results are **paged**: 9
+cars per page, numbered pages with Prev/Next; only the current page is rendered.
+
+**Current truth (read from the tree, 2026-10-19).**
+- `components/site/InventoryBrowser.tsx` is the one client component (mounted at
+  `app/(site)/inventory/page.tsx:57`); the sidebar is lines 346–465 with five
+  `<details className="fs" open>` at 364 (Status), 381 (Make), 398 (Year), 415 (Colour), 432
+  (Price) — every group is **forced open**; each holds a flat list of `<label className="ck">`
+  checkbox rows (Price = two number inputs). There is no nested sub-structure: the “items” are the
+  groups, the “sub-items” are their options.
+- The toggle and its indicator already exist: `.sv .fs summary::after` “+” / `[open]` “−”
+  (`app/reference.css:351-354`); native `<details>` supplies click, keyboard, focus and expanded
+  state — no React handler is involved.
+- The results render **all** cars: `app/(site)/inventory/page.tsx:35` awaits `getPublicCars()` (one
+  SQL SELECT, `WHERE c.deleted_at IS NULL`, `ORDER BY c.ref`, **no LIMIT/OFFSET** —
+  `lib/public-cars.ts:10-38`), the whole array crosses to the client, and `list.map(...)` renders
+  every match (`InventoryBrowser.tsx:538-548`). Live today: **19 cars**, “19 cars”; grid 3-up
+  (`reference.css:388`), 2-up ≤1100, 1-up ≤560.
+- Filters/sort/view are client state, synced with `replaceState` (`InventoryBrowser.tsx:118-130`);
+  the page already reads `searchParams` into `InventoryInitial` (`page.tsx:29-55`) but has no
+  `page`. **No pagination exists anywhere** in the repo or the reference; the only written intent is
+  `product-management/ux-plan.md:107` (24/page, unimplemented).
+
+**Decisions.**
+- **Collapse** = remove the five `open` attributes. The platform’s `<details>` is the control;
+  keyboard, focus, expanded state and the existing +/− indicator come with it. No JS, no dependency.
+- **Pagination is client-side** — the full list is already in memory and filtering is instant; the
+  shared query `getPublicCars()` (home, counts, layout ticker) is untouched. Page size fixed at **9**
+  (owner-approved): three rows of three on desktop; the existing 2-up/1-up grid follows.
+- **The URL is the shareable state**: `?page=2` is parsed into `initial.page` and written back by
+  the existing `replaceState` effect only when > 1; out-of-range values clamp to the last page and
+  the URL is normalized.
+- **Any filter or sort change returns to page 1** (the filtered list renumbers); `Clear all
+  filters` too. Switching grid/list keeps the page. The pager is not rendered when the result fits
+  one page.
+- **A page change moves the person to the new content**: the results heading (`#ttl`) takes
+  programmatic focus (`tabIndex={-1}`) and the page scrolls to it under the sticky nav
+  (`scroll-margin-top`); `#speak` announces “Page N of M”. Numbered buttons carry
+  `aria-current="page"`; Prev/Next disable at the ends; all are real buttons.
+- **Style follows the existing language** (gold active state, `--line` border, 3px radius, 42px
+  controls). No new copy beyond “Prev”/“Next” and the page announcement.
+- **Out of scope, observed and not touched:** the home modal’s `/inventory?body=SUV|Sedan` links
+  still name a `body` param the page never read; this ask does not cover it.
+
+**Task 46 — The plan, written before any code** (S)
+- **AC:** the ask and its decode, the current truth (paths/lines), the decisions and the runtime
+  matrix below are written down; the brief exists; no product file is touched yet.
+- **Verify:** this section + `developer-workspace/briefs/TASK-005-inventory-browsing.md`; committed
+  before Tasks 47–48.
+- **Deps:** — **Files:** `developer-workspace/briefs/TASK-005-inventory-browsing.md`,
+  `developer-workspace/plans/TASK-005-plan.md`.
+
+**Task 47 — The filter groups start closed** (S)
+- **AC:** on `/inventory` all five groups are collapsed on load (Status, Make, Year, Colour, Price —
+  no checkbox or price input visible); clicking a group’s summary (the +/− icon included) opens it
+  and a second click closes it; groups open independently; the native control keeps its keyboard
+  operation and expanded state; a selection made while open filters exactly as before; the counts in
+  `<em>` are unchanged; no CSS or JS is added.
+- **Verify:** live at 1440 and 375 (at 375 the sidebar sits behind “Search options”): the open state
+  of all five, options' visibility (not merely off-screen), expand/collapse by click and by
+  keyboard, a Toyota filter still narrows to its 3 cars and clears. `npm run typecheck`; `npm test`
+  unchanged.
+- **Deps:** 46 **Files:** `components/site/InventoryBrowser.tsx`.
+
+**Task 48 — The inventory is paged, nine cars at a time** (M)
+- **AC:** only 9 cars render per page in both grid and list views (19 live cars → 9 / 9 / 1 over
+  three pages); numbered page buttons plus Prev/Next, page 1 current on load; clicking a page swaps
+  the cards, updates `?page=`, scrolls/focuses the results heading and announces “Page N of M”;
+  Prev/Next disable at the ends; `?page=2` deep-links to the right slice; `?page=99` clamps to the
+  last page and normalizes the URL; toggling any filter, the sort, or Clear all returns to page 1;
+  switching grid/list keeps the page; the pager is absent when the result is ≤ 9; the count heading
+  stays the honest total; keyboard operation and `aria-current` hold; no horizontal overflow at
+  375/768/1024/1440 and the controls are ≥ 40 px; no query or API change.
+- **Verify:** the runtime matrix below; `npm run typecheck`; `npm test`.
+- **Deps:** 47 **Files:** `components/site/InventoryBrowser.tsx`,
+  `app/(site)/inventory/page.tsx`, `app/reference.css`.
+
+**Task 49 — Runtime check, recorded, and the report addendum** (S)
+- **AC:** a fresh attach-only browser run proves every Task 47/48 acceptance line with numbers
+  (window count before/after, open states, card counts, URL, page announcement, per-row counts,
+  overflow, tap results); the script is kept in `developer-workspace/scripts/task-005/`; the report
+  addendum lands in **both** `developer-workspace/reports/TASK-005.md` and
+  `openspec/tasks/TASK-005/TASK-005-report.md`, naming what was built, what was verified and what
+  was not; counts become **49 tasks — 48 built/closed, 1 closed-not-done (Task 39)**; the store is
+  untouched (read-only) and the owner’s Chrome ends on their own window, with every run window
+  closed.
+- **Verify:** the command readings (typecheck, tests, live run, `git status`); both report copies
+  `diff`-identical; no owner-dirty file staged; no push.
+- **Deps:** 47, 48 **Files:** `developer-workspace/scripts/task-005/inventory-paging-check.mjs`
+  (new), `developer-workspace/notes/TASK-005-inventory-browsing.md` (new),
+  `developer-workspace/reports/TASK-005.md`, `openspec/tasks/TASK-005/TASK-005-report.md`.
+
+**Runtime matrix (Task 49).** One desktop window reused at 1440/1024/768 + one 375 window for taps
+(two windows total, both closed; no owner tab touched): `details.fs` count 5, all `open === false`,
+0 option rows visible; open Status → 3 visible, close → 0; open Make independently; select Toyota →
+3 cars (pager absent); clear; page 1 = 9 cards, pages [1,2,3], Prev disabled; page 2 = 9 cards, URL
+`?page=2`, announcement read, heading focused; page 3 = 1 card, Next disabled; Prev/Next walk; deep
+link `?page=2` in a fresh navigation; `?page=99` → page 3 + normalized URL; filter/sort reset from
+page 2; list view page 2 = 9 rows; grid columns 3/2/1 and `scrollWidth === clientWidth` at the four
+widths; phone: collapsed groups, tap expand, page 2 by tap, controls ≥ 40 px, no overflow; Chromium
+count unchanged, all run windows closed.
+
+**Risks.**
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Deep-linked filters are hidden behind collapsed groups. | Low | The count heading still says “N of 19 cars” and the applied filters are in the URL; opening the group shows the checked row. The owner asked for collapsed groups; no chip UI is invented. |
+| A stale `?page=` shows an empty page. | Med | Clamp to `pageCount` and normalize the URL; every filter change returns to page 1. |
+| Pagination scroll/focus steals the person’s place. | Med | Only a page-button press moves the view (to the results heading); filters do not scroll; focus lands on the heading, not a control. |
+| Page buttons overflow at 375. | Low | 42 px controls, `flex-wrap`, measured at 375 in Task 49. |
+| The change reaches the shared `getPublicCars()` and moves other screens. | High | No query change; the page slices in the client only. |
 
 ---
 
