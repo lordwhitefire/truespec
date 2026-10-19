@@ -877,3 +877,29 @@ The eight pages: `/`, `/inventory`, `/inventory?min=999999999` (empty state), `/
 `/car/TS-999999`, `/not-found`, an unmatched URL (global 404), `/privacy`. The controls are present
 but **not yet visibly off** — Task 30. Typecheck clean · `npm test` **304/304**. Drive
 `wa-number-drive.mjs`; readings `runs/task29/cleared.json` / `saved.json`.
+
+## Task 30 — With no number saved, chat controls are visibly off (2026-10-19, live)
+
+The saved number was cleared from the live store for the first leg and restored **exactly** for the
+second (same value, same `updated_at 2026-10-16T11:55:53.863Z`; net-zero). The real site at `:3210`
+was driven in the attached Chrome (3 → 3, no launch), at **375 × 812** and **1440 × 900**, over
+`/`, `/inventory`, `/inventory?min=999999999` (empty state) and `/car/TS-1029`, plus the inventory
+farewell dialog's own chat control.
+
+| reading | number cleared | number restored |
+|---|---|---|
+| header line | **“No number saved”** on every page (title = the reason) | **+2348146927170** |
+| `wa.me` links | **0** | home 5 · inventory 4 · empty 5 · car 8 |
+| every visible chat control | `wa-off` · **no `href`** · `role="link"` · `aria-disabled="true"` · `tabIndex=-1` · `title="No WhatsApp number is saved yet."` · `filter: grayscale(1)` · `opacity: .5` | live: `href` begins `https://wa.me/2348146927170` · no off class · no role/aria/title · `tabIndex 0` · `filter: none` |
+| inventory farewell dialog | control present, greyed, same state | control present, live |
+| visibility, cleared → restored | — | **identical for every control at both widths** — no control was hidden by the off state |
+| console / HTTP | none | none |
+
+Visible at 375: footer icon/button, floating control, home/inventory empty chat, car
+`#wa`/`#of`/`#vw` and `#mw` (nav chat hidden by D15); at 1440: nav chat, footer icon/button, home
+chat and the car's three buttons (FAB and `#mw` hidden by their normal width rules). The car
+page's **generated** greeting “Book a viewing” is seen greyed in the 375 frame — the
+`CarBehaviors` markup path is live, not only typechecked. Screenshots (20 frames):
+`runs/task30/{cleared,saved}-{375,1440}-{home,inventory,empty,car}.jpeg` and
+`…-inventory-dialog.jpeg`. Drive `wa-off-drive.mjs`; readings `runs/task30/cleared.json` /
+`saved.json`. Typecheck clean · `npm test` **304/304**.

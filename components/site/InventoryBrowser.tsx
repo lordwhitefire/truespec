@@ -12,7 +12,7 @@ import {
   type SetStateAction,
 } from "react";
 import { Photo } from "@/components/Photo";
-import { waLink } from "@/components/whatsapp";
+import { waClass, waLink, waOffProps } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { countStock } from "@/lib/counts";
 import { PUBLIC_SECTIONS, presentedSections, sectionLabel, tokenOf, type Section } from "@/lib/sections";
@@ -207,7 +207,13 @@ export function InventoryBrowser({
             Tell me the car you&apos;re after and I&apos;ll find it — shipped, cleared and delivered, one price.
           </p>
           <div className="mbtns">
-            <a className="wab" target="_blank" rel="noopener noreferrer" href={waSource ?? undefined}>
+            <a
+              className={waClass("wab", !waSource)}
+              target="_blank"
+              rel="noopener noreferrer"
+              href={waSource ?? undefined}
+              {...waOffProps(!waSource)}
+            >
               <i className="fa-brands fa-whatsapp" />
               Message me on WhatsApp
             </a>
@@ -518,7 +524,13 @@ export function InventoryBrowser({
                   <div className="empty">
                     <i className="fa-solid fa-magnifying-glass" />
                     <p>{SAY_EMPTY}</p>
-                    <a className="btn" target="_blank" rel="noopener noreferrer" href={waSource ?? undefined}>
+                    <a
+                      className={waClass("btn", !waSource)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={waSource ?? undefined}
+                      {...waOffProps(!waSource)}
+                    >
                       <i className="fa-brands fa-whatsapp" />
                       {SAY_EMPTY_BTN}
                     </a>

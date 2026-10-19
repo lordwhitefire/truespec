@@ -2,7 +2,7 @@ import { HeroSlider } from "@/components/site/HeroSlider";
 import { FeaturedSlider } from "@/components/site/FeaturedSlider";
 import { HomeInventory } from "@/components/site/HomeInventory";
 import { HomeBehaviors } from "@/components/site/HomeBehaviors";
-import { waLink } from "@/components/whatsapp";
+import { waClass, waLink, waOffProps } from "@/components/whatsapp";
 import { getPublicCars, getSetting } from "@/lib/public-cars";
 
 export const dynamic = "force-dynamic";
@@ -112,7 +112,13 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="more">
-              <a className="btn" target="_blank" rel="noopener noreferrer" href={wa ?? undefined}>
+              <a
+                className={waClass("btn", !wa)}
+                target="_blank"
+                rel="noopener noreferrer"
+                href={wa ?? undefined}
+                {...waOffProps(!wa)}
+              >
                 <i className="fa-brands fa-whatsapp" />
                 Chat with us
               </a>

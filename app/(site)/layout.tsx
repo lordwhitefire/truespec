@@ -8,7 +8,13 @@ import { WhatsAppGate } from "@/components/site/WhatsAppGate";
 import { getPublicCars, getSetting } from "@/lib/public-cars";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { formatNaira } from "@/lib/money";
-import { waLink } from "@/components/whatsapp";
+import {
+  WA_OFF_REASON,
+  WA_OFF_TEXT,
+  waClass,
+  waLink,
+  waOffProps,
+} from "@/components/whatsapp";
 import { Photo } from "@/components/Photo";
 
 // The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
@@ -67,17 +73,22 @@ const WA_QUESTION = "Hello TrueSpec, I have a question.";
 
 async function WhatsAppNumber() {
   const { num } = await chromeData();
-  // Nothing is invented when the owner has not saved a number. A non-breaking space keeps the
-  // header's shape until Task 30 gives the off state its visible words.
-  return <b>{num || "\u00a0"}</b>;
+  // Nothing is invented when the owner has not saved a number; the line says so (D16).
+  return (
+    <b className={num ? undefined : "off-note"} title={num ? undefined : WA_OFF_REASON}>
+      {num || WA_OFF_TEXT}
+    </b>
+  );
 }
 
 async function HeaderChat() {
   const { num } = await chromeData();
+  const link = waLink(num, WA_QUESTION);
   return (
     <a
-      className="wab"
-      href={waLink(num, WA_QUESTION) ?? undefined}
+      className={waClass("wab", !link)}
+      href={link ?? undefined}
+      {...waOffProps(!link)}
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -110,12 +121,15 @@ async function FooterGallery() {
 
 async function FooterWhatsAppIcon() {
   const { num } = await chromeData();
+  const link = waLink(num, WA_QUESTION);
   return (
     <a
-      href={waLink(num, WA_QUESTION) ?? undefined}
+      className={link ? undefined : "wa-off"}
+      href={link ?? undefined}
+      {...waOffProps(!link)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="WhatsApp"
+      aria-label={link ? "WhatsApp" : `WhatsApp — ${WA_OFF_REASON}`}
     >
       <i className="fa-brands fa-whatsapp" />
     </a>
@@ -124,10 +138,12 @@ async function FooterWhatsAppIcon() {
 
 async function FooterWhatsAppButton() {
   const { num } = await chromeData();
+  const link = waLink(num, WA_QUESTION);
   return (
     <a
-      className="wab big"
-      href={waLink(num, WA_QUESTION) ?? undefined}
+      className={waClass("wab big", !link)}
+      href={link ?? undefined}
+      {...waOffProps(!link)}
       target="_blank"
       rel="noopener noreferrer"
     >

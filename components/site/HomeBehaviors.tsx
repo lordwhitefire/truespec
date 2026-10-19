@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { countStock } from "@/lib/counts";
 import { inAvailablePresentation } from "@/lib/sections";
 import type { PublicCar } from "@/lib/serialize";
-import { waLink } from "@/components/whatsapp";
+import { WA_OFF_REASON, waClass, waLink } from "@/components/whatsapp";
 import { carHref, carTitle } from "./car-view";
 import { speak } from "./speak";
 import { store } from "./store";
@@ -44,8 +44,11 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     const toast = document.getElementById("toast");
     const toastx = document.getElementById("toastx");
     const my = waLink(number, "Hello TrueSpec, I have a question.");
-    // No number, no link: the attribute is left off rather than pointing at nobody.
-    const waAttr = my ? ` href="${my}"` : "";
+    // No number: the control stays on screen, visibly off, and carries its reason — never a link
+    // pointing at nobody (D16).
+    const waAttr = my
+      ? ` href="${my}"`
+      : ` role="link" aria-disabled="true" tabindex="-1" title="${WA_OFF_REASON}"`;
     const scrollGrid = () => document.getElementById("cars")?.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" });
 
     const asked0 = store.get("asked", false);
@@ -78,7 +81,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     }
 
     const welcomeBody = `<p class="mp">${SAY.askS}</p><div class="mbtns" style="margin-top:14px"><button type="button" data-a="suv">A family SUV</button><button type="button" data-a="sedan">A saloon</button><button type="button" data-a="other">Something I haven't listed yet</button><button type="button" class="sk" data-a="skip">Skip</button></div>`;
-    const farewellBody = `<p class="mp">${SAY.farewellS}</p><div class="mbtns" style="margin-top:14px"><a class="wab" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" data-a="stay">${SAY.stayB}</button></div>`;
+    const farewellBody = `<p class="mp">${SAY.farewellS}</p><div class="mbtns" style="margin-top:14px"><a class="${waClass("wab", !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" data-a="stay">${SAY.stayB}</button></div>`;
 
     function returnBar() {
       let html = `${SAY.welcomeBack} \u{1F44B}`;
@@ -205,7 +208,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
         if (ask) ask.hidden = true;
         closeModal();
         if (act === "other") {
-          speak(`${SAY.okOther} <a class="wab sm" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a>`);
+          speak(`${SAY.okOther} <a class="${waClass("wab sm", !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a>`);
           scrollGrid();
           return;
         }

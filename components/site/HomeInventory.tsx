@@ -7,6 +7,7 @@ import type { PublicCar } from "@/lib/serialize";
 import { ReferenceCard } from "./ReferenceCard";
 import { speak } from "./speak";
 import { store } from "./store";
+import { waClass, waOffProps } from "@/components/whatsapp";
 
 const newMsg = (n: number) =>
   `Here ${n === 1 ? "is the car" : "are the " + n + " cars"} that arrived since your last visit.`;
@@ -28,6 +29,8 @@ type View = { type: "tab"; key: TabId } | { type: "new"; cars: PublicCar[] };
 // "Show all" stays a link to /inventory.
 export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: string }) {
   const [view, setView] = useState<View>({ type: "tab", key: "a" });
+  const digits = number.replace(/\D/g, "");
+  const wa = digits ? `https://wa.me/${digits}` : null;
 
   // Counts come from the one counting rule (R-CNT-1…5), never local arithmetic.
   const counts = countStock(cars);
@@ -118,14 +121,11 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
                 <i className="fa-solid fa-magnifying-glass" />
                 <p>Nothing here yet — tell me the car you&rsquo;re after and I&rsquo;ll source it in the USA.</p>
                 <a
-                  className="btn"
+                  className={waClass("btn", !wa)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={
-                    number.replace(/\D/g, "")
-                      ? `https://wa.me/${number.replace(/\D/g, "")}`
-                      : undefined
-                  }
+                  href={wa ?? undefined}
+                  {...waOffProps(!wa)}
                 >
                   <i className="fa-brands fa-whatsapp" />
                   Message me on WhatsApp

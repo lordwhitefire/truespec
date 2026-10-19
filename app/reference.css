@@ -33,6 +33,9 @@ body.lock { overflow: hidden; }
 .inf > i { color: var(--gold); border: 2px solid var(--gold); border-radius: 50%; width: 38px; height: 38px; display: grid; place-items: center; font-size: 16px; flex: none; }
 .inf small { display: block; color: var(--gold); font-size: 11px; font-weight: 600; text-transform: uppercase; }
 .inf b { font-size: 21px; color: #fff; font-family: Oswald, sans-serif; font-weight: 600; }
+/* D16 — no number saved: the header says so where the number was; it must read as a note, not
+   as a value. */
+.inf b.off-note { color: #b9bdc2; font-family: inherit; font-size: 13px; font-weight: 500; letter-spacing: 0; }
 .soc { width: 38px; height: 38px; border-radius: 50%; background: #33383d; display: grid; place-items: center; color: #fff; }
 
 /* ---------- STICKY NAV + TICKER ---------- */
@@ -104,6 +107,18 @@ dialog.ovl::backdrop{background:transparent}
 /* (a.fab: the anchor selector outranks Font Awesome's own `.fab` brands-icon
    rule, which otherwise forces `display:inline-block` at every width.) */
 a.fab { display: none; }
+
+/* ---------- A CHAT CONTROL WITH NO NUMBER SAVED (D16) ---------- */
+/* The control stays on the screen and in the flow — it is greyed, not hidden, and it is not a
+   link (no `href`, no tab stop; `role="link" aria-disabled="true"` carries the state). The reason
+   travels with it as `title`/accessible description; the header line says it visibly. */
+.wa-off { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+.wa-off.wab::after { display: none; } /* no shine on a control that is off */
+.wa-off.wab:hover,
+.wa-off.fab:hover,
+.sv .btn.wa-off:hover { transform: none; box-shadow: none; }
+.ofr.wa-off:hover { background: var(--lt); padding-left: 24px; }
+.sq a.wa-off:hover { background: #33383d; color: #fff; }
 
 /* ============================================================================
    HOME SCREEN — namespaced under `.sv`

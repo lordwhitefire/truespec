@@ -3,7 +3,7 @@ import "./reference.css";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getSetting } from "@/lib/public-cars";
-import { waLink } from "@/components/whatsapp";
+import { waClass, waLink, waOffProps } from "@/components/whatsapp";
 import { ThemeSpeech } from "@/components/site/ThemeSpeech";
 
 const WA_MESSAGE = "Hello TrueSpec, I was looking for a car on your site.";
@@ -64,10 +64,11 @@ export default async function NotFound() {
           Browse the inventory
         </Link>
         <a
-          className="wab big"
+          className={waClass("wab big", !wa)}
           target="_blank"
           rel="noopener noreferrer"
           href={wa ?? undefined}
+          {...waOffProps(!wa)}
           style={{
             display: "inline-flex",
             alignItems: "center",

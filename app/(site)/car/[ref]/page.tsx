@@ -4,7 +4,7 @@ import "@/app/(site)/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { Photo } from "@/components/Photo";
 import { carHref } from "@/components/site/car-view";
-import { carWaLink, waLink } from "@/components/whatsapp";
+import { carWaLink, waClass, waLink, waOffProps } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { sectionLabel, tokenOf } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
@@ -271,15 +271,36 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                   ) : null}
                 </div>
               </div>
-              <a className="wab big" id="wa" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
+              <a
+                className={waClass("wab big", !wa)}
+                id="wa"
+                href={wa ?? undefined}
+                {...waOffProps(!wa)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="fa-brands fa-whatsapp fa-xl" />
                 <span id="waTxt">{car.section === "on order" ? "Reserve this car" : "Chat on WhatsApp"}</span>
               </a>
-              <a className="ofr" id="of" href={offerLink ?? undefined} target="_blank" rel="noopener noreferrer">
+              <a
+                className={waClass("ofr", !offerLink)}
+                id="of"
+                href={offerLink ?? undefined}
+                {...waOffProps(!offerLink)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Make an offer
                 <i className="fa-solid fa-naira-sign" />
               </a>
-              <a className="ofr" id="vw" href={viewingLink ?? undefined} target="_blank" rel="noopener noreferrer">
+              <a
+                className={waClass("ofr", !viewingLink)}
+                id="vw"
+                href={viewingLink ?? undefined}
+                {...waOffProps(!viewingLink)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Book a viewing
                 <i className="fa-regular fa-calendar-check" />
               </a>
@@ -369,7 +390,14 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
             {formatNaira(car.priceKobo)}
           </div>
         </div>
-        <a className="wab" id="mw" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
+        <a
+          className={waClass("wab", !wa)}
+          id="mw"
+          href={wa ?? undefined}
+          {...waOffProps(!wa)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <i className="fa-brands fa-whatsapp" />
           <span id="mwTxt">{car.section === "on order" ? "Reserve now" : "Chat now"}</span>
         </a>
@@ -476,7 +504,13 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
           instead:
         </p>
         <div className="row">
-          <a className="wab big" href={soldWa ?? undefined} target="_blank" rel="noopener noreferrer">
+          <a
+            className={waClass("wab big", !soldWa)}
+            href={soldWa ?? undefined}
+            {...waOffProps(!soldWa)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
           </a>
           <a className="btn" href="/inventory">

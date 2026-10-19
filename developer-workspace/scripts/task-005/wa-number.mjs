@@ -5,7 +5,7 @@
 // puts the same row back, timestamp included, so the store afterwards is byte-for-byte the one it
 // was. Nothing else in the store is touched.
 //
-// usage: node wa-number.mjs read|clear|restore
+// usage: node wa-number.mjs read|clear|restore [run-label]   (default run label: task29)
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { config } from "dotenv";
@@ -18,7 +18,12 @@ if (!url) {
 }
 const sql = neon(url);
 
-const RUNS = new URL("./runs/task29/", import.meta.url).pathname;
+const RUN_LABEL = process.argv[3] ?? "task29";
+if (!/^[a-z0-9-]+$/.test(RUN_LABEL)) {
+  console.error(`bad run label: ${RUN_LABEL}`);
+  process.exit(2);
+}
+const RUNS = new URL(`./runs/${RUN_LABEL}/`, import.meta.url).pathname;
 mkdirSync(RUNS, { recursive: true });
 const BACKUP = `${RUNS}saved-number.json`;
 const KEY = "whatsapp_number";
@@ -66,6 +71,6 @@ if (command === "read") {
   console.log(JSON.stringify({ restored: same, after }));
   if (!same) process.exitCode = 1;
 } else {
-  console.error("usage: node wa-number.mjs read|clear|restore");
+  console.error("usage: node wa-number.mjs read|clear|restore [run-label]");
   process.exit(2);
 }

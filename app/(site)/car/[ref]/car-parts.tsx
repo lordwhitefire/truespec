@@ -1,5 +1,5 @@
 import { Photo } from "@/components/Photo";
-import { waLink } from "@/components/whatsapp";
+import { waClass, waLink, waOffProps } from "@/components/whatsapp";
 
 /* The car page's furniture that more than one render shares.
  *
@@ -39,7 +39,14 @@ export function CarLayers({ wa }: { wa: string | null }) {
           <small>Doorstep price</small>
           <div className="num" id="mp" />
         </div>
-        <a className="wab" id="mw" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
+        <a
+          className={waClass("wab", !wa)}
+          id="mw"
+          href={wa ?? undefined}
+          {...waOffProps(!wa)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <i className="fa-brands fa-whatsapp" />
           <span id="mwTxt">Chat now</span>
         </a>
@@ -111,7 +118,13 @@ export function NotFoundView({ num }: { num: string }) {
           find one like it — or browse what&apos;s on the lot now.
         </p>
         <div className="row">
-          <a className="wab big" href={waSource ?? undefined} target="_blank" rel="noopener noreferrer">
+          <a
+            className={waClass("wab big", !waSource)}
+            href={waSource ?? undefined}
+            {...waOffProps(!waSource)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
           </a>
           <a className="btn" href="/#cars">

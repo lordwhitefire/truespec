@@ -1,6 +1,36 @@
 import type { PublicCar } from "@/lib/serialize";
 
 /**
+ * D16 — with no number saved the chat affordances stay on the screen and are visibly off. The
+ * header line says why there is no number; every control carries the fuller reason (title and
+ * accessible description), because a control that only looks dead is still a control that
+ * explains nothing.
+ */
+export const WA_OFF_TEXT = "No number saved";
+export const WA_OFF_REASON = "No WhatsApp number is saved yet.";
+
+/** A base class plus the off state's class, in one place so the name cannot drift. */
+export function waClass(base: string, off: boolean): string {
+  return off ? `${base} wa-off` : base;
+}
+
+/**
+ * The attributes of an off chat control. There is no `href`, so it is not a link and not in the
+ * tab order; `role="link"` + `aria-disabled` keep it announced as a control that is switched off
+ * rather than as plain text, and `title` is the reason a sighted visitor can read.
+ */
+export function waOffProps(off: boolean) {
+  return off
+    ? {
+        role: "link" as const,
+        "aria-disabled": true as const,
+        tabIndex: -1,
+        title: WA_OFF_REASON,
+      }
+    : {};
+}
+
+/**
  * The one place a WhatsApp link is built on the showroom.
  *
  * The saved number is normalised (`+234…`), and `wa.me` resolves only when the link carries digits
