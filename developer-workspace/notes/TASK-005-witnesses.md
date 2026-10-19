@@ -1049,3 +1049,27 @@ leaving `[]`. **0** server-action posts (the only POSTs were two external Clerk 
 console / **0** HTTP; Chrome **6 → 6**. Typecheck clean · **309/309**. Files: `lib/device-draft.ts`
 (new), `lib/device-draft.test.ts` (new), `car/car-client.tsx`, `settings/settings-client.tsx`. Drive
 `task36.mjs`; readings `runs/task36/task36.json`. Note `notes/TASK-005-task36.md`.
+
+## Task 35 — the office offline banner, and Save with its reason (2026-10-19, live)
+
+The approved line — **“Offline, your draft is kept on this device.”** — is a sticky 38 px bar above
+the office shell. The car form and the settings page were typed in (never saved), then the network
+was dropped under them. Attach-only; the office, signed in; read-only toward the store.
+
+| surface | banner first | line / placement | Save / reason | withdraw |
+|---|---|---|---|---|
+| add car, 1440 | **1220 ms** | approved line · `role=status` · `aria-live=polite` · sticky top 0 · 38 px · width 1425 = `clientWidth` | `aria-disabled=true` · `tabindex=-1` · `aria-describedby=ts-office-offline` · grayscale, `not-allowed`; click left `/office/car/new`, **0** actions, never “Saving” | **74 ms** |
+| add car, 375 | **1287 ms** | same; width 360 = `clientWidth`; phone topbar at `top: 38px` | same; desktop side hidden | **80 ms** |
+| settings → tagline, 1440 | **1263 ms** | same | **3** card Saves annotated; click left the path, **0** actions, tagline unchanged | **85 ms** |
+| fetch failure, 1440 | **1278 ms** | same, while `navigator.onLine` was **true** | car Save annotated; a refused `fetch` made the real `TypeError`; a successful `fetch("/")` cleared it | **19 ms** |
+
+Scrolled to the bottom, the line stayed at `top: 0`; the desktop `.side` and phone `.topbar` stayed
+at the published `38px`. Reconnect hid it, removed `html[data-ts-office-offline]` and
+`--ts-office-offline-h`, returned the shell to `top: 0px`, and restored the Save's attributes/class;
+the settings Save was dirty again and the typed tagline intact. The Task 36 drafts held the car and
+settings typing (`ts-draft:car:new`, `ts-draft:settings:tagline`); cleanup left **[]** `ts-draft:`
+keys. **0** server actions (the four non-GETs were external and had no `next-action`); the failure
+leg's one expected browser log, `ERR_CONNECTION_REFUSED`, is the refused probe; **0** unexpected
+console / **0** page / **0** HTTP. Chrome **6 → 6**. Typecheck clean · **309/309**. Files:
+`OfflineBanner.tsx` (new), `layout.tsx` (Task 35 hunks only; owner WIP untouched); `office.css`
+unchanged. Drive `task35.mjs`; readings `runs/task35/task35.json`. Note `notes/TASK-005-task35.md`.

@@ -71,6 +71,12 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   settings cards under `ts-draft:` keys (400 ms debounce; `FormData` text only, photo bytes dropped;
   no customer/enquiry key; no server write). A draft survives a reload; it is not restored or erased
   until Tasks 37/38.
+- **Task 35 (built 2026-10-19):** the office shell carries the approved line “Offline, your draft is
+  kept on this device.” on either signal (`onLine=false` or a caught fetch `TypeError`), after
+  **1200 ms**, and withdraws at once on `online` or a successful fetch. Save controls carry
+  `aria-disabled`, `tabindex=-1`, and the line as `aria-describedby`; a document capture guard
+  refuses click/submit, while React keeps the native `disabled` prop. The banner/Save CSS is inline
+  in `OfflineBanner.tsx` because the shell imports no stylesheet; `office.css` is unchanged.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 

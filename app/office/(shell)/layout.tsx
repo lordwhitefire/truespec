@@ -1,6 +1,7 @@
 import { OfficeNav } from "@/components/office/OfficeNav";
 import { OfficeBottomNav } from "@/components/office/OfficeBottomNav";
 import { OfficeTopbar } from "@/components/office/OfficeTopbar";
+import { OfflineBanner } from "@/components/office/OfflineBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { requireOfficeSession } from "@/lib/session";
 import { getOfficeTapCount } from "@/lib/office";
@@ -25,6 +26,7 @@ export default async function OfficeLayout({ children }: { children: React.React
 
   return (
     <>
+      <OfflineBanner />
       <div className="shell">
         <aside className="side">
           <div className="sl">
