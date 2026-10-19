@@ -823,3 +823,21 @@ drive's upload leg retries on the intermittent store; none was needed. Typecheck
 `galRect` 832×499 on every leg (the box unchanged wherever it was already right). Drive
 `photo-box.mjs` (CDN block lifted in `finally`); readings `runs/task26/before.json` / `after.json`;
 Chrome 3 → 3.
+
+## Task 27 — the empty photo box is a gradient from the car's ref (2026-10-19, live, read-only)
+
+| reading | before | after |
+|---|---|---|
+| A. no photos (TS-1029) — the box | flat grey SVG (`#eef0f2`), **announced** (`role: image`, name `… photo 1`) | **gradient** `linear-gradient(135deg, rgb(41,66,56), rgb(61,48,105))` (green → violet) |
+| A. `.pbox` · the slot in the AX tree | absent · `role: image`, ignored **false**, named | present, `aria-hidden="true"`, animation **none** · `#gi` `role: none`, **ignored: true**, no name · `.pbox` **ignored** |
+| A. calm · reload | — | unchanged after 1.3 s · **identical gradient** after reload |
+| B. no photos (TS-1030) | the same flat grey | **its own gradient** `rgb(41,66,41) → rgb(90,109,55)` (green → olive) |
+| C. photographed (TS-1001) | photo | **the photo over its own box** (`rgb(69,52,39) → rgb(49,76,94)` behind it); `#gi` announced with its alt — a real photo |
+| D. blocked before load (TS-1001, `*sanity.io*`) | grey SVG placeholder | **the box**, the **same colours as C** (same car); `#gi` silent — `alt=""`, no `src`, ignored |
+| layout | `galRect` 832×499 | `galRect` 832×499 on every leg — no shift |
+| console errors | — | none |
+
+Two distinct colours per car, never a flat grey; same car → same pair after reload; two cars →
+two pairs; no animation; the box occupies a photo's shape and size. Drive `photo-gradient.mjs`
+(CDN block lifted in `finally`); readings `runs/task27/before.json` / `after.json`, sample frames
+beside them; Chrome 3 → 3.

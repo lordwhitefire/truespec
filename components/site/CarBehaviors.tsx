@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 
-import { PHOTO_PLACEHOLDER } from "../Photo";
-
 type Props = {
   photos: string[];
   alt: string;
@@ -188,10 +186,13 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
             void (g as HTMLElement | null)?.offsetWidth;
             g?.classList.add("go");
           };
-          // A driven photo that fails lands on the drawn box, like a load-time failure (DR6).
+          // A driven photo that fails leaves the slot to the drawn box behind it (D7/E2): drop
+          // the dead address and the name with it, so no broken icon shows and nothing is
+          // announced; React's failed state keeps it dropped (DR6).
           im.onerror = () => {
             im.classList.remove("sw");
-            im.src = PHOTO_PLACEHOLDER;
+            im.removeAttribute("src");
+            im.alt = "";
           };
         }
         if (li) li.src = src;

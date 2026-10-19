@@ -172,9 +172,10 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                       <span className="ld">Landed</span>
                     ) : null}
                   </div>
-                  <Photo id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} />
+                  <Photo id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} boxRef={car.ref} />
                   {/* No photos: the drawn box stands alone — nothing to count, step through or
-                      thumbnail (DR5). One photo keeps its counter and loses the arrows. */}
+                      thumbnail (DR5); the box itself is the car's own gradient (D7/E2). One photo
+                      keeps its counter and loses the arrows. */}
                   {car.photos.length > 1 ? (
                     <>
                       <button type="button" className="gb l" aria-label="Previous photo">

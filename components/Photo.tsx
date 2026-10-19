@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
 
+import { PhotoBox } from "./PhotoBox";
+
 /**
  * The one image the showroom and the office draw (truth 7).
  *
@@ -18,6 +20,11 @@ import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
  * network and can never itself fail) on the same grey as the rest of the surface. It is used when
  * the address is empty as well as when the load fails — an empty `src` is not "no image", it is
  * "reload this whole page", which is worse than a placeholder.
+ *
+ * A slot that stands inside a drawn box (`boxRef` — the car page's gallery) renders differently:
+ * the box (a per-car gradient, D7/E2) is painted behind it, so when the address is empty or the
+ * load failed the image stays transparent and silent (`alt=""`) and the box shows through — and
+ * when a photo does load, the photo paints over the box.
  *
  * The element stays an `<img>` in every case, with the same attributes it was given, so the layouts
  * and styles around it (`.th img`, the gallery's `#gi`) are untouched — only what it shows changes.
@@ -43,9 +50,15 @@ export type PhotoProps = ImgHTMLAttributes<HTMLImageElement> & {
   src?: string;
   /** What the picture is, for a screen reader — required, because the placeholder must still be named. */
   alt: string;
+  /**
+   * The reference code of the car this slot belongs to. When set, the drawn box (a per-car
+   * gradient, D7/E2) is rendered behind the slot, and boxed states (no address, or a failed load)
+   * leave the image transparent and unannounced so the box shows through.
+   */
+  boxRef?: string;
 };
 
-export function Photo({ src, alt, onError, ...rest }: PhotoProps) {
+export function Photo({ src, alt, boxRef, onError, ...rest }: PhotoProps) {
   const [failed, setFailed] = useState(false);
   const el = useRef<HTMLImageElement | null>(null);
 
@@ -58,20 +71,25 @@ export function Photo({ src, alt, onError, ...rest }: PhotoProps) {
     if (im && im.complete && im.naturalWidth === 0) setFailed(true);
   }, []);
 
-  const shown = !src || failed ? PHOTO_PLACEHOLDER : src;
+  const boxed = !src || failed;
+  const shown = boxed ? (boxRef ? undefined : PHOTO_PLACEHOLDER) : src;
 
   return (
-    <img
-      {...rest}
-      ref={el}
-      src={shown}
-      alt={alt}
-      // Once shown, the placeholder is sticky: swapping back to a source that is already known to
-      // fail would only flicker the broken icon again.
-      onError={(event) => {
-        setFailed(true);
-        onError?.(event);
-      }}
-    />
+    <>
+      {boxRef ? <PhotoBox refCode={boxRef} /> : null}
+      <img
+        {...rest}
+        ref={el}
+        src={shown}
+        // The boxed slot inside a drawn box is decorative — the car's name is already beside it (E2).
+        alt={boxed && boxRef ? "" : alt}
+        // Once shown, the placeholder is sticky: swapping back to a source that is already known to
+        // fail would only flicker the broken icon again.
+        onError={(event) => {
+          setFailed(true);
+          onError?.(event);
+        }}
+      />
+    </>
   );
 }
