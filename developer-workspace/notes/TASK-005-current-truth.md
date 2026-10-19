@@ -85,6 +85,12 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   **not** shown on a plain online reload. It stays until save/discard (Task 38) or leaving the form.
   The shell offset for the recovery line is `data-ts-office-recovered`; Save annotations are gone on
   reconnect.
+- **Task 38 (built 2026-10-19):** a device draft is erased only by an act: a successful save
+  (`res.ok`, including “Nothing changed.”), the car’s Cancel (discard), or sign-out. The erase
+  cancels the pending debounced write first; leaving/reload does not erase; there is no clock/day
+  count. `clearDrafts()` removes only `ts-draft:` keys (theme and other keys stay) and is used by the
+  sign-out page, which is also the session-expiry landing; the car and settings clients remove their
+  own keys. The recovery line is taken down by the same act.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 

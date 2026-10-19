@@ -1089,3 +1089,23 @@ Cleanup left **[]** `ts-draft:` keys. **0** server actions (the 5 non-GETs were 
 `next-action`); **0** console / **0** page / **0** HTTP; Chrome **6 → 6**. Typecheck clean ·
 **309/309**. Files: `car-client.tsx`, `settings-client.tsx`, `OfflineBanner.tsx`. Drive
 `task37.mjs`; readings `runs/task37/task37.json`. Note `notes/TASK-005-task37.md`.
+
+## Task 38 — a draft is erased only by an act (2026-10-19, live)
+
+Attach-only; the office, signed in (main context); 1440 × 900. Test drafts removed; the one demo
+write is the full-tank default, saved to a probe and saved back.
+
+| act | probe | result |
+|---|---|---|
+| **discard** — car add, Cancel | brand “Task38 discard probe” | `/office/inventory`; `ts-draft:car:new` **gone**; marker false; **0** actions |
+| **no erase** — car add, reload | brand “Task38 kept probe” | brand restored after reload; key **still present**; marker true; no recovery line; then Cancel removed it; **0** actions |
+| **save** — settings Cost default | `0` → `5000` | recovery line **2 ms** after reconnect; Save cleared the draft and hid the line; a second save restored `0`; final reload read **0**; exactly **2** actions |
+| **sign-out** — sessionless incognito context | two fake `ts-draft:` keys + `ts-theme` + `not-a-draft` | `/office/sign-out`; all drafts gone; `ts-theme`, `not-a-draft`, site keys kept; owner’s main session untouched |
+
+The full-tank default was `0` before and after; the probe was not left behind. Exactly **2**
+`next-action` posts, both after Save clicks; discard/reload/offline/reconnect/leaving posted **0**.
+10 non-GETs total (the other 8 external, no `next-action`). **0** console / **0** page / **0** HTTP.
+`[]` `ts-draft:` keys after cleanup; Chrome **6 → 6**. Typecheck clean · **310/310**. Files:
+`lib/device-draft.ts` (+ test), `app/office/sign-out/page.tsx`, `car-client.tsx`,
+`settings-client.tsx`. Drive `task38.mjs`; readings `runs/task38/task38.json`. Note
+`notes/TASK-005-task38.md`.

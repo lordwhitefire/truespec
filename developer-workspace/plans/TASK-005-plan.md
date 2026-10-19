@@ -396,6 +396,7 @@ copy); raised in the report.
 - **AC:** a draft is erased when the person **saves**, **discards**, or **signs out** — and in no other case: never by a clock, never by a count of days.
 - **Verify:** `npm test` (the erase rules); live: save clears it; discard clears it; sign-out clears it; leaving it alone across a reload does not.
 - **Deps:** 36. **Files:** `lib/device-draft.ts`, `app/office/sign-out/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/settings/settings-client.tsx`.
+  - **Files-line note (2026-10-19, built):** exactly those four; no extra. `clearDrafts()` is prefix-only and snapshot-first; the car erases on a successful save (`res.ok`, including “Nothing changed.”) and on Cancel (discard), the settings cards on each successful save, and the sign-out page before Clerk signs out. Every erase cancels the pending writer first. The sign-out page is also the session-expiry landing: the session-end clears drafts; this is not a draft-age clock. The demo full-tank write was `0 → 5000 → 0`; the car success-save path was not live-driven (would write a real car), but the settings save path and the car discard/reload paths were. `npm test` 310/310 includes the prefix-only clear test.
 
 **Task 39 — The privacy notice keeps its promise** (S)
 - **AC:** the privacy page's device-storage disclosure names the draft storage in the same plain way it already names the theme — one added line, nothing else.

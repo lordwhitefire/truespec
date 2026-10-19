@@ -13,6 +13,7 @@ import assert from "node:assert/strict";
 import {
   captureFormData,
   carDraftKey,
+  clearDrafts,
   createDraftWriter,
   DEVICE_DRAFT_PREFIX,
   DRAFT_DEBOUNCE_MS,
@@ -39,6 +40,14 @@ class MemoryStorage implements DraftStorage {
 
   removeItem(key: string): void {
     this.values.delete(key);
+  }
+
+  key(index: number): string | null {
+    return [...this.values.keys()][index] ?? null;
+  }
+
+  get length(): number {
+    return this.values.size;
   }
 
   keys(): string[] {
@@ -73,6 +82,18 @@ test("a car draft and a settings draft round-trip under ts-draft keys, unchanged
     `${DEVICE_DRAFT_PREFIX}car:TS-1001`,
     `${DEVICE_DRAFT_PREFIX}settings:whatsapp`,
   ]);
+});
+
+test("clearDrafts removes every ts-draft key and leaves everything else", () => {
+  const storage = new MemoryStorage();
+  writeDraft(carDraftKey("new"), { v: 1, base: {}, data: {}, photos: [] }, storage);
+  writeDraft(settingDraftKey("tagline"), { v: 1, base: "", value: "Hello" }, storage);
+  storage.setItem("ts-theme", "dark");
+  storage.setItem("not-a-draft", "keep");
+
+  clearDrafts(storage);
+
+  assert.deepEqual(storage.keys().sort(), ["not-a-draft", "ts-theme"]);
 });
 
 test("a car draft is the form's text plus photo references — never a photo's bytes", () => {

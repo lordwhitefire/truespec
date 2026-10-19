@@ -20,6 +20,7 @@ import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/act
 import {
   createDraftWriter,
   readDraft,
+  removeDraft,
   settingDraftKey,
   writeDraft,
   type DeviceSettingDraft,
@@ -205,6 +206,16 @@ export function Settings({
     draftWriter.schedule(settingDraftKey(field), draft);
   }
 
+  // Erase one card's draft only on a successful save. The pending write is cancelled first; another
+  // card's draft (if any) keeps the recovery line's marker alive.
+  function clearSettingDraft(field: DeviceSettingField) {
+    const key = settingDraftKey(field);
+    draftWriter.cancel(key);
+    removeDraft(key);
+    draftPresent.current.delete(field);
+    announceDraftPresence(draftPresent.current.size > 0);
+  }
+
   useEffect(() => {
     setMounted(true);
     return () => {
@@ -260,6 +271,7 @@ export function Settings({
       setWaErr(null);
       setWaSaved(true);
       setPvLink("wa.me/" + waMeDigits(result.value));
+      clearSettingDraft("whatsapp");
       // The words follow the store's own answer (DR23): a save that wrote nothing because the
       // number was already exactly this one says so, and never claims a save. A refusal never
       // reaches this line — it returns above.
@@ -289,6 +301,7 @@ export function Settings({
       setTagSnap(result.value);
       setTagN(String(result.value.length));
       setTagErr(null);
+      clearSettingDraft("tagline");
       showToast(result.changed ? "Tagline saved. The home page updates immediately." : "Nothing changed.");
     } finally {
       setTagBusy(false);
@@ -310,6 +323,7 @@ export function Settings({
       setTank(result.value);
       setTankSnap(result.value);
       setTankErr(null);
+      clearSettingDraft("tank");
       showToast(
         result.changed ? "Default saved. Full tank is pre-filled on every new car." : "Nothing changed.",
       );

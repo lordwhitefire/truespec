@@ -37,6 +37,7 @@ import {
   carDraftKey,
   createDraftWriter,
   readDraft,
+  removeDraft,
   writeDraft,
   type DeviceCarDraft,
   type DraftFields,
@@ -487,6 +488,16 @@ export function CarForm({
     draftWriter.schedule(carDraftKey(carId), draft);
   }
 
+  // Erase the car's draft only on an act: a successful save or Cancel (discard). The pending write
+  // is cancelled first, so a trailing debounce cannot put the draft back after the act.
+  function clearCarDraft() {
+    const key = carDraftKey(data.carId);
+    draftWriter.cancel(key);
+    removeDraft(key);
+    draftPresent.current = false;
+    announceDraftPresence(false);
+  }
+
   useEffect(() => setMounted(true), []);
 
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
@@ -700,12 +711,14 @@ export function CarForm({
       // saved; a save that changed nothing says exactly that, and never claims a save. The fact is
       // the store's own reply — and a failure never takes this branch, so "Nothing changed." can
       // never stand in for a failure (DR25).
-      if (res.ok)
+      if (res.ok) {
+        clearCarDraft();
         showToast(
           res.changed
             ? `Saved <b>${res.ref}</b>. The showroom updates immediately.`
             : "Nothing changed.",
         );
+      }
     });
   };
 
@@ -1354,7 +1367,7 @@ export function CarForm({
             <button className="btn" id="save" type="submit" disabled={saving}>
               <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
             </button>
-            <a className="btn gh" href="/office/inventory">
+            <a className="btn gh" href="/office/inventory" onClick={clearCarDraft}>
               Cancel
             </a>
             <span className="hint2">

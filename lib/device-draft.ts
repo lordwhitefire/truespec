@@ -36,7 +36,8 @@ export type DeviceSettingDraft = {
   value: string;
 };
 
-export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
+export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem"> &
+  Partial<Pick<Storage, "key" | "length">>;
 
 /**
  * Capture a form's fields as a draft payload.
@@ -116,6 +117,28 @@ export function removeDraft(
   if (!storage) return;
   try {
     storage.removeItem(DEVICE_DRAFT_PREFIX + key);
+  } catch {
+    /* ignored */
+  }
+}
+
+/**
+ * Remove every device draft, and nothing else.
+ *
+ * This is the sign-out act (Task 38). It walks the storage's own key list, takes a snapshot before
+ * removing, and only touches the `ts-draft:` prefix — the theme and any other `ts-` value stay. A
+ * storage that cannot list keys, or refuses, is a no-op; a draft is never a condition of the work.
+ */
+export function clearDrafts(storage: DraftStorage | null = browserStorage()): void {
+  if (!storage) return;
+  try {
+    const keys: string[] = [];
+    const length = storage.length ?? 0;
+    for (let index = 0; index < length; index += 1) {
+      const key = storage.key?.(index);
+      if (key && key.startsWith(DEVICE_DRAFT_PREFIX)) keys.push(key);
+    }
+    for (const key of keys) storage.removeItem(key);
   } catch {
     /* ignored */
   }

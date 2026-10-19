@@ -3,6 +3,7 @@
 import "../door.css";
 import { useEffect } from "react";
 import { useClerk } from "@clerk/nextjs";
+import { clearDrafts } from "@/lib/device-draft";
 
 /**
  * The client half of sign-out.
@@ -18,6 +19,10 @@ export default function OfficeSignOutPage() {
   const { signOut } = useClerk();
 
   useEffect(() => {
+    // The sign-out act erases every device draft, not just the one on the page the person left
+    // (Task 38). This runs before the provider clears the session; the draft store itself is only
+    // a convenience, so a storage failure does not block signing out.
+    clearDrafts();
     void signOut({ redirectUrl: "/office/sign-in" });
   }, [signOut]);
 
