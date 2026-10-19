@@ -1135,3 +1135,18 @@ owner's main session was never signed out. Task 39 remains closed, not done. The
 Task 35's witness; this checkpoint covers the plan's four parts. Readings
 `runs/task38/task38.json`; log `runs/task38/checkpoint-c.log`; note
 `notes/TASK-005-checkpoint-c.md`.
+
+## Task 42 — The witness pass (2026-10-19)
+
+`reports/TASK-005-witnesses.md` is the pass record. Fresh on the current build: benchmarks 3/4
+(`photo-box.mjs`, `runs/task42/photo-box.json`: 23/23 cards drawn, 0 broken), 6
+(`car-404.mjs`, `runs/car-404/live.json`: dead car 404, live/sold 200), 10 showroom
+(`task34.mjs`, `runs/task34/task34.json`: 1 204/1 267 ms, 51/43 ms withdrawal, 0 tap requests,
+38 px line) and 11 (`task33.mjs`, `runs/task33/task33.json`: sign 504/503 ms; page 9 099/9 329 ms;
+fast 2 928/3 963 ms; 0 console/HTTP). Benchmarks 1/2/5/7/8/9 are carried from their live task runs
+on this build; the Clerk office session expired before a fresh office pass and Chrome is on
+`/office/sign-in`. The 8 000 ms window is the allowed carry from Task 12; the pre-bar **215 ms /
+1 227 ms** numbers in `findings/05-runtime-observations.md` §R2.3 §6 were **not re-measured** (the
+`testing.md` §R2.2 pointer is wrong), and are not claimed. The old Task 35 drive exits 1 because it
+predates Task 37’s recovery line; checkpoint C / Task 38 drove the current behaviour. Benchmark 12
+remains person-only. Chrome 6 → 6.
