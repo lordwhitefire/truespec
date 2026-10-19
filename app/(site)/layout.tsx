@@ -3,6 +3,7 @@ import "../globals.css";
 import "../reference.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Ticker } from "@/components/site/Ticker";
+import { OfflineNotice } from "@/components/site/OfflineNotice";
 import { SiteFab } from "@/components/site/SiteFab";
 import { WhatsAppGate } from "@/components/site/WhatsAppGate";
 import { getPublicCars, getSetting } from "@/lib/public-cars";
@@ -162,6 +163,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
   return (
     <>
       {fonts}
+      <OfflineNotice />
       <div id="site-header">
         <div className="top" id="top">
           <div className="w">

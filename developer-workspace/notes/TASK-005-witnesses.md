@@ -3,8 +3,12 @@
 What was actually run, and what it actually answered. One section per task, appended as the task is
 built. A claim that is not in here was not driven.
 
-Environment, each time: the automation Chrome is **not** listening on `:9222` (attach-only rule —
-never start one), so a live drive is recorded only where the check does not need a browser.
+Environment: the automation Chrome was not listening on `:9222` when this record opened (attach-only
+rule — never started by us), so early checks were recorded only where they did not need a browser.
+Later tasks that needed a browser attached to the owner's visible Chrome when it was up. On
+2026-10-19 the owner's laptop lost power; per the owner's explicit instruction the dev server and the
+visible Chrome were restarted for Task 34. Every drive remains attach-only and records the tab count
+before/after (no launch).
 
 ---
 
@@ -1005,3 +1009,27 @@ hunks committed; the owner's WIP left unstaged and intact), `OfficeBottomNav.tsx
 four `loading.tsx` exist from TASK-004 and remain the full wait (not the sign); no `car/loading.tsx`
 (Task 9). Typecheck clean · **304/304**. Drive `task33.mjs`; readings
 `runs/task33/task33.json`. Note `notes/TASK-005-task33.md`.
+
+## Task 34 — the showroom's offline line (2026-10-19, live)
+
+The approved line — **“You are offline. Reload to see the site.”** — is a sticky 38 px bar above the
+site chrome. The gate was opened online, then the network was dropped under it. Attach-only; public
+showroom; read-only.
+
+| width | line first | gate | disabled action / reason | content | withdraw |
+|---|---|---|---|---|---|
+| 375 | **1325 ms** | opened online, **closed** when the line came; Continue `disabled` | chat + footer privacy `aria-disabled=true`, `tabindex=-1`, `aria-describedby=ts-offline-notice`; grayscale, `not-allowed` | header/footer/main visible | **9 ms** |
+| 1440 | **1291 ms** | same | same | same | **11 ms** |
+
+The blocked chat action left the URL, opened no tab, and did not open the gate; **0** `/api/tap`
+requests offline. The blocked internal link left the URL `/`; with the page scrolled to the bottom
+the line was still at `top: 0`. The local theme toggle changed the theme under the line. Reconnect
+restored the nav (`top: 0px`), the chat attributes, and the gate Continue; the gate reopened online.
+The real-`TypeError` leg: a same-origin `/api/tap` fetch aborted in the tab while `navigator.onLine`
+was **true** raised the line at **1305 ms**; a fulfilled 204 fetch withdrew it in **102 ms**. **0**
+service workers, **0** caches, no outbox keys; the two `/api/tap` requests in the run were the
+intercepted failure-leg fetches. 0 console / 0 HTTP on the offline legs (the failure leg's one
+expected `net::ERR_FAILED` is the deliberate abort). Store untouched; Chrome **6 → 6**; typecheck
+clean · **304/304**. Files: `OfflineNotice.tsx` (new), `(site)/layout.tsx`, `reference.css`,
+`WhatsAppGate.tsx` (extra: the one network button, `data-ts-network`). Drive `task34.mjs`; readings
+`runs/task34/task34.json`. Note `notes/TASK-005-task34.md`.

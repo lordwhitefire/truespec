@@ -62,6 +62,11 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
 - **Decision:** the offline state is conservative — `navigator.onLine` **plus** a real fetch-failure signal
   (a caught network `TypeError`), slow to appear and quick to withdraw, exactly as the design plan requires.
   No feature is gated on `onLine` alone. (The approved wording is kept verbatim.)
+- **Task 34 (built 2026-10-19):** either signal raises the line — the `offline` event / `onLine=false`,
+  or a caught network `TypeError` observed by a pass-through `window.fetch` wrapper. A successful fetch
+  or the `online` event withdraws it. The line shows after **1200 ms** and withdraws at once. Disabled
+  actions carry the line as `aria-describedby`; the line and the block are on the derived state, so no
+  feature is gated on `onLine` alone. No service worker, Cache Storage, or outbox.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 
@@ -94,9 +99,11 @@ Sources: nextjs.org docs `not-found.js` (updated 2026-10-06), `notFound()` (2026
 ## 6. What this changes in the plan
 
 - Task 13/14/16: dialog facts above (no fighting Escape; no outside handler on destructive; explicit scroll lock).
-- Task 33: per-segment `loading.tsx` is the mechanism; `useLinkStatus` only if a link-level sign is wanted.
+- Task 33: the sign is the clicked Link's `useLinkStatus` pending state; the per-segment `loading.tsx` is
+  the full wait after a held payload lands (corrected live 2026-10-19).
 - Task 8: the `useParams` route is a **high-confidence but unverified** path — it is driven live, not assumed.
-- Tasks 34/35: offline state = `onLine` **plus** fetch-failure, conservative timing.
+- Tasks 34/35: offline state = `onLine=false` **or** a caught fetch `TypeError`, conservative timing; the
+  approved line is the reason; no cache, no outbox.
 
 ## 7. Skill check (recorded, per the plan)
 
@@ -109,3 +116,9 @@ raised with the owner, not installed unasked.
 **Environment note (2026-10-17):** the automation Chrome is **not** listening on `:9222`, and the reference server
 is down. Per the standing procedure the Chrome is **attach-only — never launched by us**. Live checks are blocked
 until it is up; the build server (`next dev -p 3210`) was started and answers 200.
+
+**Update (2026-10-19):** the owner's laptop lost power during Task 34 research. Per the owner's explicit
+instruction the dev server and the visible Chrome were restarted: the server answers 200 on `:3210`, and
+Chrome 149 is on CDP `:9222` with no Headless. The attach-only rule is in force again — the harness
+attached and the tab count was unchanged (**6 → 6**); the launch was the owner's recovery instruction,
+not the harness's. The reference server `:3211` is still down.

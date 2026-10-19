@@ -120,6 +120,39 @@ a.fab { display: none; }
 .ofr.wa-off:hover { background: var(--lt); padding-left: 24px; }
 .sq a.wa-off:hover { background: #33383d; color: #fff; }
 
+/* ---------- OFFLINE LINE (Task 34) ---------- */
+/* The approved quiet line. It sits above the chrome and sticks so the reason is visible wherever
+   the person is when the line is due; the sticky nav moves below it while it is up. */
+.ts-offline-line {
+  position: sticky;
+  top: 0;
+  z-index: 35;
+  box-sizing: border-box;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  background: var(--lt);
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+}
+html[data-ts-offline] .nav { top: 38px; }
+
+/* Actions that would need the network: greyed in place, never hidden, with the line as the
+   attached reason (`aria-describedby`). `.wa-off` already handles the no-number state. */
+.ts-offline-action { filter: grayscale(1); opacity: 0.55; cursor: not-allowed !important; }
+.ts-offline-action.wab::after { display: none; }
+.ts-offline-action.wab:hover,
+.ts-offline-action.fab:hover,
+.ts-offline-action.lg:hover,
+.sv .ts-offline-action.btn:hover,
+.ts-offline-action.ofr:hover { transform: none; box-shadow: none; }
+
 /* ============================================================================
    HOME SCREEN — namespaced under `.sv`
    ============================================================================ */

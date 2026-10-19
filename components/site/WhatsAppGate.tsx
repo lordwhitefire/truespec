@@ -123,7 +123,7 @@ export function WhatsAppGate() {
         <a href="/privacy">Read the full privacy notice</a>
       </p>
       <div className="wagn-btns">
-        <button type="button" className="wab" onClick={continueToWhatsApp}>
+        <button type="button" className="wab" data-ts-network onClick={continueToWhatsApp}>
           <i className="fa-brands fa-whatsapp" />
           Continue to WhatsApp
         </button>
