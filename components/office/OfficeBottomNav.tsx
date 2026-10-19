@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { MoreSheet } from "./MoreSheet";
+import { NavLabel } from "./NavLabel";
 
 // Mobile bottom bar (≤820px). Four destinations plus the More cell: Drafts, Activity log and
 // Settings are reached through the sheet, in the sidebar's order and words (Task 20). The
@@ -33,9 +34,14 @@ export function OfficeBottomNav() {
               ? pathname === "/office"
               : pathname.startsWith(it.match ?? it.href);
           return (
-            <Link key={it.href} href={it.href} className={on ? "on" : undefined}>
+            <Link
+              key={it.href}
+              href={it.href}
+              className={on ? "on" : undefined}
+              aria-label={it.label}
+            >
               <i className={`fa-solid ${it.icon}`} />
-              {it.label}
+              <NavLabel>{it.label}</NavLabel>
             </Link>
           );
         })}

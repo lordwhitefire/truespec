@@ -41,11 +41,17 @@ Sources: nextjs.org docs `useLinkStatus` (page updated 2025-09-02), `loading.js`
   `<Link>`** (context provider wraps only that link's subtree: `next/dist/client/app-dir/link.js:368-371`,
   hook `:375-377`). Outside a Link it returns the default — it does **not** throw.
 - Docs prefer `loading.js` + prefetching over the hook; the hook is for inline feedback on a specific link.
-- **A per-segment `loading.tsx` is the documented soft-navigation pending state** (Suspense; holds while the
-  target segment's RSC payload loads). **Decision (Task 33):** per-segment `loading.tsx` for the office screens
-  is the mechanism; a navigation-level pending indicator is optional garnish, not the load-bearing piece.
-- Caveat to respect: if the destination is prefetched/cached, **no** loading UI shows — so the waiting sign must
-  not be claimed for every navigation, only a genuinely slow one.
+- **A per-segment `loading.tsx` is the documented soft-navigation pending state** when the target segment's
+  RSC payload (with the boundary) arrives. **Decision (Task 33, corrected live 2026-10-19):** the waiting sign is
+  the clicked nav Link's `useLinkStatus` pending state (`NavLabel`, 400 ms delay, **“Loading…”** + spinner) inside
+  `OfficeNav`/`OfficeBottomNav`; the per-segment `loading.tsx` is the full wait after a held payload lands (the
+  existing cold-start state), not the sign. Live R2.4 hold (6 s of held RSC): the clicked Link reports `pending`
+  for the whole hold while the URL/heading stay; the sign appears at ~0.5 s; the loading boundary appears only
+  when the hold releases (~7 s) and the page at ~9 s. The earlier “optional garnish” reading was wrong for the
+  held-RSC case.
+- Caveat: `useLinkStatus` is fed by the Link's mounted instance, so before hydration it reads idle; wait for
+  hydration before claiming a sign (the live drive waited 3 s in dev). A fast, prefetched navigation never shows
+  the sign (the 400 ms gate); no loading UI is expected there either.
 
 ## 3. `navigator.onLine` (Tasks 34, 35)
 

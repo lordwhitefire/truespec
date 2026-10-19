@@ -986,3 +986,22 @@ No leg rendered the page's list or a count beneath the retry. The full-page boun
 a layout throw (site layout / office shell layout **500**, no chrome) — Task 31. Store untouched;
 Chrome 3 → 3. Typecheck clean · **304/304**. Readings `runs/task31/site-page.json` /
 `office-page.json` and `runs/task32/`; notes `TASK-005-task31.md`, `TASK-005-task32.md`.
+
+## Task 33 — a slow soft navigation shows the waiting sign (2026-10-19, live)
+
+The clicked nav Link's own pending state is the sign. Attach-only, signed in, every RSC request held
+6 s in the tab (the R2.4 hold; no source delay), the dashboard interactive, then the nav entry
+clicked. 1440 = sidebar, 375 = bottom nav (the phone quote). Fast leg: the hold removed.
+
+| width | sign first | sign | old screen while up | page | fast |
+|---|---|---|---|---|---|
+| 1440 | **502 ms** | **“Loading…”** · `role=status` · spinner | `/office` · Dashboard · scroll 0 · nav visible (samples 0.5–5.0 s) | **9025 ms** → Inventory | no sign; no visible wait; **1973 ms** |
+| 375 | **501 ms** | same | same (samples 0.5–5.0 s) | **9017 ms** → Inventory | no sign; no visible wait; **1045 ms** |
+
+The held payload arrived with the existing `StoreWaking` (`Just a moment`; in `main.main`) at ~7–8 s
+(opacity 0 in the sampled frames, its fade) and the page at ~9 s. 0 console / 0 HTTP; store
+untouched; Chrome 3 → 3. Files: `NavLabel.tsx` (new), `OfficeNav.tsx` (owner-dirty: only the Task 33
+hunks committed; the owner's WIP left unstaged and intact), `OfficeBottomNav.tsx`, `office.css`; the
+four `loading.tsx` exist from TASK-004 and remain the full wait (not the sign); no `car/loading.tsx`
+(Task 9). Typecheck clean · **304/304**. Drive `task33.mjs`; readings
+`runs/task33/task33.json`. Note `notes/TASK-005-task33.md`.

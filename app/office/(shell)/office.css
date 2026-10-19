@@ -42,6 +42,12 @@ nav.sn{flex:1;padding:6px 10px;display:grid;gap:2px;align-content:start;overflow
 .sn a:hover i{color:var(--gold)}
 .sn a.on{background:var(--gold);color:var(--gt);font-weight:600}
 .sn a.on i{color:var(--gt)}
+/* The soft-navigation waiting sign (Task 33; copy "Loading…"). It replaces the row's label only
+   after 400 ms of actual pending time, so a fast navigation never flashes it. */
+.sn a .nav-wait,.bnav a .nav-wait{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.nav-wait__spin{flex:none;width:12px;height:12px;border-radius:50%;border:2px solid currentColor;
+  border-top-color:transparent;opacity:.55;animation:nav-wait-spin .8s linear infinite}
+@keyframes nav-wait-spin{to{transform:rotate(360deg)}}
 .sfoot{padding:14px 20px 18px;border-top:1px solid rgba(255,255,255,.08);font-size:12.5px;color:#8a9096}
 .sfoot b{display:block;color:#fff;font-weight:600;font-size:13px}
 .sfoot .srow{display:flex;align-items:center;gap:14px;margin-top:8px;height:18.75px}

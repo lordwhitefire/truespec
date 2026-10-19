@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NavLabel } from "./NavLabel";
 import { TapBadge } from "./TapBadge";
 
 // Sidebar nav (desktop). The current page carries the reference's `.on` class.
@@ -29,9 +30,14 @@ export function OfficeNav({ tapCount = 0 }: { tapCount?: number }) {
         const on =
           it.href === "/office" ? pathname === "/office" : pathname.startsWith(it.match ?? it.href);
         return (
-          <Link key={it.href} href={it.href} className={on ? "on" : undefined}>
+          <Link
+            key={it.href}
+            href={it.href}
+            className={on ? "on" : undefined}
+            aria-label={it.label}
+          >
             <i className={`fa-solid ${it.icon}`} />
-            {it.label}
+            <NavLabel>{it.label}</NavLabel>
             {it.href === "/office" ? <TapBadge count={tapCount} /> : null}
           </Link>
         );
