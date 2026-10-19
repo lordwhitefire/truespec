@@ -1109,3 +1109,14 @@ The full-tank default was `0` before and after; the probe was not left behind. E
 `lib/device-draft.ts` (+ test), `app/office/sign-out/page.tsx`, `car-client.tsx`,
 `settings-client.tsx`. Drive `task38.mjs`; readings `runs/task38/task38.json`. Note
 `notes/TASK-005-task38.md`.
+
+## Task 40 — a draft is never a record, and carries no customer data (2026-10-19, live)
+
+Attach-only; the office, signed in; 1440 × 900. The drive refuses to overwrite an existing draft.
+Inventory count was **25 cars — 24 in stock, 1 sold** before typing, while the car draft existed,
+and while both drafts existed — unchanged. The car payload held the form's own 19 fields, including
+the car's own `arrivalNote`/`privateNote`; no customer/enquiry key, no `photo` key, no photo bytes.
+The settings tagline draft held only `{v, base, value}`. **0** `next-action` posts (6 external
+non-GETs, none with `next-action`); **0** console / **0** page / **0** HTTP. Both test drafts removed;
+`[]` `ts-draft:` keys; Chrome **6 → 6**. Typecheck clean · **311/311**. Drive `task40.mjs`; readings
+`runs/task40/task40.json`; note `notes/TASK-005-task40.md`.

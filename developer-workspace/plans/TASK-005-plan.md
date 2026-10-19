@@ -407,6 +407,7 @@ copy); raised in the report.
 - **AC:** a device draft never counts as a record anywhere (SD13) and never carries a name, number or note (SD11) — proven, not asserted: the stored keys and the draft's own payload are inspected, and the assertion is a test.
 - **Verify:** `npm test` (no PII-shaped keys in a car/settings draft); live: after typing in both forms, the device storage holds only form values, and no office count changes while a draft exists.
 - **Deps:** 36. **Files:** `lib/device-draft.test.ts`, `developer-workspace/notes/TASK-005-witnesses.md`.
+  - **Files-line note (2026-10-19, built):** the test is the only product-tree file; `task40.mjs` and `notes/TASK-005-task40.md` are verification artifacts. The test pins the car payload to the car form's own fields, including the car's own `arrivalNote`/`privateNote`, and asserts there is no customer/enquiry key, no photo input, and no photo bytes. Live: the inventory count stayed `25 cars — 24 in stock, 1 sold` before, with the car draft, and with both drafts; 0 server actions; `npm test` 311/311. Interpretation: SD11's “name, number or note” means customer/enquiry data; the car's own notes are car columns.
 
 **⛔ Owner checkpoint C** — the offline drive shown live: the banner, the kept draft, the return, the erase-on-act.
 

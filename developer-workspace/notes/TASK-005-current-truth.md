@@ -91,6 +91,11 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   count. `clearDrafts()` removes only `ts-draft:` keys (theme and other keys stay) and is used by the
   sign-out page, which is also the session-expiry landing; the car and settings clients remove their
   own keys. The recovery line is taken down by the same act.
+- **Task 40 (built 2026-10-19):** the device draft's payload is the car form's own fields and the
+  settings card's `{base, value}`; no customer/enquiry key or record exists. The car's own
+  `arrivalNote`/`privateNote` are car columns, not customer notes; no photo bytes are stored. Live,
+  the inventory count was unchanged (`25 cars — 24 in stock, 1 sold`) while both drafts existed;
+  0 server actions. `npm test` 311/311.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 

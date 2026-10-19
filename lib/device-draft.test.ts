@@ -179,6 +179,87 @@ test("the store has only car and settings keys — no enquiry or customer record
   assert.equal(carDraftKey(""), "car:new");
 });
 
+test("a car draft's payload is the form's own fields — no customer name, number or enquiry", () => {
+  // The car form's live field names (task36's recorded payload has the same set). `arrivalNote` and
+  // `privateNote` are the car's own columns, not customer notes; the showroom may show the arrival
+  // note, the private note never leaves the office. The boundary Task 40 pins is the customer /
+  // enquiry boundary, not the car's own columns.
+  const carForm: Record<string, string> = {
+    brand: "Toyota",
+    model: "Sienna",
+    trim: "XLE",
+    year: "2021",
+    mileage: "45,000",
+    price: "18,000,000",
+    wasPrice: "",
+    exteriorColor: "Silver",
+    interiorColor: "Grey",
+    features: "Reverse camera\nPower sliding doors",
+    "cost.purchase_price": "15,000,000",
+    "cost.shipping": "500,000",
+    "cost.clearing": "300,000",
+    "cost.trucking_usa": "200,000",
+    "cost.trucking_ng": "150,000",
+    "cost.full_tank": "0",
+    stateId: "state-available",
+    arrivalNote: "Expected arrival: November",
+    privateNote: "Duty paid. Ready for viewing.",
+  };
+
+  const form = new FormData();
+  for (const [name, value] of Object.entries(carForm)) form.append(name, value);
+  form.append("photos", "asset-1");
+  form.append("photo", new Blob(["BYTES-MUST-NOT-LEAVE"], { type: "image/jpeg" }), "car.jpg");
+
+  const captured = captureFormData(form);
+  assert.deepEqual(Object.keys(captured).sort(), [...Object.keys(carForm), "photos"].sort());
+  assert.equal("photo" in captured, false, "the file input is not part of the draft");
+  assert.equal(captured.arrivalNote, carForm.arrivalNote);
+  assert.equal(captured.privateNote, carForm.privateNote);
+
+  // No key the form does not own, and none shaped like a customer or an enquiry. `stateId` is an
+  // office state key; `photos` holds asset references, never bytes.
+  const customerKey = /(^|[:._-])(customer|buyer|enquir(?:y|ies)|lead|contact)([:._-]|$)/i;
+  for (const key of Object.keys(captured)) {
+    assert.doesNotMatch(key, customerKey);
+  }
+  for (const key of [
+    "name",
+    "fullName",
+    "firstName",
+    "lastName",
+    "phone",
+    "whatsapp",
+    "email",
+    "address",
+    "message",
+    "customerNote",
+    "enquiryNote",
+  ]) {
+    assert.equal(key in captured, false, `the car draft must not carry ${key}`);
+  }
+
+  const storage = new MemoryStorage();
+  writeDraft(
+    carDraftKey("new"),
+    {
+      v: 1,
+      base: {},
+      data: captured,
+      photos: [{ assetId: "asset-1", url: "/media/asset-1" }],
+    } satisfies DeviceCarDraft,
+    storage,
+  );
+  const storedDraft = readDraft<DeviceCarDraft | null>(carDraftKey("new"), null, storage);
+  if (!storedDraft) assert.fail("the car draft did not round-trip");
+  assert.deepEqual(storedDraft.data, captured);
+  const stored = [...storage.values.values()].join("\n");
+  assert.equal(stored.includes("BYTES-MUST-NOT-LEAVE"), false);
+  assert.doesNotMatch(stored, /customer|enquir|buyer/i);
+  assert.match(stored, /"arrivalNote":"Expected arrival: November"/);
+  assert.match(stored, /"privateNote":"Duty paid\. Ready for viewing\."/);
+});
+
 test("typing is debounced to one trailing write; flush and cancel are the only other outcomes", () => {
   const timers: { id: number; fn: () => void; delayMs: number; cleared: boolean }[] = [];
   let nextId = 0;
