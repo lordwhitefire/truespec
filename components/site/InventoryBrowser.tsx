@@ -361,7 +361,7 @@ export function InventoryBrowser({
                   Refine search
                 </div>
                 <div className="sbb">
-                  <details className="fs" open>
+                  <details className="fs">
                     <summary>Status</summary>
                     {PUBLIC_SECTIONS.map((section) => (
                       <label className="ck" key={section}>
@@ -378,7 +378,7 @@ export function InventoryBrowser({
                     ))}
                   </details>
 
-                  <details className="fs" open>
+                  <details className="fs">
                     <summary>Make</summary>
                     {makes.map((b) => (
                       <label className="ck" key={b}>
@@ -395,7 +395,7 @@ export function InventoryBrowser({
                     ))}
                   </details>
 
-                  <details className="fs" open>
+                  <details className="fs">
                     <summary>Year</summary>
                     {years.map((y) => (
                       <label className="ck" key={y}>
@@ -412,7 +412,7 @@ export function InventoryBrowser({
                     ))}
                   </details>
 
-                  <details className="fs" open>
+                  <details className="fs">
                     <summary>Colour</summary>
                     {colors.map((c) => (
                       <label className="ck" key={c}>
@@ -429,7 +429,7 @@ export function InventoryBrowser({
                     ))}
                   </details>
 
-                  <details className="fs" open>
+                  <details className="fs">
                     <summary>Price (&#8358;)</summary>
                     <div className="r2">
                       <input
