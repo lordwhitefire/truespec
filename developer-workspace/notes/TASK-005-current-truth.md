@@ -96,6 +96,10 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   `arrivalNote`/`privateNote` are car columns, not customer notes; no photo bytes are stored. Live,
   the inventory count was unchanged (`25 cars — 24 in stock, 1 sold`) while both drafts existed;
   0 server actions. `npm test` 311/311.
+- **Task 39 (closed 2026-10-19, not built):** the public privacy notice is for visitors; the office
+  draft is private, owner-only browser storage and never a public payload. The owner ruled that the
+  proposed one-line draft disclosure did not belong on the visitor page. The privacy page is
+  unchanged; the closed task is named in the plan and carried to Task 41/44, not claimed as built.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 
