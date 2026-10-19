@@ -10,7 +10,13 @@ export function FeaturedSlider({ cars }: { cars: PublicCar[] }) {
   const [fs, setFs] = useState(0);
 
   useEffect(() => {
-    const calc = () => setPer(window.innerWidth < 560 ? 1 : window.innerWidth < 1000 ? 2 : 3);
+    // window.innerWidth is unreliable on phones: when page content overflows, Chrome expands
+    // the layout viewport to the content width and innerWidth reports the expanded value
+    // (492 on a 375 screen). The document's own client width stays the device width.
+    const calc = () => {
+      const w = document.documentElement.clientWidth || window.innerWidth;
+      setPer(w < 560 ? 1 : w < 1000 ? 2 : 3);
+    };
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);

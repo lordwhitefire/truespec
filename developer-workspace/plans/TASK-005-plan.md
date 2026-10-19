@@ -122,6 +122,7 @@ copy); raised in the report.
 | 42 | Witness pass — benchmarks 1–11, driven live | ☑ | `reports/TASK-005-witnesses.md` + `notes/TASK-005-witnesses.md`: 3/4/6/10/11 fresh; 1/2/5/7/8/9 carried from their live task runs after the Clerk session expired; B1’s 8 s carried as allowed, 215/1 227 ms explicitly not re-measured; B12 person-only. |
 | 43 | Gates, reconcile, net-zero | ☑ | `notes/TASK-005-gates.md`: typecheck 0 · tests 311/311 · leak-check 21 routes PASS · build 0 · dev restarted · store 25 live / 0 tombstones / no throwaway refs / 25 demo all created 15–16 Oct (0 new) / settings original. Learned order run: leak-check before stopping dev and building; rendered office reconcile not run (expired session). |
 | 44 | Report, and the handover to the testing pass | ☑ | `reports/TASK-005.md` + copy at `openspec/tasks/TASK-005/TASK-005-report.md`: 43 built/closed, **Task 39 closed not done**; Q11 “no feature” widening, showroom “Reload” flag, all 19 groups deferred, Group 17 person-only, 8 s window matches, 215/1 227 ms not re-measured, rendered reconcile blocked by expired session. **Checkpoint D approved 2026-10-19**; testing handover released. |
+| 45 | The welcome popup fits a phone (owner-reported) | ☑ | Cause (checked live): the home page’s featured strip overflowed on phones; Chrome expanded the mobile layout viewport to the content width (492 on a 375 screen) and the fixed dialog stretched with it (panel 452, ✕ off-screen). Fix, exactly as proposed: `contain: layout` on the strip + per-row count from `document.documentElement.clientWidth` (thresholds unchanged; desktop unchanged). Verified on the fixed build (fresh run, 18 configurations + taps): phones 375/360/430 — `innerWidth` = screen, no sideways pan, panel in-screen, ✕ tappable, strip `per=1`; plain 280→1440 — no overflow, per 1/2/3 at ≤568/667–768/1440; taps ✕/Skip/SUV correct (SUV → `/inventory?body=SUV`); resize reflows. Typecheck 0, tests **311/311**. Check now 4 windows/run (was 22), all closed; Chromium 6→6. `notes/TASK-005-welcome-responsive.md`; `scripts/task-005/welcome-diag.mjs`, readings `runs/welcome-responsive/`. |
 
 ---
 
@@ -435,6 +436,16 @@ copy); raised in the report.
 - **Deps:** 43. **Files:** `developer-workspace/reports/TASK-005.md`, `openspec/tasks/TASK-005/TASK-005-report.md`.
 
 **✅ Owner checkpoint D — approved 2026-10-19** — the closing report at `developer-workspace/reports/TASK-005.md` (copy `openspec/tasks/TASK-005/TASK-005-report.md`) was read and approved; the testing handover in `openspec/tasks/TASK-005/testing.md` is released. All nineteen groups remain for the testing pass; the office session was expired at handover and Chrome is on `/office/sign-in`. `notes/TASK-005-checkpoint-d.md`.
+
+---
+
+### Phase 12 — Owner-reported fix (2026-10-19, after checkpoint D)
+
+**Task 45 — The welcome popup fits a phone** (S)
+- **Owner report (2026-10-19):** the new-visitor welcome popup “is not responsive”. Checked live and replied; cause in `notes/TASK-005-welcome-responsive.md`: on phones the home page’s featured strip overflows (3 SSR cards), Chrome expands the mobile layout viewport to the content width, and the fixed dialog stretches with the page — panel 452 wide on a 375 screen, ✕ off-screen. Plain CSS viewports 320–430 all fit; the failure needs the strip’s overflow under mobile viewport emulation. Owner approved the fix (“write in the plan and then fix”).
+- **AC:** the featured strip can no longer widen the page (layout containment), and its per-row count is derived from the honest device width (`document.documentElement.clientWidth` — 1 under 560, 2 under 1000, 3 at 1000+), never the expandable `innerWidth`; the welcome dialog stays on-screen at phone widths (panel within the viewport, ✕ tappable, Skip/choices unchanged); desktop rendering unchanged.
+- **Verify:** live phone emulation 375/360/430 — `innerWidth` = screen width, no horizontal document overflow, panel in-screen, ✕ tap closes; 768 → 2 per row, 1440 → 3 per row; `npm run typecheck`; `npm test`; fresh `welcome-diag.mjs` run.
+- **Deps:** —. **Files:** `components/site/FeaturedSlider.tsx`, `app/reference.css`, `developer-workspace/scripts/task-005/welcome-diag.mjs`, `developer-workspace/notes/TASK-005-welcome-responsive.md`.
 
 ---
 

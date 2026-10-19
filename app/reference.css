@@ -259,6 +259,10 @@ html[data-ts-offline] .nav { top: 38px; }
 .sv .st a { position: absolute; right: 0; top: 14px; color: var(--mute); font-size: 13px; text-transform: uppercase; }
 .sv .st a i { color: var(--gold); margin-right: 6px; }
 .sv .sl { display: grid; gap: 50px; grid-template-columns: repeat(3, 1fr); padding: 0 30px; }
+/* The featured strip must never widen the page: unclipped overflow expands Chrome's mobile
+   layout viewport, which stretches every fixed overlay (the welcome dialog) past the screen
+   edge. Layout containment isolates the strip's overflow from the page's width. */
+.sv .sp .sl { contain: layout; }
 .sv .dkc .card { background: var(--card); color: #fff; border: 1px solid var(--card-line); }
 .sv .dkc .tt { padding: 16px 24px 12px; }
 .sv .dkc .sr { margin: 0 24px; padding: 14px 0 22px; border-top-color: var(--card-line); color: #b9bdc2; }

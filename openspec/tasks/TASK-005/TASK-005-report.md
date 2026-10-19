@@ -184,3 +184,15 @@ This report is the checkpoint-D artifact. **The owner approved it on 2026-10-19.
 widening, the Task 39 closure, the showroom “Reload” flag, and the deferred nineteen groups were
 read before approval. The testing handover in `openspec/tasks/TASK-005/testing.md` is released;
 no push has been made.
+
+## Addendum — post-checkpoint D (2026-10-19)
+
+The owner reported, after approval, that the new-visitor welcome popup “is not responsive”.
+Checked live (`notes/TASK-005-welcome-responsive.md`): on phones the home page's featured strip
+widened the mobile layout viewport, and the fixed dialog stretched with it. Fixed as **Task 45**
+(plan tracker): `contain: layout` on the strip plus an honest device-width source for its per-row
+count — re-verified on the fixed build (18 configurations + taps; phones 375/360/430 all
+in-screen, ✕ tappable; desktop unchanged; typecheck 0, tests **311/311**).
+
+Counts with this addendum: the layer stands at 45 tasks — **44 built/closed, 1 closed-not-done
+(Task 39)**. The report body above remains the approved record of the layer before the fix.
