@@ -121,7 +121,7 @@ copy); raised in the report.
 | 41 | The owner's rulings, written down | ☑ | `notes/TASK-005-rulings.md`: Q11–Q18 recorded from the live grilling transcript (session `ses_eb63...`), with the exact owner answers, the Q11 “adds no feature” widening, the Q15→Task 39 later closure, Q16a residual, and the traceability table. No code. |
 | 42 | Witness pass — benchmarks 1–11, driven live | ☑ | `reports/TASK-005-witnesses.md` + `notes/TASK-005-witnesses.md`: 3/4/6/10/11 fresh; 1/2/5/7/8/9 carried from their live task runs after the Clerk session expired; B1’s 8 s carried as allowed, 215/1 227 ms explicitly not re-measured; B12 person-only. |
 | 43 | Gates, reconcile, net-zero | ☑ | `notes/TASK-005-gates.md`: typecheck 0 · tests 311/311 · leak-check 21 routes PASS · build 0 · dev restarted · store 25 live / 0 tombstones / no throwaway refs / 25 demo all created 15–16 Oct (0 new) / settings original. Learned order run: leak-check before stopping dev and building; rendered office reconcile not run (expired session). |
-| 44 | Report, and the handover to the testing pass | ☐ | |
+| 44 | Report, and the handover to the testing pass | ☑ | `reports/TASK-005.md` + copy at `openspec/tasks/TASK-005/TASK-005-report.md`: 43 built/closed, **Task 39 closed not done**; Q11 “no feature” widening, showroom “Reload” flag, all 19 groups deferred, Group 17 person-only, 8 s window matches, 215/1 227 ms not re-measured, rendered reconcile blocked by expired session. Checkpoint D awaiting the owner. |
 
 ---
 
