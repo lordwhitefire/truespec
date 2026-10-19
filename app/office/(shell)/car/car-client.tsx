@@ -36,6 +36,7 @@ import {
   captureFormData,
   carDraftKey,
   createDraftWriter,
+  readDraft,
   writeDraft,
   type DeviceCarDraft,
   type DraftFields,
@@ -59,6 +60,87 @@ export type CarCosts = {
  * asset-reference column never holds a web address.
  */
 export type CarPhoto = { assetId: string; url: string };
+
+// A form tells the shell's banner that a draft is present. The marker is read on recovery; the
+// event takes a recovery line down at once when the draft is saved, discarded, or the form leaves.
+const DRAFT_PRESENT_ATTR = "data-ts-office-draft";
+const DRAFT_PRESENCE_EVENT = "ts-office-draft-presence";
+
+function announceDraftPresence(present: boolean) {
+  const root = document.documentElement;
+  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, "");
+  else root.removeAttribute(DRAFT_PRESENT_ATTR);
+  window.dispatchEvent(new CustomEvent(DRAFT_PRESENCE_EVENT, { detail: { present } }));
+}
+
+function sameDraftFields(a: DraftFields, b: DraftFields): boolean {
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  for (const key of aKeys) {
+    const aValue = a[key];
+    const bValue = b[key];
+    if (Array.isArray(aValue) || Array.isArray(bValue)) {
+      if (!Array.isArray(aValue) || !Array.isArray(bValue)) return false;
+      if (aValue.length !== bValue.length) return false;
+      if (aValue.some((value, index) => value !== bValue[index])) return false;
+    } else if (aValue !== bValue) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isCarDraft(value: unknown): value is DeviceCarDraft {
+  if (typeof value !== "object" || value === null) return false;
+  const draft = value as DeviceCarDraft;
+  if (draft.v !== 1) return false;
+  if (typeof draft.base !== "object" || draft.base === null || Array.isArray(draft.base)) return false;
+  if (typeof draft.data !== "object" || draft.data === null || Array.isArray(draft.data)) return false;
+  return (
+    Array.isArray(draft.photos) &&
+    draft.photos.every(
+      (photo) =>
+        typeof photo === "object" &&
+        photo !== null &&
+        typeof (photo as CarPhoto).assetId === "string" &&
+        typeof (photo as CarPhoto).url === "string",
+    )
+  );
+}
+
+/**
+ * Put the draft's text back into the form's own controls. The photos and the primary state are
+ * React state, applied separately; their hidden fields are left to React. The car's identity is
+ * never touched, and the file input is never given a value.
+ */
+function applyCarDraftFields(form: HTMLFormElement, data: DraftFields) {
+  const fields = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
+    "input, textarea, select",
+  );
+  for (const field of fields) {
+    const name = field.name;
+    if (!name || name === "photo" || name === "photos" || name === "stateId" || name === "carId") {
+      continue;
+    }
+    const value = data[name];
+    if (value === undefined) continue;
+    if (field instanceof HTMLInputElement) {
+      if (field.type === "file") continue;
+      if (field.type === "checkbox") {
+        field.checked = Array.isArray(value) ? value.includes(field.value) : value === field.value;
+        continue;
+      }
+      if (field.type === "radio") {
+        field.checked = value === field.value;
+        continue;
+      }
+      field.value = Array.isArray(value) ? (value[0] ?? "") : value;
+    } else {
+      field.value = Array.isArray(value) ? (value[0] ?? "") : value;
+    }
+  }
+}
 
 export type CarFormData = {
   /** The car's store key — present in edit mode; the row the Server Action updates. */
@@ -340,10 +422,14 @@ export function CarForm({
   const draftWriter = useRef(createDraftWriter(writeDraft)).current;
   const draftStateSeen = useRef<string | null>(null);
   const draftPhotosSeen = useRef<string | null>(null);
+  const draftRestored = useRef(false);
+  const draftPresent = useRef(false);
 
   useEffect(() => {
     const form = formRef.current;
-    if (form) draftBase.current = captureFormData(new FormData(form));
+    // Keep the page's own blank as the base for this mount. StrictMode runs this twice; the
+    // restored values must not become the base.
+    if (form && !draftBase.current) draftBase.current = captureFormData(new FormData(form));
   }, []);
 
   useEffect(() => {
@@ -380,6 +466,8 @@ export function CarForm({
     };
   }, [draftWriter]);
 
+  useEffect(() => () => announceDraftPresence(false), []);
+
   function scheduleDraft() {
     const form = formRef.current;
     const base = draftBase.current;
@@ -392,6 +480,10 @@ export function CarForm({
       data,
       photos: photos.map(({ assetId, url }) => ({ assetId, url })),
     };
+    if (!draftPresent.current) {
+      draftPresent.current = true;
+      announceDraftPresence(true);
+    }
     draftWriter.schedule(carDraftKey(carId), draft);
   }
 
@@ -433,6 +525,53 @@ export function CarForm({
       ),
     );
   };
+
+  // Task 37 — put a kept draft back into the form. It is restored only when the page it was typed
+  // on is still the page in front of the person (`base` is the page's own blank) and when it holds
+  // an actual change; a draft from a changed car or an unchanged value is left alone. Restoring the
+  // fields does not schedule a write: the seen refs move with the state, so the draft is not
+  // rewritten just because it was put back.
+  useEffect(() => {
+    if (draftRestored.current) {
+      if (draftPresent.current) announceDraftPresence(true);
+      return;
+    }
+    draftRestored.current = true;
+    const form = formRef.current;
+    const base = draftBase.current;
+    if (!form || !base) {
+      announceDraftPresence(false);
+      return;
+    }
+    const draft = readDraft<DeviceCarDraft | null>(carDraftKey(data.carId), null);
+    if (!isCarDraft(draft) || !sameDraftFields(draft.base, base) || sameDraftFields(draft.data, base)) {
+      announceDraftPresence(false);
+      return;
+    }
+
+    const draftStateId = typeof draft.data.stateId === "string" ? draft.data.stateId : null;
+    const restoredState =
+      draftStateId && primaries.some((candidate) => candidate.id === draftStateId)
+        ? draftStateId
+        : curStateId;
+    setCurStateId(restoredState);
+    draftStateSeen.current = restoredState;
+    setPhotos(draft.photos);
+    draftPhotosSeen.current = draft.photos.map((photo) => photo.assetId).join("\u0000");
+    applyCarDraftFields(form, draft.data);
+    recalc(restoredState);
+    draftPresent.current = true;
+    announceDraftPresence(true);
+
+    // The sale fields appear only once the restored state renders; a second pass after that
+    // commit fills them too. The form is guarded in case the person has already left.
+    window.requestAnimationFrame(() => {
+      if (!form.isConnected) return;
+      applyCarDraftFields(form, draft.data);
+      recalc(restoredState);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // The cost figure is named by the state (R-MON-7), so changing the state
   // renames it even when no amount changed.

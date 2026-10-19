@@ -19,6 +19,7 @@ import { clock, longDay } from "@/lib/office-time";
 import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
 import {
   createDraftWriter,
+  readDraft,
   settingDraftKey,
   writeDraft,
   type DeviceSettingDraft,
@@ -55,6 +56,24 @@ const TABS = [
   { k: "account", label: "Account", icon: "fa-user-gear" },
 ] as const;
 type TabKey = (typeof TABS)[number]["k"];
+
+// See car-client: the shell's banner uses the marker on recovery and the event to take a recovery
+// line down when a draft is saved, discarded, or the form leaves.
+const DRAFT_PRESENT_ATTR = "data-ts-office-draft";
+const DRAFT_PRESENCE_EVENT = "ts-office-draft-presence";
+
+function announceDraftPresence(present: boolean) {
+  const root = document.documentElement;
+  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, "");
+  else root.removeAttribute(DRAFT_PRESENT_ATTR);
+  window.dispatchEvent(new CustomEvent(DRAFT_PRESENCE_EVENT, { detail: { present } }));
+}
+
+function isSettingDraft(value: unknown): value is DeviceSettingDraft {
+  if (typeof value !== "object" || value === null) return false;
+  const draft = value as DeviceSettingDraft;
+  return draft.v === 1 && typeof draft.base === "string" && typeof draft.value === "string";
+}
 
 export function Settings({
   registry = [],
@@ -111,6 +130,8 @@ export function Settings({
   // value it started from is the draft's `base`, so the return path can tell whether the store
   // has moved on. No card writes on load; only the input handlers below schedule a draft.
   const draftWriter = useRef(createDraftWriter(writeDraft)).current;
+  const draftRestored = useRef(false);
+  const draftPresent = useRef(new Set<DeviceSettingField>());
 
   useEffect(() => {
     const flush = () => draftWriter.flush();
@@ -121,7 +142,65 @@ export function Settings({
     };
   }, [draftWriter]);
 
+  useEffect(() => () => announceDraftPresence(false), []);
+
+  // Task 37 — each card's draft is put back only when its `base` is still the value the store
+  // holds. A value that is unchanged, or a card whose saved value moved somewhere else, is left
+  // alone. No restore writes a draft: `keepSetting` is not called here.
+  useEffect(() => {
+    if (draftRestored.current) {
+      if (draftPresent.current.size > 0) announceDraftPresence(true);
+      return;
+    }
+    draftRestored.current = true;
+    const restored: DeviceSettingField[] = [];
+
+    const waDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("whatsapp"), null);
+    if (
+      isSettingDraft(waDraft) &&
+      waDraft.base === settings.whatsapp.value &&
+      waDraft.value !== waDraft.base
+    ) {
+      setWa(waDraft.value);
+      setWaSaved(false);
+      setWaErr(null);
+      const read = normaliseNigerianMobile(waDraft.value);
+      if (read.ok) setPvLink("wa.me/" + waMeDigits(read.value));
+      restored.push("whatsapp");
+    }
+
+    const tagDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("tagline"), null);
+    if (
+      isSettingDraft(tagDraft) &&
+      tagDraft.base === settings.tagline.value &&
+      tagDraft.value !== tagDraft.base
+    ) {
+      setTag(tagDraft.value);
+      setTagN(String(tagDraft.value.length));
+      setTagErr(null);
+      restored.push("tagline");
+    }
+
+    const tankDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("tank"), null);
+    if (
+      isSettingDraft(tankDraft) &&
+      tankDraft.base === settings.tank.value &&
+      tankDraft.value !== tankDraft.base
+    ) {
+      setTank(tankDraft.value);
+      setTankErr(null);
+      restored.push("tank");
+    }
+
+    for (const field of restored) draftPresent.current.add(field);
+    announceDraftPresence(restored.length > 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function keepSetting(field: DeviceSettingField, base: string, value: string) {
+    if (value === base) draftPresent.current.delete(field);
+    else draftPresent.current.add(field);
+    announceDraftPresence(draftPresent.current.size > 0);
     const draft: DeviceSettingDraft = { v: 1, base, value };
     draftWriter.schedule(settingDraftKey(field), draft);
   }

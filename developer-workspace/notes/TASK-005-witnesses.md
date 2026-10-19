@@ -1073,3 +1073,19 @@ leg's one expected browser log, `ERR_CONNECTION_REFUSED`, is the refused probe; 
 console / **0** page / **0** HTTP. Chrome **6 → 6**. Typecheck clean · **309/309**. Files:
 `OfflineBanner.tsx` (new), `layout.tsx` (Task 35 hunks only; owner WIP untouched); `office.css`
 unchanged. Drive `task35.mjs`; readings `runs/task35/task35.json`. Note `notes/TASK-005-task35.md`.
+
+## Task 37 — the draft comes back, and the recovery line is true (2026-10-19, live)
+
+Attach-only; the office, signed in; 1440 × 900; typed, never saved; test drafts removed.
+
+| surface | restored after reload | offline | recovery | evidence |
+|---|---|---|---|---|
+| add car `/office/car/new` | brand **“Task37 draft probe”**; state **Landed** (`ae4ae7ce…`) | **1226 ms** | **21 ms** | draft survived; `data-ts-office-draft`; recovery marker true; offline marker false; sticky top 0, side at 38 px; Save had no offline class/`aria-disabled`; line still up after **1400 ms** |
+| settings → tagline | **“Task37 tagline probe”**; base **“Cars you can trust, prices you can see”** | **1256 ms** | **10 ms** | draft survived; `#tagSave` enabled; recovery marker true; exact line; no action |
+
+The approved line is **“You're back online. Your draft is still here — press Save.”** Leaving to
+`/office` took the line and marker down while **both** drafts stayed — leaving is not an erase.
+Cleanup left **[]** `ts-draft:` keys. **0** server actions (the 5 non-GETs were external with no
+`next-action`); **0** console / **0** page / **0** HTTP; Chrome **6 → 6**. Typecheck clean ·
+**309/309**. Files: `car-client.tsx`, `settings-client.tsx`, `OfflineBanner.tsx`. Drive
+`task37.mjs`; readings `runs/task37/task37.json`. Note `notes/TASK-005-task37.md`.

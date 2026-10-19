@@ -77,6 +77,14 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   `aria-disabled`, `tabindex=-1`, and the line as `aria-describedby`; a document capture guard
   refuses click/submit, while React keeps the native `disabled` prop. The banner/Save CSS is inline
   in `OfflineBanner.tsx` because the shell imports no stylesheet; `office.css` is unchanged.
+- **Task 37 (built 2026-10-19):** the car form and the three settings cards restore their device
+  draft on mount only when the draft's `base` still matches the page/store and the value differs;
+  restoring writes no draft and touches no store. The recovery line “You're back online. Your draft
+  is still here — press Save.” shows in the same banner only after a shown offline line, when the
+  form has announced a present draft (`data-ts-office-draft` + `ts-office-draft-presence`); it is
+  **not** shown on a plain online reload. It stays until save/discard (Task 38) or leaving the form.
+  The shell offset for the recovery line is `data-ts-office-recovered`; Save annotations are gone on
+  reconnect.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 
