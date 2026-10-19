@@ -346,7 +346,7 @@ copy); raised in the report.
 - **Verify:** live: force a read failure — the screen shows the retryable state, never "0 cars" and never an empty block; the exact strings are compared against `task.md:259-263` and match.
 - **Deps:** 31. **Files:** `components/retryable.tsx` (verify only), `components/store-waking.tsx` (verify only), `app/office/(shell)/error.tsx`, `developer-workspace/notes/TASK-005-witnesses.md`.
 
-**> Gate H** — live: a page's read failure keeps the chrome, shows the settled wording, and reports neither emptiness nor a number.
+**> Gate H — ✅ 2026-10-19** — live at 375 + 1440, composed from the phase's forced failures (Task 31; throws removed) and the wording check (Task 32). Site `/inventory` **200** with header + footer and the retry between; office `/office/inventory` **200** with the shell/sidebar/topbar and the retry in `main.main`. Both `role="alert"`, the settled **“We couldn’t load this”** / **“We tried a few times but the server didn’t answer. Nothing was lost — please try again.”** / **“Try again”**, `falseCount []`, **0** empty blocks, reset works — no list or figure beneath. The full-page boundaries still catch a layout throw (500, no chrome). Store untouched; Chrome 3 → 3; typecheck clean · **304/304**. Witnesses §Gate H; readings `runs/task31/`, `runs/task32/`; notes `TASK-005-task31.md` / `TASK-005-task32.md`.
 
 ### Phase 10 — A slow store, and an offline person (the device draft)
 

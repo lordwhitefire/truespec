@@ -970,3 +970,19 @@ untouched; Chrome 3 → 3. Waiting screenshots were attempted but the fade/spinn
 made the capture land after the wait or before paint — the DOM readings are the evidence; the
 Task 31 inner frames show the retry. Typecheck clean · **304/304** · `task32-waking.mjs`; readings
 `runs/task32/`, `runs/task31/`. Note `notes/TASK-005-task32.md`.
+
+## Gate H — a read failure keeps the chrome, the settled words, no emptiness or number (2026-10-19, live)
+
+Composed from the phase's live runs: Task 31 forced a page's own read to fail on the site and the
+office at **375 × 812** and **1440 × 900** (temporary throws, removed; the owner-dirty shell layout
+restored byte-identical), and Task 32 verified the same state's words against `task.md:259-263`.
+
+| surface | status | chrome that stayed | state |
+|---|---|---|---|
+| site `/inventory` | **200** | site header + footer, floating control; retry between them | `role="alert"`, **“We couldn’t load this”** / **“We tried a few times but the server didn’t answer. Nothing was lost — please try again.”** / **“Try again”**; `falseCount: []`, 0 empty blocks; reset works |
+| office `/office/inventory` | **200** | `.shell` grid, topbar/sidebar, `main.main`, signed-in identity | same wording; retry inside `main.main`, `min-height: 0`; `falseCount: []`, 0 empty blocks; reset works |
+
+No leg rendered the page's list or a count beneath the retry. The full-page boundaries still catch
+a layout throw (site layout / office shell layout **500**, no chrome) — Task 31. Store untouched;
+Chrome 3 → 3. Typecheck clean · **304/304**. Readings `runs/task31/site-page.json` /
+`office-page.json` and `runs/task32/`; notes `TASK-005-task31.md`, `TASK-005-task32.md`.
