@@ -903,3 +903,31 @@ page's **generated** greeting “Book a viewing” is seen greyed in the 375 fra
 `runs/task30/{cleared,saved}-{375,1440}-{home,inventory,empty,car}.jpeg` and
 `…-inventory-dialog.jpeg`. Drive `wa-off-drive.mjs`; readings `runs/task30/cleared.json` /
 `saved.json`. Typecheck clean · `npm test` **304/304**.
+
+## Gate G — the number cleared and restored, across every document (2026-10-19, live)
+
+One pass with the owner's number cleared from the live store, one with it restored **exactly**
+(`+2348146927170`, `updated_at 2026-10-16T11:55:53.863Z`; net-zero), at **375 × 812** and
+**1440 × 900**, over all eight documents: home, inventory, empty inventory, car, missing car, the
+site 404 view (`/not-found`), the root 404 (an unmatched URL) and privacy. Attached Chrome
+(3 → 3, no launch).
+
+| reading | number cleared | number restored |
+|---|---|---|
+| header line (7 chrome pages) | **“No number saved”** | **+2348146927170** |
+| `wa.me` links | **0** on all 8 | **37** across the 8, every one `https://wa.me/2348146927170…` (home 5 · inventory 4 · empty 5 · car 7 · missing car 5 · site 404 5 · root 404 1 · privacy 5) |
+| every visible chat control | `wa-off`, **no `href`**, `role="link"`, `aria-disabled="true"`, `tabIndex=-1`, reason on it, `filter: grayscale(1)`, `opacity: .5` | live: href, no off state, no role/aria/title, `tabIndex 0`, `filter: none` |
+| root 404 “Message Umar” | present, greyed, reason | present, live |
+| privacy contact | sentence, **no anchor** | `section#contact a` exactly `https://wa.me/2348146927170` |
+| invented literal (`2348000000000` / `+234 800 000 0000`) | **absent** in text and hrefs | **absent** |
+| visibility, cleared → restored | — | **identical for every control at both widths** |
+| 404s / console | exactly the two intentionally-missing documents (missing car, root 404), 2 × 2 widths | the same two |
+| unexpected HTTP | **0** | **0** |
+
+The car's count is 7 here because the client-generated greeting link (the `CarBehaviors` path) was
+not in the DOM in this pass; Task 30 saw it live — 8 links on the car and its greyed “Book a
+viewing” in the 375 frame. The seven fixed controls were all present and correct in both legs.
+Screenshots for the four documents this gate adds (missing car, site 404, root 404, privacy):
+`runs/gate-g/{cleared,saved}-{375,1440}-…` (cleared all four at both widths; saved at 1440).
+Drive `gate-g.mjs`; readings `runs/gate-g/cleared.json` / `saved.json`. No source change since
+Task 30 — typecheck clean, **304/304**.
