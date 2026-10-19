@@ -2,7 +2,7 @@
 
 **Written 2026-10-17** by the Developer, from `openspec/tasks/TASK-005/task.md` (as rewritten 13:18 today),
 its `testing.md`, the seven `findings/*` files, and the grilling session whose rulings are logged in
-`developer-workspace/notes/TASK-005-rulings.md` (Task 43 writes that file).
+`developer-workspace/notes/TASK-005-rulings.md` (Task 41 writes that file).
 Convention: this file's Progress tracker + Task list (Developer-workspace convention; no `tasks/todo.md` in this project).
 
 **One commit per task**, on the branch as it stands. Sliced tasks commit per slice. Commit the plan first
@@ -118,7 +118,7 @@ copy); raised in the report.
 | 38 | A draft is erased only by an act | ☑ | `d27b19c` — done; save/discard/sign-out erase, no clock; `notes/TASK-005-task38.md`; witnesses §Task 38. |
 | 39 | The privacy notice keeps its promise | ☒ | **Closed — not done** (owner ruling 2026-10-19): the public privacy notice is for visitors; office drafts are private, owner-only browser storage, never a public payload. Page unchanged; `notes/TASK-005-task39.md`. |
 | 40 | A draft is never a record, and holds no customer data | ☑ | `711640f` — done; car/settings payload boundary + inventory count unchanged; `notes/TASK-005-task40.md`; witnesses §Task 40. |
-| 41 | The owner's rulings, written down | ☐ | |
+| 41 | The owner's rulings, written down | ☑ | `notes/TASK-005-rulings.md`: Q11–Q18 recorded from the live grilling transcript (session `ses_eb63...`), with the exact owner answers, the Q11 “adds no feature” widening, the Q15→Task 39 later closure, Q16a residual, and the traceability table. No code. |
 | 42 | Witness pass — benchmarks 1–11, driven live | ☐ | |
 | 43 | Gates, reconcile, net-zero | ☐ | |
 | 44 | Report, and the handover to the testing pass | ☐ | |
