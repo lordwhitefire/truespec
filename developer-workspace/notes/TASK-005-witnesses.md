@@ -1033,3 +1033,19 @@ expected `net::ERR_FAILED` is the deliberate abort). Store untouched; Chrome **6
 clean · **304/304**. Files: `OfflineNotice.tsx` (new), `(site)/layout.tsx`, `reference.css`,
 `WhatsAppGate.tsx` (extra: the one network button, `data-ts-network`). Drive `task34.mjs`; readings
 `runs/task34/task34.json`. Note `notes/TASK-005-task34.md`.
+
+## Task 36 — the device draft store (2026-10-19, live)
+
+Attach-only; the office, signed in; typed, never saved; test drafts removed at the end.
+
+| surface | stored | survives reload |
+|---|---|---|
+| add car `/office/car/new` | `ts-draft:car:new` · `v=1` · `base.brand=""` · `data.brand="Task36 draft probe"` · `photos=[]` | **yes**; the clean form had **no** draft before typing |
+| settings → tagline | `ts-draft:settings:tagline` · `v=1` · `base=`the saved tagline · `value="Task36 draft probe"` | **yes** |
+
+The car payload is the form's own text fields; no `photo`, no `File`/`Blob`/`data:image`/base64, no
+customer/enquiry key. Only those two `ts-draft:` keys existed while the test ran; both removed after,
+leaving `[]`. **0** server-action posts (the only POSTs were two external Clerk refreshes); **0**
+console / **0** HTTP; Chrome **6 → 6**. Typecheck clean · **309/309**. Files: `lib/device-draft.ts`
+(new), `lib/device-draft.test.ts` (new), `car/car-client.tsx`, `settings/settings-client.tsx`. Drive
+`task36.mjs`; readings `runs/task36/task36.json`. Note `notes/TASK-005-task36.md`.

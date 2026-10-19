@@ -32,6 +32,14 @@ import {
 } from "@/lib/money";
 import type { Section } from "@/lib/sections";
 import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
+import {
+  captureFormData,
+  carDraftKey,
+  createDraftWriter,
+  writeDraft,
+  type DeviceCarDraft,
+  type DraftFields,
+} from "@/lib/device-draft";
 import { Photo } from "@/components/Photo";
 
 export type CarCosts = {
@@ -324,6 +332,69 @@ export function CarForm({
   const [, startDelete] = useTransition();
   const router = useRouter();
 
+  // Task 36 — the device draft. The form's text is kept on this device (debounced), so the office's
+  // offline line "your draft is kept on this device" is true. The initial blank is the draft's
+  // `base`; a changed state or photo set makes no input event, so those two effects cover it.
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const draftBase = useRef<DraftFields | null>(null);
+  const draftWriter = useRef(createDraftWriter(writeDraft)).current;
+  const draftStateSeen = useRef<string | null>(null);
+  const draftPhotosSeen = useRef<string | null>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (form) draftBase.current = captureFormData(new FormData(form));
+  }, []);
+
+  useEffect(() => {
+    if (draftStateSeen.current === null) {
+      draftStateSeen.current = curStateId;
+      return;
+    }
+    if (draftStateSeen.current === curStateId) return;
+    draftStateSeen.current = curStateId;
+    scheduleDraft();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [curStateId]);
+
+  useEffect(() => {
+    const signature = photos.map((p) => p.assetId).join("\u0000");
+    if (draftPhotosSeen.current === null) {
+      draftPhotosSeen.current = signature;
+      return;
+    }
+    if (draftPhotosSeen.current === signature) return;
+    draftPhotosSeen.current = signature;
+    scheduleDraft();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photos]);
+
+  // A full-page unload does not wait for the debounce; flush what is waiting. The unmount flush
+  // covers a client-side departure as well.
+  useEffect(() => {
+    const flush = () => draftWriter.flush();
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      draftWriter.flush();
+    };
+  }, [draftWriter]);
+
+  function scheduleDraft() {
+    const form = formRef.current;
+    const base = draftBase.current;
+    if (!form || !base) return;
+    const data = captureFormData(new FormData(form));
+    const carId = typeof data.carId === "string" ? data.carId : null;
+    const draft: DeviceCarDraft = {
+      v: 1,
+      base,
+      data,
+      photos: photos.map(({ assetId, url }) => ({ assetId, url })),
+    };
+    draftWriter.schedule(carDraftKey(carId), draft);
+  }
+
   useEffect(() => setMounted(true), []);
 
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
@@ -596,7 +667,7 @@ export function CarForm({
       </div>
 
       <div className="cols">
-        <form onSubmit={onSubmit}>
+        <form ref={formRef} onSubmit={onSubmit} onInput={scheduleDraft}>
           <section className="sec">
             <h2>
               <span className="n">1</span>The car

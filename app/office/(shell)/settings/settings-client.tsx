@@ -17,6 +17,13 @@ import type { Notice } from "@/lib/notices";
 import { normaliseNigerianMobile, waMeDigits } from "@/lib/phone";
 import { clock, longDay } from "@/lib/office-time";
 import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
+import {
+  createDraftWriter,
+  settingDraftKey,
+  writeDraft,
+  type DeviceSettingDraft,
+  type DeviceSettingField,
+} from "@/lib/device-draft";
 
 /* Settings — a faithful port of office-settings.html.
    The two state editors are the owner's real registries. The three settings are real too
@@ -100,6 +107,25 @@ export function Settings({
   const [mounted, setMounted] = useState(false);
   const tmr = useRef<number | null>(null);
 
+  // Task 36 — each settings card keeps its unsaved value on this device, debounced. The saved
+  // value it started from is the draft's `base`, so the return path can tell whether the store
+  // has moved on. No card writes on load; only the input handlers below schedule a draft.
+  const draftWriter = useRef(createDraftWriter(writeDraft)).current;
+
+  useEffect(() => {
+    const flush = () => draftWriter.flush();
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      draftWriter.flush();
+    };
+  }, [draftWriter]);
+
+  function keepSetting(field: DeviceSettingField, base: string, value: string) {
+    const draft: DeviceSettingDraft = { v: 1, base, value };
+    draftWriter.schedule(settingDraftKey(field), draft);
+  }
+
   useEffect(() => {
     setMounted(true);
     return () => {
@@ -134,6 +160,7 @@ export function Settings({
     setWa(v);
     setWaSaved(false);
     setWaErr(null);
+    keepSetting("whatsapp", waSnap, v);
     const read = normaliseNigerianMobile(v);
     if (read.ok) setPvLink("wa.me/" + waMeDigits(read.value));
   }
@@ -355,6 +382,7 @@ export function Settings({
               onChange={(e) => {
                 setTag(e.target.value);
                 setTagN(String(e.target.value.length));
+                keepSetting("tagline", tagSnap, e.target.value);
               }}
             />
             <p className="cnt">
@@ -422,7 +450,10 @@ export function Settings({
                   min={0}
                   step={5000}
                   value={tank}
-                  onChange={(e) => setTank(e.target.value)}
+                  onChange={(e) => {
+                    setTank(e.target.value);
+                    keepSetting("tank", tankSnap, e.target.value);
+                  }}
                 />
               </div>
               <p className="hint">Default prefilled on every new car — change per car if needed.</p>

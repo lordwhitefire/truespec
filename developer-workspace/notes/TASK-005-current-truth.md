@@ -67,6 +67,10 @@ Sources: MDN `Navigator.onLine`, `Window: online/offline event`; web.dev offline
   or the `online` event withdraws it. The line shows after **1200 ms** and withdraws at once. Disabled
   actions carry the line as `aria-describedby`; the line and the block are on the derived state, so no
   feature is gated on `onLine` alone. No service worker, Cache Storage, or outbox.
+- **Task 36 (built 2026-10-19):** the office keeps unsaved typing for the car form and the three
+  settings cards under `ts-draft:` keys (400 ms debounce; `FormData` text only, photo bytes dropped;
+  no customer/enquiry key; no server write). A draft survives a reload; it is not restored or erased
+  until Tasks 37/38.
 
 ## 4. `prefers-reduced-motion` (Task 11)
 
