@@ -1,8 +1,17 @@
 import "./not-found.css";
 import "../../reference.css";
 import Link from "next/link";
+import { getSetting } from "@/lib/public-cars";
+import { waLink } from "@/components/whatsapp";
 
-export default function NotFound() {
+const WA_MESSAGE = "Hello TrueSpec, I was looking for a car on your site.";
+
+export default async function NotFound() {
+  // The page sits under the site layout's `force-dynamic`; the number is read per request so the
+  // 404 can never show a number the owner has since removed.
+  const num = (await getSetting("whatsapp_number")) ?? "";
+  const wa = waLink(num, WA_MESSAGE);
+
   return (
     <div className="nfbox">
       <div className="av" aria-hidden="true">
@@ -22,7 +31,7 @@ export default function NotFound() {
           className="wab big"
           target="_blank"
           rel="noopener noreferrer"
-          href="https://wa.me/2348000000000?text=Hello%20TrueSpec%2C%20I%20was%20looking%20for%20a%20car%20on%20your%20site."
+          href={wa ?? undefined}
         >
           <i className="fa-brands fa-whatsapp fa-xl" />
           Message Umar

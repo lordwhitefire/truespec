@@ -31,7 +31,7 @@ export function RelatedShell() {
   );
 }
 
-export function CarLayers({ wa }: { wa: string }) {
+export function CarLayers({ wa }: { wa: string | null }) {
   return (
     <>
       <div className="mbar" id="mbar">
@@ -39,7 +39,7 @@ export function CarLayers({ wa }: { wa: string }) {
           <small>Doorstep price</small>
           <div className="num" id="mp" />
         </div>
-        <a className="wab" id="mw" href={wa} target="_blank" rel="noopener noreferrer">
+        <a className="wab" id="mw" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
           <i className="fa-brands fa-whatsapp" />
           <span id="mwTxt">Chat now</span>
         </a>
@@ -111,7 +111,7 @@ export function NotFoundView({ num }: { num: string }) {
           find one like it — or browse what&apos;s on the lot now.
         </p>
         <div className="row">
-          <a className="wab big" href={waSource} target="_blank" rel="noopener noreferrer">
+          <a className="wab big" href={waSource ?? undefined} target="_blank" rel="noopener noreferrer">
             <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
           </a>
           <a className="btn" href="/#cars">

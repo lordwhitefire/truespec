@@ -5,8 +5,8 @@ import { useEffect } from "react";
 type Props = {
   photos: string[];
   alt: string;
-  wa: string;
-  viewing: string;
+  wa: string | null;
+  viewing: string | null;
   name: string;
   slug: string;
   status: string;
@@ -45,6 +45,11 @@ const monthWord = (s: string, rx: RegExp) => {
 };
 
 export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was, note }: Props) {
+  // With no number saved there is no link at all — an anchor without `href` is not a link, rather
+  // than one pointing at "null" or at no recipient.
+  const waAttr = wa ? ` href="${wa}"` : "";
+  const viewAttr = viewing ? ` href="${viewing}"` : "";
+
   useEffect(() => {
     const $ = <T extends Element = HTMLElement>(sel: string) => document.getElementById(sel) as T | null;
     const cleanups: Array<() => void> = [];
@@ -141,19 +146,19 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       store.set("lastcar", slug);
       if (isBack) {
         speak(
-          `${SAY.backGreet(name)} <a class="wab sm" target="_blank" href="${viewing}"><i class="fa-brands fa-whatsapp"></i>${SAY.backBtn}</a>`,
+          `${SAY.backGreet(name)} <a class="wab sm" target="_blank"${viewAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.backBtn}</a>`,
         );
       } else if (was) {
         speak(SAY.greetSpecial(was));
       } else if (status === "o") {
         const m = monthWord(note, /arrival:?\s*([a-z]+)/i) || "soon";
         speak(
-          `${SAY.greetO(m)} <a class="wab sm" target="_blank" href="${wa}"><i class="fa-brands fa-whatsapp"></i>${SAY.reserveB}</a>`,
+          `${SAY.greetO(m)} <a class="wab sm" target="_blank"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.reserveB}</a>`,
         );
       } else if (status === "l") {
         const m = monthWord(note, /landed in\s+([a-z]+)/i) || "recently";
         speak(
-          `${SAY.greetL(m)} <a class="wab sm" target="_blank" href="${viewing}"><i class="fa-brands fa-whatsapp"></i>${SAY.backBtn}</a>`,
+          `${SAY.greetL(m)} <a class="wab sm" target="_blank"${viewAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.backBtn}</a>`,
         );
       } else {
         speak(SAY.greetA);
@@ -340,7 +345,7 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       farewellShown = true;
       openModal(
         SAY.farewellT,
-        `<p class="mp">${SAY.farewellS(name)}</p><div class="mbtns"><a class="wab" target="_blank" href="${wa}"><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" id="stayB">${SAY.stayB}</button></div>`,
+        `<p class="mp">${SAY.farewellS(name)}</p><div class="mbtns"><a class="wab" target="_blank"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" id="stayB">${SAY.stayB}</button></div>`,
       );
       document.getElementById("stayB")?.addEventListener("click", closeModal);
     };

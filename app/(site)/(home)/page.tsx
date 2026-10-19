@@ -112,7 +112,7 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="more">
-              <a className="btn" target="_blank" rel="noopener noreferrer" href={wa}>
+              <a className="btn" target="_blank" rel="noopener noreferrer" href={wa ?? undefined}>
                 <i className="fa-brands fa-whatsapp" />
                 Chat with us
               </a>

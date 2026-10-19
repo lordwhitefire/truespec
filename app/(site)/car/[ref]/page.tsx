@@ -271,15 +271,15 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                   ) : null}
                 </div>
               </div>
-              <a className="wab big" id="wa" href={wa} target="_blank" rel="noopener noreferrer">
+              <a className="wab big" id="wa" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
                 <i className="fa-brands fa-whatsapp fa-xl" />
                 <span id="waTxt">{car.section === "on order" ? "Reserve this car" : "Chat on WhatsApp"}</span>
               </a>
-              <a className="ofr" id="of" href={offerLink} target="_blank" rel="noopener noreferrer">
+              <a className="ofr" id="of" href={offerLink ?? undefined} target="_blank" rel="noopener noreferrer">
                 Make an offer
                 <i className="fa-solid fa-naira-sign" />
               </a>
-              <a className="ofr" id="vw" href={viewingLink} target="_blank" rel="noopener noreferrer">
+              <a className="ofr" id="vw" href={viewingLink ?? undefined} target="_blank" rel="noopener noreferrer">
                 Book a viewing
                 <i className="fa-regular fa-calendar-check" />
               </a>
@@ -369,7 +369,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
             {formatNaira(car.priceKobo)}
           </div>
         </div>
-        <a className="wab" id="mw" href={wa} target="_blank" rel="noopener noreferrer">
+        <a className="wab" id="mw" href={wa ?? undefined} target="_blank" rel="noopener noreferrer">
           <i className="fa-brands fa-whatsapp" />
           <span id="mwTxt">{car.section === "on order" ? "Reserve now" : "Chat now"}</span>
         </a>
@@ -476,7 +476,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
           instead:
         </p>
         <div className="row">
-          <a className="wab big" href={soldWa} target="_blank" rel="noopener noreferrer">
+          <a className="wab big" href={soldWa ?? undefined} target="_blank" rel="noopener noreferrer">
             <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
           </a>
           <a className="btn" href="/inventory">

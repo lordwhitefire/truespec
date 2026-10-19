@@ -852,3 +852,28 @@ stops inside the documented bounds; two cars never share a gradient; adjacent re
 `performance`; empty code still valid. `npm test` **303/303** (295 + 8) · typecheck clean · live
 after the move: TS-1029 `rgb(41, 66, 56) → rgb(61, 48, 105)`, TS-1030 `rgb(41, 66, 41) →
 rgb(90, 109, 55)`, `aria-hidden="true"`, no console errors — unchanged.
+
+## Task 29 — no invented number, no dead recipient (2026-10-19, live, read-only)
+
+The saved number was cleared from the live store for the first leg and restored **exactly** for the
+second (`wa-number.mjs`; the row was backed up, deleted, then written back with its original
+`updated_at`). Store before and after: `+2348146927170`, `updated_at 2026-10-16T11:55:53.863Z` —
+net-zero. The real site at `:3210` was driven in the attached Chrome (3 → 3, no launch).
+
+| reading | number cleared | number restored |
+|---|---|---|
+| header number, 7 site pages | **blank** | **+2348146927170** |
+| `wa.me` links | **0** on all 8 pages | home 5 · inventory 4 · empty inventory 5 · car 8 · missing car 5 · site 404 5 · global 404 1 · privacy 5 — all begin `https://wa.me/2348146927170` |
+| nav chat · footer button · floating · home chat | present, **no `href`** | present, live |
+| car `#wa` · `#of` · `#vw` · `#mw` | present, **no `href`** | live |
+| Message Umar (car missing, site 404, global 404) | present, **no `href`** | live (prefilled text intact) |
+| inventory empty “Message me on WhatsApp” | present, **no `href`** | live |
+| privacy `#whatsapp` | **“Enquiries go to our WhatsApp directly.”** | “Enquiries go to WhatsApp directly (**+2348146927170**).” |
+| privacy `#contact` | “message us on WhatsApp.” — **no anchor** | same words, `https://wa.me/2348146927170` |
+| invented literal in page text | **false** on all 8 | **false** on all 8 |
+| console | 2 × 404 — exactly the two documents under test | the same two |
+
+The eight pages: `/`, `/inventory`, `/inventory?min=999999999` (empty state), `/car/TS-1029`,
+`/car/TS-999999`, `/not-found`, an unmatched URL (global 404), `/privacy`. The controls are present
+but **not yet visibly off** — Task 30. Typecheck clean · `npm test` **304/304**. Drive
+`wa-number-drive.mjs`; readings `runs/task29/cleared.json` / `saved.json`.

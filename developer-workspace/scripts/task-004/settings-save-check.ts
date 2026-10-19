@@ -145,6 +145,9 @@ async function main() {
     // ------------------------------------------------------------- the link the tap button builds ---
     const live = (await readSettings()).whatsapp.value;
     const link = waLink(live, "Hello TrueSpec, I have a question.");
+    // The helper now returns null when no recipient exists (FIX-001). This check runs only after a
+    // real number has been saved, so a null here is the check's own failure, not a valid state.
+    if (link === null) throw new Error("the store's saved number built no link");
     ok(
       "the stored number builds the link the tap button builds — one fixed shape, digits only",
       link === "https://wa.me/2348031234567?text=Hello%20TrueSpec%2C%20I%20have%20a%20question.",

@@ -1,25 +1,20 @@
-"use client";
-
 import "./globals.css";
 import "./reference.css";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { connection } from "next/server";
+import { getSetting } from "@/lib/public-cars";
+import { waLink } from "@/components/whatsapp";
+import { ThemeSpeech } from "@/components/site/ThemeSpeech";
 
-export default function NotFound() {
-  const [speaking, setSpeaking] = useState("");
-  const [popped, setPopped] = useState(false);
+const WA_MESSAGE = "Hello TrueSpec, I was looking for a car on your site.";
 
-  useEffect(() => {
-    const m = matchMedia("(prefers-reduced-motion: reduce)");
-    const theme = document.documentElement.dataset.theme;
-    const text = theme === "dark" ? "Dark mode on." : "Light mode on.";
-    setSpeaking(text);
-    if (!m.matches) {
-      setPopped(true);
-      const t = setTimeout(() => setPopped(false), 350);
-      return () => clearTimeout(t);
-    }
-  }, []);
+export default async function NotFound() {
+  // The root 404 sits outside the site layout's `force-dynamic`, so without this wait Next would
+  // prerender it at build time and could show a number the owner has since removed. `connection()`
+  // keeps the number a per-request read; the saved number is the only one ever shown.
+  await connection();
+  const num = (await getSetting("whatsapp_number")) ?? "";
+  const wa = waLink(num, WA_MESSAGE);
 
   return (
     <div className="nfbox" style={{ padding: "90px 24px", textAlign: "center", maxWidth: 620, margin: "auto" }}>
@@ -72,7 +67,7 @@ export default function NotFound() {
           className="wab big"
           target="_blank"
           rel="noopener noreferrer"
-          href="https://wa.me/2348000000000?text=Hello%20TrueSpec%2C%20I%20was%20looking%20for%20a%20car%20on%20your%20site."
+          href={wa ?? undefined}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -94,24 +89,7 @@ export default function NotFound() {
       <p style={{ marginTop: 22, fontSize: 13, color: "var(--mute)" }}>
         Or head back to the <Link href="/" style={{ textDecoration: "underline", textUnderlineOffset: 2 }}>home page</Link>.
       </p>
-      {speaking ? (
-        <p
-          className={popped ? "speak pop" : "speak"}
-          role="status"
-          aria-live="polite"
-          style={{
-            margin: "26px auto 0",
-            maxWidth: 440,
-            background: "var(--lt)",
-            border: "1px solid var(--line)",
-            borderLeft: "3px solid var(--gold)",
-            padding: "10px 14px",
-            fontSize: 14,
-          }}
-        >
-          {speaking}
-        </p>
-      ) : null}
+      <ThemeSpeech />
     </div>
   );
 }

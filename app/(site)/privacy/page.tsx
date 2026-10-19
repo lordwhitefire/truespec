@@ -1,10 +1,14 @@
-"use client";
-
 import Link from "next/link";
 import "./privacy.css";
 import "../../reference.css";
+import { getSetting } from "@/lib/public-cars";
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  // The site layout above this page is force-dynamic, so the number is read per request: the notice
+  // names only the number the owner actually saved.
+  const num = (await getSetting("whatsapp_number")) ?? "";
+  const digits = num.replace(/\D/g, "");
+
   return (
     <>
 
@@ -85,7 +89,15 @@ export default function PrivacyPage() {
         <section id="whatsapp">
           <h2>WhatsApp</h2>
           <p>
-            Enquiries go to WhatsApp directly (<b>+234 800 000 0000</b>). When you tap "Chat on
+            Enquiries go to{" "}
+            {num ? (
+              <>
+                WhatsApp directly (<b>{num}</b>)
+              </>
+            ) : (
+              <>our WhatsApp directly</>
+            )}
+            . When you tap "Chat on
             WhatsApp", you leave this site and open WhatsApp. WhatsApp is a separate service with
             its own privacy policy. Before you leave, this site records that the tap happened — the
             page, the car&rsquo;s code (when there is one) and the time — and nothing else. We only see
@@ -115,7 +127,15 @@ export default function PrivacyPage() {
         <section id="contact">
           <h2>Who to contact</h2>
           <p>
-            Questions about this notice: message us on <a href="https://wa.me/2348000000000" target="_blank" rel="noopener noreferrer">WhatsApp</a>.
+            Questions about this notice: message us on{" "}
+            {digits ? (
+              <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
+                WhatsApp
+              </a>
+            ) : (
+              "WhatsApp"
+            )}
+            .
           </p>
           <div className="own">
             <i className="fa-solid fa-user-shield" />

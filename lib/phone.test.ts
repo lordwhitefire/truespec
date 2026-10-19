@@ -15,7 +15,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { normaliseNigerianMobile, waMeDigits } from "./phone";
-import { waLink } from "../components/whatsapp";
+import { carWaLink, waLink } from "../components/whatsapp";
+import type { PublicCar } from "./serialize";
 
 const N = normaliseNigerianMobile;
 
@@ -106,6 +107,7 @@ test("the link the tap button builds carries the number through, one fixed shape
   assert.equal(read.ok, true);
   if (!read.ok) return;
   const link = waLink(read.value, "I'm interested in a car.");
+  assert.ok(link, "a saved number must build a link");
   assert.equal(link, "https://wa.me/2348031234567?text=I'm%20interested%20in%20a%20car.");
   const digits = link.slice("https://wa.me/".length).split("?")[0];
   assert.equal(digits, "2348031234567");
@@ -118,4 +120,22 @@ test("the digits the preview shows are the digits the link opens with", () => {
   if (!read.ok) return;
   const digits = waMeDigits(read.value);
   assert.equal(waLink(read.value, ""), `https://wa.me/${digits}?text=`);
+});
+
+test("with no number saved, no link is built — not one to nobody", () => {
+  // FIX-001: `wa.me/?text=…` is a link to no recipient, dressed as a live chat button. With
+  // nothing saved the helper returns null so every caller has to switch its control off instead.
+  assert.equal(waLink("", "Hello"), null);
+  assert.equal(waLink("   ", "Hello"), null);
+  assert.equal(waLink(null, "Hello"), null);
+  assert.equal(waLink(undefined, "Hello"), null);
+  // The car page's link is the one that used to die rather than lie (task.md:200-201).
+  const car = {
+    ref: "TS-1029",
+    year: 2020,
+    brand: "Toyota",
+    model: "Camry",
+    trim: null,
+  } as unknown as PublicCar;
+  assert.equal(carWaLink("", car), null);
 });

@@ -67,13 +67,20 @@ const WA_QUESTION = "Hello TrueSpec, I have a question.";
 
 async function WhatsAppNumber() {
   const { num } = await chromeData();
-  return <b>{num || "+234 800 000 0000"}</b>;
+  // Nothing is invented when the owner has not saved a number. A non-breaking space keeps the
+  // header's shape until Task 30 gives the off state its visible words.
+  return <b>{num || "\u00a0"}</b>;
 }
 
 async function HeaderChat() {
   const { num } = await chromeData();
   return (
-    <a className="wab" href={waLink(num, WA_QUESTION)} target="_blank" rel="noopener noreferrer">
+    <a
+      className="wab"
+      href={waLink(num, WA_QUESTION) ?? undefined}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       <i className="fa-brands fa-whatsapp" />
       Chat on WhatsApp
     </a>
@@ -105,7 +112,7 @@ async function FooterWhatsAppIcon() {
   const { num } = await chromeData();
   return (
     <a
-      href={waLink(num, WA_QUESTION)}
+      href={waLink(num, WA_QUESTION) ?? undefined}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="WhatsApp"
@@ -120,7 +127,7 @@ async function FooterWhatsAppButton() {
   return (
     <a
       className="wab big"
-      href={waLink(num, WA_QUESTION)}
+      href={waLink(num, WA_QUESTION) ?? undefined}
       target="_blank"
       rel="noopener noreferrer"
     >

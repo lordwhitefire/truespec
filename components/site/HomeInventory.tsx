@@ -121,7 +121,11 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
                   className="btn"
                   target="_blank"
                   rel="noopener noreferrer"
-                  href={`https://wa.me/${number.replace(/\D/g, "")}`}
+                  href={
+                    number.replace(/\D/g, "")
+                      ? `https://wa.me/${number.replace(/\D/g, "")}`
+                      : undefined
+                  }
                 >
                   <i className="fa-brands fa-whatsapp" />
                   Message me on WhatsApp
