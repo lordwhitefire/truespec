@@ -953,3 +953,20 @@ No leg showed a count or an empty block (`0 OF`, `0 cars`, `No cars match` absen
 Store untouched. Screenshots: `runs/task31/{site-page,office-page}-{375,1440}.jpeg`; the two outer
 legs' captures timed out and are readings only. Drive `task31.mjs`; readings `runs/task31/`.
 Typecheck clean · **304/304**. Note `notes/TASK-005-task31.md`.
+
+## Task 32 — A store that cannot be read is never emptiness, never a number (2026-10-19, live)
+
+The settled wording was verified, not replaced: `git diff` is empty for `retryable.tsx`,
+`store-waking.tsx` and `store-state-styles.ts` (last change `7982435`, TASK-004). **Retry** — the
+Task 31 forced failures recorded, on every reading, **“We couldn’t load this”** / **“We tried a few
+times but the server didn’t answer. Nothing was lost — please try again.”** / **“Try again”**, with
+`falseCount: []` and `0` visible empty blocks. **Waking** — fresh 4 s slow-page runs at 375/1440 on
+both shells recorded **“Just a moment”** / **“Setting things up — this can take a few seconds after
+a quiet spell.”**, `role="status"`, `aria-live="polite"`, a spinner, the chrome around it, and then
+the real page (“TrueSpec Inventory” / “Inventory”); `falseCount: []`, `0` empty blocks. The office
+waiting state kept its full height (`min-height` 812/900), so the Task 31 `[role="alert"]` rule
+leaves it untouched. The temporary delays were removed and both pages are byte-identical; store
+untouched; Chrome 3 → 3. Waiting screenshots were attempted but the fade/spinner and 4 s window
+made the capture land after the wait or before paint — the DOM readings are the evidence; the
+Task 31 inner frames show the retry. Typecheck clean · **304/304** · `task32-waking.mjs`; readings
+`runs/task32/`, `runs/task31/`. Note `notes/TASK-005-task32.md`.
