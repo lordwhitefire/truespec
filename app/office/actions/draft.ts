@@ -7,7 +7,8 @@ import { type FieldError } from "@/lib/car-input";
 import { imageUrl } from "@/lib/sanity";
 import { isAssetRef } from "@/lib/photo-rules";
 import { deleteDraft } from "@/lib/draft-store";
-import { runSaveDraft, type SaveDraftResult } from "@/lib/draft-save-run";
+import { draftFormFieldsFromForm } from "@/lib/draft-form";
+import { runSaveDraft, runSaveDraftAsDraft, type SaveDraftResult } from "@/lib/draft-save-run";
 
 /**
  * Saving a draft, and deleting one — build step 7 (truth 9).
@@ -32,6 +33,13 @@ import { runSaveDraft, type SaveDraftResult } from "@/lib/draft-save-run";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export type { SaveDraftResult };
+
+/** The draft form's two writes: keep it waiting, or make it the record. */
+export type SaveDraftFormResult =
+  | { ok: true; outcome: "draft" }
+  | { ok: true; outcome: "car"; ref: string }
+  | { ok: false; errors: FieldError[] };
+
 export type DeleteDraftResult = { ok: true } | { ok: false; errors: FieldError[] };
 export type DraftImageResult = { ok: true; assetId: string; url: string } | { ok: false; errors: FieldError[] };
 
@@ -63,6 +71,38 @@ export async function saveDraft(form: FormData): Promise<SaveDraftResult> {
   const result = await runSaveDraft(draftId, chosen, session.officeUserId);
   if (result.ok) revalidateDraftPaths();
   return result;
+}
+
+/**
+ * The car draft's form, saved by one of its two buttons (owner ruling 2026-10-20, #3).
+ *
+ * `intent=draft` keeps the row waiting: the posted form becomes the owner's edit layer, the state
+ * label follows the chosen state, and nothing is created. `intent=car` sends the same form through
+ * the office form's own reader, creates the record, and lets the draft go. The browser's `intent`
+ * is only a choice between two writes; each is judged on its own terms here.
+ */
+export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult> {
+  const session = await requireOfficeSession();
+
+  const rawId = form.get("draftId");
+  const draftId = typeof rawId === "string" ? rawId : "";
+  const rawChosen = form.get("stateId");
+  const chosen = typeof rawChosen === "string" ? rawChosen.trim() : "";
+  const intent = form.get("intent") === "draft" ? "draft" : "car";
+
+  if (intent === "draft") {
+    const captured = draftFormFieldsFromForm(form);
+    if (!captured.ok) return captured;
+    const result = await runSaveDraftAsDraft(draftId, captured.form, chosen);
+    if (!result.ok) return result;
+    revalidateDraftPaths();
+    return { ok: true, outcome: "draft" };
+  }
+
+  const result = await runSaveDraft(draftId, chosen, session.officeUserId, form);
+  if (!result.ok) return result;
+  revalidateDraftPaths();
+  return { ok: true, outcome: "car", ref: result.ref ?? "" };
 }
 
 /** Delete a draft the owner does not want. The held file is left where the owner's own cleanup finds

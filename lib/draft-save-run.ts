@@ -13,8 +13,9 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { storeQueryRefusing } from "./store-guard";
-import { type FieldError } from "./car-input";
-import { carFormFacts } from "./car-form";
+import { readCarInput, type FieldError } from "./car-input";
+import type { DraftFields } from "./device-draft";
+import { carFormFacts, toCarForm } from "./car-form";
 import { carCreateStatement } from "./car-create";
 import { carChangeCheck, CHANGE_CHECK_VERSION, enquiryChangeCheck } from "./change-check";
 import { SOLD_SECTION } from "./sale";
@@ -30,7 +31,12 @@ import {
   type DraftRow,
 } from "./draft-store";
 
-export type SaveDraftResult = { ok: true; kind: "car" | "enquiry" } | { ok: false; errors: FieldError[] };
+export type SaveDraftResult =
+  | { ok: true; kind: "car" | "enquiry"; ref?: string }
+  | { ok: false; errors: FieldError[] };
+
+/** Saving a draft's form in place: the row stays, nothing is created, no code is spent. */
+export type SaveDraftFieldsResult = { ok: true } | { ok: false; errors: FieldError[] };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -89,6 +95,7 @@ export async function runSaveDraft(
   draftId: string,
   chosen: string,
   actorId: string,
+  form: FormData | null = null,
 ): Promise<SaveDraftResult> {
   if (!UUID.test(draftId)) {
     return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
@@ -99,13 +106,18 @@ export async function runSaveDraft(
     return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
   }
 
+  let createdRef: string | undefined;
+
   if (draft.kind === "car") {
     const state = await carStateForSave(draft, chosen);
     if (!state.ok) {
       return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
     }
 
-    const read = readDraftAsCar(draft.values, state.id);
+    // The edited form is judged by the very reader the office form uses; an untouched upload is
+    // rebuilt from + read against `values` (truth 9). The draft row stays the truth for photos:
+    // the edit form writes them there as it goes, so a browser list cannot add or reorder them.
+    const read = form ? readCarInput(toCarForm(form)) : readDraftAsCar(draft.values, state.id);
     if (!read.ok) return { ok: false, errors: read.errors };
 
     const facts = await carFormFacts(read.value, draft.imageAssetIds);
@@ -139,6 +151,7 @@ export async function runSaveDraft(
     if (!rows[0]?.ref) {
       return { ok: false, errors: [{ field: "draftId", message: "The car could not be created. Try again." }] };
     }
+    createdRef = rows[0].ref;
   } else {
     const state = await enquiryStateForSave(draft, chosen);
     if (!state.ok) {
@@ -196,5 +209,61 @@ export async function runSaveDraft(
       ],
     };
   }
-  return { ok: true, kind: draft.kind };
+  return { ok: true, kind: draft.kind, ref: createdRef };
+}
+
+/**
+ * Save the owner's edit layer on a car draft **in place** (owner ruling 2026-10-20, #3).
+ *
+ * Nothing is created: the row stays waiting, no `TS-####` is spent, and no activity is written.
+ * The values are not judged by `readCarInput` — a draft is exactly the place an incomplete car is
+ * allowed to be (truth 9) — but the state, when one is chosen, must still be one of the four
+ * primaries, and the label stored beside the form is that state's own name.
+ */
+export async function runSaveDraftAsDraft(
+  draftId: string,
+  fields: DraftFields,
+  chosen: string,
+): Promise<SaveDraftFieldsResult> {
+  if (!UUID.test(draftId)) {
+    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+  }
+
+  const draft = await getDraft(draftId);
+  if (draft === null) {
+    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+  }
+  if (draft.kind !== "car") {
+    return { ok: false, errors: [{ field: "draftId", message: "This draft is not a car" }] };
+  }
+
+  let label = draft.stateLabel;
+  if (chosen !== "") {
+    if (!UUID.test(chosen)) {
+      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+    }
+    const state = await carStateById(chosen);
+    if (state === null || state.kind !== "primary") {
+      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+    }
+    label = state.label;
+  }
+
+  const attempt = await storeQueryRefusing<{ id: string }[]>(
+    `UPDATE draft
+        SET form = $2::jsonb,
+            state_label = $3,
+            updated_at = now()
+      WHERE id = $1
+        AND kind = 'car'
+      RETURNING id`,
+    [draftId, JSON.stringify(fields), label],
+    { field: "draftId", action: "That draft could not be saved" },
+  );
+  if (!attempt.ok) return attempt;
+  if (attempt.rows.length === 0) {
+    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+  }
+
+  return { ok: true };
 }

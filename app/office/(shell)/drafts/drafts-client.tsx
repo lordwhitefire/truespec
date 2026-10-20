@@ -33,6 +33,8 @@ export type DraftCard = {
   stateId: string | null;
   /** How long it has been waiting, already formatted (server-side, in UTC). */
   waiting: string;
+  /** The form that edits this draft in place; absent while its kind has no editor yet. */
+  editHref?: string;
 };
 
 export type DraftBatch = {
@@ -383,6 +385,12 @@ function DraftRow({
       ) : null}
 
       <div className="dfoot">
+        {card.editHref ? (
+          <a className="btn gh" href={card.editHref}>
+            <i className="fa-solid fa-pen" aria-hidden="true" />
+            Edit
+          </a>
+        ) : null}
         <button type="button" className="btn" onClick={save} disabled={pending || uploading}>
           <i className="fa-solid fa-check" aria-hidden="true" />
           {pending ? "Saving…" : `Save as a ${words.one}`}

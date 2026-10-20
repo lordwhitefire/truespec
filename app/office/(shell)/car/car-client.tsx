@@ -21,6 +21,13 @@ import {
 import { Dialog } from "@/components/office/Dialog";
 import { uploadCarPhoto } from "../../actions/photo";
 import {
+  addDraftImage,
+  makeDraftCover,
+  removeDraftImage,
+  saveDraftForm,
+  type SaveDraftFormResult,
+} from "../../actions/draft";
+import {
   costLabelFor,
   formatNaira,
   isCostComplete,
@@ -158,6 +165,10 @@ function applyCarDraftFields(form: HTMLFormElement, data: DraftFields) {
 export type CarFormData = {
   /** The car's store key — present in edit mode; the row the Server Action updates. */
   carId?: string;
+  /** The draft's row key — present in draft mode; where Save as draft/photo actions write. */
+  draftId?: string;
+  /** The uploaded file the draft came from, as the owner named it. */
+  draftSource?: string;
   ref: string;
   added: string;
   upd: string;
@@ -362,7 +373,7 @@ export function CarForm({
   primaries,
   secondaries = [],
 }: {
-  mode: "edit" | "add";
+  mode: "edit" | "add" | "draft";
   data: CarFormData;
   /** The four fixed primary states, from the registry — the car's one mandatory state. */
   primaries: OfficeState[];
@@ -370,7 +381,11 @@ export function CarForm({
   secondaries?: OfficeSecondaryState[];
 }) {
   const isEdit = mode === "edit";
-  const canAutofill = !isEdit;
+  const isDraft = mode === "draft";
+  // Both edit and draft show values already read (from the car, or from the draft); add starts blank.
+  const filled = isEdit || isDraft;
+  // The PDF reader belongs to the manual add form (P3). A draft is edited where it is, not refilled.
+  const canAutofill = mode === "add";
 
   // label → the one section, from the registry. A label the registry does not hold
   // keeps the car's own section — the label is never guessed from an unmapped state.
@@ -392,17 +407,18 @@ export function CarForm({
 
   const [panel, setPanel] = useState(() =>
     compute(
-      isEdit ? data.price : "",
-      isEdit ? data.wasPrice ?? "" : "",
-      isEdit ? data.costs : BLANK_COSTS,
-      sectionFor(isEdit ? data.state : "Available"),
+      filled ? data.price : "",
+      filled ? data.wasPrice ?? "" : "",
+      filled ? data.costs : BLANK_COSTS,
+      sectionFor(filled ? data.state : "Available"),
     ),
   );
   // The car's photos, in stored order — position 0 is the cover buyers see first (truth 7). Photos
   // are uploaded the moment they are chosen (bytes first, row later), so this already holds
   // references the asset store has; what a save posts is each `assetId`, never an address.
-  const [photos, setPhotos] = useState<CarPhoto[]>(isEdit ? data.photos : []);
+  const [photos, setPhotos] = useState<CarPhoto[]>(filled ? data.photos : []);
   const [uploading, setUploading] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   // Task — autofill. The file is read by the server and comes back as the form's own strings; the
   // form is filled in place, never submitted by the read. Errors sit in the form's error area, and
@@ -430,6 +446,8 @@ export function CarForm({
   const [toastShow, setToastShow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [result, setResult] = useState<CreateCarResult | UpdateCarResult | null>(null);
+  const [draftResult, setDraftResult] = useState<SaveDraftFormResult | null>(null);
+  const [pendingIntent, setPendingIntent] = useState<"draft" | "car" | null>(null);
   const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
   const formErrRef = useRef<HTMLDivElement | null>(null);
@@ -496,6 +514,9 @@ export function CarForm({
   useEffect(() => () => announceDraftPresence(false), []);
 
   function scheduleDraft() {
+    // A draft being edited is already the server's; a second copy on this device would be a second
+    // truth (P4), so the device-local autosave belongs to add and edit only.
+    if (isDraft) return;
     const form = formRef.current;
     const base = draftBase.current;
     if (!form || !base) return;
@@ -615,6 +636,7 @@ export function CarForm({
   // Erase the car's draft only on an act: a successful save or Cancel (discard). The pending write
   // is cancelled first, so a trailing debounce cannot put the draft back after the act.
   function clearCarDraft() {
+    if (isDraft) return;
     const key = carDraftKey(data.carId);
     draftWriter.cancel(key);
     removeDraft(key);
@@ -673,6 +695,10 @@ export function CarForm({
   // fields does not schedule a write: the seen refs move with the state, so the draft is not
   // rewritten just because it was put back.
   useEffect(() => {
+    if (isDraft) {
+      announceDraftPresence(false);
+      return;
+    }
     if (draftRestored.current) {
       if (draftPresent.current) announceDraftPresence(true);
       return;
@@ -742,6 +768,12 @@ export function CarForm({
     // A new refusal object is the signal; the fields it names are rendered by the same commit.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result]);
+
+  useEffect(() => {
+    if (!draftResult || draftResult.ok || draftResult.errors.length === 0) return;
+    focusServerRefusal(draftResult.errors);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftResult]);
 
   const showToast = (html: string) => {
     // A plain message supersedes any delete offer (there is nothing to undo behind it).
@@ -817,7 +849,12 @@ export function CarForm({
   // refusal) never leaves the page — it is a field error, and nothing is saved.
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (hasFieldErrors) {
+    // In draft mode the clicked button decides which of the two writes runs: "Save as draft" keeps
+    // the row waiting and allows an incomplete form; "Save car" is judged like any car save.
+    const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const intent: "draft" | "car" = isDraft && submitter?.value === "draft" ? "draft" : "car";
+
+    if ((!isDraft || intent === "car") && hasFieldErrors) {
       // The panel already marks the fields it judges; the first one on the form takes the caret.
       const first = Array.from(
         document.querySelectorAll<HTMLElement>('[aria-invalid="true"]'),
@@ -830,6 +867,30 @@ export function CarForm({
     // chosen, and a save posts only the references (the hidden `photos` fields); dropping the file
     // keeps a save from carrying the image bytes across a second time.
     fd.delete("photo");
+
+    if (isDraft) {
+      fd.set("intent", intent);
+      if (data.draftId) fd.set("draftId", data.draftId);
+      setDraftResult(null);
+      setPendingIntent(intent);
+      startSaving(async () => {
+        try {
+          const res = await saveDraftForm(fd);
+          setDraftResult(res);
+          if (!res.ok) return;
+          if (res.outcome === "draft") {
+            showToast("Draft saved. It is still waiting — nothing was created.");
+            return;
+          }
+          showToast(`Saved <b>${res.ref}</b>. The showroom updates immediately.`);
+          router.push(`/office/car/${encodeURIComponent(res.ref)}`);
+        } finally {
+          setPendingIntent(null);
+        }
+      });
+      return;
+    }
+
     setResult(null);
     startSaving(async () => {
       // Edit mode updates the car the owner opened (the hidden `carId` names it); add
@@ -852,19 +913,97 @@ export function CarForm({
     });
   };
 
-  // A Server Action's field refusals, one message per field, shown at the field.
-  const serverErrors = result && !result.ok ? result.errors : [];
+  // A Server Action's field refusals, one message per field, shown at the field. In draft mode the
+  // answer comes from the draft form's own action; in add/edit from the car action.
+  const serverErrors = isDraft
+    ? draftResult && !draftResult.ok
+      ? draftResult.errors
+      : []
+    : result && !result.ok
+      ? result.errors
+      : [];
   const errFor = (field: string) => serverErrors.find((x) => x.field === field)?.message;
+  const failure = isDraft
+    ? draftResult && !draftResult.ok
+      ? draftResult
+      : null
+    : result && !result.ok
+      ? result
+      : null;
 
-  const makeCover = (i: number) =>
-    setPhotos((prev) => {
-      const a = [...prev];
-      const [x] = a.splice(i, 1);
-      a.unshift(x);
-      return a;
-    });
-  const removeImg = (i: number) =>
-    setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+  const draftId = data.draftId ?? "";
+
+  // Photos on a draft are the draft's own row (P4): an edit that is never saved still keeps the
+  // pictures, exactly as the drafts screen already does. Bytes go first (`uploadCarPhoto`), then the
+  // reference is written; add/edit keep their in-form list until the car is saved.
+  const makeCover = async (i: number) => {
+    const photo = photos[i];
+    if (!photo) return;
+    if (!isDraft) {
+      setPhotos((prev) => {
+        const a = [...prev];
+        const [x] = a.splice(i, 1);
+        a.unshift(x);
+        return a;
+      });
+      return;
+    }
+    if (!draftId) {
+      setUploadError("This draft could not be identified.");
+      return;
+    }
+    setUploadError(null);
+    setPhotoBusy(true);
+    try {
+      const fd = new FormData();
+      fd.set("draftId", draftId);
+      fd.set("assetId", photo.assetId);
+      const res = await makeDraftCover(fd);
+      if (!res.ok) {
+        setUploadError(res.errors[0]?.message ?? "That could not be made the cover.");
+        return;
+      }
+      setPhotos((prev) => {
+        const one = prev.find((p) => p.assetId === photo.assetId);
+        if (!one) return prev;
+        return [one, ...prev.filter((p) => p.assetId !== photo.assetId)];
+      });
+    } catch {
+      setUploadError("The store could not be reached — try that again.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const removeImg = async (i: number) => {
+    const photo = photos[i];
+    if (!photo) return;
+    if (!isDraft) {
+      setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+      return;
+    }
+    if (!draftId) {
+      setUploadError("This draft could not be identified.");
+      return;
+    }
+    setUploadError(null);
+    setPhotoBusy(true);
+    try {
+      const fd = new FormData();
+      fd.set("draftId", draftId);
+      fd.set("assetId", photo.assetId);
+      const res = await removeDraftImage(fd);
+      if (!res.ok) {
+        setUploadError(res.errors[0]?.message ?? "That photo could not be removed.");
+        return;
+      }
+      setPhotos((prev) => prev.filter((p) => p.assetId !== photo.assetId));
+    } catch {
+      setUploadError("The store could not be reached — try that again.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
 
   // The drop zone's one job: put the chosen bytes in the asset store **now** and hold the reference
   // that comes back (truth 7 — the bytes go first, the row second, so a car is never saved pointing
@@ -893,6 +1032,20 @@ export function CarForm({
           setUploadError(res.errors[0]?.message ?? "That photo could not be added.");
           continue;
         }
+        if (isDraft) {
+          if (!draftId) {
+            setUploadError("This draft could not be identified.");
+            continue;
+          }
+          const add = new FormData();
+          add.set("draftId", draftId);
+          add.set("assetId", res.assetId);
+          const written = await addDraftImage(add);
+          if (!written.ok) {
+            setUploadError(written.errors[0]?.message ?? "That photo could not be added.");
+            continue;
+          }
+        }
         setPhotos((prev) =>
           prev.some((p) => p.assetId === res.assetId)
             ? prev
@@ -904,10 +1057,12 @@ export function CarForm({
     }
   };
 
-  const h1 = isEdit ? "Edit car" : "Add a car";
-  const hsub = isEdit
-    ? `${data.brand} ${data.model} ${data.trim} ${data.year} · ${data.ref} · added ${data.added} · last updated by Umar, ${data.upd}`
-    : "Fill what you know — save puts it in the showroom immediately.";
+  const h1 = isDraft ? "Edit car draft" : isEdit ? "Edit car" : "Add a car";
+  const hsub = isDraft
+    ? `From ${data.draftSource || "the uploaded file"} · waiting ${data.added}. Every field can be edited; nothing is a record until you save the car.`
+    : isEdit
+      ? `${data.brand} ${data.model} ${data.trim} ${data.year} · ${data.ref} · added ${data.added} · last updated by Umar, ${data.upd}`
+      : "Fill what you know — save puts it in the showroom immediately.";
 
   return (
     <>
@@ -984,7 +1139,7 @@ export function CarForm({
                   name="brand"
                   type="text"
                   placeholder="Toyota"
-                  defaultValue={isEdit ? data.brand : ""}
+                  defaultValue={filled ? data.brand : ""}
                 />
               </div>
               <div className="f">
@@ -995,7 +1150,7 @@ export function CarForm({
                   name="model"
                   type="text"
                   placeholder="Sienna"
-                  defaultValue={isEdit ? data.model : ""}
+                  defaultValue={filled ? data.model : ""}
                 />
               </div>
               <div className="f">
@@ -1006,7 +1161,7 @@ export function CarForm({
                   name="trim"
                   type="text"
                   placeholder="LE"
-                  defaultValue={isEdit ? data.trim : ""}
+                  defaultValue={filled ? data.trim : ""}
                 />
               </div>
               <div className="f">
@@ -1017,7 +1172,7 @@ export function CarForm({
                   name="year"
                   type="number"
                   placeholder="2020"
-                  defaultValue={isEdit ? data.year : ""}
+                  defaultValue={filled ? data.year : ""}
                 />
               </div>
               <div className="f">
@@ -1028,7 +1183,7 @@ export function CarForm({
                   name="mileage"
                   type="text"
                   placeholder="52,614"
-                  defaultValue={isEdit ? data.mileage : ""}
+                  defaultValue={filled ? data.mileage : ""}
                 />
                 <span className="hint">
                   Shown exactly as the car reads — kilometres.
@@ -1045,7 +1200,7 @@ export function CarForm({
                     type="text"
                     inputMode="decimal"
                     placeholder="33,900,000"
-                    defaultValue={isEdit ? data.price : ""}
+                    defaultValue={filled ? data.price : ""}
                     onInput={() => recalc()}
                     aria-invalid={panel.errors.price ? true : undefined}
                   />
@@ -1071,7 +1226,7 @@ export function CarForm({
                     type="text"
                     inputMode="decimal"
                     placeholder="36,500,000"
-                    defaultValue={isEdit ? data.wasPrice ?? "" : ""}
+                    defaultValue={filled ? data.wasPrice ?? "" : ""}
                     onInput={() => recalc()}
                     aria-invalid={panel.errors.wasPrice ? true : undefined}
                   />
@@ -1094,7 +1249,7 @@ export function CarForm({
                   name="exteriorColor"
                   type="text"
                   placeholder="Silver"
-                  defaultValue={isEdit ? data.ext : ""}
+                  defaultValue={filled ? data.ext : ""}
                 />
               </div>
               <div className="f">
@@ -1105,7 +1260,7 @@ export function CarForm({
                   name="interiorColor"
                   type="text"
                   placeholder="Grey"
-                  defaultValue={isEdit ? data.int : ""}
+                  defaultValue={filled ? data.int : ""}
                 />
               </div>
               <div className="f full">
@@ -1115,7 +1270,7 @@ export function CarForm({
                   id="f-feat"
                   name="features"
                   placeholder={"Reverse camera\nPower sliding doors\nTri-zone AC"}
-                  defaultValue={isEdit ? data.feat : ""}
+                  defaultValue={filled ? data.feat : ""}
                 ></textarea>
                 <span className="hint">
                   Written the way a seller types. These go straight to the buyer&apos;s
@@ -1129,7 +1284,7 @@ export function CarForm({
                   id="f-public-note"
                   name="note"
                   placeholder="One owner, full service history, ready to drive."
-                  defaultValue={isEdit ? data.note : ""}
+                  defaultValue={filled ? data.note : ""}
                 ></textarea>
                 <span className="hint">
                   Shown on the car&apos;s page. The private note below stays office-only.
@@ -1158,7 +1313,7 @@ export function CarForm({
                 className="dropinput"
                 accept="image/jpeg,image/png,image/webp"
                 multiple
-                disabled={uploading}
+                disabled={uploading || photoBusy}
                 onChange={(e) => {
                   const files = e.target.files;
                   if (files) void addFiles(files);
@@ -1192,7 +1347,8 @@ export function CarForm({
                         data-mk={i}
                         title="Make cover"
                         aria-label="Make cover"
-                        onClick={() => makeCover(i)}
+                        disabled={photoBusy}
+                        onClick={() => void makeCover(i)}
                       >
                         <i className="fa-solid fa-star" />
                       </button>
@@ -1203,7 +1359,8 @@ export function CarForm({
                       data-rm={i}
                       title="Remove"
                       aria-label="Remove photo"
-                      onClick={() => removeImg(i)}
+                      disabled={photoBusy}
+                      onClick={() => void removeImg(i)}
                     >
                       <i className="fa-solid fa-xmark" />
                     </button>
@@ -1233,7 +1390,7 @@ export function CarForm({
                 field="purchase"
                 label="Purchase price"
                 placeholder="26,500,000"
-                value={isEdit ? data.costs.purchase : ""}
+                value={filled ? data.costs.purchase : ""}
                 error={panel.errors.purchase}
                 onInput={() => recalc()}
               />
@@ -1241,7 +1398,7 @@ export function CarForm({
                 field="ship"
                 label="Shipping"
                 placeholder="3,200,000"
-                value={isEdit ? data.costs.ship : ""}
+                value={filled ? data.costs.ship : ""}
                 error={panel.errors.ship}
                 onInput={() => recalc()}
               />
@@ -1249,7 +1406,7 @@ export function CarForm({
                 field="clear"
                 label="Clearing"
                 placeholder="1,850,000"
-                value={isEdit ? data.costs.clear : ""}
+                value={filled ? data.costs.clear : ""}
                 error={panel.errors.clear}
                 onInput={() => recalc()}
               />
@@ -1257,7 +1414,7 @@ export function CarForm({
                 field="truckus"
                 label="Trucking within USA"
                 placeholder="470,000"
-                value={isEdit ? data.costs.truckus : ""}
+                value={filled ? data.costs.truckus : ""}
                 error={panel.errors.truckus}
                 onInput={() => recalc()}
               />
@@ -1265,7 +1422,7 @@ export function CarForm({
                 field="truckng"
                 label="Trucking in Nigeria"
                 placeholder="525,000"
-                value={isEdit ? data.costs.truckng : ""}
+                value={filled ? data.costs.truckng : ""}
                 error={panel.errors.truckng}
                 onInput={() => recalc()}
               />
@@ -1273,7 +1430,7 @@ export function CarForm({
                 field="tank"
                 label="Full tank"
                 placeholder="110,000"
-                value={isEdit ? data.costs.tank : ""}
+                value={filled ? data.costs.tank : ""}
                 error={panel.errors.tank}
                 hint="Default from Settings — change per car if needed."
                 onInput={() => recalc()}
@@ -1357,6 +1514,10 @@ export function CarForm({
                     row's own key — never chosen, never edited. */}
                 {isEdit && data.carId ? (
                   <input type="hidden" name="carId" value={data.carId} />
+                ) : null}
+                {/* Draft mode: the row the two draft buttons write to — never a record id. */}
+                {isDraft && data.draftId ? (
+                  <input type="hidden" name="draftId" value={data.draftId} />
                 ) : null}
                 {errFor("stateId") ? (
                   <span className="hint" style={{ color: "var(--bad)" }} role="alert">
@@ -1451,7 +1612,7 @@ export function CarForm({
                             type="checkbox"
                             name="secondaryStateIds"
                             value={s.id}
-                            defaultChecked={isEdit && (data.secondaryStateIds ?? []).includes(s.id)}
+                            defaultChecked={filled && (data.secondaryStateIds ?? []).includes(s.id)}
                           />
                           <span>{s.label}</span>
                         </label>
@@ -1474,7 +1635,7 @@ export function CarForm({
                   <input
                     type="checkbox"
                     id="f-new"
-                    defaultChecked={isEdit ? data.isNew : false}
+                    defaultChecked={filled ? data.isNew : false}
                   />
                   <span>
                     <b style={{ fontWeight: 600 }}>New arrival</b>
@@ -1492,7 +1653,7 @@ export function CarForm({
                     name="arrivalNote"
                     type="text"
                     placeholder="Expected arrival: November"
-                    defaultValue={isEdit ? data.arr : ""}
+                    defaultValue={filled ? data.arr : ""}
                   />
                   <span className="hint">
                     Shown to buyers on On-order cars. The one field they&apos;d
@@ -1514,7 +1675,7 @@ export function CarForm({
                 id="f-note"
                 name="privateNote"
                 placeholder="Duty paid, immaculate. Ready for viewing."
-                defaultValue={isEdit ? data.privateNote ?? "" : ""}
+                defaultValue={filled ? data.privateNote ?? "" : ""}
               ></textarea>
               <span className="hint">
                 Office-only — never sent to the showroom.
@@ -1577,19 +1738,56 @@ export function CarForm({
             </div>
           ) : null}
           <div className="saverow">
-            <button className="btn" id="save" type="submit" disabled={saving}>
-              <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
-            </button>
-            <a className="btn gh" href="/office/inventory" onClick={clearCarDraft}>
-              Cancel
-            </a>
-            <span className="hint2">
-              {result && !result.ok
-                ? "Some fields need attention — see the messages beside them."
-                : "Saving puts the car in the showroom immediately."}
-            </span>
+            {isDraft ? (
+              <>
+                <button
+                  className="btn gh"
+                  id="saveDraft"
+                  type="submit"
+                  name="intent"
+                  value="draft"
+                  disabled={saving}
+                >
+                  <i className="fa-solid fa-floppy-disk" />{" "}
+                  {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
+                </button>
+                <button
+                  className="btn"
+                  id="save"
+                  type="submit"
+                  name="intent"
+                  value="car"
+                  disabled={saving}
+                >
+                  <i className="fa-solid fa-check" />{" "}
+                  {pendingIntent === "car" ? "Saving…" : "Save car"}
+                </button>
+                <a className="btn gh" href="/office/drafts">
+                  Cancel
+                </a>
+                <span className="hint2">
+                  {failure
+                    ? "Some fields need attention — see the messages beside them."
+                    : "Save as draft keeps it waiting; Save car puts it in the showroom."}
+                </span>
+              </>
+            ) : (
+              <>
+                <button className="btn" id="save" type="submit" disabled={saving}>
+                  <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
+                </button>
+                <a className="btn gh" href="/office/inventory" onClick={clearCarDraft}>
+                  Cancel
+                </a>
+                <span className="hint2">
+                  {result && !result.ok
+                    ? "Some fields need attention — see the messages beside them."
+                    : "Saving puts the car in the showroom immediately."}
+                </span>
+              </>
+            )}
           </div>
-          {result && !result.ok ? (
+          {failure ? (
             <div
               ref={formErrRef}
               id="formErr"
@@ -1606,13 +1804,29 @@ export function CarForm({
             >
               <b>Could not save.</b>
               <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-                {result.errors.map((e) => (
+                {failure.errors.map((e) => (
                   <li key={e.field}>{e.message}</li>
                 ))}
               </ul>
             </div>
           ) : null}
-          {result && result.ok ? (
+          {isDraft ? (
+            draftResult?.ok && draftResult.outcome === "draft" ? (
+              <div
+                role="status"
+                style={{
+                  marginTop: 12,
+                  border: "1px solid var(--ok)",
+                  borderRadius: 10,
+                  padding: "10px 12px",
+                  color: "var(--ok)",
+                  fontSize: 13,
+                }}
+              >
+                Draft saved. It is still waiting; nothing was created.
+              </div>
+            ) : null
+          ) : result && result.ok ? (
             <div
               role="status"
               style={{

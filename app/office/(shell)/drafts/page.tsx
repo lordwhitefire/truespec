@@ -4,7 +4,8 @@ import { getCarStateRegistry, getEnquiryStateRegistry } from "@/lib/office";
 import { shortAge } from "@/lib/office-time";
 import { carFields } from "@/lib/template-rules";
 import { imageUrl } from "@/lib/sanity";
-import { formatNaira } from "@/lib/money";
+import { formatNaira, parseCostAmount } from "@/lib/money";
+import { carFieldValue, carFormDataFromDraft, type DraftFormState } from "@/lib/draft-form";
 import { requireOfficeSession } from "@/lib/session";
 import { Drafts, type DraftBatch, type DraftCard, type StateOption } from "./drafts-client";
 
@@ -46,6 +47,13 @@ function show(value: unknown, isMoney: boolean): string {
   return String(value);
 }
 
+/** A car field as the form would show it, with a typed naira amount still reading as money. */
+function carDisplay(value: string, isMoney: boolean): string {
+  if (!isMoney || value.trim() === "") return value;
+  const parsed = parseCostAmount(value);
+  return parsed.ok ? formatNaira(parsed.amountMinor) : value;
+}
+
 export default async function DraftsPage() {
   await requireOfficeSession();
   const [drafts, carStates, enquiryStates] = await Promise.all([
@@ -61,19 +69,37 @@ export default async function DraftsPage() {
     .filter((s) => s.kind === "primary")
     .map((s) => ({ id: s.id, label: s.label }));
   const enquiryOptions: StateOption[] = enquiryStates.map((s) => ({ id: s.id, label: s.label }));
+  // The draft form's mapping needs each primary's section, not just its id and name.
+  const primaryStates: DraftFormState[] = carStates.flatMap((s) =>
+    s.kind === "primary" && s.section !== null
+      ? [{ id: s.id, label: s.label, section: s.section }]
+      : [],
+  );
 
   // One entry per upload, newest first, the drafts within it kept in the order the store returned
   // (D16's table carries no ordinal, so a file's own page order is not recoverable — flagged, not
   // guessed at).
   const batches: DraftBatch[] = [];
   for (const d of drafts) {
-    const fields =
-      d.kind === "car"
-        ? CAR_FIELDS.map((f) => ({
-            label: f.words,
-            value: show(d.values[f.recipe], MONEY.has(f.recipe)),
-          }))
-        : ENQUIRY_FIELDS.map((f) => ({ label: f.label, value: show(d.values[f.recipe], false) }));
+    const waiting = shortAge(d.createdAt, now);
+    // The card reads `form ?? values`: the owner's edit when there is one, the file's own reading
+    // when there is not. A car's field names differ between the two layers, so the mapping goes
+    // through `carFormDataFromDraft` — the same bridge the edit page uses.
+    let fields: { label: string; value: string }[];
+    let editHref: string | undefined;
+    if (d.kind === "car") {
+      const mapped = carFormDataFromDraft(d, primaryStates, [], waiting);
+      fields = CAR_FIELDS.map((f) => ({
+        label: f.words,
+        value: carDisplay(carFieldValue(mapped, f.recipe), MONEY.has(f.recipe)),
+      }));
+      editHref = `/office/drafts/car/${d.id}`;
+    } else {
+      fields = ENQUIRY_FIELDS.map((f) => ({
+        label: f.label,
+        value: show(d.values[f.recipe], false),
+      }));
+    }
 
     // The state the file named, matched to the registry so the chooser opens on it — `null` when the
     // file named none, or named one that is gone (then the save asks, rather than inventing one).
@@ -88,7 +114,8 @@ export default async function DraftsPage() {
       images: d.imageAssetIds.map((assetId) => ({ assetId, url: imageUrl(assetId) })),
       stateLabel: d.stateLabel,
       stateId,
-      waiting: shortAge(d.createdAt, now),
+      waiting,
+      editHref,
     };
 
     const last = batches[batches.length - 1];

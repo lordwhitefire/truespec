@@ -26,6 +26,8 @@ export type DraftRow = {
   sourceAssetId: string;
   /** What the file said, keyed by the record's own field names. */
   values: Record<string, unknown>;
+  /** The owner's edit of the draft, in the form's own names; `null` for an unedited upload. */
+  form: Record<string, unknown> | null;
   /** The images the owner put on by hand, in order; index 0 is the cover. */
   imageAssetIds: string[];
   /** The state the file named, as a name — or `null` when it named none. */
@@ -41,6 +43,7 @@ type RawDraft = {
   source_filename: string;
   source_asset_id: string;
   values: Record<string, unknown> | null;
+  form: Record<string, unknown> | null;
   image_asset_ids: string[] | null;
   state_label: string | null;
   is_demo: boolean;
@@ -48,7 +51,7 @@ type RawDraft = {
 };
 
 const COLUMNS =
-  "id, kind, batch_id, source_filename, source_asset_id, values, image_asset_ids, state_label, is_demo, created_at";
+  "id, kind, batch_id, source_filename, source_asset_id, values, form, image_asset_ids, state_label, is_demo, created_at";
 
 function toDraft(row: RawDraft): DraftRow {
   return {
@@ -58,6 +61,7 @@ function toDraft(row: RawDraft): DraftRow {
     sourceFilename: row.source_filename,
     sourceAssetId: row.source_asset_id,
     values: row.values ?? {},
+    form: row.form ?? null,
     imageAssetIds: row.image_asset_ids ?? [],
     stateLabel: row.state_label,
     isDemo: row.is_demo,
