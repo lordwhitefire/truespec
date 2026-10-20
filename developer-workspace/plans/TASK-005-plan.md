@@ -130,7 +130,7 @@ copy); raised in the report.
 | 50 | The pagination rule beyond inventory | ☑ | Phase 14 written and committed before code (`e1780c8`): pagination is for vertical lists, not horizontal sliders; the car page `.rt` is `overflow-x:auto; scroll-snap-type:x mandatory`, the featured strip is a 1/2/3 carousel, the hero is slides — none get a pager. Applies to the home grid (12 = three full 4-up rows); the office table is a separate blocked task (53). |
 | 51 | The home inventory grid is paged | ☑ | `HomeInventory` pages at **12** in the 4-up grid; live Available **13 cars → 12 / 1** (On order 6 stays on one page, no pager). Numbered pages + Prev/Next, page 1 current, ends disabled; page 2 keeps URL `/`, announces **“Page 2 of 2”**, focuses `#hinv-h` at top **78.9**; a tab change from page 2 returns to page 1; computed grid **4/3/2/1** columns at 1440/1024/768/375, **0 px** overflow, controls **42 px**; phone tap page 2 = 1 card; featured strip 3-up (1-up at 375) with no pager; car page `.rt` remains a horizontal track with no pager. `npm run typecheck`; `npm test` **311/311**. Runtime: `scripts/task-005/home-paging-check.mjs` (Task 52). |
 | 52 | Runtime check, recorded, and the report addendum (home grid) | ☑ | `scripts/task-005/home-paging-check.mjs` (readings `runs/home-paging/`): **0 failures** — Available **13 → 12 / 1**; page 2 URL `/`, “Page 2 of 2”, focus `#hinv-h` top **78.9**; tab change from page 2 → page 1; widths **4/3/2/1**, **0 px** overflow, controls **42 px**; phone tap page 2 = 1 card; the featured strip and the car page `.rt` are still sliders with **no pager**; Chromium **6 → 6**, two run windows closed, store untouched. `npm run typecheck`; `npm test` **311/311**. Addendum in **both** report copies (identical): **53 tasks — 51 built/closed, 1 open (Task 53, blocked), 1 closed-not-done (Task 39)**. Notes `notes/TASK-005-home-pagination.md`. The first run was aborted by the first-visit welcome dialog and the home page’s `load`; the check now dismisses the dialog and waits for hydration — no product change. |
-| 53 | The office inventory table's rows-per-page rule (back office) | ☐ | Blocked — needs the owner's rows-per-page number and a signed-in office session; the expired session makes a runtime proof impossible today. Not built. |
+| 53 | The office inventory table's rows-per-page rule (back office) | ☑ | Built 2026-10-20 — **25** rows by default, with **10/25/50/100** offered and remembered in the browser; numbered pages + Prev/Next; search, chips, sort and Clear reset to page 1; the count line stays total; table and cards share one slice; no store write. Pure rule + tests in `lib/inventory-paging.ts` / `lib/inventory-paging.test.ts`; `inventory-client.tsx` + `inventory.css`. `npm run typecheck` clean; `npm test` **368/368**; production build passed. Browser click-through still blocked by the expired office session. |
 
 ---
 
@@ -635,14 +635,20 @@ follows the desktop column count.
   `developer-workspace/reports/TASK-005.md`, `openspec/tasks/TASK-005/TASK-005-report.md`.
 - **Deps:** 51.
 
-**Task 53 — The office inventory table's rows-per-page rule** (S, **blocked**)
-- **AC:** the office table renders at most N rows per page (N chosen by the owner), numbered pages
-  + Prev/Next; search, state chips and sort reset to page 1; the count line stays total; desktop
-  table and phone cards show the same slice; no store write. **Not built**: the owner's number is
-  not chosen, and the office Clerk session is expired — the change could not be checked at runtime.
+**Task 53 — The office inventory table's rows-per-page rule** (S, built 2026-10-20)
+- **AC:** the office table renders at most N rows per page (N chosen by the owner: **25 default;
+  10/25/50/100 offered, remembered in the browser**), numbered pages + Prev/Next; search, state
+  chips and sort reset to page 1; the count line stays total; desktop table and phone cards show
+  the same slice; no store write.
+- **Built:** `lib/inventory-paging.ts` holds the pure slice/clamp/page-count rule and
+  `lib/inventory-paging.test.ts` pins it. `inventory-client.tsx` adds the page-size select, one
+  `shown` slice for both views, reset-on-filter/sort/chip/Clear, a clamped page after a delete, the
+  numbered pager, and a polite page status. `inventory.css` carries the pager and status styles.
+  Browser click-through is still blocked by the expired office Clerk session.
 - **Files:** `app/office/(shell)/inventory/inventory-client.tsx`,
-  `app/office/(shell)/inventory/inventory.css`.
-- **Deps:** owner's number + a signed-in office session.
+  `app/office/(shell)/inventory/inventory.css`, `lib/inventory-paging.ts`,
+  `lib/inventory-paging.test.ts`.
+- **Deps:** owner's number (received 2026-10-20); a signed-in session remains for the runtime proof.
 
 **Runtime matrix (Task 52).** One desktop window at 1440/1024/768 + one 375 touch window: home
 Available 13 cars → page 1 = 12 cards, 2 pages, Prev disabled; page 2 = 1 card, Next disabled,
@@ -657,7 +663,7 @@ no `.pg`; Chromium unchanged, all run windows closed.
 | The home grid's 4-up rows leave an orphan at 9/page. | Low | 12 per page = three full rows at 4-up; 12 also divides by 3/2/1. |
 | A tab change leaves the reader on a page that no longer exists. | Med | Every tab/view change sets page 1; `current` clamps regardless. |
 | Pagination on the home page duplicates the "Show all" path. | Low | The pager limits the landing grid; "Show all N cars" still opens the filtered browser. |
-| The office table is mistaken for covered by this phase. | Med | Task 53 records it separately and is not built; the expired session blocks its runtime proof. |
+| The office table is mistaken for covered by this phase. | Med | Task 53 is built as a separate office view rule; the expired session still blocks its runtime proof. |
 
 ---
 

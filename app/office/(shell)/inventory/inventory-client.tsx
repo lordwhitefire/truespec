@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { formatNaira } from "@/lib/money";
+import {
+  INVENTORY_DEFAULT_PAGE_SIZE,
+  INVENTORY_PAGE_SIZES,
+  isInventoryPageSize,
+  pageSlice,
+  type InventoryPageSize,
+} from "@/lib/inventory-paging";
 import type { Section } from "@/lib/sections";
 import type { StockCounts } from "@/lib/counts";
 import { Dialog } from "@/components/office/Dialog";
@@ -45,6 +52,7 @@ export type InventoryState = { label: string; section: Section };
 
 const ALL = "__all";
 const SOLD = "__sold";
+const PAGE_SIZE_KEY = "truespec.office.inventory.page-size";
 
 // Presentation only: the dot colour follows the car's section. Per-state colour
 // is named for TASK-003, not built here.
@@ -108,6 +116,8 @@ export function InventoryClient({
   const [fState, setFState] = useState<string>(ALL);
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("new");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<InventoryPageSize>(INVENTORY_DEFAULT_PAGE_SIZE);
   const [del, setDel] = useState<InventoryRow | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastErr, setToastErr] = useState(false);
@@ -128,6 +138,17 @@ export function InventoryClient({
     return () => {
       if (tmrRef.current) window.clearTimeout(tmrRef.current);
     };
+  }, []);
+
+  // The page size is a view preference, not a store row: keep it in this browser. The default is
+  // already on screen, so this effect only replaces it with a valid remembered choice.
+  useEffect(() => {
+    try {
+      const stored = Number(window.localStorage.getItem(PAGE_SIZE_KEY));
+      if (isInventoryPageSize(stored)) setPageSize(stored);
+    } catch {
+      // Storage can be unavailable; the default still works.
+    }
   }, []);
 
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
@@ -151,6 +172,14 @@ export function InventoryClient({
     else if (sort === "pf") l = [...l].sort((a, b) => (b.profit ?? -1) - (a.profit ?? -1));
     return l;
   }, [rows, fState, q, sort]);
+
+  // One slice feeds both views. The clamp keeps a delete or a smaller page size from leaving the
+  // screen on a page that no longer exists.
+  const { page: current, pageCount, rows: shown } = pageSlice(list, page, pageSize);
+
+  useEffect(() => {
+    if (page !== current) setPage(current);
+  }, [page, current]);
 
   // The caret after a row leaves (Task 17). The confirmation's native close puts focus back on
   // the opener — the delete control of the row that has just gone — so the browser has nowhere
@@ -191,9 +220,27 @@ export function InventoryClient({
 
   const stock = rows.length - counts.sold;
 
+  function changePageSize(n: InventoryPageSize) {
+    setPageSize(n);
+    setPage(1);
+    try {
+      window.localStorage.setItem(PAGE_SIZE_KEY, String(n));
+    } catch {
+      // Best effort: the choice still holds for this view.
+    }
+  }
+
+  function goPage(n: number) {
+    const next = Math.min(Math.max(n, 1), pageCount);
+    if (next === current) return;
+    setPage(next);
+    window.setTimeout(() => document.getElementById("inv-h")?.focus(), 0);
+  }
+
   function clearFilters() {
     setFState(ALL);
     setQ("");
+    setPage(1);
     if (qRef.current) qRef.current.value = "";
   }
 
@@ -291,7 +338,10 @@ export function InventoryClient({
             ref={qRef}
             placeholder="Search name or ref…"
             aria-label="Search inventory"
-            onChange={(e) => setQ(e.target.value.trim().toLowerCase())}
+            onChange={(e) => {
+              setQ(e.target.value.trim().toLowerCase());
+              setPage(1);
+            }}
           />
         </div>
         <select
@@ -299,12 +349,31 @@ export function InventoryClient({
           id="sort"
           aria-label="Sort"
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
+          onChange={(e) => {
+            setSort(e.target.value);
+            setPage(1);
+          }}
         >
           <option value="new">Newest first</option>
           <option value="ph">Price: high to low</option>
           <option value="pl">Price: low to high</option>
           <option value="pf">Profit: high to low</option>
+        </select>
+        <select
+          className="in"
+          id="pagesize"
+          aria-label="Rows per page"
+          value={pageSize}
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            if (isInventoryPageSize(n)) changePageSize(n);
+          }}
+        >
+          {INVENTORY_PAGE_SIZES.map((n) => (
+            <option key={n} value={n}>
+              {n} per page
+            </option>
+          ))}
         </select>
       </div>
 
@@ -317,7 +386,10 @@ export function InventoryClient({
               key={key}
               type="button"
               className={fState === key ? "on" : undefined}
-              onClick={() => setFState(key)}
+              onClick={() => {
+                setFState(key);
+                setPage(1);
+              }}
             >
               {label}
               {n ? <em>{n}</em> : null}
@@ -353,7 +425,7 @@ export function InventoryClient({
               </tr>
             </thead>
             <tbody id="rows">
-              {list.map((c) => (
+              {shown.map((c) => (
                 <tr key={c.ref} className={c.sold ? "soldrow" : undefined}>
                   <td className="carx">
                     <b>
@@ -399,7 +471,7 @@ export function InventoryClient({
       </div>
 
       <div className="cards" id="cards">
-        {list.map((c) => (
+        {shown.map((c) => (
           <article
             key={c.ref}
             className={`ccard${c.sold ? " soldrow" : ""}`}
@@ -470,6 +542,45 @@ export function InventoryClient({
             empty block (and its Clear filters) printed twice on one screen at desktop. */}
         <div id="emptyC">{list.length === 0 ? empty : null}</div>
       </div>
+
+      <p className="pgstatus" role="status" aria-live="polite">
+        Page {current} of {pageCount}
+      </p>
+
+      {pageCount > 1 ? (
+        <nav className="pg" aria-label="Inventory pages">
+          <button
+            className="pgb"
+            type="button"
+            aria-label="Previous page"
+            disabled={current === 1}
+            onClick={() => goPage(current - 1)}
+          >
+            Prev
+          </button>
+          {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+            <button
+              key={n}
+              className="pgb"
+              type="button"
+              aria-label={`Page ${n}`}
+              aria-current={n === current ? "page" : undefined}
+              onClick={() => goPage(n)}
+            >
+              {n}
+            </button>
+          ))}
+          <button
+            className="pgb"
+            type="button"
+            aria-label="Next page"
+            disabled={current === pageCount}
+            onClick={() => goPage(current + 1)}
+          >
+            Next
+          </button>
+        </nav>
+      ) : null}
 
       {mounted
         ? createPortal(

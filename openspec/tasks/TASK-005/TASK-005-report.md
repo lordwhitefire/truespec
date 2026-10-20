@@ -253,3 +253,32 @@ to a vertical stack of cars; it does not apply to a horizontal slider / swipe tr
 Counts with this addendum: the layer stands at **53 tasks — 51 built/closed, 1 open (Task 53,
 blocked), 1 closed-not-done (Task 39)**. Commits: plan `e1780c8`, home grid `8f97356`; Task 52
 carries this addendum, the notes and the check. Nothing is pushed.
+
+## Addendum 4 — the office inventory rows-per-page rule (owner ruling, 2026-10-20)
+
+The owner chose **25** rows by default, with **10 / 25 / 50 / 100** offered and the choice
+remembered in the browser. No store write.
+
+- **Built.** The office inventory toolbar now offers **10 / 25 / 50 / 100 per page**, defaulting to
+  **25**. The choice is kept in `localStorage` (`truespec.office.inventory.page-size`); if storage is
+  unavailable, the default still works. Numbered pages plus **Prev** / **Next** appear when there is
+  more than one page; the current page is clamped when a delete or a smaller page size shrinks the
+  list. Search, state chips, sort and Clear filters all return to page 1. The count line stays the
+  total (`list.length` / `rows.length`), never the page length. The desktop table and the phone cards
+  render the same `shown` slice.
+- **The rule is pure and tested.** `lib/inventory-paging.ts` holds the page-count, clamp and slice
+  arithmetic; `lib/inventory-paging.test.ts` pins the default/choices, first page, remainder,
+  beyond-the-end clamp, empty list, size changes, clamping and the no-row-lost partition. The UI and
+  the tests share that one rule.
+- **Verified.** `npm run typecheck` clean; `npm test` **368/368**; production build passed. The built
+  office-inventory chunk carries `Rows per page`, `Inventory pages`, `Previous page` and `Next page`.
+- **Not clicked through.** The pager, page-size select, remembered choice and responsive layout were
+  **not** exercised in a real browser — the office Clerk session is expired. The arithmetic and the
+  built output are verified; the rendered interaction at 375/1440 is still owed after sign-in.
+- **Witness note.** `scripts/reconcile.ts` still reads one server HTML response and expects every
+  car in it. While the inventory is at or below 25 rows, the default shows all of them and that check
+  still sees every row; if the inventory grows past 25, the check must walk pages or read the data
+  directly. The script is owner-dirty and was not changed.
+
+Counts with this addendum: **53 tasks — 52 built/closed, 0 open, 1 closed-not-done (Task 39)**.
+Task 53 carries this addendum. Nothing is pushed.

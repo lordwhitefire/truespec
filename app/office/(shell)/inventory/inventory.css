@@ -129,6 +129,14 @@ tr.soldrow td{opacity:.62}
 /* ============ EMPTY / COUNT ============ */
 .ecount{font-size:13px;color:var(--mute);margin-bottom:10px}
 .ecount b{color:var(--ink)}
+/* ============ PAGER ============ */
+.pg{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin-top:22px}
+.pgb{min-width:40px;height:40px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:none;color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.pgb:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.pgb[aria-current="page"]{background:var(--gold);border-color:var(--gold);color:var(--gt)}
+.pgb:disabled{opacity:.45;cursor:default}
+/* The pager's polite status is spoken, not painted. */
+.pgstatus{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .empty2{text-align:center;padding:60px 20px;color:var(--mute)}
 .empty2 i{font-size:34px;color:var(--gold);display:block;margin-bottom:12px}
 .empty2 p{max-width:380px;margin:0 auto 18px;font-size:14.5px}
