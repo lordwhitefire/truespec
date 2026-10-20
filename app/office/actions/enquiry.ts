@@ -15,6 +15,10 @@ import {
   enquiryStateReorderStatement,
 } from "@/lib/enquiry-state";
 import { enquiryEditableStatement, enquirySetStateStatement } from "@/lib/enquiry-set-state";
+import { enquiryUpdateStatement } from "@/lib/enquiry-update";
+import { enquiryValuesFromForm } from "@/lib/enquiry-form";
+import { readEnquirySeed } from "@/lib/draft-save";
+import { enquiryStateExists } from "@/lib/draft-store";
 
 /**
  * The enquiry writes — the registry of states, and the one change the owner makes to an enquiry.
@@ -269,4 +273,78 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
 
   revalidateEnquiryPaths();
   return { ok: true };
+}
+
+/** What the saved-enquiry edit reports: whether it really moved the row. */
+export type UpdateEnquiryResult =
+  | { ok: true; changed: boolean }
+  | Extract<EditResult, { ok: false }>;
+
+/**
+ * Edit a saved enquiry's five details (owner ruling 2026-10-20, #4).
+ *
+ * The browser's strings are read by the enquiry's own rule (`readEnquirySeed`: name, number and
+ * what was asked for are required), the chosen state is checked against the store's registry, and
+ * the change-check is computed here from the values about to be written — never accepted from the
+ * browser (truth 14). One statement moves the details, the state, the hash, the version and
+ * `updated_at`; a retry with the same details writes nothing and still reports the row, so the
+ * screen can say "Nothing changed" rather than claim a save.
+ */
+export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult> {
+  await requireOfficeSession();
+
+  const id = readUuid(form.get("id"), "id", "That enquiry could not be identified");
+  if (!id.ok) return id;
+
+  const rawState = form.get("stateId");
+  const chosen = typeof rawState === "string" ? rawState.trim() : "";
+  let stateId: string | null = null;
+  if (chosen !== "") {
+    if (!UUID.test(chosen)) return fail("stateId", "That state could not be identified");
+    stateId = chosen;
+  }
+
+  const values = enquiryValuesFromForm(form);
+  if (!values.ok) return values;
+  const seed = readEnquirySeed(values.values);
+  if (!seed.ok) return seed;
+
+  // The row must be there before its hash is worth computing. The read is the recipe's own select,
+  // so the action and the change-check cannot disagree about what an enquiry is.
+  const stored = enquiryEditableStatement({ id: id.id });
+  const rows = await storeQuery<Record<string, unknown>[]>(stored.text, stored.params);
+  if (rows.length === 0) return fail("id", "That enquiry is no longer in the office");
+
+  if (stateId !== null && !(await enquiryStateExists(stateId))) {
+    return fail("stateId", "That state is no longer in the office");
+  }
+
+  const contentHash = enquiryChangeCheck({
+    name: seed.seed.name,
+    number: seed.seed.number,
+    asked_for: seed.seed.asked_for,
+    note: seed.seed.note,
+    enquiry_state_id: stateId,
+  });
+
+  try {
+    const { text, params } = enquiryUpdateStatement({
+      id: id.id,
+      seed: seed.seed,
+      stateId,
+      contentHash,
+      hashVersion: CHANGE_CHECK_VERSION,
+    });
+    const written = await storeQuery<{ changed: boolean | null; id: string | null }[]>(text, params);
+    const row = written[0];
+    if (!row?.id) return fail("id", "That enquiry is no longer in the office");
+
+    revalidateEnquiryPaths();
+    return { ok: true, changed: Boolean(row.changed) };
+  } catch (error) {
+    const { code } = refusal(error);
+    if (code === "23503") return fail("stateId", "That state is no longer in the office");
+    // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
+    return storeRefusal("id", "That enquiry could not be saved", error);
+  }
 }

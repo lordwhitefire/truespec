@@ -3,61 +3,99 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { saveDraftForm, type SaveDraftFormResult } from "@/app/office/actions/draft";
+import { updateEnquiry, type UpdateEnquiryResult } from "@/app/office/actions/enquiry";
 import type { EnquiryFormData } from "@/lib/enquiry-form";
 
-/* The enquiry draft's editor (owner ruling 2026-10-20, #3).
+/* The enquiry editor (owner ruling 2026-10-20, #3 and #4).
 
-   One small form — name, phone, what they asked for, the note, and the state. A draft may be
-   incomplete, so "Save as draft" never runs the record's rule; "Save as enquiry" does, through the
-   same `readEnquirySeed` the existing save uses, and the messages land at their fields.
+   One small form — name, phone, what they asked for, the note, and the state — used in two modes:
 
-   The route and the session gate are the page's; this component only holds the typing and the two
-   writes. */
+   * **draft** — a file's row waiting at Drafts. "Save as draft" never runs the record's rule, so an
+     incomplete enquiry can wait; "Save enquiry" does, through the same `readEnquirySeed` the record
+     has always used, and the draft becomes a row on the board.
+   * **edit** — a saved enquiry. One button; the same rule; the change-check is the server's, and a
+     retry that changes nothing says so rather than claiming a save.
+
+   The route and the session gate are the page's; this component only holds the typing and the
+   writes. Field messages land beside the input that caused them. */
 
 export type EnquiryFormStateOption = { id: string; label: string };
 
-function fieldError(result: SaveDraftFormResult | null, field: string): string | undefined {
-  return result && !result.ok ? result.errors.find((error) => error.field === field)?.message : undefined;
-}
+/** A saved enquiry, as the edit form needs it. */
+export type EnquiryEditData = {
+  id: string;
+  name: string;
+  number: string;
+  askedFor: string;
+  note: string;
+  stateId: string | null;
+};
 
-export function EnquiryForm({
-  data,
-  states,
-}: {
-  data: EnquiryFormData;
-  states: EnquiryFormStateOption[];
-}) {
-  const [result, setResult] = useState<SaveDraftFormResult | null>(null);
-  const [pendingIntent, setPendingIntent] = useState<"draft" | "enquiry" | null>(null);
+type EnquiryFormProps = { states: EnquiryFormStateOption[] } & (
+  | { mode: "draft"; data: EnquiryFormData }
+  | { mode: "edit"; data: EnquiryEditData }
+);
+
+type StoredResult =
+  | { mode: "draft"; res: SaveDraftFormResult }
+  | { mode: "edit"; res: UpdateEnquiryResult };
+
+export function EnquiryForm(props: EnquiryFormProps) {
+  const { mode, states } = props;
+  const data = props.data;
+  const draftData = mode === "draft" ? props.data : null;
+
+  const [result, setResult] = useState<StoredResult | null>(null);
+  const [pendingIntent, setPendingIntent] = useState<"draft" | "enquiry" | "edit" | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
 
-  const stateGone = data.stateLabel !== null && data.stateId === null;
+  const failure = result && !result.res.ok ? result.res : null;
+  const fieldError = (field: string) =>
+    failure?.errors.find((error) => error.field === field)?.message;
+
+  const draftSaved =
+    result?.mode === "draft" && result.res.ok && result.res.outcome === "draft" ? result.res : null;
+  const editSaved = result?.mode === "edit" && result.res.ok ? result.res : null;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const intent: "draft" | "enquiry" = submitter?.value === "draft" ? "draft" : "enquiry";
+    const intent: "draft" | "enquiry" | "edit" =
+      mode === "draft" ? (submitter?.value === "draft" ? "draft" : "enquiry") : "edit";
 
     const fd = new FormData(event.currentTarget);
-    fd.set("draftId", data.draftId);
-    fd.set("intent", intent);
     setResult(null);
     setPendingIntent(intent);
 
     start(async () => {
       try {
-        const res = await saveDraftForm(fd);
-        setResult(res);
+        if (mode === "draft") {
+          fd.set("draftId", props.data.draftId);
+          fd.set("intent", intent);
+          const res = await saveDraftForm(fd);
+          setResult({ mode: "draft", res });
+          if (!res.ok) return;
+          if (res.outcome === "draft") return;
+          // The draft has become the record; the board is where an enquiry lives.
+          router.push("/office/enquiries");
+          return;
+        }
+
+        fd.set("id", props.data.id);
+        const res = await updateEnquiry(fd);
+        setResult({ mode: "edit", res });
         if (!res.ok) return;
-        if (res.outcome === "draft") return;
-        // The draft has become the record; the board is where an enquiry lives.
-        router.push("/office/enquiries");
+        router.refresh();
       } catch {
-        setResult({
-          ok: false,
-          errors: [{ field: "draftId", message: "The store could not be reached — try that again" }],
-        });
+        const errors = [
+          { field: "id", message: "The store could not be reached — try that again" },
+        ];
+        setResult(
+          mode === "draft"
+            ? { mode: "draft", res: { ok: false, errors } }
+            : { mode: "edit", res: { ok: false, errors } },
+        );
       } finally {
         setPendingIntent(null);
       }
@@ -68,10 +106,17 @@ export function EnquiryForm({
     <>
       <div className="hrow">
         <div>
-          <h1>Edit enquiry draft</h1>
+          <h1>{mode === "draft" ? "Edit enquiry draft" : "Edit enquiry"}</h1>
           <p className="sub2">
-            From {data.draftSource || "the uploaded sheet"} · waiting {data.waiting}. Every value can
-            be edited; nothing is a record until you save the enquiry.
+            {mode === "draft" ? (
+              <>
+                From {props.data.draftSource || "the uploaded sheet"} · waiting{" "}
+                {props.data.waiting}. Every value can be edited; nothing is a record until you save
+                the enquiry.
+              </>
+            ) : (
+              <>The customer&apos;s details, as the office holds them. Saving writes one change.</>
+            )}
           </p>
         </div>
       </div>
@@ -90,11 +135,11 @@ export function EnquiryForm({
                 name="name"
                 type="text"
                 defaultValue={data.name}
-                aria-invalid={fieldError(result, "name") ? true : undefined}
+                aria-invalid={fieldError("name") ? true : undefined}
               />
-              {fieldError(result, "name") ? (
+              {fieldError("name") ? (
                 <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError(result, "name")}
+                  {fieldError("name")}
                 </span>
               ) : null}
             </div>
@@ -106,11 +151,11 @@ export function EnquiryForm({
                 name="number"
                 type="tel"
                 defaultValue={data.number}
-                aria-invalid={fieldError(result, "number") ? true : undefined}
+                aria-invalid={fieldError("number") ? true : undefined}
               />
-              {fieldError(result, "number") ? (
+              {fieldError("number") ? (
                 <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError(result, "number")}
+                  {fieldError("number")}
                 </span>
               ) : null}
             </div>
@@ -122,11 +167,11 @@ export function EnquiryForm({
                 name="asked_for"
                 type="text"
                 defaultValue={data.askedFor}
-                aria-invalid={fieldError(result, "asked_for") ? true : undefined}
+                aria-invalid={fieldError("asked_for") ? true : undefined}
               />
-              {fieldError(result, "asked_for") ? (
+              {fieldError("asked_for") ? (
                 <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError(result, "asked_for")}
+                  {fieldError("asked_for")}
                 </span>
               ) : null}
             </div>
@@ -137,7 +182,7 @@ export function EnquiryForm({
                 id="e-note"
                 name="note"
                 defaultValue={data.note}
-                aria-invalid={fieldError(result, "note") ? true : undefined}
+                aria-invalid={fieldError("note") ? true : undefined}
               ></textarea>
               <span className="hint">Office-only — the note is never shown to buyers.</span>
             </div>
@@ -159,35 +204,54 @@ export function EnquiryForm({
                 </option>
               ))}
             </select>
-            {stateGone ? (
+            {draftData && draftData.stateLabel !== null && draftData.stateId === null ? (
               <span className="hint" style={{ color: "var(--warn)" }}>
-                The file named “{data.stateLabel}”, which is gone — choose a state, or leave it in
-                none.
+                The file named “{draftData.stateLabel}”, which is gone — choose a state, or leave it
+                in none.
               </span>
             ) : null}
           </div>
         </section>
 
         <div className="saverow">
-          <button className="btn gh" type="submit" name="intent" value="draft" disabled={pending}>
-            <i className="fa-solid fa-floppy-disk" />{" "}
-            {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
-          </button>
-          <button className="btn" type="submit" name="intent" value="enquiry" disabled={pending}>
-            <i className="fa-solid fa-check" />{" "}
-            {pendingIntent === "enquiry" ? "Saving…" : "Save enquiry"}
-          </button>
-          <a className="btn gh" href="/office/drafts">
-            Cancel
-          </a>
-          <span className="hint2">
-            {result && !result.ok
-              ? "Some fields need attention — see the messages beside them."
-              : "Save as draft keeps it waiting; Save enquiry puts it on the board."}
-          </span>
+          {mode === "draft" ? (
+            <>
+              <button className="btn gh" type="submit" name="intent" value="draft" disabled={pending}>
+                <i className="fa-solid fa-floppy-disk" />{" "}
+                {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
+              </button>
+              <button className="btn" type="submit" name="intent" value="enquiry" disabled={pending}>
+                <i className="fa-solid fa-check" />{" "}
+                {pendingIntent === "enquiry" ? "Saving…" : "Save enquiry"}
+              </button>
+              <a className="btn gh" href="/office/drafts">
+                Cancel
+              </a>
+              <span className="hint2">
+                {failure
+                  ? "Some fields need attention — see the messages beside them."
+                  : "Save as draft keeps it waiting; Save enquiry puts it on the board."}
+              </span>
+            </>
+          ) : (
+            <>
+              <button className="btn" type="submit" disabled={pending}>
+                <i className="fa-solid fa-check" />{" "}
+                {pendingIntent === "edit" ? "Saving…" : "Save changes"}
+              </button>
+              <a className="btn gh" href="/office/enquiries">
+                Cancel
+              </a>
+              <span className="hint2">
+                {failure
+                  ? "Some fields need attention — see the messages beside them."
+                  : "Saving writes the change to the enquiry."}
+              </span>
+            </>
+          )}
         </div>
 
-        {result && !result.ok ? (
+        {failure ? (
           <div
             role="alert"
             style={{
@@ -201,14 +265,14 @@ export function EnquiryForm({
           >
             <b>Could not save.</b>
             <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-              {result.errors.map((error) => (
+              {failure.errors.map((error) => (
                 <li key={error.field}>{error.message}</li>
               ))}
             </ul>
           </div>
         ) : null}
 
-        {result?.ok && result.outcome === "draft" ? (
+        {draftSaved ? (
           <div
             role="status"
             style={{
@@ -221,6 +285,28 @@ export function EnquiryForm({
             }}
           >
             Draft saved. It is still waiting; nothing was created.
+          </div>
+        ) : null}
+
+        {editSaved ? (
+          <div
+            role="status"
+            style={{
+              marginTop: 12,
+              border: "1px solid var(--ok)",
+              borderRadius: 10,
+              padding: "10px 12px",
+              color: "var(--ok)",
+              fontSize: 13,
+            }}
+          >
+            {editSaved.changed ? (
+              <>Saved. The board carries the change.</>
+            ) : (
+              // The store answered that nothing moved; the screen says so rather than claiming a
+              // save (the same rule the car form follows).
+              <>Nothing changed.</>
+            )}
           </div>
         ) : null}
       </form>

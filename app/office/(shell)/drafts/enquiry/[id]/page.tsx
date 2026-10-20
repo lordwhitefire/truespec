@@ -24,5 +24,5 @@ export default async function EditEnquiryDraftPage({ params }: { params: Promise
   const options = states.map((state) => ({ id: state.id, label: state.label }));
   const data = enquiryFormDataFromDraft(draft, options, shortAge(draft.createdAt, new Date()));
 
-  return <EnquiryForm data={data} states={options} />;
+  return <EnquiryForm mode="draft" data={data} states={options} />;
 }

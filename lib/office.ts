@@ -357,6 +357,56 @@ export async function getEnquiries(): Promise<OfficeEnquiry[]> {
   }));
 }
 
+/** One saved enquiry's editable details, as the edit form needs them (owner ruling 2026-10-20, #4). */
+export type OfficeEnquiryEdit = {
+  id: string;
+  name: string;
+  number: string;
+  askedFor: string;
+  note: string | null;
+  stateId: string | null;
+};
+
+/**
+ * One saved enquiry, by id, for the edit form.
+ *
+ * The same five editable details the board reads, and nothing else: the change-check's ingredients
+ * are read again by the action, from the store, at save time (truth 14). A malformed id is not a
+ * query — it is the same "not there" the page's 404 says.
+ */
+export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiryEdit | null> {
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID.test(id)) return null;
+
+  const rows = await storeQuery<
+    {
+      id: string;
+      name: string;
+      number: string;
+      asked_for: string;
+      note: string | null;
+      enquiry_state_id: string | null;
+    }[]
+  >(
+    `SELECT id, name, number, asked_for, note, enquiry_state_id
+       FROM enquiry
+      WHERE id = $1::uuid`,
+    [id],
+  );
+
+  const row = rows[0];
+  return row
+    ? {
+        id: row.id,
+        name: row.name,
+        number: row.number,
+        askedFor: row.asked_for,
+        note: row.note,
+        stateId: row.enquiry_state_id,
+      }
+    : null;
+}
+
 /**
  * The office's own record of what has been done (truth 15, D20): the raw feed, newest first.
  *
