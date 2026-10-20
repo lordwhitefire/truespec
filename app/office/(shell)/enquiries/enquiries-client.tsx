@@ -26,6 +26,8 @@ export type BoardState = { id: string; label: string; colour: string };
 /** A card, from the store — and the two time strings the server formatted (UTC). */
 export type BoardEnquiry = {
   id: string;
+  /** The `ENQ-####` the log names; a stable identifier, never the customer. */
+  ref: string;
   name: string;
   number: string;
   /** What the customer asked for, in the words of the sheet. */
@@ -132,7 +134,11 @@ export function Enquiries({
         {/* Where the sheet comes in (task.md §Q2). Its rows become **drafts**, not enquiries —
             nothing lands on this board until the owner saves them at Drafts. */}
         <div className="hbtns">
-          <CreateFromFile hint="Import the sales desk's enquiry sheet — its rows become drafts." />
+          <a className="btn gh" href="/api/enquiry-template">
+            <i className="fa-solid fa-file-arrow-down" aria-hidden="true" />
+            Enquiry template
+          </a>
+          <CreateFromFile hint="Import a filled enquiry template or the sales desk's sheet — its rows become drafts." />
         </div>
       </div>
 
@@ -188,6 +194,7 @@ export function Enquiries({
                         <i className="fa-solid fa-phone" />
                         {e.number}
                       </p>
+                      <p className="cref">{e.ref}</p>
                       <span className="ccar">
                         <i className="fa-solid fa-car-side" />
                         {e.askedFor}
@@ -243,6 +250,10 @@ export function Enquiries({
                     What is here was brought in by you.
                   </p>
                   <div className="dgrid">
+                    <div className="dr">
+                      <span>Ref</span>
+                      <b id="dRef">{cur ? cur.ref : ""}</b>
+                    </div>
                     <div className="dr">
                       <span>Phone</span>
                       <a

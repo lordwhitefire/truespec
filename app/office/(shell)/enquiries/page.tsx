@@ -29,6 +29,7 @@ export default async function EnquiriesPage() {
       states={states.map((state) => ({ id: state.id, label: state.label, colour: state.colour }))}
       enquiries={enquiries.map((e) => ({
         id: e.id,
+        ref: e.ref,
         name: e.name,
         number: e.number,
         askedFor: e.askedFor,

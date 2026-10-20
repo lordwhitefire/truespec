@@ -317,6 +317,8 @@ export async function getEnquiryStateRegistry(): Promise<EnquiryRegistryState[]>
  */
 export type OfficeEnquiry = {
   id: string;
+  /** The `ENQ-####` the log names; a stable identifier, never the customer. */
+  ref: string;
   name: string;
   number: string;
   askedFor: string;
@@ -331,6 +333,7 @@ export async function getEnquiries(): Promise<OfficeEnquiry[]> {
   const rows = await storeQuery<
     {
       id: string;
+      ref: string;
       name: string;
       number: string;
       asked_for: string;
@@ -340,13 +343,14 @@ export async function getEnquiries(): Promise<OfficeEnquiry[]> {
       imported: boolean;
     }[]
   >(
-    `SELECT e.id, e.name, e.number, e.asked_for, e.note, e.enquiry_state_id, e.created_at,
+    `SELECT e.id, e.ref, e.name, e.number, e.asked_for, e.note, e.enquiry_state_id, e.created_at,
             (e.pdf_import_id IS NOT NULL) AS imported
        FROM enquiry e
       ORDER BY e.created_at DESC, e.name, e.id`,
   );
   return rows.map((r) => ({
     id: r.id,
+    ref: r.ref,
     name: r.name,
     number: r.number,
     askedFor: r.asked_for,

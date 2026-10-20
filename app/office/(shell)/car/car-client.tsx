@@ -384,8 +384,9 @@ export function CarForm({
   const isDraft = mode === "draft";
   // Both edit and draft show values already read (from the car, or from the draft); add starts blank.
   const filled = isEdit || isDraft;
-  // The PDF reader belongs to the manual add form (P3). A draft is edited where it is, not refilled.
-  const canAutofill = mode === "add";
+  // The PDF reader belongs to the manual forms: the Add form and a draft edit. A saved car's Edit is
+  // deliberately not offered — the record's values are not a file's reading.
+  const canAutofill = !isEdit;
 
   // label → the one section, from the registry. A label the registry does not hold
   // keeps the car's own section — the label is never guessed from an unmapped state.
