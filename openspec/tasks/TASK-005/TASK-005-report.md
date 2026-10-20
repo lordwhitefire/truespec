@@ -196,3 +196,34 @@ in-screen, ✕ tappable; desktop unchanged; typecheck 0, tests **311/311**).
 
 Counts with this addendum: the layer stands at 45 tasks — **44 built/closed, 1 closed-not-done
 (Task 39)**. The report body above remains the approved record of the layer before the fix.
+
+## Addendum 2 — inventory browsing (owner request, 2026-10-19)
+
+After checkpoint D the owner asked for two inventory changes: the filter groups' sub-items must not
+show until the group's icon is clicked, and the cars must be paginated — *"limited to the ones that
+can show"*. Planned first as Tasks 46–49 (`plans/TASK-005-plan.md` Phase 13), then built.
+
+- **Filter groups start closed.** The five `open` attributes are gone; the native `<details>`
+  supplies click, keyboard, focus, expanded state and the existing +/− indicator. Live at 1440 and
+  375: **0** groups open and **0** options visible on load, Status opens to 3 and closes on a second
+  click, Enter opens/closes Make, and a Make selection still filters to **3 of 19**.
+- **Nine cars a page.** Only the current slice renders in grid and list; the live store (**19 cars**)
+  gives **9 / 9 / 1** over three pages. Numbered pages plus Prev/Next, page 1 current, the ends
+  disabled. `?page=2` deep-links; `?page=99` clamps to page 3 and rewrites the URL; a filter, the
+  sort and Clear all return to page 1; grid/list keeps the page; the pager is absent at ≤ 9. A page
+  click focuses and scrolls the results heading under the nav and announces "Page N of 3". At
+  1440/1024/768/375 the grid is **3/2/2/1** columns with **0 px** overflow; the controls are
+  **42 px**; a phone tap reaches page 2 with 9 cards.
+- **Verified:** fresh attach-only run `scripts/task-005/inventory-paging-check.mjs` — **0 failures**,
+  Chromium **6 → 6**, both run windows closed, no store writes; `npm run typecheck` clean;
+  `npm test` **311/311**. The first run's six failures were the check, not the product: a
+  `getClientRects()` visibility metric (boxes still exist inside a closed `<details>`) and four
+  clicks that landed before hydration; the check now uses `checkVisibility()` and waits for React
+  before interacting. No product change was made between the two runs.
+- **Not verified / out of scope:** the deferred nineteen testing groups remain deferred (expired
+  office session); the home modal's dead `/inventory?body=SUV|Sedan` links were left untouched.
+
+Counts with this addendum: the layer stands at **49 tasks — 48 built/closed, 1 closed-not-done
+(Task 39)**. The report body above remains the approved record. Commits: plan and brief `0f17b1b`,
+closed groups `dbef89f`, paging `447544f`; Task 49 carries this addendum, the notes and the check.
+Nothing is pushed.
