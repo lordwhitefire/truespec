@@ -16,8 +16,12 @@
  *
  * **Idempotency (D18).** The whole write is gated on the state actually differing from the one the
  * row already holds, so a retry — a reply that was lost — finds nothing to change and writes
- * nothing: `updated_at` does not move a second time and the hash is not touched. The trailing arm is
- * what lets that repeat still report the row it found.
+ * nothing: `updated_at` does not move a second time, the hash is not touched, and no second event is
+ * written. The trailing arm is what lets that repeat still report the row it found.
+ *
+ * **The event names the code, never the customer** (owner ruling 2026-10-20 #4): `enquiry.updated`
+ * carries the `ENQ-####` and the signed-in actor. It is fed by the `upd` CTE, so only a real state
+ * change logs one; the customer's name and number stay in the `enquiry` row.
  */
 
 /**
@@ -42,6 +46,8 @@ export type EnquirySetStateArgs = {
   /** The server's own hash of the row's editable values, with the new state in place (truth 14). */
   contentHash: string;
   hashVersion: number;
+  /** The signed-in owner, for the activity row (D20). */
+  actorId: string;
 };
 
 /**
@@ -53,7 +59,7 @@ export function enquirySetStateStatement(args: EnquirySetStateArgs): {
   params: unknown[];
 } {
   const text = `WITH old AS (
-    SELECT id, enquiry_state_id FROM enquiry WHERE id = $1::uuid
+    SELECT id, ref, enquiry_state_id FROM enquiry WHERE id = $1::uuid
   ),
   changed AS (
     SELECT (o.enquiry_state_id IS DISTINCT FROM $2::uuid) AS yes FROM old o
@@ -64,11 +70,21 @@ export function enquirySetStateStatement(args: EnquirySetStateArgs): {
            content_hash = $3, hash_version = $4,
            updated_at = now()
      WHERE id = $1::uuid AND (SELECT yes FROM changed)
-    RETURNING id
+    RETURNING id, ref
+  ),
+  ins_event AS (
+    INSERT INTO activity_event (kind, subject, actor_id)
+    SELECT 'enquiry.updated', u.ref, $5::uuid
+      FROM upd u
+    RETURNING 1
   )
-  SELECT id FROM upd
-  UNION
-  SELECT id FROM enquiry WHERE id = $1::uuid`;
+  SELECT id, ref FROM upd
+  UNION ALL
+  SELECT id, ref FROM enquiry
+   WHERE id = $1::uuid AND NOT EXISTS (SELECT 1 FROM upd)`;
 
-  return { text, params: [args.id, args.stateId, args.contentHash, args.hashVersion] };
+  return {
+    text,
+    params: [args.id, args.stateId, args.contentHash, args.hashVersion, args.actorId],
+  };
 }

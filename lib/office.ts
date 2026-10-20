@@ -360,6 +360,8 @@ export async function getEnquiries(): Promise<OfficeEnquiry[]> {
 /** One saved enquiry's editable details, as the edit form needs them (owner ruling 2026-10-20, #4). */
 export type OfficeEnquiryEdit = {
   id: string;
+  /** The `ENQ-####` the log names. */
+  ref: string;
   name: string;
   number: string;
   askedFor: string;
@@ -381,6 +383,7 @@ export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiry
   const rows = await storeQuery<
     {
       id: string;
+      ref: string;
       name: string;
       number: string;
       asked_for: string;
@@ -388,7 +391,7 @@ export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiry
       enquiry_state_id: string | null;
     }[]
   >(
-    `SELECT id, name, number, asked_for, note, enquiry_state_id
+    `SELECT id, ref, name, number, asked_for, note, enquiry_state_id
        FROM enquiry
       WHERE id = $1::uuid`,
     [id],
@@ -398,6 +401,7 @@ export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiry
   return row
     ? {
         id: row.id,
+        ref: row.ref,
         name: row.name,
         number: row.number,
         askedFor: row.asked_for,
@@ -412,7 +416,8 @@ export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiry
  *
  * One row is a `kind` and a `subject` and nothing else — no message, no figure. That is D20's shape,
  * and it means a screen composes the wording from the kind; nothing here invents a detail the store
- * never kept. The `subject` is the `TS-####` a car event names.
+ * never kept. The `subject` is the code the event names — a car's `TS-####` or an enquiry's
+ * `ENQ-####` (owner ruling 2026-10-20 #4); never a customer's name or number.
  *
  * `actor` is the operator's email, resolved by the foreign key; it is `null` when their account has
  * gone (`actor_id` is `ON DELETE SET NULL`), which the screen shows plainly rather than guessing.

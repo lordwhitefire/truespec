@@ -27,7 +27,7 @@
  *   9. a state an enquiry still sits in cannot be deleted (23001/23503), the reason carries the
  *      store's own count, and no enquiry is moved out of it;
  *  10. a state nothing sits in is removed cleanly, and a repeat finds nothing;
- *  11. an enquiry's identity is final: its `id` cannot be changed;
+ *  11. an enquiry's identity is final: its `id` and its `ENQ-####` cannot be changed;
  *  12. after the rollback the store holds no trace and the reads say the same thing.
  *
  *   node --conditions=react-server --dns-result-order=ipv4first --import tsx developer-workspace/scripts/task-004/enquiry-registry-check.ts
@@ -124,6 +124,8 @@ async function main() {
         )
       ).rows[0];
     const run = async (s: { text: string; params: unknown[] }) => (await client.query(s.text, s.params)).rows;
+    const actorId = (await client.query("SELECT id FROM office_user LIMIT 1")).rows[0]?.id as string | undefined;
+    if (!actorId) throw new Error("the store has no office_user to attribute the log to");
     /** An expected refusal aborts the whole transaction, so each probe is fenced in a savepoint. */
     const throws = async (s: { text: string; params: unknown[] }): Promise<{ code?: string; constraint?: string } | null> => {
       await client.query("SAVEPOINT probe");
@@ -212,8 +214,18 @@ async function main() {
     );
 
     const hash = enquiryChangeCheck({ ...editable, enquiry_state_id: last.id });
-    const set = await run(enquirySetStateStatement({ id: ENQ, stateId: last.id, contentHash: hash, hashVersion: CHANGE_CHECK_VERSION }));
+    const ref = (await client.query("SELECT ref FROM enquiry WHERE id=$1", [ENQ])).rows[0].ref as string;
+    const eventCount = async () =>
+      Number(
+        (await client.query("SELECT count(*) AS n FROM activity_event WHERE kind='enquiry.updated' AND subject=$1", [ref]))
+          .rows[0].n,
+      );
+    const set = await run(
+      enquirySetStateStatement({ id: ENQ, stateId: last.id, contentHash: hash, hashVersion: CHANGE_CHECK_VERSION, actorId }),
+    );
     ok("giving an enquiry any state at any time is accepted", set.length === 1, `${first.label} → ${last.label}`);
+    ok("the state change logs one event naming the code", (await eventCount()) === 1, ref);
+    ok("the code is an ENQ-####, not a customer detail", /^ENQ-\d{4,}$/.test(ref), ref);
     const after = await enquiryRow();
     ok("the enquiry is now in that state", after.enquiry_state_id === last.id, last.label);
     ok(
@@ -230,14 +242,26 @@ async function main() {
     // by leaving a sentinel in the hash. Ask again with the state unchanged — a write takes the
     // sentinel, and a true no-op leaves it.
     await client.query("UPDATE enquiry SET content_hash='SENTINEL' WHERE id=$1::uuid", [ENQ]);
-    const repeat = await run(enquirySetStateStatement({ id: ENQ, stateId: last.id, contentHash: hash, hashVersion: CHANGE_CHECK_VERSION }));
+    const repeat = await run(
+      enquirySetStateStatement({ id: ENQ, stateId: last.id, contentHash: hash, hashVersion: CHANGE_CHECK_VERSION, actorId }),
+    );
     ok("a repeat still reports the row it found", repeat.length === 1);
     ok("a repeat of the same state is a true no-op", (await enquiryRow()).content_hash === "SENTINEL");
+    ok("...and logs nothing a second time", (await eventCount()) === 1);
 
     // Back the other way, so the move is not one-directional.
     const back = { ...editable, enquiry_state_id: first.id };
-    await run(enquirySetStateStatement({ id: ENQ, stateId: first.id, contentHash: enquiryChangeCheck(back), hashVersion: CHANGE_CHECK_VERSION }));
+    await run(
+      enquirySetStateStatement({
+        id: ENQ,
+        stateId: first.id,
+        contentHash: enquiryChangeCheck(back),
+        hashVersion: CHANGE_CHECK_VERSION,
+        actorId,
+      }),
+    );
     ok("and back again, which is also accepted", (await enquiryRow()).enquiry_state_id === first.id, `${last.label} → ${first.label}`);
+    ok("...and is a second real change, so a second event", (await eventCount()) === 2);
 
     // --------------------------------- an occupied state cannot be deleted (truth 10) ---
     const occupied = await throws(enquiryStateRemoveStatement({ id: first.id }));
@@ -255,6 +279,8 @@ async function main() {
     // ------------------------------------------------ the identity is final (D12 / 0018) ---
     const renamedId = await throws({ text: "UPDATE enquiry SET id = $2::uuid WHERE id = $1::uuid", params: [ENQ, "16161616-1616-4616-8616-1616161616fe"] });
     ok("an enquiry's id cannot be changed", renamedId?.code === "23514", `${renamedId?.code} ${renamedId?.constraint}`);
+    const renamedRef = await throws({ text: "UPDATE enquiry SET ref = $2 WHERE id = $1::uuid", params: [ENQ, "ENQ-9999"] });
+    ok("an enquiry's ref cannot be changed", renamedRef?.code === "23514", `${renamedRef?.code} ${renamedRef?.constraint}`);
 
     await client.query("ROLLBACK");
     console.log("  (rolled back — the store is unchanged)");

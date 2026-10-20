@@ -36,11 +36,10 @@ import { enquiryStateExists } from "@/lib/draft-store";
  * once, the rename and recolour set a value to a target, the reorder writes the whole list, and the
  * state set is gated on the state actually changing.
  *
- * Setting a state writes **no** `activity_event`. The log's shape is a `kind` and a `subject`, and
- * the only subject an enquiry has is the customer's own name or number — PII that the retention rule
- * says must not outlive the enquiry row, and an activity row outlives it by design. An opaque id
- * there would make an unreadable entry, and no requirement asks for one. So the log stays what it
- * names: the office's own changes to the cars. Noted rather than invented.
+ * **The log names the `ENQ-####`, never the customer** (owner ruling 2026-10-20 #4). Creating an
+ * enquiry, editing its details and changing its state each writes one `activity_event` whose
+ * subject is the code the store minted. Names, numbers and notes stay in the `enquiry` row —
+ * identifiers in the log, personal details in the record.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -227,7 +226,7 @@ export async function removeEnquiryState(id: string): Promise<EditResult> {
  * store's registry by the screen, and written here by id — the store refuses an id it does not hold.
  */
 export async function setEnquiryState(form: FormData): Promise<EditResult> {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
 
   const id = readUuid(form.get("id"), "id", "That enquiry could not be identified");
   if (!id.ok) return id;
@@ -262,6 +261,7 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
       stateId: stateId.id,
       contentHash,
       hashVersion: CHANGE_CHECK_VERSION,
+      actorId: session.officeUserId,
     });
     await storeQuery(set.text, set.params);
   } catch (error) {
@@ -275,9 +275,9 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
   return { ok: true };
 }
 
-/** What the saved-enquiry edit reports: whether it really moved the row. */
+/** What the saved-enquiry edit reports: whether it really moved the row, and the code it names. */
 export type UpdateEnquiryResult =
-  | { ok: true; changed: boolean }
+  | { ok: true; changed: boolean; ref: string }
   | Extract<EditResult, { ok: false }>;
 
 /**
@@ -291,7 +291,7 @@ export type UpdateEnquiryResult =
  * screen can say "Nothing changed" rather than claim a save.
  */
 export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult> {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
 
   const id = readUuid(form.get("id"), "id", "That enquiry could not be identified");
   if (!id.ok) return id;
@@ -334,13 +334,17 @@ export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult
       stateId,
       contentHash,
       hashVersion: CHANGE_CHECK_VERSION,
+      actorId: session.officeUserId,
     });
-    const written = await storeQuery<{ changed: boolean | null; id: string | null }[]>(text, params);
+    const written = await storeQuery<{ changed: boolean; id: string | null; ref: string | null }[]>(
+      text,
+      params,
+    );
     const row = written[0];
-    if (!row?.id) return fail("id", "That enquiry is no longer in the office");
+    if (!row?.id || !row.ref) return fail("id", "That enquiry is no longer in the office");
 
     revalidateEnquiryPaths();
-    return { ok: true, changed: Boolean(row.changed) };
+    return { ok: true, changed: row.changed, ref: row.ref };
   } catch (error) {
     const { code } = refusal(error);
     if (code === "23503") return fail("stateId", "That state is no longer in the office");

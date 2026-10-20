@@ -160,7 +160,10 @@ function DraftRow({
         return;
       }
       if (res.ok) {
-        onToast(`Saved the ${words.one}. It is a record now, and the showroom updates immediately.`);
+        // The code the store minted is the one the log names, so the confirmation says it too.
+        const named = res.ref ? ` as ${res.ref}` : "";
+        const where = card.kind === "car" ? "showroom" : "board";
+        onToast(`Saved the ${words.one}${named}. It is a record now, and the ${where} updates immediately.`);
         return;
       }
       setError(res.errors[0]?.message ?? `That ${words.one} could not be saved.`);

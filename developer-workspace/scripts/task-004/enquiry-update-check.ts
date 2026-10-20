@@ -29,6 +29,7 @@ function ok(label: string, pass: boolean, detail = "") {
 
 type Row = {
   id: string;
+  ref: string;
   name: string;
   number: string;
   asked_for: string;
@@ -45,6 +46,8 @@ async function main() {
   const client = new Client({ connectionString });
   await client.connect();
   const q = (text: string, params?: unknown[]) => client.query(text, params);
+  const actorId = (await q("SELECT id FROM office_user LIMIT 1")).rows[0]?.id as string | undefined;
+  if (!actorId) throw new Error("the store has no office_user to attribute the log to");
 
   const id = randomUUID();
   const original = {
@@ -54,6 +57,7 @@ async function main() {
     note: "the original note",
   };
   let stateId: string | null = null;
+  let ref: string | null = null;
 
   try {
     const states = (
@@ -68,7 +72,18 @@ async function main() {
       [id, original.name, original.number, original.asked_for, original.note, stateId, initialHash, CHANGE_CHECK_VERSION],
     );
 
-    const before = (await q(`SELECT updated_at FROM enquiry WHERE id = $1`, [id])).rows[0].updated_at as Date;
+    const before = (await q(`SELECT updated_at, ref FROM enquiry WHERE id = $1`, [id])).rows[0] as {
+      updated_at: Date;
+      ref: string;
+    };
+    ref = before.ref;
+    const eventCount = async () =>
+      Number(
+        (await q("SELECT count(*) AS n FROM activity_event WHERE kind='enquiry.updated' AND subject=$1", [ref]))
+          .rows[0].n,
+      );
+    ok("the row was given an ENQ-#### by the store", /^ENQ-\d{4,}$/.test(ref), ref);
+    ok("a row that has not been edited has no log event", (await eventCount()) === 0);
 
     // ---------------------------------------------------------------- the edit: all five details ---
     const edited = {
@@ -85,15 +100,18 @@ async function main() {
       stateId: nextState,
       contentHash: hash,
       hashVersion: CHANGE_CHECK_VERSION,
+      actorId,
     });
 
     const first = (await q(statement.text, statement.params)).rows[0];
     ok("the edit reports that it moved the row", first?.changed === true, String(first?.changed));
     ok("...and the row it moved", first?.id === id, String(first?.id));
+    ok("...under the code the log names", first?.ref === ref, String(first?.ref));
+    ok("the edit logs one event", (await eventCount()) === 1);
 
     const after = (
       await q(
-        `SELECT id, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version, updated_at
+        `SELECT id, ref, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version, updated_at
            FROM enquiry WHERE id = $1`,
         [id],
       )
@@ -114,7 +132,7 @@ async function main() {
       after.content_hash === enquiryChangeCheck({ ...edited, enquiry_state_id: after.enquiry_state_id }) &&
         after.hash_version === CHANGE_CHECK_VERSION,
     );
-    ok("updated_at moved exactly once", after.updated_at.getTime() > before.getTime());
+    ok("updated_at moved exactly once", after.updated_at.getTime() > before.updated_at.getTime());
 
     // -------------------------------------------------------------------- a retry writes nothing ---
     const retry = (await q(statement.text, statement.params)).rows[0];
@@ -125,6 +143,7 @@ async function main() {
     ok("a retry reports the row without a change", retry?.changed === false && retry?.id === id);
     ok("...and does not move updated_at", unchanged.updated_at.getTime() === after.updated_at.getTime());
     ok("...and does not rewrite the hash", unchanged.content_hash === after.content_hash);
+    ok("...and writes no second event", (await eventCount()) === 1);
 
     // ------------------------------------------------------------------- the state may be cleared ---
     const clearedHash = enquiryChangeCheck({ ...edited, enquiry_state_id: null });
@@ -134,16 +153,24 @@ async function main() {
       stateId: null,
       contentHash: clearedHash,
       hashVersion: CHANGE_CHECK_VERSION,
+      actorId,
     });
     const cleared = (await q(clear.text, clear.params)).rows[0];
     const noState = (await q(`SELECT enquiry_state_id, content_hash FROM enquiry WHERE id = $1`, [id])).rows[0];
 
     ok("clearing the state is a real change", cleared?.changed === true);
     ok("...and the row sits in none", noState.enquiry_state_id === null);
+    ok("...and logs a second event", (await eventCount()) === 2);
     ok(
       "...and its hash says so",
       noState.content_hash === enquiryChangeCheck({ ...edited, enquiry_state_id: null }),
     );
+
+    // The log's subject is the code and nothing else: no name, no number, no note.
+    const subjects = (await q("SELECT DISTINCT subject FROM activity_event WHERE kind='enquiry.updated' AND subject=$1", [ref])).rows.map(
+      (row: { subject: string }) => row.subject,
+    );
+    ok("every event's subject is the code", subjects.length === 1 && subjects[0] === ref, subjects.join(","));
 
     // --------------------------------------------------------------------- the record's own rule ---
     const missing = readEnquirySeed({ name: " ", number: "", asked_for: "", note: "" });
@@ -154,8 +181,15 @@ async function main() {
     );
   } finally {
     await q(`DELETE FROM enquiry WHERE id = $1`, [id]);
+    if (ref) await q(`DELETE FROM activity_event WHERE subject = $1 AND actor_id = $2`, [ref, actorId]);
     const left = Number((await q(`SELECT count(*) AS n FROM enquiry WHERE id = $1`, [id])).rows[0].n);
-    ok("the store is left as it was found", left === 0);
+    const leftEvents = ref
+      ? Number(
+          (await q(`SELECT count(*) AS n FROM activity_event WHERE subject = $1 AND actor_id = $2`, [ref, actorId]))
+            .rows[0].n,
+        )
+      : 0;
+    ok("the store is left as it was found", left === 0 && leftEvents === 0);
     await client.end();
   }
 

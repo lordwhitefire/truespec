@@ -29,6 +29,7 @@ export default async function EditEnquiryPage({ params }: { params: Promise<{ id
       states={options}
       data={{
         id: enquiry.id,
+        ref: enquiry.ref,
         name: enquiry.name,
         number: enquiry.number,
         askedFor: enquiry.askedFor,

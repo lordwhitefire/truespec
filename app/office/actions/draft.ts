@@ -39,7 +39,7 @@ export type { SaveDraftResult };
 export type SaveDraftFormResult =
   | { ok: true; outcome: "draft" }
   | { ok: true; outcome: "car"; ref: string }
-  | { ok: true; outcome: "enquiry" }
+  | { ok: true; outcome: "enquiry"; ref: string }
   | { ok: false; errors: FieldError[] };
 
 export type DeleteDraftResult = { ok: true } | { ok: false; errors: FieldError[] };
@@ -112,7 +112,7 @@ export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult
     });
     if (!result.ok) return result;
     revalidateDraftPaths();
-    return { ok: true, outcome: "enquiry" };
+    return { ok: true, outcome: "enquiry", ref: result.ref ?? "" };
   }
 
   const result = await runSaveDraft(draftId, chosen, session.officeUserId, {

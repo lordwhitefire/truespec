@@ -4,13 +4,17 @@
  *
  * The five details are the enquiry's own: the name, the number, what was asked for, the note, and
  * the state it sits in. This statement moves all five, with the server's `content_hash` and
- * `hash_version`, in one write.
+ * `hash_version`, in one write — and, when it really moves them, writes one `enquiry.updated` event.
  *
  * **Idempotency (D18).** The write is gated on any of the five actually differing from the row the
  * store holds (`IS DISTINCT FROM`, so `null` and `''` are one value). A retry that carries the same
- * details writes nothing: `updated_at` does not move again, and — once the activity log names the
- * ref — there is no second event to write. The trailing select still reports the row, with
- * `changed = false`, so the screen can say "Nothing changed" rather than claim a save.
+ * details writes nothing: `updated_at` does not move again, and no second event is written. The
+ * trailing select still reports the row, with `changed = false`, so the screen can say "Nothing
+ * changed" rather than claim a save.
+ *
+ * **The event names the code, never the customer** (owner ruling 2026-10-20 #4): the `ENQ-####` and
+ * the actor, and no name, number or note. It is fed by the `upd` CTE, so only a real change writes
+ * one. The returned `ref` is what the screen shows and what the log reads.
  *
  * The hash is computed by the action from the values about to be written, never accepted from the
  * browser (truth 14). Identity (`id`, `ref`, `handle`, `is_demo`) is not an ingredient and is never
@@ -28,17 +32,19 @@ export type EnquiryUpdateArgs = {
   /** The server's own hash of the five values (truth 14). */
   contentHash: string;
   hashVersion: number;
+  /** The signed-in owner, for the activity row (D20). */
+  actorId: string;
 };
 
 export type EnquiryUpdate = { text: string; params: unknown[] };
 
 /**
  * The enquiry UPDATE. One statement: read the stored five, decide whether anything differs, write
- * only when it does, and report both the row and whether it moved.
+ * only when it does, log the change by its code, and report both the row and whether it moved.
  */
 export function enquiryUpdateStatement(args: EnquiryUpdateArgs): EnquiryUpdate {
   const text = `WITH old AS (
-    SELECT id, name, number, asked_for, note, enquiry_state_id
+    SELECT id, ref, name, number, asked_for, note, enquiry_state_id
       FROM enquiry
      WHERE id = $1::uuid
   ),
@@ -63,10 +69,17 @@ export function enquiryUpdateStatement(args: EnquiryUpdateArgs): EnquiryUpdate {
            hash_version = $8,
            updated_at = now()
      WHERE id = $1::uuid AND (SELECT yes FROM changed)
-    RETURNING id
+    RETURNING id, ref
+  ),
+  ins_event AS (
+    INSERT INTO activity_event (kind, subject, actor_id)
+    SELECT 'enquiry.updated', u.ref, $9::uuid
+      FROM upd u
+    RETURNING 1
   )
-  SELECT (SELECT yes FROM changed) AS changed,
-         COALESCE((SELECT id FROM upd), (SELECT id FROM old)) AS id`;
+  SELECT EXISTS (SELECT 1 FROM upd) AS changed,
+         COALESCE((SELECT id FROM upd), (SELECT id FROM old)) AS id,
+         COALESCE((SELECT ref FROM upd), (SELECT ref FROM old)) AS ref`;
 
   return {
     text,
@@ -79,6 +92,7 @@ export function enquiryUpdateStatement(args: EnquiryUpdateArgs): EnquiryUpdate {
       args.stateId,
       args.contentHash,
       args.hashVersion,
+      args.actorId,
     ],
   };
 }

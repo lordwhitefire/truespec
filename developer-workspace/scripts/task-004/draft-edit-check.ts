@@ -250,15 +250,30 @@ async function main() {
       },
     });
     ok("an enquiry's Save succeeds", savedEnquiry.ok, savedEnquiry.ok ? "" : JSON.stringify(savedEnquiry.errors));
+    const enquiryRef = savedEnquiry.ok ? savedEnquiry.ref : undefined;
+    ok("...and it is named by an ENQ-####", /^ENQ-\d{4,}$/.test(enquiryRef ?? ""), String(enquiryRef));
 
     const madeEnquiry = (
-      await q(`SELECT id, name, number, asked_for, enquiry_state_id FROM enquiry WHERE name = $1`, [
+      await q(`SELECT id, ref, name, number, asked_for, enquiry_state_id FROM enquiry WHERE name = $1`, [
         enquiryName,
       ])
     ).rows[0] as Record<string, unknown> | undefined;
     enquiryId = (madeEnquiry?.id as string | undefined) ?? null;
 
     ok("one enquiry was made — and only one", Number((await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n) === enquiriesBefore + 1);
+    ok("...under the code the save reported", madeEnquiry?.ref === enquiryRef, String(madeEnquiry?.ref));
+    const enquiryEvents = (
+      await q(`SELECT kind, subject FROM activity_event WHERE actor_id = $1 AND subject = $2`, [actorId, enquiryRef])
+    ).rows as { kind: string; subject: string }[];
+    ok(
+      "...one enquiry.created event names that code",
+      enquiryEvents.length === 1 && enquiryEvents[0].kind === "enquiry.created",
+      enquiryEvents.map((event) => event.kind).join(","),
+    );
+    ok(
+      "...and the log holds no customer detail",
+      !JSON.stringify(enquiryEvents).includes(enquiryName) && !JSON.stringify(enquiryEvents).includes("+2348000000003"),
+    );
     ok(
       "it carries the edited values and the chosen state",
       madeEnquiry?.number === "+2348000000003" &&

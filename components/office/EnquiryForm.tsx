@@ -24,6 +24,8 @@ export type EnquiryFormStateOption = { id: string; label: string };
 /** A saved enquiry, as the edit form needs it. */
 export type EnquiryEditData = {
   id: string;
+  /** The `ENQ-####` the log names. */
+  ref: string;
   name: string;
   number: string;
   askedFor: string;
@@ -46,6 +48,7 @@ export function EnquiryForm(props: EnquiryFormProps) {
   const draftData = mode === "draft" ? props.data : null;
 
   const [result, setResult] = useState<StoredResult | null>(null);
+  const [completed, setCompleted] = useState<{ ref: string } | null>(null);
   const [pendingIntent, setPendingIntent] = useState<"draft" | "enquiry" | "edit" | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -77,8 +80,9 @@ export function EnquiryForm(props: EnquiryFormProps) {
           setResult({ mode: "draft", res });
           if (!res.ok) return;
           if (res.outcome === "draft") return;
-          // The draft has become the record; the board is where an enquiry lives.
-          router.push("/office/enquiries");
+          // The draft has become the record. The confirmation names the code the log will use; the
+          // draft row is gone, so the form stays closed rather than offering a second save.
+          setCompleted({ ref: res.ref });
           return;
         }
 
@@ -106,210 +110,233 @@ export function EnquiryForm(props: EnquiryFormProps) {
     <>
       <div className="hrow">
         <div>
-          <h1>{mode === "draft" ? "Edit enquiry draft" : "Edit enquiry"}</h1>
+          <h1>{completed ? "Enquiry saved" : mode === "draft" ? "Edit enquiry draft" : "Edit enquiry"}</h1>
           <p className="sub2">
-            {mode === "draft" ? (
+            {completed ? (
+              <>The draft became a record. This page has nothing left to edit.</>
+            ) : mode === "draft" ? (
               <>
                 From {props.data.draftSource || "the uploaded sheet"} · waiting{" "}
                 {props.data.waiting}. Every value can be edited; nothing is a record until you save
                 the enquiry.
               </>
             ) : (
-              <>The customer&apos;s details, as the office holds them. Saving writes one change.</>
+              <>
+                <b>{props.data.ref}</b> · The customer&apos;s details, as the office holds them.
+                Saving writes one change.
+              </>
             )}
           </p>
         </div>
       </div>
 
-      <form onSubmit={onSubmit}>
+      {completed ? (
         <section className="sec">
           <h2>
-            <span className="n">1</span>The customer
+            <span className="n">
+              <i className="fa-solid fa-check" aria-hidden="true" />
+            </span>
+            Saved
           </h2>
-          <div className="fgrid">
-            <div className="f">
-              <label htmlFor="e-name">Name</label>
-              <input
-                className="in"
-                id="e-name"
-                name="name"
-                type="text"
-                defaultValue={data.name}
-                aria-invalid={fieldError("name") ? true : undefined}
-              />
-              {fieldError("name") ? (
-                <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError("name")}
-                </span>
-              ) : null}
-            </div>
-            <div className="f">
-              <label htmlFor="e-number">Phone number</label>
-              <input
-                className="in"
-                id="e-number"
-                name="number"
-                type="tel"
-                defaultValue={data.number}
-                aria-invalid={fieldError("number") ? true : undefined}
-              />
-              {fieldError("number") ? (
-                <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError("number")}
-                </span>
-              ) : null}
-            </div>
-            <div className="f full">
-              <label htmlFor="e-asked">Asked for</label>
-              <input
-                className="in"
-                id="e-asked"
-                name="asked_for"
-                type="text"
-                defaultValue={data.askedFor}
-                aria-invalid={fieldError("asked_for") ? true : undefined}
-              />
-              {fieldError("asked_for") ? (
-                <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                  {fieldError("asked_for")}
-                </span>
-              ) : null}
-            </div>
-            <div className="f full">
-              <label htmlFor="e-note">Note</label>
-              <textarea
-                className="in"
-                id="e-note"
-                name="note"
-                defaultValue={data.note}
-                aria-invalid={fieldError("note") ? true : undefined}
-              ></textarea>
-              <span className="hint">Office-only — the note is never shown to buyers.</span>
-            </div>
-          </div>
+          <p style={{ fontSize: 15, marginBottom: 16 }}>
+            Saved as <b>{completed.ref}</b>. The board and the log carry it; the draft is no longer
+            waiting.
+          </p>
+          <a className="btn" href="/office/enquiries">
+            <i className="fa-solid fa-arrow-right" aria-hidden="true" /> Open the board
+          </a>
         </section>
+      ) : (
+        <form onSubmit={onSubmit}>
+          <section className="sec">
+            <h2>
+              <span className="n">1</span>The customer
+            </h2>
+            <div className="fgrid">
+              <div className="f">
+                <label htmlFor="e-name">Name</label>
+                <input
+                  className="in"
+                  id="e-name"
+                  name="name"
+                  type="text"
+                  defaultValue={data.name}
+                  aria-invalid={fieldError("name") ? true : undefined}
+                />
+                {fieldError("name") ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {fieldError("name")}
+                  </span>
+                ) : null}
+              </div>
+              <div className="f">
+                <label htmlFor="e-number">Phone number</label>
+                <input
+                  className="in"
+                  id="e-number"
+                  name="number"
+                  type="tel"
+                  defaultValue={data.number}
+                  aria-invalid={fieldError("number") ? true : undefined}
+                />
+                {fieldError("number") ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {fieldError("number")}
+                  </span>
+                ) : null}
+              </div>
+              <div className="f full">
+                <label htmlFor="e-asked">Asked for</label>
+                <input
+                  className="in"
+                  id="e-asked"
+                  name="asked_for"
+                  type="text"
+                  defaultValue={data.askedFor}
+                  aria-invalid={fieldError("asked_for") ? true : undefined}
+                />
+                {fieldError("asked_for") ? (
+                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                    {fieldError("asked_for")}
+                  </span>
+                ) : null}
+              </div>
+              <div className="f full">
+                <label htmlFor="e-note">Note</label>
+                <textarea
+                  className="in"
+                  id="e-note"
+                  name="note"
+                  defaultValue={data.note}
+                  aria-invalid={fieldError("note") ? true : undefined}
+                ></textarea>
+                <span className="hint">Office-only — the note is never shown to buyers.</span>
+              </div>
+            </div>
+          </section>
 
-        <section className="sec">
-          <h2>
-            <span className="n">2</span>State
-          </h2>
-          <div className="f">
-            <label htmlFor="e-state">Where this enquiry is</label>
-            <select className="in" id="e-state" name="stateId" defaultValue={data.stateId ?? ""}>
-              {/* An enquiry may sit in no state, so the empty choice is real, not a placeholder. */}
-              <option value="">No state — sits in none</option>
-              {states.map((state) => (
-                <option key={state.id} value={state.id}>
-                  {state.label}
-                </option>
-              ))}
-            </select>
-            {draftData && draftData.stateLabel !== null && draftData.stateId === null ? (
-              <span className="hint" style={{ color: "var(--warn)" }}>
-                The file named “{draftData.stateLabel}”, which is gone — choose a state, or leave it
-                in none.
-              </span>
-            ) : null}
-          </div>
-        </section>
+          <section className="sec">
+            <h2>
+              <span className="n">2</span>State
+            </h2>
+            <div className="f">
+              <label htmlFor="e-state">Where this enquiry is</label>
+              <select className="in" id="e-state" name="stateId" defaultValue={data.stateId ?? ""}>
+                {/* An enquiry may sit in no state, so the empty choice is real, not a placeholder. */}
+                <option value="">No state — sits in none</option>
+                {states.map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.label}
+                  </option>
+                ))}
+              </select>
+              {draftData && draftData.stateLabel !== null && draftData.stateId === null ? (
+                <span className="hint" style={{ color: "var(--warn)" }}>
+                  The file named “{draftData.stateLabel}”, which is gone — choose a state, or leave it
+                  in none.
+                </span>
+              ) : null}
+            </div>
+          </section>
 
-        <div className="saverow">
-          {mode === "draft" ? (
-            <>
-              <button className="btn gh" type="submit" name="intent" value="draft" disabled={pending}>
-                <i className="fa-solid fa-floppy-disk" />{" "}
-                {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
-              </button>
-              <button className="btn" type="submit" name="intent" value="enquiry" disabled={pending}>
-                <i className="fa-solid fa-check" />{" "}
-                {pendingIntent === "enquiry" ? "Saving…" : "Save enquiry"}
-              </button>
-              <a className="btn gh" href="/office/drafts">
-                Cancel
-              </a>
-              <span className="hint2">
-                {failure
-                  ? "Some fields need attention — see the messages beside them."
-                  : "Save as draft keeps it waiting; Save enquiry puts it on the board."}
-              </span>
-            </>
-          ) : (
-            <>
-              <button className="btn" type="submit" disabled={pending}>
-                <i className="fa-solid fa-check" />{" "}
-                {pendingIntent === "edit" ? "Saving…" : "Save changes"}
-              </button>
-              <a className="btn gh" href="/office/enquiries">
-                Cancel
-              </a>
-              <span className="hint2">
-                {failure
-                  ? "Some fields need attention — see the messages beside them."
-                  : "Saving writes the change to the enquiry."}
-              </span>
-            </>
-          )}
-        </div>
-
-        {failure ? (
-          <div
-            role="alert"
-            style={{
-              marginTop: 12,
-              border: "1px solid var(--bad)",
-              borderRadius: 10,
-              padding: "10px 12px",
-              color: "var(--bad)",
-              fontSize: 13,
-            }}
-          >
-            <b>Could not save.</b>
-            <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-              {failure.errors.map((error) => (
-                <li key={error.field}>{error.message}</li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        {draftSaved ? (
-          <div
-            role="status"
-            style={{
-              marginTop: 12,
-              border: "1px solid var(--ok)",
-              borderRadius: 10,
-              padding: "10px 12px",
-              color: "var(--ok)",
-              fontSize: 13,
-            }}
-          >
-            Draft saved. It is still waiting; nothing was created.
-          </div>
-        ) : null}
-
-        {editSaved ? (
-          <div
-            role="status"
-            style={{
-              marginTop: 12,
-              border: "1px solid var(--ok)",
-              borderRadius: 10,
-              padding: "10px 12px",
-              color: "var(--ok)",
-              fontSize: 13,
-            }}
-          >
-            {editSaved.changed ? (
-              <>Saved. The board carries the change.</>
+          <div className="saverow">
+            {mode === "draft" ? (
+              <>
+                <button className="btn gh" type="submit" name="intent" value="draft" disabled={pending}>
+                  <i className="fa-solid fa-floppy-disk" />{" "}
+                  {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
+                </button>
+                <button className="btn" type="submit" name="intent" value="enquiry" disabled={pending}>
+                  <i className="fa-solid fa-check" />{" "}
+                  {pendingIntent === "enquiry" ? "Saving…" : "Save enquiry"}
+                </button>
+                <a className="btn gh" href="/office/drafts">
+                  Cancel
+                </a>
+                <span className="hint2">
+                  {failure
+                    ? "Some fields need attention — see the messages beside them."
+                    : "Save as draft keeps it waiting; Save enquiry puts it on the board."}
+                </span>
+              </>
             ) : (
-              // The store answered that nothing moved; the screen says so rather than claiming a
-              // save (the same rule the car form follows).
-              <>Nothing changed.</>
+              <>
+                <button className="btn" type="submit" disabled={pending}>
+                  <i className="fa-solid fa-check" />{" "}
+                  {pendingIntent === "edit" ? "Saving…" : "Save changes"}
+                </button>
+                <a className="btn gh" href="/office/enquiries">
+                  Cancel
+                </a>
+                <span className="hint2">
+                  {failure
+                    ? "Some fields need attention — see the messages beside them."
+                    : "Saving writes the change to the enquiry."}
+                </span>
+              </>
             )}
           </div>
-        ) : null}
-      </form>
+
+          {failure ? (
+            <div
+              role="alert"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--bad)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--bad)",
+                fontSize: 13,
+              }}
+            >
+              <b>Could not save.</b>
+              <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                {failure.errors.map((error) => (
+                  <li key={error.field}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {draftSaved ? (
+            <div
+              role="status"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--ok)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--ok)",
+                fontSize: 13,
+              }}
+            >
+              Draft saved. It is still waiting; nothing was created.
+            </div>
+          ) : null}
+
+          {editSaved ? (
+            <div
+              role="status"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--ok)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--ok)",
+                fontSize: 13,
+              }}
+            >
+              {editSaved.changed ? (
+                <>Saved. The board and the log carry the change.</>
+              ) : (
+                // The store answered that nothing moved; the screen says so rather than claiming a
+                // save (the same rule the car form follows).
+                <>Nothing changed.</>
+              )}
+            </div>
+          ) : null}
+        </form>
+      )}
     </>
   );
 }

@@ -139,11 +139,21 @@ async function main() {
   try {
     const demoRefs = (await client.query<{ ref: string }>("SELECT ref FROM car WHERE is_demo ORDER BY ref")).rows;
     const refs = demoRefs.map((r) => r.ref);
-    if (refs.some((r) => !/^[A-Za-z0-9._-]{1,40}$/.test(r))) {
+    // An enquiry event names its `ENQ-####`, not a `TS-####`; both must go with the demo, and both
+    // must be recognised as the demo's so the untouched-check does not mistake them for someone
+    // else's (P7). The car refs still drive the tap and car deletes; this wider list is only for the
+    // activity rows, whose subject can be either kind of code.
+    const enquiryRefs = (
+      await client.query<{ ref: string }>("SELECT ref FROM enquiry WHERE is_demo ORDER BY ref")
+    ).rows.map((r) => r.ref);
+    const activityRefs = [...refs, ...enquiryRefs];
+    if (activityRefs.some((r) => !/^[A-Za-z0-9._-]{1,40}$/.test(r))) {
       // The refs go into a regex below; anything unexpected stops the run.
       throw new Error("a demo ref is not the shape this tool is willing to build a pattern from");
     }
-    const subjectRe = refs.length ? `(^|[^A-Za-z0-9])(${refs.join("|")})([^A-Za-z0-9]|$)` : "(?!)";
+    const subjectRe = activityRefs.length
+      ? `(^|[^A-Za-z0-9])(${activityRefs.join("|")})([^A-Za-z0-9]|$)`
+      : "(?!)";
 
     const photoAssets = (
       await client.query<{ sanity_asset_id: string }>(
@@ -185,7 +195,7 @@ async function main() {
       (await client.query("SELECT count(*) FROM enquiry WHERE is_demo AND pdf_import_id IS NOT NULL")).rows[0].count,
     );
 
-    const othersBefore = await idsOwnedByOthers(client, refs, subjectRe);
+    const othersBefore = await idsOwnedByOthers(client, activityRefs, subjectRe);
 
     summary.demo = {
       refs,
@@ -221,7 +231,7 @@ async function main() {
       const taps = await client.query("DELETE FROM tap WHERE car_ref = ANY($1::text[]) RETURNING id", [refs]);
       const activity = await client.query(
         "DELETE FROM activity_event WHERE subject = ANY($1::text[]) OR subject ~ $2 RETURNING id",
-        [refs, subjectRe],
+        [activityRefs, subjectRe],
       );
       const enquiries = await client.query("DELETE FROM enquiry WHERE is_demo RETURNING id, pdf_import_id");
       const pdfIds = [
@@ -258,7 +268,7 @@ async function main() {
       }
 
       // Nothing that was not the demo's may have gone missing.
-      const othersAfter = await idsOwnedByOthers(client, refs, subjectRe);
+      const othersAfter = await idsOwnedByOthers(client, activityRefs, subjectRe);
       const missing: string[] = [];
       for (const [table, beforeIds] of Object.entries(othersBefore)) {
         const after = new Set(othersAfter[table]);
@@ -277,7 +287,7 @@ async function main() {
         taps: taps.rowCount ?? 0,
         activityEvents: activity.rowCount ?? 0,
       };
-      summary.untouched.after = countsOf(await idsOwnedByOthers(client, refs, subjectRe));
+      summary.untouched.after = countsOf(await idsOwnedByOthers(client, activityRefs, subjectRe));
       summary.untouched.missing = [];
 
       // The assets go only after the rows that named them are gone: a row pointing at a missing

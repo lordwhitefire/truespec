@@ -43,6 +43,17 @@ test("every car kind the store can hold is worded", () => {
   }
 });
 
+test("an enquiry's two kinds are worded, and sit in the same two chips as a car's", () => {
+  // The kinds the enquiry writes can hold. The subject is an `ENQ-####` — the customer's details
+  // stay in the enquiry row — and the log reads with the rest of the office's history.
+  assert.equal(wordOf("enquiry.created"), "Added an enquiry");
+  assert.equal(categoryOf("enquiry.created"), "add");
+  assert.equal(wordOf("enquiry.updated"), "Edited an enquiry");
+  assert.equal(categoryOf("enquiry.updated"), "edit");
+  assert.equal(categoryLabel("enquiry.created"), "Added");
+  assert.equal(categoryLabel("enquiry.updated"), "Edited");
+});
+
 // D31 — one word must not cover two actions. Deleting a car and undoing the delete are two
 // events, and the reader of the log has to be able to tell them apart: in the row's own words, in
 // the chip beside them, and in the counts the chips carry. A restoration counted as a deletion is

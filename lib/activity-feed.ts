@@ -53,6 +53,12 @@ export const ACTIONS: Record<string, { word: string; category: string }> = {
   // deletion. "Deleted" keeps deleting — and removing for good, whose own word says deletion too.
   "car.restored": { word: "Restored a car", category: "res" },
   "car.removed": { word: "Removed a car for good", category: "del" },
+
+  // An enquiry's events name its `ENQ-####`, never the customer: identifiers in the log, personal
+  // details in the `enquiry` row (owner ruling 2026-10-20 #4). Creating and editing share the two
+  // chips the car's events use, so the log reads as one history rather than two.
+  "enquiry.created": { word: "Added an enquiry", category: "add" },
+  "enquiry.updated": { word: "Edited an enquiry", category: "edit" },
 };
 
 export const CATEGORIES = [

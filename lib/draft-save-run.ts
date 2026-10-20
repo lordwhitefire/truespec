@@ -209,16 +209,18 @@ export async function runSaveDraft(
       stateId: state.id,
       contentHash: enquiryChangeCheck(record),
       hashVersion: CHANGE_CHECK_VERSION,
+      actorId,
     });
-    const attempt = await storeQueryRefusing<{ id: string }[]>(text, params, {
+    const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
       field: "draftId",
       action: "That enquiry could not be created",
     });
     if (!attempt.ok) return attempt;
     const rows = attempt.rows;
-    if (!rows[0]?.id) {
+    if (!rows[0]?.ref) {
       return { ok: false, errors: [{ field: "draftId", message: "The enquiry could not be created. Try again." }] };
     }
+    createdRef = rows[0].ref;
   }
 
   // The draft has become the record: it is no longer waiting. Truth 9 — "saving one draft creates one

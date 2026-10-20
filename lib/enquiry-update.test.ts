@@ -25,6 +25,7 @@ const update = () =>
     stateId: STATE,
     contentHash: "abc123",
     hashVersion: 1,
+    actorId: "33333333-3333-3333-3333-333333333333",
   });
 
 test("the write moves the five editable details, the hash and the version — and nothing else", () => {
@@ -46,6 +47,7 @@ test("the write moves the five editable details, the hash and the version — an
     STATE,
     "abc123",
     1,
+    "33333333-3333-3333-3333-333333333333",
   ]);
 });
 
@@ -70,7 +72,19 @@ test("a repeat of the same details is a true no-op, and still reports the row", 
 
 test("the statement reports whether the row changed", () => {
   const { text } = update();
-  assert.match(text, /SELECT \(SELECT yes FROM changed\) AS changed/);
+  // `upd` has a row only when the gate opened; this is the same fact the screen needs to say
+  // "Nothing changed" rather than claim a save.
+  assert.match(text, /SELECT EXISTS \(SELECT 1 FROM upd\) AS changed/);
+});
+
+test("only a real change names the enquiry in the log, by its code", () => {
+  const { text } = update();
+  const event = text.slice(text.indexOf("INSERT INTO activity_event"), text.indexOf("SELECT EXISTS"));
+
+  assert.match(event, /'enquiry\.updated', u\.ref, \$9::uuid/);
+  assert.match(event, /FROM upd u/);
+  assert.doesNotMatch(event, /\b(name|number|asked_for|note)\b/);
+  assert.doesNotMatch(event, /\bcar\b/);
 });
 
 test("identity is left alone, the hash is the server's, and nothing here touches a car", () => {
@@ -83,5 +97,6 @@ test("identity is left alone, the hash is the server's, and nothing here touches
   assert.doesNotMatch(setClause, /\bhandle\s*=/, "the WhatsApp key is set elsewhere");
   assert.doesNotMatch(setClause, /\bis_demo\s*=/, "the demonstration marker is not editable");
   assert.doesNotMatch(text, /\bcar\b/, "an enquiry's details say nothing about any car");
-  assert.doesNotMatch(text, /activity_event/, "this statement writes no event of its own");
+  // One event, fed by the update itself — not a second write the action could forget on a retry.
+  assert.equal(text.match(/INSERT INTO activity_event/g)?.length, 1);
 });

@@ -15,9 +15,16 @@ import { enquiryEditableStatement, enquirySetStateStatement } from "./enquiry-se
 
 const ID = "11111111-1111-1111-1111-111111111111";
 const STATE = "22222222-2222-2222-2222-222222222222";
+const ACTOR = "33333333-3333-3333-3333-333333333333";
 
 const set = () =>
-  enquirySetStateStatement({ id: ID, stateId: STATE, contentHash: "abc123", hashVersion: 1 });
+  enquirySetStateStatement({
+    id: ID,
+    stateId: STATE,
+    contentHash: "abc123",
+    hashVersion: 1,
+    actorId: ACTOR,
+  });
 
 test("the row read is exactly the change-check's ingredients, and nothing more", () => {
   const { text, params } = enquiryEditableStatement({ id: ID });
@@ -39,7 +46,7 @@ test("the write moves the state, the hash and the version — and no other detai
   assert.match(text, /enquiry_state_id = \$2::uuid/);
   assert.match(text, /content_hash = \$3, hash_version = \$4/);
   assert.match(text, /updated_at = now\(\)/);
-  assert.deepEqual(params, [ID, STATE, "abc123", 1]);
+  assert.deepEqual(params, [ID, STATE, "abc123", 1, ACTOR]);
 
   // The imported details are not this write's to touch (Tasks 23–24 own them).
   for (const column of ["name", "number", "asked_for", "note"]) {
@@ -52,16 +59,31 @@ test("a repeat of the same state is a true no-op, and still reports the row", ()
   assert.match(text, /o\.enquiry_state_id IS DISTINCT FROM \$2::uuid/);
   assert.match(text, /WHERE id = \$1::uuid AND \(SELECT yes FROM changed\)/);
   // The trailing arm is what lets a retry — a reply that was lost — say the row is there.
-  assert.match(text, /SELECT id FROM enquiry WHERE id = \$1::uuid/);
+  assert.match(
+    text,
+    /SELECT id, ref FROM enquiry\s+WHERE id = \$1::uuid AND NOT EXISTS \(SELECT 1 FROM upd\)/,
+  );
 });
 
 test("the identity is left alone, and nothing here touches a car", () => {
   const { text } = set();
-  const setClause = text.slice(text.indexOf(" SET ") + 5, text.indexOf("WHERE id = $1::uuid AND"));
+  const setClause = text.slice(
+    text.indexOf("SET enquiry_state_id"),
+    text.indexOf("WHERE id = $1::uuid AND"),
+  );
 
   // Truth 14: `id` is never written; the store's trigger would refuse it if it were.
   assert.doesNotMatch(setClause, /(^|[^_\w])id\s*=/, "identity is not an editable value");
   assert.doesNotMatch(setClause, /\bref\s*=/, "the ref is the store's");
   assert.doesNotMatch(text, /\bcar\b/, "an enquiry's state says nothing about any car");
-  assert.doesNotMatch(text, /activity_event/, "this write records no event of its own");
+});
+
+test("only a real state change logs one event, and it names the code", () => {
+  const { text } = set();
+  const event = text.slice(text.indexOf("INSERT INTO activity_event"), text.indexOf("SELECT id, ref FROM upd"));
+
+  assert.equal(text.match(/INSERT INTO activity_event/g)?.length, 1);
+  assert.match(event, /'enquiry\.updated', u\.ref, \$5::uuid/);
+  assert.match(event, /FROM upd u/);
+  assert.doesNotMatch(event, /\b(name|number|asked_for|note)\b/);
 });
