@@ -118,6 +118,24 @@ export async function carStateByLabel(label: string): Promise<CarStateRow | null
   return rows.length > 0 ? rows[0] : null;
 }
 
+/**
+ * The same lookup, ignoring case — for autofill only.
+ *
+ * A PDF filled in by hand may capitalise a state differently from the registry ("available"), and
+ * the owner means the state they know. The save still uses the exact `carStateByLabel`: a file
+ * stored from an upload is not a reason to loosen what the record requires.
+ */
+export async function carStateByLabelCaseless(label: string): Promise<CarStateRow | null> {
+  const rows = await storeQuery<CarStateRow[]>(
+    `SELECT id, label, kind, section FROM car_state
+      WHERE lower(label) = lower($1)
+      ORDER BY label
+      LIMIT 1`,
+    [label],
+  );
+  return rows.length > 0 ? rows[0] : null;
+}
+
 /** The enquiry state a draft's label names, or `null` — `enquiry_state` has no primary/secondary split. */
 export async function enquiryStateIdByLabel(label: string): Promise<string | null> {
   const rows = await storeQuery<{ id: string }[]>(

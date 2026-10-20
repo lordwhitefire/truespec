@@ -7,7 +7,7 @@
    The product decides edit vs add by route, so the reference's `.demo` mode
    switcher is dropped (plan §9 Q2). */
 
-import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +32,8 @@ import {
 } from "@/lib/money";
 import type { Section } from "@/lib/sections";
 import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
+import type { CarFormInput } from "@/lib/car-input";
+import type { AutofillAnswer } from "@/lib/autofill";
 import {
   captureFormData,
   carDraftKey,
@@ -43,6 +45,16 @@ import {
   type DraftFields,
 } from "@/lib/device-draft";
 import { Photo } from "@/components/Photo";
+
+type AutofillSuccess = Extract<AutofillAnswer, { ok: true }>;
+type AutofillRefusal = { page?: number; row?: number; reason: string };
+
+function refusalPlace(refusal: AutofillRefusal): string {
+  if (refusal.page !== undefined) return `Page ${refusal.page}: `;
+  if (refusal.row !== undefined) return `Row ${refusal.row}: `;
+  return "";
+}
+
 
 export type CarCosts = {
   purchase: string;
@@ -358,6 +370,7 @@ export function CarForm({
   secondaries?: OfficeSecondaryState[];
 }) {
   const isEdit = mode === "edit";
+  const canAutofill = !isEdit;
 
   // label → the one section, from the registry. A label the registry does not hold
   // keeps the car's own section — the label is never guessed from an unmapped state.
@@ -391,6 +404,19 @@ export function CarForm({
   const [photos, setPhotos] = useState<CarPhoto[]>(isEdit ? data.photos : []);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  // Task — autofill. The file is read by the server and comes back as the form's own strings; the
+  // form is filled in place, never submitted by the read. Errors sit in the form's error area, and
+  // a success with refusals keeps both: the car is filled, and the pages that could not be read are
+  // still named.
+  const autofillRef = useRef<HTMLInputElement | null>(null);
+  const autofillErrRef = useRef<HTMLDivElement | null>(null);
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillError, setAutofillError] = useState<string | null>(null);
+  const [autofillNotice, setAutofillNotice] = useState<string | null>(null);
+  const [autofillRefusals, setAutofillRefusals] = useState<readonly AutofillRefusal[]>([]);
+  const [pendingAutofill, setPendingAutofill] = useState<AutofillSuccess | null>(null);
+  const [replaceOpen, setReplaceOpen] = useState(false);
+
   // The car's one primary state, held by id (the store's key). Add mode starts on the
   // state the blank form names; edit mode on the car's own.
   const [curStateId, setCurStateId] = useState(
@@ -488,6 +514,104 @@ export function CarForm({
     draftWriter.schedule(carDraftKey(carId), draft);
   }
 
+  // Does the form already hold text in any of the file's fields? The state is left out: the Add
+  // form always has a default state, and the PDF's state is meant to replace it. Any typed field
+  // makes the read wait for an explicit "replace" instead of overwriting the owner's typing.
+  function autofillHasTypedValues(fields: CarFormInput): boolean {
+    const form = formRef.current;
+    if (!form) return false;
+    for (const [name, value] of Object.entries(fields)) {
+      if (name === "stateId" || typeof value !== "string" || value.trim() === "") continue;
+      const element = form.elements.namedItem(name);
+      if (
+        (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
+        element.value.trim() !== ""
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Put one car's fields into the form's own controls. Only the fourteen editable fields and the
+  // matched state move: costs, photos, secondary states and the sale are left exactly as they are.
+  function applyAutofill(answer: AutofillSuccess): void {
+    const form = formRef.current;
+    if (!form) {
+      setAutofillError("The form is not ready. Try again.");
+      return;
+    }
+
+    applyCarDraftFields(
+      form,
+      Object.fromEntries(
+        Object.entries(answer.fields).filter(
+          (entry): entry is [string, string] => typeof entry[1] === "string",
+        ),
+      ),
+    );
+    if (answer.stateId) setCurStateId(answer.stateId);
+
+    const stateId = answer.stateId || curStateId;
+    recalc(stateId);
+    scheduleDraft();
+    setResult(null);
+    setAutofillError(null);
+    setAutofillRefusals(answer.refusals);
+
+    if (answer.stateLabel === null) {
+      setAutofillNotice(
+        "Filled from the PDF. The PDF named no state, so the form's state was left as it was.",
+      );
+    } else if (!answer.stateFound) {
+      setAutofillNotice(
+        `Filled from the PDF. The PDF names "${answer.stateLabel}", which is not a current state; the form's state was left as it was.`,
+      );
+    } else {
+      setAutofillNotice(`Filled from the PDF. State: ${answer.stateLabel}.`);
+    }
+
+    setReplaceOpen(false);
+    setPendingAutofill(null);
+  }
+
+  async function onAutofillFile(event: ChangeEvent<HTMLInputElement>): Promise<void> {
+    const file = event.currentTarget.files?.[0] ?? null;
+    // Cleared so choosing the same file a second time still reads it.
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    setAutofillError(null);
+    setAutofillNotice(null);
+    setAutofillRefusals([]);
+    setAutofilling(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const response = await fetch("/api/autofill", { method: "POST", body: fd });
+      const answer = (await response.json().catch(() => null)) as AutofillAnswer | null;
+      if (!answer) {
+        setAutofillError("That file could not be read. Try again.");
+        return;
+      }
+      if (!answer.ok) {
+        setAutofillError(answer.reason);
+        setAutofillRefusals(answer.refusals ?? []);
+        return;
+      }
+      if (autofillHasTypedValues(answer.fields)) {
+        setPendingAutofill(answer);
+        setReplaceOpen(true);
+        return;
+      }
+      applyAutofill(answer);
+    } catch {
+      setAutofillError("That file could not be read. Try again.");
+    } finally {
+      setAutofilling(false);
+    }
+  }
+
   // Erase the car's draft only on an act: a successful save or Cancel (discard). The pending write
   // is cancelled first, so a trailing debounce cannot put the draft back after the act.
   function clearCarDraft() {
@@ -499,6 +623,12 @@ export function CarForm({
   }
 
   useEffect(() => setMounted(true), []);
+
+  // An autofill failure is a refusal the owner must see; move the caret to its block, the same way a
+  // save refusal moves to its first field or to the form's error block.
+  useEffect(() => {
+    if (autofillError) autofillErrRef.current?.focus();
+  }, [autofillError]);
 
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
   // same measure stays on screen as a static "8 s" label (Task 11), and the timer is the clock.
@@ -789,6 +919,27 @@ export function CarForm({
           </p>
         </div>
         <div className="hbtns">
+          {canAutofill ? (
+            <>
+              <button
+                className="btn gh"
+                id="autofillBtn"
+                type="button"
+                disabled={autofilling || saving}
+                onClick={() => autofillRef.current?.click()}
+              >
+                <i className="fa-solid fa-file-import" />{" "}
+                {autofilling ? "Reading…" : "Autofill from PDF"}
+              </button>
+              <input
+                ref={autofillRef}
+                type="file"
+                accept="application/pdf,.pdf"
+                hidden
+                onChange={(e) => void onAutofillFile(e)}
+              />
+            </>
+          ) : null}
           <button
             className="btn sold"
             id="mkSold"
@@ -969,6 +1120,19 @@ export function CarForm({
                 <span className="hint">
                   Written the way a seller types. These go straight to the buyer&apos;s
                   page.
+                </span>
+              </div>
+              <div className="f full">
+                <label htmlFor="f-public-note">Note (buyers read this)</label>
+                <textarea
+                  className="in"
+                  id="f-public-note"
+                  name="note"
+                  placeholder="One owner, full service history, ready to drive."
+                  defaultValue={isEdit ? data.note : ""}
+                ></textarea>
+                <span className="hint">
+                  Shown on the car&apos;s page. The private note below stays office-only.
                 </span>
               </div>
             </div>
@@ -1194,11 +1358,6 @@ export function CarForm({
                 {isEdit && data.carId ? (
                   <input type="hidden" name="carId" value={data.carId} />
                 ) : null}
-                {/* The car's public note is one of its editable columns, but this form
-                    has no field for it (the textarea above is the *private* note, as
-                    the reference has it). It rides along unchanged so an edit cannot
-                    silently clear it; a future visible field would replace this one. */}
-                {isEdit ? <input type="hidden" name="note" value={data.note ?? ""} /> : null}
                 {errFor("stateId") ? (
                   <span className="hint" style={{ color: "var(--bad)" }} role="alert">
                     {errFor("stateId")}
@@ -1363,6 +1522,60 @@ export function CarForm({
             </div>
           </section>
 
+          {autofillError ? (
+            <div
+              ref={autofillErrRef}
+              id="autofillErr"
+              tabIndex={-1}
+              role="alert"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--bad)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--bad)",
+                fontSize: 13,
+              }}
+            >
+              <b>Autofill could not fill the form.</b>
+              <p style={{ margin: "6px 0 0" }}>{autofillError}</p>
+              {autofillRefusals.length > 0 ? (
+                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                  {autofillRefusals.map((refusal, index) => (
+                    <li key={`${refusal.page ?? refusal.row ?? "file"}-${index}`}>
+                      {refusalPlace(refusal)}
+                      {refusal.reason}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
+          {autofillNotice ? (
+            <div
+              role="status"
+              style={{
+                marginTop: 12,
+                border: "1px solid var(--ok)",
+                borderRadius: 10,
+                padding: "10px 12px",
+                color: "var(--ok)",
+                fontSize: 13,
+              }}
+            >
+              {autofillNotice}
+              {autofillRefusals.length > 0 ? (
+                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                  {autofillRefusals.map((refusal, index) => (
+                    <li key={`${refusal.page ?? refusal.row ?? "file"}-${index}`}>
+                      {refusalPlace(refusal)}
+                      {refusal.reason}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
           <div className="saverow">
             <button className="btn" id="save" type="submit" disabled={saving}>
               <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
@@ -1541,6 +1754,47 @@ export function CarForm({
                     }}
                   >
                     Delete
+                  </button>
+                </div>
+              </div>
+            </Dialog>
+
+            <Dialog
+              open={replaceOpen}
+              onClose={() => {
+                setReplaceOpen(false);
+                setPendingAutofill(null);
+              }}
+              id="ovlAF"
+              labelledBy="car-autofill-replace-title"
+            >
+              <div className="mdl">
+                <h2 id="car-autofill-replace-title">Replace what is in the form?</h2>
+                <p>
+                  This form already has text. Autofill will replace the car&apos;s fourteen
+                  fields and the state. Costs, photos, the sale and tracking states stay as
+                  they are.
+                </p>
+                <div className="mrow">
+                  <button
+                    className="btn2"
+                    type="button"
+                    onClick={() => {
+                      setReplaceOpen(false);
+                      setPendingAutofill(null);
+                    }}
+                  >
+                    Keep what I typed
+                  </button>
+                  <button
+                    className="btn2"
+                    type="button"
+                    id="autofillReplace"
+                    onClick={() => {
+                      if (pendingAutofill) applyAutofill(pendingAutofill);
+                    }}
+                  >
+                    Replace with the PDF
                   </button>
                 </div>
               </div>
