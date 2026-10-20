@@ -227,3 +227,29 @@ Counts with this addendum: the layer stands at **49 tasks — 48 built/closed, 1
 (Task 39)**. The report body above remains the approved record. Commits: plan and brief `0f17b1b`,
 closed groups `dbef89f`, paging `447544f`; Task 49 carries this addendum, the notes and the check.
 Nothing is pushed.
+
+## Addendum 3 — pagination beyond inventory (owner request, 2026-10-19)
+
+The owner clarified the rule: *"pagination is to prevent endless scrolling not swiping"*. It applies
+to a vertical stack of cars; it does not apply to a horizontal slider / swipe track.
+
+- **Home inventory grid paged.** `HomeInventory` now renders **12** cars per page — three full rows
+  of the 4-up grid (12 also divides by 3/2/1). The live Available tab (**13 cars**) becomes
+  **12 / 1**; On order (6) stays on one page with no pager. Numbered pages + Prev/Next; page 1
+  current; page 2 keeps the URL `/`, announces "Page 2 of 2", and focuses the "TrueSpec Inventory"
+  heading; a tab change returns to page 1. The count line stays the honest total.
+- **Sliders left alone, checked live.** The home featured strip (3-up at 1440, 1-up at 375) and the
+  car page's "More available cars" / "On the lot right now" (`.rt` —
+  `display:flex; overflow-x:auto; scroll-snap-type:x mandatory` with Prev/Next) have no pager.
+- **Verified:** fresh attach-only run `scripts/task-005/home-paging-check.mjs` — **0 failures**,
+  Chromium **6 → 6**, both run windows closed, no store writes; grid **4/3/2/1** columns at
+  1440/1024/768/375 with **0 px** overflow; controls **42 px**; phone tap page 2 = 1 card;
+  `npm run typecheck` clean; `npm test` **311/311**. The check's first run was aborted by the
+  first-visit welcome dialog (it closes it now) and the home page's `load` event (it waits for
+  hydration instead); no product change was needed.
+- **Not built:** the office inventory table's rows-per-page rule (Task 53) — it needs the owner's
+  number and a signed-in office session (Clerk expired), so it could not be runtime-proven.
+
+Counts with this addendum: the layer stands at **53 tasks — 51 built/closed, 1 open (Task 53,
+blocked), 1 closed-not-done (Task 39)**. Commits: plan `e1780c8`, home grid `8f97356`; Task 52
+carries this addendum, the notes and the check. Nothing is pushed.
