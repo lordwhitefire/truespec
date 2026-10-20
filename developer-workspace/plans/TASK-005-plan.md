@@ -127,6 +127,10 @@ copy); raised in the report.
 | 47 | The filter groups start closed | ☑ | The five groups (Status, Make, Year, Colour, Price) now start closed — the five `open` attributes are gone; the native `<details>` supplies the click, keyboard, focus, expanded state and the existing +/− indicator, and no CSS or JS was added. Live at 1440 and 375: **0** open / **0** options visible on load (`checkVisibility()` — `getClientRects()` still reports boxes inside a closed `<details>`, the first check's false signal), Status opens to 3 and a second click closes it, Enter opens and closes Make, and a Make selection still narrows to **3 of 19** and Clear all restores. `dbef89f`; typecheck clean. |
 | 48 | The inventory is paged, nine cars at a time | ☑ | `PAGE_SIZE = 9`; only the current slice renders in both views — **19 live cars → 9 / 9 / 1** over three pages; numbered pages plus Prev/Next, page 1 current on load, Prev/Next disabled at the ends. `?page=` is written by the existing replaceState effect and read server-side (`app/(site)/inventory/page.tsx`); `?page=2` deep-links, `?page=99` clamps to page 3 and rewrites the URL; a filter, the sort and Clear all return to page 1, grid/list keeps the page; the pager is absent at ≤ 9 (BMW: 3 cars, absent). A page click focuses and scrolls `#ttl` under the sticky nav (`scroll-margin-top: 80px`) and announces **“Page N of 3”**. Live at 1440/1024/768/375: **3/2/2/1** columns, 0 px horizontal overflow, pager inside the viewport, controls **42 px**; phone taps page 2 to 9 cards. `npm run typecheck`; `npm test` **311/311**; no query or API change. Runtime: `scripts/task-005/inventory-paging-check.mjs` (Task 49). |
 | 49 | Runtime check, recorded, and the report addendum | ☑ | Fresh attach-only run `scripts/task-005/inventory-paging-check.mjs` (readings `runs/inventory-paging/`): **0 failures** — collapse **0/5** open and **0** options visible at 1440 and 375; paging **19 cars → 9 / 9 / 1**, page 2 URL + "Page 2 of 3" + `#ttl` focus, last page, `?page=2` deep link, `?page=99` → `?page=3`, filter/sort reset, list **9 rows**; widths **3/2/2/1**, **0 px** overflow, controls **42 px**; phone taps page 2. Chromium **6 → 6**, two run windows closed, store untouched. `npm run typecheck`; `npm test` **311/311**. Addendum in **both** report copies (identical, `diff` clean): **49 tasks — 48 built/closed, 1 closed-not-done (Task 39)**. Notes `notes/TASK-005-inventory-browsing.md`. The first run's six failures were the check, not the product (`getClientRects()` inside closed details; pre-hydration clicks); fixed in the check with `checkVisibility()` + a React-fiber wait, no product change between runs. |
+| 50 | The pagination rule beyond inventory | ☐ | — |
+| 51 | The home inventory grid is paged | ☐ | — |
+| 52 | Runtime check, recorded, and the report addendum (home grid) | ☐ | — |
+| 53 | The office inventory table's rows-per-page rule (back office) | ☐ | Blocked — needs the owner's rows-per-page number and a signed-in office session; the expired session makes a runtime proof impossible today. Not built. |
 
 ---
 
@@ -575,6 +579,85 @@ count unchanged, all run windows closed.
 | Pagination scroll/focus steals the person’s place. | Med | Only a page-button press moves the view (to the results heading); filters do not scroll; focus lands on the heading, not a control. |
 | Page buttons overflow at 375. | Low | 42 px controls, `flex-wrap`, measured at 375 in Task 49. |
 | The change reaches the shared `getPublicCars()` and moves other screens. | High | No query change; the page slices in the client only. |
+
+---
+
+### Phase 14 — The pagination rule beyond inventory (owner request, 2026-10-19)
+
+**Owner clarification (2026-10-19).** *"pagination is to prevent endless scrolling not swiping"*.
+The rule applies to a **vertical stack of cars that grows downward**; it does **not** apply to a
+horizontal carousel / swipe track. The excluded surfaces were checked in the DOM before this
+phase: the car page's "More available cars" and "On the lot right now" use `.rt` —
+`display:flex; overflow-x:auto; scroll-snap-type:x mandatory` with Prev/Next (a swipe track); the
+home featured strip is a 1/2/3-at-a-time slider; the hero is slides.
+
+**Where it applies.** `/inventory` — done (Task 48: 9 = three rows of three). The **home page
+inventory grid** (`HomeInventory`) is the remaining public vertical list: its Available / On order
+/ Landed / New-since-last-visit views render the whole tab. The office inventory table is a
+vertical list too, but it is a back-office table with its own search/sort — it gets its own
+rows-per-page rule (Task 53), not this public one.
+
+**Page size — one rule, sized by the grid.** The inventory grid is 3-up: 9 = three full rows. The
+home grid is 4-up at 1440 (3-up ≤1100, 2-up ≤820, 1-up ≤560): **12 = three full rows**, and 12
+also divides by 3, 2 and 1. Same numbered pager + Prev/Next, same announcement; the page size
+follows the desktop column count.
+
+**Task 50 — The rule and the plan** (S)
+- **AC:** this phase records what pagination means (vertical lists, not sliders), the places it
+  applies to, and the page-size rule; the excluded sliders are named with their DOM evidence; the
+  office table is named as a separate, unbuilt back-office rule; no product file is touched.
+- **Files:** `developer-workspace/plans/TASK-005-plan.md`.
+- **Verify:** this section and the tracker; committed before Task 51.
+- **Deps:** —.
+
+**Task 51 — The home inventory grid is paged** (M)
+- **AC:** the home page's Available / On order / Landed / New views render at most **12** cars per
+  page in the 4-up grid (the live Available list, 19 cars, becomes 12 / 7); numbered pages +
+  Prev/Next, page 1 current; a page click swaps the cards, scrolls/focuses the "TrueSpec Inventory"
+  heading and announces "Page N of M"; Prev/Next disable at the ends; changing tab or the "new
+  since last visit" view returns to page 1; the count line stays the honest total; the pager is
+  absent at ≤ 12; no URL change (the home page has no page state); the featured strip and all
+  sliders are untouched; no horizontal overflow at 1440/1024/768/375 and the controls are ≥ 40 px.
+- **Files:** `components/site/HomeInventory.tsx`, `app/reference.css`.
+- **Verify:** live at 1440/1024/768/375 + 375 touch; `npm run typecheck`; `npm test`.
+- **Deps:** 50.
+
+**Task 52 — Runtime check, recorded, and the report addendum** (S)
+- **AC:** a fresh attach-only run proves Task 51's lines with numbers (12 / 7, URL unchanged,
+  announcement, focus, tab reset, columns, overflow, tap); the excluded surfaces are checked live
+  (featured strip shows only 1/2/3 and no pager; the car page `.rt` computed style is the
+  horizontal scroll-snap track and has no pager); the script is kept in
+  `developer-workspace/scripts/task-005/`; the addendum lands in both report copies; counts become
+  **53 tasks — 51 built/closed, 1 open (Task 53, blocked), 1 closed-not-done (Task 39)**; store
+  untouched; run windows closed; Chromium before/after.
+- **Files:** `developer-workspace/scripts/task-005/home-paging-check.mjs` (new),
+  `developer-workspace/notes/TASK-005-home-pagination.md` (new),
+  `developer-workspace/reports/TASK-005.md`, `openspec/tasks/TASK-005/TASK-005-report.md`.
+- **Deps:** 51.
+
+**Task 53 — The office inventory table's rows-per-page rule** (S, **blocked**)
+- **AC:** the office table renders at most N rows per page (N chosen by the owner), numbered pages
+  + Prev/Next; search, state chips and sort reset to page 1; the count line stays total; desktop
+  table and phone cards show the same slice; no store write. **Not built**: the owner's number is
+  not chosen, and the office Clerk session is expired — the change could not be checked at runtime.
+- **Files:** `app/office/(shell)/inventory/inventory-client.tsx`,
+  `app/office/(shell)/inventory/inventory.css`.
+- **Deps:** owner's number + a signed-in office session.
+
+**Runtime matrix (Task 52).** One desktop window at 1440/1024/768 + one 375 touch window: home
+Available 19 cars → page 1 = 12 cards, 2 pages, Prev disabled; page 2 = 7 cards, Next disabled,
+URL unchanged, "Page 2 of 2", heading focused; Prev returns; a tab change from page 2 → page 1;
+grid columns 4/3/2/1 and `scrollWidth === clientWidth`; phone tap page 2 = 7 cards; the featured
+strip has no `.pg`; the car page `.rt` is `overflow-x:auto` + `scroll-snap-type:x mandatory` with
+no `.pg`; Chromium unchanged, all run windows closed.
+
+**Risks.**
+| Risk | Impact | Mitigation |
+|---|---|---|
+| The home grid's 4-up rows leave an orphan at 9/page. | Low | 12 per page = three full rows at 4-up; 12 also divides by 3/2/1. |
+| A tab change leaves the reader on a page that no longer exists. | Med | Every tab/view change sets page 1; `current` clamps regardless. |
+| Pagination on the home page duplicates the "Show all" path. | Low | The pager limits the landing grid; "Show all N cars" still opens the filtered browser. |
+| The office table is mistaken for covered by this phase. | Med | Task 53 records it separately and is not built; the expired session blocks its runtime proof. |
 
 ---
 
