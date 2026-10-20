@@ -29,6 +29,9 @@ import { store } from "./store";
 type Sort = "new" | "low" | "high" | "year";
 type View = "grid" | "list";
 
+// One page holds nine cars (owner, 2026-10-19): three rows of three on desktop.
+const PAGE_SIZE = 9;
+
 export type InventoryInitial = {
   status: Section[];
   make: string[];
@@ -38,6 +41,7 @@ export type InventoryInitial = {
   max: number | null;
   sort: Sort;
   view: View;
+  page: number;
 };
 
 const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Benin City"];
@@ -62,6 +66,7 @@ export function InventoryBrowser({
   const [maxText, setMaxText] = useState(initial.max == null ? "" : String(initial.max));
   const [sort, setSort] = useState<Sort>(initial.sort);
   const [view, setView] = useState<View>(initial.view);
+  const [page, setPage] = useState(initial.page);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [modal, setModal] = useState<{ title: string; body: ReactNode } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -114,6 +119,11 @@ export function InventoryBrowser({
     return l;
   }, [cars, status, make, year, color, min, max, sort]);
 
+  // Only the current page's cars are rendered (owner, 2026-10-19).
+  const pageCount = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  const current = Math.min(Math.max(page, 1), pageCount);
+  const shown = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
   // ---- deep links (reference syncURL) -------------------------------------
   useEffect(() => {
     const p = new URLSearchParams();
@@ -125,9 +135,10 @@ export function InventoryBrowser({
     if (max != null) p.set("max", String(max));
     if (sort !== "new") p.set("sort", sort);
     if (view === "list") p.set("view", "list");
+    if (current > 1) p.set("page", String(current));
     const q = p.toString();
     window.history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : ""));
-  }, [status, make, year, color, min, max, sort, view]);
+  }, [status, make, year, color, min, max, sort, view, current]);
 
   // Umar's answer carries the fact that changed, not the pitch (DR8). At zero that is the bare
   // result; the sourcing promise lives on the page, in the empty block below — not in the region.
@@ -146,6 +157,7 @@ export function InventoryBrowser({
     setColor(new Set());
     setMinText("");
     setMaxText("");
+    setPage(1);
     speak(`Showing everything — <b>${cars.length} cars</b>, every price door-to-door.`);
   };
 
@@ -305,12 +317,22 @@ export function InventoryBrowser({
   };
 
   const toggle = <T,>(setter: Dispatch<SetStateAction<Set<T>>>, val: T, on: boolean) => {
+    setPage(1);
     setter((prev) => {
       const next = new Set(prev);
       if (on) next.add(val);
       else next.delete(val);
       return next;
     });
+  };
+
+  const goPage = (n: number) => {
+    const next = Math.min(Math.max(n, 1), pageCount);
+    setPage(next);
+    speak(`Page <b>${next}</b> of ${pageCount}`);
+    const heading = document.getElementById("ttl");
+    heading?.focus({ preventScroll: true });
+    heading?.scrollIntoView({ block: "start" });
   };
 
   const all = list.length === cars.length;
@@ -441,7 +463,10 @@ export function InventoryBrowser({
                         placeholder="Min"
                         value={minText}
                         aria-label="Minimum price"
-                        onChange={(e) => setMinText(e.target.value)}
+                        onChange={(e) => {
+                          setMinText(e.target.value);
+                          setPage(1);
+                        }}
                       />
                       <input
                         className="in"
@@ -452,7 +477,10 @@ export function InventoryBrowser({
                         placeholder="Max"
                         value={maxText}
                         aria-label="Maximum price"
-                        onChange={(e) => setMaxText(e.target.value)}
+                        onChange={(e) => {
+                          setMaxText(e.target.value);
+                          setPage(1);
+                        }}
                       />
                     </div>
                   </details>
@@ -472,7 +500,7 @@ export function InventoryBrowser({
               <p id="speak" className="speak" role="status" aria-live="polite" />
               <div className="tb">
                 {/* The result's heading must not announce a second time — the page's one live region is above (DR13). */}
-                <h2 id="ttl">
+                <h2 id="ttl" tabIndex={-1}>
                   {all ? (
                     <>
                       All <em>inventory</em>
@@ -489,7 +517,10 @@ export function InventoryBrowser({
                     className="in"
                     id="sort"
                     value={sort}
-                    onChange={(e) => setSort(e.target.value as Sort)}
+                    onChange={(e) => {
+                      setSort(e.target.value as Sort);
+                      setPage(1);
+                    }}
                   >
                     <option value="new">Newest first</option>
                     <option value="low">Price: low to high</option>
@@ -536,17 +567,51 @@ export function InventoryBrowser({
                     </a>
                   </div>
                 ) : view === "list" ? (
-                  list.map((c) => (
+                  shown.map((c) => (
                     <InventoryRow key={c.ref} car={c} />
                   ))
                 ) : (
                   <div className="grid">
-                    {list.map((c) => (
+                    {shown.map((c) => (
                       <ReferenceCard key={c.ref} car={c} />
                     ))}
                   </div>
                 )}
               </div>
+              {pageCount > 1 ? (
+                <nav className="pg" aria-label="Inventory pages">
+                  <button
+                    type="button"
+                    className="pgb"
+                    aria-label="Previous page"
+                    disabled={current === 1}
+                    onClick={() => goPage(current - 1)}
+                  >
+                    Prev
+                  </button>
+                  {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className="pgb"
+                      aria-label={`Page ${n}`}
+                      aria-current={n === current ? "page" : undefined}
+                      onClick={() => goPage(n)}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="pgb"
+                    aria-label="Next page"
+                    disabled={current === pageCount}
+                    onClick={() => goPage(current + 1)}
+                  >
+                    Next
+                  </button>
+                </nav>
+              ) : null}
             </section>
           </div>
         </main>

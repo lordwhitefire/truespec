@@ -52,6 +52,7 @@ export default async function InventoryPage({
     max: num(sp.max),
     sort: SORTS.includes(sortParam as Sort) ? (sortParam as Sort) : "new",
     view: viewParam === "list" ? "list" : "grid",
+    page: Math.max(1, Math.floor(num(sp.page) ?? 1)),
   };
 
   return <InventoryBrowser cars={cars} number={number ?? ""} initial={initial} />;
