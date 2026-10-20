@@ -15,7 +15,8 @@ import { useState, useTransition } from "react";
    template is read as cars, a sales sheet as enquiries, and the API tries one then the other
    (`app/api/upload/route.ts`). One control therefore serves both screens. */
 
-type Refusal = { page: number; reason: string };
+/** A refusal names the place the owner sees: a template page, or a row on the old sheet. */
+type Refusal = { page?: number; row?: number; reason: string };
 
 type UploadBody = {
   ok?: boolean;
@@ -167,7 +168,8 @@ function Refusals({ refusals }: { refusals: Refusal[] }) {
     <ul style={{ margin: "6px 0 0 16px", color: "var(--mute)" }}>
       {refusals.map((r, i) => (
         <li key={i}>
-          {r.page > 0 ? <>Page {r.page}: </> : null}
+          {r.page !== undefined ? <>Page {r.page}: </> : null}
+          {r.row !== undefined ? <>Row {r.row}: </> : null}
           {r.reason}
         </li>
       ))}

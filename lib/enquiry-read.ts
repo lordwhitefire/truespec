@@ -1,10 +1,17 @@
-// An enquiry sheet, read back into drafts.
+// An enquiry file, read back into drafts.
 //
-// The enquiry's file is the sales desk's own sheet — "the manually prepared enquiry sheet the office
-// imports" (scripts/task-003/author-enquiry-pdf.mts) — not a form we draw. Truth 9: "the car's
-// template … is a PDF; the enquiry's file carries its five editable details … because five fields
-// need no made-up form." So there is no AcroForm here and nothing of ours inside the PDF: the sheet
-// is words, and this reader reads the words.
+// Two files are ours now:
+//
+//   * **the blank we draw** (`lib/enquiry-template.ts`, owner ruling 2026-10-20) — an AcroForm,
+//     one customer to a page, five fields under `enquiry_<page>_<field>` names; and
+//   * **the sales desk's own sheet** — "the manually prepared enquiry sheet the office imports"
+//     (scripts/task-003/author-enquiry-pdf.mts) — which is words: a title, a `Name / Phone /
+//     Recorded` header, and rows. Truth 9's "five fields need no made-up form" described the old
+//     file; the owner's ruling adds a form of ours beside it. The old sheet keeps working.
+//
+// So the reader tries the AcroForm first (the template's fields are unmistakably ours), and when
+// the file has none of them it reads the words. Neither path invents a value, and neither drops a
+// row in silence: a page or row that cannot be read comes back as a **refusal** naming its place.
 //
 // Two rules shape everything, the same two as the car's reader (lib/draft-read.ts):
 //
@@ -18,7 +25,20 @@
 // (so the whole rule is unit-tested with plain strings), and `readEnquiryFile` is only the PDF half
 // — pull the words out of the file, hand them to the parser.
 
-import { PDFArray, PDFDocument, PDFRawStream, PDFStream, decodePDFRawStream } from "pdf-lib";
+import {
+  PDFArray,
+  PDFDocument,
+  PDFRawStream,
+  PDFStream,
+  PDFTextField,
+  decodePDFRawStream,
+  type PDFForm,
+} from "pdf-lib";
+import {
+  ENQUIRY_TEMPLATE_MAX,
+  isEnquiryFieldNameBeyondLimit,
+  readEnquiryFieldName,
+} from "./enquiry-template-rules";
 
 /** One enquiry read from the sheet: the record's fields as the sheet carried them, nothing more. */
 export type EnquiryDraft = {
@@ -28,8 +48,13 @@ export type EnquiryDraft = {
   stateLabel: string | null;
 };
 
-/** An enquiry row the sheet could not give us: the row it was on, and why. */
-export type EnquiryRefusal = { row: number; reason: string };
+/**
+ * An enquiry the file could not give us: the place it was on, and why.
+ *
+ * The old words sheet names a **row**; the template names a **page**. Keeping both lets the upload
+ * report the place the owner sees without pretending one is the other.
+ */
+export type EnquiryRefusal = { row?: number; page?: number; reason: string };
 
 export type EnquiryFileRead =
   /** The sheet is one of ours: `enquiries` to keep, and a `refusal` for every row it could not give. */
@@ -41,10 +66,11 @@ export type EnquiryFileRead =
 export const ENQUIRY_SHEET_TITLE = "TrueSpec Autos - Enquiry Sheet";
 
 export const NOT_AN_ENQUIRY_SHEET =
-  "That PDF is not an enquiry sheet — it does not carry our sheet's heading. " +
-  "Send the sheet the office imports, or the car template from the inventory.";
+  "That PDF is not an enquiry file — it carries neither our template's fields nor our sheet's heading. " +
+  "Download the enquiry template from Enquiries, send the sheet the office imports, or send the car template from the inventory.";
 export const ENQUIRY_PDF_UNREADABLE =
   "That PDF could not be opened. Try saving it again, or send a fresh sheet.";
+export const TOO_MANY_ENQUIRIES = `That file carries more than ${ENQUIRY_TEMPLATE_MAX} enquiries, which is more than a blank holds.`;
 
 /**
  * The sheet's labelled details, and the stored field each stands for. The sheet writes a detail as
@@ -236,9 +262,91 @@ function documentLines(doc: PDFDocument): string[] {
   return lines;
 }
 
+/** One page while the template is being read: the text fields it carries, and any field not text. */
+type FormPage = {
+  carried: Record<string, string>;
+  odd: string[];
+};
+
 /**
- * Read an enquiry sheet. One draft per row, in the sheet's own order, so a row's number *is* the
- * row the owner sees — which is what a refusal is named by.
+ * Read our AcroForm blank, if this is one.
+ *
+ * One customer per page, in page order. A wholly blank page is **skipped** — a 20-page blank is a
+ * pad, not a demand to fill all 20 — while a page with a field filled in becomes a draft even when
+ * the other fields are empty: a draft is allowed to be incomplete, and the save asks for what is
+ * missing. A page that carries one of our names on something that is not a text field is refused,
+ * not guessed at.
+ *
+ * Returns `undefined` when the file carries none of our fields, so the caller can fall back to the
+ * old words-only sheet. A file that carries our field names but is otherwise unusable still returns
+ * an answer; it is not silently handed to the words parser.
+ */
+function readEnquiryTemplate(doc: PDFDocument): EnquiryFileRead | undefined {
+  let form: PDFForm;
+  try {
+    form = doc.getForm();
+  } catch {
+    return undefined;
+  }
+
+  const byPage = new Map<number, FormPage>();
+  for (const field of form.getFields()) {
+    const name = field.getName();
+    if (isEnquiryFieldNameBeyondLimit(name)) return { ok: false, reason: TOO_MANY_ENQUIRIES };
+
+    const where = readEnquiryFieldName(name);
+    if (!where) continue;
+
+    const slot = byPage.get(where.page) ?? { carried: {}, odd: [] };
+    if (field instanceof PDFTextField) {
+      slot.carried[where.recipe] = field.getText() ?? "";
+    } else {
+      slot.odd.push(name);
+    }
+    byPage.set(where.page, slot);
+  }
+
+  // No field of ours: this may be the sales desk's words-only sheet. Not an error yet.
+  if (byPage.size === 0) return undefined;
+
+  const enquiries: EnquiryDraft[] = [];
+  const refusals: EnquiryRefusal[] = [];
+
+  for (const page of [...byPage.keys()].sort((a, b) => a - b)) {
+    const slot = byPage.get(page) as FormPage;
+
+    if (slot.odd.length > 0) {
+      const named = slot.odd.map((name) => `"${name}"`).join(", ");
+      refusals.push({
+        page,
+        reason: `${named} is not a field this template writes as text`,
+      });
+      continue;
+    }
+
+    const carried = Object.entries(slot.carried).filter(([, value]) => value.trim() !== "");
+    if (carried.length === 0) continue; // a blank page in the pad
+
+    const values: Record<string, unknown> = {};
+    let stateLabel: string | null = null;
+    for (const [recipe, raw] of carried) {
+      const value = raw.trim();
+      if (recipe === "enquiry_state_id") {
+        stateLabel = value;
+      } else {
+        values[recipe] = value;
+      }
+    }
+
+    enquiries.push({ values, stateLabel });
+  }
+
+  return { ok: true, enquiries, refusals };
+}
+
+/**
+ * Read an enquiry file. One draft per page of the template, or one per row of the old words sheet,
+ * in the file's own order — so the place a refusal names is the place the owner sees.
  */
 export async function readEnquiryFile(bytes: Uint8Array): Promise<EnquiryFileRead> {
   if (!startsWithPdf(bytes)) return { ok: false, reason: NOT_AN_ENQUIRY_SHEET };
@@ -250,5 +358,7 @@ export async function readEnquiryFile(bytes: Uint8Array): Promise<EnquiryFileRea
     return { ok: false, reason: ENQUIRY_PDF_UNREADABLE };
   }
 
-  return parseEnquirySheet(documentLines(doc));
+  // Our template first: its field names are unmistakable, and its pages are the owner's pages. When
+  // it has none of our names, the old words-only sheet is the only other file we know.
+  return readEnquiryTemplate(doc) ?? parseEnquirySheet(documentLines(doc));
 }
