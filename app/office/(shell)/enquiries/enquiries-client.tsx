@@ -350,6 +350,14 @@ export function Enquiries({
                       <i className="fa-solid fa-phone" />
                       Call
                     </a>
+                    <a
+                      className="call"
+                      id="dEdit"
+                      href={cur ? `/office/enquiries/${cur.id}/edit` : "#"}
+                    >
+                      <i className="fa-solid fa-pen" />
+                      Edit
+                    </a>
                   </div>
                 </div>
               </Dialog>
