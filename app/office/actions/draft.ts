@@ -8,6 +8,7 @@ import { imageUrl } from "@/lib/sanity";
 import { isAssetRef } from "@/lib/photo-rules";
 import { deleteDraft } from "@/lib/draft-store";
 import { draftFormFieldsFromForm } from "@/lib/draft-form";
+import { enquiryValuesFromForm } from "@/lib/enquiry-form";
 import { runSaveDraft, runSaveDraftAsDraft, type SaveDraftResult } from "@/lib/draft-save-run";
 
 /**
@@ -38,6 +39,7 @@ export type { SaveDraftResult };
 export type SaveDraftFormResult =
   | { ok: true; outcome: "draft" }
   | { ok: true; outcome: "car"; ref: string }
+  | { ok: true; outcome: "enquiry" }
   | { ok: false; errors: FieldError[] };
 
 export type DeleteDraftResult = { ok: true } | { ok: false; errors: FieldError[] };
@@ -74,12 +76,13 @@ export async function saveDraft(form: FormData): Promise<SaveDraftResult> {
 }
 
 /**
- * The car draft's form, saved by one of its two buttons (owner ruling 2026-10-20, #3).
+ * A draft's edit form, saved by one of its two buttons (owner ruling 2026-10-20, #3).
  *
- * `intent=draft` keeps the row waiting: the posted form becomes the owner's edit layer, the state
- * label follows the chosen state, and nothing is created. `intent=car` sends the same form through
- * the office form's own reader, creates the record, and lets the draft go. The browser's `intent`
- * is only a choice between two writes; each is judged on its own terms here.
+ * `intent=draft` keeps the row waiting: a car's posted form becomes its edit layer, an enquiry's
+ * four values go back to `values`, the state label follows the chosen state, and nothing is created.
+ * `intent=car` / `intent=enquiry` send the same values through the record's own reader, create the
+ * record, and let the draft go. The browser's `intent` is only a choice between writes; each is
+ * judged on its own terms here, and a payload whose kind does not match the row is refused.
  */
 export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult> {
   const session = await requireOfficeSession();
@@ -88,7 +91,8 @@ export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult
   const draftId = typeof rawId === "string" ? rawId : "";
   const rawChosen = form.get("stateId");
   const chosen = typeof rawChosen === "string" ? rawChosen.trim() : "";
-  const intent = form.get("intent") === "draft" ? "draft" : "car";
+  const rawIntent = form.get("intent");
+  const intent = rawIntent === "draft" || rawIntent === "enquiry" ? rawIntent : "car";
 
   if (intent === "draft") {
     const captured = draftFormFieldsFromForm(form);
@@ -99,7 +103,22 @@ export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult
     return { ok: true, outcome: "draft" };
   }
 
-  const result = await runSaveDraft(draftId, chosen, session.officeUserId, form);
+  if (intent === "enquiry") {
+    const captured = enquiryValuesFromForm(form);
+    if (!captured.ok) return captured;
+    const result = await runSaveDraft(draftId, chosen, session.officeUserId, {
+      kind: "enquiry",
+      values: captured.values,
+    });
+    if (!result.ok) return result;
+    revalidateDraftPaths();
+    return { ok: true, outcome: "enquiry" };
+  }
+
+  const result = await runSaveDraft(draftId, chosen, session.officeUserId, {
+    kind: "car",
+    form,
+  });
   if (!result.ok) return result;
   revalidateDraftPaths();
   return { ok: true, outcome: "car", ref: result.ref ?? "" };

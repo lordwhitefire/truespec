@@ -99,6 +99,7 @@ export default async function DraftsPage() {
         label: f.label,
         value: show(d.values[f.recipe], false),
       }));
+      editHref = `/office/drafts/enquiry/${d.id}`;
     }
 
     // The state the file named, matched to the registry so the chooser opens on it — `null` when the

@@ -40,6 +40,7 @@ async function main() {
   const draftId = randomUUID();
   let actorId: string | null = null;
   let carId: string | null = null;
+  let enquiryId: string | null = null;
 
   try {
     actorId = (
@@ -143,7 +144,7 @@ async function main() {
       }
     }
 
-    const saved = await runSaveDraft(draftId, chosen.id, actorId, form);
+    const saved = await runSaveDraft(draftId, chosen.id, actorId, { kind: "car", form });
     ok("Save car succeeds", saved.ok, saved.ok ? "" : JSON.stringify(saved.errors));
     if (!saved.ok) throw new Error("the save was refused — the rest cannot be judged");
 
@@ -179,8 +180,96 @@ async function main() {
     );
     ok("the draft went the moment it became a record", (await getDraft(draftId)) === null);
     ok("the save reports the code it minted", saved.ref === made?.ref, String(saved.ref));
+
+    // ----------------------------------------------------------- the enquiry draft, same two writes ---
+    const enquiryStates = (
+      await q(`SELECT id, label FROM enquiry_state ORDER BY sort, label`)
+    ).rows as { id: string; label: string }[];
+    if (enquiryStates.length === 0) throw new Error("no enquiry state to save into");
+    const enquiryState = enquiryStates.length > 1 ? enquiryStates[1] : enquiryStates[0];
+    const enquiryDraftId = randomUUID();
+    const enquiryName = `Witness Enquiry ${batchId.slice(0, 8)}`;
+
+    await q(
+      `INSERT INTO draft (id, kind, batch_id, source_filename, source_asset_id, values, state_label)
+       VALUES ($1, 'enquiry', $2, $3, $4, $5::jsonb, $6)`,
+      [
+        enquiryDraftId,
+        batchId,
+        "witness enquiry edit.pdf",
+        "asset-witness-not-uploaded",
+        JSON.stringify({
+          name: "File Name",
+          number: "+2348000000002",
+          asked_for: "anything",
+          note: "file note",
+        }),
+        enquiryStates[0].label,
+      ],
+    );
+
+    const enquiriesBefore = Number(
+      (await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n,
+    );
+
+    const keptEnquiry = await runSaveDraftAsDraft(
+      enquiryDraftId,
+      {
+        name: `  ${enquiryName}  `,
+        number: " +2348000000003 ",
+        asked_for: " a small saloon ",
+        note: " call after six ",
+      },
+      enquiryState.id,
+    );
+    ok("an enquiry's Save as draft succeeds", keptEnquiry.ok, keptEnquiry.ok ? "" : JSON.stringify(keptEnquiry.errors));
+
+    const enquiryRow = await getDraft(enquiryDraftId);
+    ok("...and the enquiry draft is still waiting", enquiryRow !== null);
+    ok(
+      "...with the trimmed four values written back",
+      enquiryRow?.values.name === enquiryName &&
+        enquiryRow?.values.number === "+2348000000003" &&
+        enquiryRow?.values.asked_for === "a small saloon" &&
+        enquiryRow?.values.note === "call after six",
+      String(enquiryRow?.values.name),
+    );
+    ok("...and the chosen state's own name", enquiryRow?.stateLabel === enquiryState.label);
+    ok(
+      "no enquiry record was made by a draft save",
+      Number((await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n) === enquiriesBefore,
+    );
+
+    const savedEnquiry = await runSaveDraft(enquiryDraftId, enquiryState.id, actorId, {
+      kind: "enquiry",
+      values: {
+        name: enquiryName,
+        number: "+2348000000003",
+        asked_for: "a small saloon",
+        note: "call after six",
+      },
+    });
+    ok("an enquiry's Save succeeds", savedEnquiry.ok, savedEnquiry.ok ? "" : JSON.stringify(savedEnquiry.errors));
+
+    const madeEnquiry = (
+      await q(`SELECT id, name, number, asked_for, enquiry_state_id FROM enquiry WHERE name = $1`, [
+        enquiryName,
+      ])
+    ).rows[0] as Record<string, unknown> | undefined;
+    enquiryId = (madeEnquiry?.id as string | undefined) ?? null;
+
+    ok("one enquiry was made — and only one", Number((await q(`SELECT count(*) AS n FROM enquiry`)).rows[0].n) === enquiriesBefore + 1);
+    ok(
+      "it carries the edited values and the chosen state",
+      madeEnquiry?.number === "+2348000000003" &&
+        madeEnquiry?.asked_for === "a small saloon" &&
+        madeEnquiry?.enquiry_state_id === enquiryState.id,
+      `${String(madeEnquiry?.number)} / ${String(madeEnquiry?.enquiry_state_id)}`,
+    );
+    ok("the enquiry draft went the moment it became a record", (await getDraft(enquiryDraftId)) === null);
   } finally {
     if (carId) await q(`DELETE FROM car WHERE id = $1`, [carId]);
+    if (enquiryId) await q(`DELETE FROM enquiry WHERE id = $1`, [enquiryId]);
     await q(`DELETE FROM draft WHERE batch_id = $1`, [batchId]);
     if (actorId) {
       await q(`DELETE FROM activity_event WHERE actor_id = $1`, [actorId]);

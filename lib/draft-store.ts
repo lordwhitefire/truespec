@@ -154,3 +154,9 @@ export async function enquiryStateExists(id: string): Promise<boolean> {
   const rows = await storeQuery<{ id: string }[]>(`SELECT id FROM enquiry_state WHERE id = $1`, [id]);
   return rows.length > 0;
 }
+
+/** The name an enquiry state carries, by id — what a draft's `state_label` stores. */
+export async function enquiryStateLabelById(id: string): Promise<string | null> {
+  const rows = await storeQuery<{ label: string }[]>(`SELECT label FROM enquiry_state WHERE id = $1`, [id]);
+  return rows.length > 0 ? rows[0].label : null;
+}

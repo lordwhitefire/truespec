@@ -882,6 +882,7 @@ export function CarForm({
             showToast("Draft saved. It is still waiting — nothing was created.");
             return;
           }
+          if (res.outcome !== "car") return;
           showToast(`Saved <b>${res.ref}</b>. The showroom updates immediately.`);
           router.push(`/office/car/${encodeURIComponent(res.ref)}`);
         } finally {
