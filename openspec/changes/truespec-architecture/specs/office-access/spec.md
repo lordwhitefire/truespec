@@ -41,6 +41,13 @@ A session SHALL expire after 12 hours of inactivity or 7 days total, whichever c
 - **WHEN** the owner works continuously but the session reaches 7 days old
 - **THEN** the session ends and a fresh sign-in is required
 
+### Requirement: The application's own session row is created lazily
+The session row SHALL be created on the application side, **lazily** (owner ruling 2026-10-14): the first office request carrying a valid provider session **upserts one row**, keyed by the provider's session id on the unique column the schema already has, and `last_seen_at` is refreshed thereafter on the 5-minute cooldown. There SHALL be **no sign-in webhook and no sign-in callback route** — this adds no public endpoint and no signing secret.
+
+#### Scenario: The first office page after signing in
+- **WHEN** the owner signs in and opens any office page
+- **THEN** exactly one `session` row exists for that provider session, carrying `created_at`, `last_seen_at` and its expiry — and a reload does not add a second
+
 ### Requirement: The identity provider carries the sign-in
 The sign-in SHALL be the identity provider's own, mounted in the office. The application SHALL build no sign-in form, SHALL put no credential material in any table, log or response, and SHALL receive no sign-in attempt — so the application can apply no per-attempt rule of its own, and abuse control belongs to the provider (next requirement). Every office page and data request SHALL still be checked against the application's own session, on the server. *(Owner ruling, 2026-10-14: the provider does the sign-in, not the office. This supersedes the earlier requirement that the application's own form gate every attempt before forwarding it — a provider-carried sign-in never passes through the application.)*
 

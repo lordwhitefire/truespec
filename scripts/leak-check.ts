@@ -1,6 +1,7 @@
 import { config as loadEnv } from "dotenv";
 import { Client } from "pg";
 import { formatNaira, totalCostKobo, type CostLineInput } from "../lib/money";
+import { mentionsValue } from "../lib/leak-match";
 
 loadEnv({ path: ".env.local" });
 
@@ -167,7 +168,10 @@ async function main() {
         if (hit) contentHits.push(`token "${token}"`);
       }
       for (const value of costValues) {
-        if (value && body.includes(value)) contentHits.push(`cost value ${value}`);
+        // The cost totals include the raw kobo string, which is digits-only; a plain `includes`
+        // finds it inside a longer public price (cost `5500000` inside price `4550000000`). The
+        // boundary rule keeps a real whole-number leak and drops the collision. See lib/leak-match.ts.
+        if (mentionsValue(body, value)) contentHits.push(`cost value ${value}`);
       }
       for (const value of privateRefs) {
         if (body.includes(value)) contentHits.push(`asset/file reference ${value}`);

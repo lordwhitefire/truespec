@@ -6,11 +6,11 @@ in this folder, written for a session that did not do the building.
 
 **Where the requirements live:** `openspec/changes/truespec-architecture/specs/*` (binding — showroom,
 office-access, inventory, money, media, enquiries, office-settings, dashboard), `design.md` (D2, D3, D4,
-D7, D8, D9, D11, D12), and `tasks.md` §4.1 and §6.1–6.10 (this layer's work items). The data layer's
-authority still binds every write here: `openspec/tasks/TASK-003/key-and-hash-v1.md` — the change-check
-is made by the server, never sent by the browser. The plans in `product-management/` are **read, not
-trusted**, and never edited; where one disagrees with a spec, the spec wins and the disagreement is
-logged.
+D7, D8, D9, D11, D12, **D13, D14**), and `tasks.md` §4.1 and §6.1–**6.11** (this layer's work items). The data
+layer's authority still binds every write here: `openspec/tasks/TASK-003/key-and-hash-v1.md` — the
+change-check is made by the server, never sent by the browser. The plans in `product-management/` are
+**read, not trusted**, and never edited; where one disagrees with a spec, the spec wins and the
+disagreement is logged.
 
 ---
 
@@ -104,10 +104,12 @@ half — *a transient blip must not become an error page* — belongs to this la
    caught at the field. **A car is never saved without a state** — a car with no state has no section, and
    nothing may invent one. The `TS-####` reference is given once by the store, never chosen, never edited,
    and never reused after a car is deleted.
-5. **Sold is an action, not a state.** Marking a car sold carries a sale price and a date, takes the car
-   out of the showroom entirely, leaves it in Sold/Archive, keeps it in lifetime totals and out of stock
-   counts, and moves profit from projected to real. Un-marking **reverses or voids the sale record** and
-   returns the car to its section, with no stale real-profit residue anywhere.
+5. **Sold is a primary state, and setting it is what performs the sale.** It is a **state first** and an
+   action follows from it: the moment a car is set Sold the sale is recorded — a sale price and a date — and
+   the car takes itself out of the showroom entirely, sits in Sold/Archive, stays in lifetime totals and out
+   of stock counts, and moves profit from projected to real. Un-marking **reverses or voids the sale record**
+   and returns the car to its **previous primary state**, its secondary states untouched, with no stale
+   real-profit residue anywhere.
 6. **Deleting is a tombstone the owner clears, and nothing is ever deleted for him.** Deleting requires
    confirmation and offers undo within **8 seconds**; undo restores the car byte-for-byte with its photos,
    costs and state. After the window it is a tombstone: hidden from every read, and listed as waiting to be
@@ -128,19 +130,46 @@ half — *a transient blip must not become an error page* — belongs to this la
    and the time** — nothing else: no name, no number, no message, no address. The privacy notice is shown
    on the way to WhatsApp, **before** the tap. The tap is recorded by the application and the buyer then
    continues to WhatsApp as before. The office surfaces taps as a count badge and a recent list — never a
-   popup, an alert or a sound.
-9. **The PDF import is preview-and-confirm, and nothing persists before confirm.** The owner uploads a PDF;
-   the application reads it; he sees an editable table of what was read and can correct it; only an
-   explicit confirm writes anything. A row that cannot be read is **explained and named, never silently
-   dropped**. On confirm the file lives in the asset store under a **randomized filename** with its
-   reference held only in the database — never in a public payload — and the rows link to the enquiry (or
-   enquiries) they became. Deleting an imported PDF removes the link and the file behind it, leaves the
-   enquiry rows in place, and is recorded in `activity`.
-10. **Both registries are the owner's, edited live, and the store refuses what it must.** He can add,
-    rename and reorder a state, choose its colour, and (for car states) set the new-arrival flag and the
-    one section it maps to. A car state with no section cannot exist; two states cannot share a name; a
-    state a car sits in cannot be deleted — refused by the store itself, with the reason shown. Buyers see
-    only the three section names, never a label of his. Enquiry states are the same kind of thing and no
+   popup, an alert or a sound. The badge counts **the taps since the office last looked**: opening the
+   full tap list marks them seen, the figure clears, the glyph stays so the list keeps its entry point,
+   and a tap arriving afterwards counts as new again — the mark is written by a POST, so no GET changes
+   data, and it is taken from a tap the store actually holds and can only move forward (design D21).
+9. **An upload lands as a draft, and a draft is not a record.** A file uploaded to create cars or
+   enquiries is read, and what it carries becomes **drafts** — one per record the file holds, in a holding
+   place of their own. **Nothing enters the `car` or `enquiry` table until the owner saves it**, so the
+   board, the counts, the section lists and the showroom need no filter to keep a draft out — they never
+   see one. A draft holds only what the file carried and what the owner put into it: **nothing is inferred,
+   defaulted or invented**, exactly as no value may be invented for a record. The record's own rules (its
+   required fields, its state, a well-formed amount) are enforced **when the draft is saved**, never at
+   upload, because a draft is allowed to be incomplete. A draft that cannot be read is **explained and
+   named, never silently dropped**, and saving one draft creates one record and leaves its brother drafts
+   untouched. Four consequences follow, and each must hold:
+   - **The `TS-####` and the change-check are given at the save, never at the upload.** A draft carries no
+     reference code, no `content_hash` and no `hash_version`. The code is given once and never reused, so a
+     draft that took one and was abandoned would burn that number for good; a draft that is never saved
+     consumes nothing and disturbs no sequence. A draft also **sits in no state and occupies none** — it may
+     hold the state its file named, applied at the save, but a waiting draft never blocks a state's
+     deletion, and if that state is gone by the time the draft is saved the owner is asked to choose.
+   - **A draft waits for the owner.** No job, rule or clock removes it, exactly as nothing else of his is
+     removed for him.
+   - **Images are put on by hand, after the values.** A template carries values and not pictures, so a draft
+     arrives with its fields filled and its images empty, and the owner adds them himself before saving. A
+     draft's images are referenced by the draft — the image store's "no row ever referenced it" clearance
+     applies to assets **no draft and no record** ever referenced — and on save they become the record's
+     photo rows, cover at position 0 (truth 7).
+   - **The blanks are ours, and they sit where the upload happens.** The car's template — its fourteen
+     editable details — is a PDF; the enquiry's file carries its five editable details (name, number, what
+     they asked for, note, and the state), because five fields need no made-up form. **A file carries the
+     record's editable fields and nothing else** — nothing beyond them is read, inferred or filled in — and a
+     file that is not the format we expect is refused with a reason the owner can act on.
+10. **Both registries are the owner's, edited live, and the store refuses what it must.** For **car** states
+    he can add, rename, reorder and recolour — but only **secondary** states: the **four primary states
+    (Available, On Order, Landed, Sold) are not his to add to, rename or delete**, they are what the showroom
+    groups by, and a **secondary** state needs no section and sets no new-arrival flag (those belong to the
+    primary states, which are fixed). Two states cannot share a name, across both kinds; a state a car
+    carries cannot be deleted — refused by the store itself, with the reason shown. Buyers see only the three
+    primary-state names — Available, On Order, Landed — never a label of his. **Enquiry** states are the same
+    kind of thing and no
     more: adding, renaming, reordering and removing them is his, and **giving an enquiry any state at any
     time is legal** — nothing requires one state to come before another, and setting an enquiry to Sold
     changes nothing about any car.
@@ -158,9 +187,15 @@ half — *a transient blip must not become an error page* — belongs to this la
     password material exists in any application table**. Operational notices the owner needs — storage
     usage past a threshold, backup status — appear in the office, because there is no mail channel.
 13. **The export is the owner's exit and it is complete.** One action produces everything the system holds
-    — every car with its costs, every enquiry, every tap, every activity row and every setting — in a form
-    that is both human-readable and machine-readable. A file the owner already holds contains everything
-    the product knew.
+    — every car with its costs and photos, every enquiry, every tap, every activity row and every setting —
+    and it is **one download, not two**: a single **ZIP** archive holding **`master.json`** — a
+    machine-readable master that keeps the shape of the data (a car's cost lines and photo list nested
+    where they belong) — and **one CSV per subject** — cars, costs, photos, enquiries, taps, activity,
+    settings — rather than one combined sheet, which could not hold a car (costs and photos) and a tap
+    (neither) without most of its cells empty. It also carries a short **`README.txt`** naming what is
+    inside and when it was made, and it is **not an Excel workbook** — one vendor's file that flattens the
+    nesting. A file the owner already holds contains everything the product knew, and the export is
+    reachable **only from inside the office** — never a public path.
 14. **The change-check is the server's, on every write.** `content_hash` and `hash_version` are computed by
     the application from the record's stored editable values and stored with the row; a value arriving from
     a browser is never trusted as the hash. Nothing can change `car.id`, `car.ref` or `enquiry.id` — the
@@ -173,6 +208,16 @@ half — *a transient blip must not become an error page* — belongs to this la
     surface as a clear, retryable state — never a fabricated figure, never a silent empty list that looks
     like real emptiness, and never a bare 500. The *wording* of that state is TASK-005's; the page not
     breaking is this layer's.
+17. **A car's state comes in two kinds, and one of them is mandatory** (owner ruling 2026-10-14; design
+    **D15**). Every car sits under exactly one of exactly **four fixed primary states — Available, On Order,
+    Landed, Sold** — and under no other; the four are **not the owner's to add to, rename or delete**. Beyond
+    that, a car may carry **any number of secondary states** — the ones the owner creates for his own
+    tracking. A car may carry none; a car can never carry a secondary state without its primary one. The
+    **showroom reads only the primary state**: its three groups are three of the four — Available, On Order,
+    Landed — and **Sold is never shown**. A secondary state never reaches a public page and never changes a
+    public count. This **revises the older decision that "sold" was only a flag** (D6); the sale record still
+    holds the money facts (price, date, profit), and un-marking a sale returns the car to a non-Sold primary
+    state, logged.
 
 ---
 
@@ -200,7 +245,9 @@ half — *a transient blip must not become an error page* — belongs to this la
   enquiry may take any of its states at any time.
 - **The public boundary is untouched.** `lib/serialize.ts` remains the only public path. No public
   response may contain a cost, a profit, an asset reference, a customer detail or an office state label.
-  The listing gate holds: no price or no photo means draft, absent from every public page, count and link.
+  The listing gate holds: no price or no photo means **not yet listed**, absent from every public page,
+  count and link. (This state was called "draft" in earlier text; "draft" now means only the staged row an
+  upload produces, per truth 9 — see Conflict 9.)
   **The write path must never accept a money value, a hash, an asset id or an identity from a public
   request**, and the leak check must still pass with the writes in place.
 - **No secret in the repository.** The Clerk and Sanity details live in the environment; the placeholder
@@ -251,12 +298,26 @@ The application's own honesty rule is untouched by this: the seed may author, th
 
 1. **The identity provider's keys.** **Answered 2026-10-14** — see Round 1 below. Clerk, linked to the
    owner's own application, installed with Clerk's CLI.
-2. **The export's shape.** The requirement says CSV and JSON. Is the owner's expectation *one download
-   holding both*, or *two separate actions* — and is the human-readable form one table per subject or a
-   single combined sheet? **Open.**
-3. **The PDF the import reads.** The import must be built to a real shape, not to the authored demo file
-   alone. What does the owner's PDF actually look like — which columns does it carry (customer name, number,
-   what they asked for, note?), and is it a text PDF he prepares rather than a scan? **Open.**
+2. **The export's shape — answered 2026-10-14 (owner asked for best practice; ruling written in).** One
+   action produces **one download** — a single archive — holding a **machine-readable master** that keeps
+   the shape of the data (each car's cost lines and photo list nested where they belong) and **one
+   human-readable table per subject** (cars, costs, photos, enquiries, taps, activity, settings), never one
+   combined sheet, plus a short readme naming the contents and the date. The reasoning: one action leaves
+   nothing behind to remember; the master keeps the shape a flat table cannot; and one sheet per subject
+   exists because a car carries costs and photos while a tap carries neither, so a combined sheet would be
+   mostly empty cells with columns that mean nothing. The export is reachable only from inside the office
+   and appears on no public path. *(Truth 13, build list §6.10, specs/office-settings.)*
+3. **The PDF the import reads — answered 2026-10-14.** The owner's word: **"the PDF must have all the
+   editable fields in the enquiry"** — so the file carries the record's editable fields and nothing else.
+   For the **car**, fourteen (brand, model, trim, year, exterior colour, interior colour, mileage, features,
+   the note, the private note, the was-price, the arrival note, the doorstep price, the state); for the
+   **enquiry**, five (name, number, what they asked for, note, and the state) — the same lists the
+   change-check already treats as editable (`lib/change-check.ts`), which is where the counts came from, not
+   from a form. Nothing beyond those fields is read, inferred or filled in, and a file that is not the
+   expected format is refused with a reason the owner can act on. Two consequences follow: the **counts sit
+   either side of the owner's five-field line** — the car's fourteen put it over (its template is a PDF); the
+   enquiry's five do not — and the **state a file names is applied at the save**, because a draft sits in no
+   state and occupies none (truth 9, design D13). *(Build list §6.11, specs/inventory, specs/enquiries.)*
 4. **What replaces the delay schedule and the per-IP window — answered 2026-10-14.** The owner ruled: **the
    provider's own lockout, after 10 failed attempts, for 30 minutes — not indefinite.** So the provider's
    abuse control is taken as it comes, with two limits that must hold: the lock is **bounded and clears
@@ -264,8 +325,32 @@ The application's own honesty rule is untouched by this: the seed may author, th
    rate limits and bulk enumeration protection stay in force. The application applies no per-attempt rule at
    all, because it never sees an attempt. See truth 2 above; the office-access spec and design D4 were
    rewritten to say exactly this.
+5. **The review cadence — answered 2026-10-14.** Continuous build with **three checkpoints**: after the
+   door, after the car's life together with the registries, and at the end. The reasoning the owner
+   accepted: the door is the risky hinge — nothing is safe to demonstrate while the office is open to
+   anyone — and the car's life with the two registries is the biggest slice, so the owner looks at a
+   **working demonstration at each checkpoint** before the work carries on, rather than at one reveal at the
+   end. *(§Process below.)*
+6. **Who runs the Clerk setup — answered 2026-10-14.** The work is split at the account line: the **owner**
+   does what touches his account — installing (or updating) the CLI and signing in to it — and the
+   **builder** runs `clerk init` against the application, the config patch, `clerk doctor`, and wires the
+   code. His keys never pass through the builder's hands and the account stays under his control — which is
+   also what Round 1 item 1 already required. *(§Process below.)*
+7. **Where the sign-in lives — not a new choice: the architecture already fixes it (confirmed
+   2026-10-14).** The office-access spec requires the sign-in to be the identity provider's own,
+   **"mounted in the office"** (*The identity provider carries the sign-in*), and build-list §4.1 says the
+   same. So the provider's embedded sign-in sits at **`/office/sign-in`** inside the office's own shell, and
+   **`/office` sends a visitor there when there is no session** — never the provider's separately hosted
+   page. The route's name is fixed in §Process step 1; no spec change was needed.
+8. **The export's file format — answered 2026-10-14.** One **ZIP** holding `master.json` — the
+   machine-readable master, nested (each car with its costs and photos) — **plus one CSV per subject**
+   (cars, costs, photos, enquiries, taps, activity, settings) and a short `README.txt` naming the contents
+   and the date. Reason: anything can open it, nothing needs Excel, and the nesting survives — which is what
+   makes the export provable as complete. **Not** an Excel workbook, which is one vendor's file and flattens
+   the nesting. *(Truth 13, build list §6.10, specs/office-settings.)*
 
-*Question 2 is needed before step 7 of the build order, question 3 before step 6. Question 4 is answered.*
+*All eight are answered, so nothing in this layer waits on a ruling. Questions 3 and 8 shape build steps 7
+and 8; questions 5 and 6 shape how the work is handed over (§Process).*
 
 ### Round 1 — the owner's answers (2026-10-14)
 
@@ -304,27 +389,110 @@ The application's own honesty rule is untouched by this: the seed may author, th
 
 ---
 
+## What the dev asked at handover — eleven questions, all answered (owner rulings 2026-10-14)
+
+These were raised by the dev reading this plan before starting. They are answered here so the build begins on
+a settled plan; each is carried into the design and the specs, and the two that change the store belong to
+build step 2.
+
+1. **The two loose ends in the schema — both left alone (D20).** (a) `activity_event` gains **nothing**: the
+   writer records the action's `kind` and puts the car's `TS-####` in `subject`, and no new typed column is
+   added — a column needs a requirement, and none asks for one. (b) `auth_attempt` is kept **exactly as it
+   is**: the daily job's 90-day rule survives, and the table is a harmless no-op because a provider-carried
+   sign-in never passes through our server. Removing it was declined — it would cost a forward-only migration
+   plus edits to `specs/media` and TASK-006's plan, for no behaviour gained.
+2. **The draft table's shape, and where uploads are worked — one table (D16).** Columns: `id`; `kind`
+   (`car`|`enquiry`); `batch_id`; `source_filename`; `source_asset_id`; `values` (jsonb, the record's
+   editable fields); `image_asset_ids` (an **ordered** list — index 0 is the cover); `state_label` (nullable —
+   a **name**, never a state id); `is_demo`; timestamps. **Images live on the draft's own row, not in a second
+   table** — D13 promised one new table. "Create from file" sits on the office inventory and enquiry screens,
+   the car template downloads there, and all drafts are reviewed at **`/office/drafts`**. Drafts carry the
+   demo marker, so the wipe clears them.
+3. **Our session row is created lazily (D17).** The first office request carrying a valid provider session
+   upserts one row, keyed by the provider session id on the unique column that already exists. No webhook, no
+   callback route, no new public endpoint, no signing secret.
+4. **The photo size cap is 15 MB.** Truth 7 said "a cap" and never gave the number; the number now lives in
+   `specs/media`.
+5. **A valid WhatsApp number is a Nigerian mobile (owner ruling).** `+234…`, `234…`, or `0…` is accepted and
+   stored **normalised to `+234…`**, digits only — because the `wa.me` link the tap button builds only
+   resolves when the number holds one shape. Anything else is refused inline with a reason, and the previous
+   number stays active.
+6. **A transient store failure is caught by one shared guard (D18).** One server-side guard around every store
+   read, one retryable-state component, and route-level error boundaries behind it — on the office **and** the
+   public showroom. Never a 500, never an invented figure.
+7. **Both operational notices are read from setting rows (D19).** Storage-past-threshold and backup status are
+   settings the office only displays: `last_backup_at` (written by the daily job — TASK-006's work) and a
+   storage-warning figure, default **4 GB**. This layer reads; TASK-006 writes. No new table, and no live
+   storage computation from Sanity.
+8. **The retention numbers are confirmed as written.** An enquiry becomes due for the owner's decision **12
+   months** after it was recorded; a buyer's record is kept **6 years** after the sale. The office notifies;
+   the system never deletes customer data on its own. (This closes the last open question in the design.)
+9. **A car's secondary states are kept when it is marked Sold (D15 f).** Only the **primary** state becomes
+   Sold. Un-marking returns the car to its previous primary state **with its labels intact** — nothing is
+   cleared, so nothing has to be undone.
+10. **The demo fleet's mapping (D15 g).** Available → primary Available; On the way / At port / Cleared →
+    primary **On Order**, the old label kept as a **secondary**; Landed → primary Landed. The showroom looks
+    exactly as it does now. Plus **at least one car carrying a secondary label and one car Sold**, so both new
+    behaviours are visible. The builder performs this in the state-model migration and seed (step 2).
+11. **The wording clash is corrected, and the rule behind it is the owner's own.** Truth 5 now reads **"Sold
+    is a primary state, and setting it is what performs the sale"** — the owner's words: *"it is a state
+    first, you set it, then an action occurs."* The rule keeps its force (the money stays on the sale row;
+    un-marking returns the car to its previous primary state, logged). Logged as part of **conflict 11**, not
+    silently rewritten.
+
 ## Process — how to work it
 
 - **Build in this order, because each step needs the one before it:**
   1. **The door** — the provider installed and linked, its instance put in invite-only mode so no public
      sign-up path exists, the owner's one account created, Clerk's own sign-in mounted as the office's door,
-     the session row and its cookie, the server-side session check on every office route, sign-out. Whatever
-     answers open question 4 goes in here too, once it is ruled. Nothing else is safe to demonstrate while
-     the office is open to anyone.
-  2. **The car's life** — create, edit (all fourteen columns, including the private note and the "was"
+     the session row and its cookie, the server-side session check on every office route, sign-out. The
+     provider's sign-in is **mounted in the office at `/office/sign-in`**, and `/office` sends a visitor
+     there when there is no session (question 7 — the spec already requires it mounted in the office). The
+     provider's own bounded lockout and per-address limits are the abuse control (question 4, answered).
+     **This step's division of labour is the owner's ruling (question 6):** he installs (or updates) the CLI
+     and signs in to it, because that touches his account; the builder runs `clerk init` against the
+     application, the config patch, `clerk doctor`, and wires the code. All eight of this layer's questions
+     are answered, so nothing here waits on a ruling. **Stop here and demonstrate** — nothing else is safe
+     to show while the office is open to anyone.
+  2. **The state model** (owner ruling 2026-10-14, design **D15**) — **the store's state shape is settled
+     before anything writes or reads a car**, because a car cannot be created without a primary state and
+     "sold" stops being only a flag. This step is the store's change and the read paths that follow it:
+     `car_state` distinguishes the two kinds; the **four primary states — Available, On Order, Landed,
+     Sold — are fixed** (not addable, renamable or deletable, unlike the owner's **secondary** states, which
+     are his to create); a car's **primary state is mandatory** (today `car.state_id` is nullable); a car may
+     carry **many secondary states**, so the link that holds them exists; the store's five present states are
+     reshaped — Available and Landed stay primary, **On the way, At port and Cleared become secondary**, and
+     **On Order** and **Sold** are added as primary states; and **D6's sold flag gives way** to Sold as a
+     primary state, with the sale row keeping the money facts. The read paths follow: a car's showroom
+     grouping comes from its **primary state**, the three groups being three of the four (**Sold is never
+     shown**), and a landed car still appears under Available as it does today. The store is rebuilt
+     (drop → migrate → seed) and the figures reproduce. **This step is TASK-004's by the owner's ruling
+     2026-10-14**, and its migrations land **before** the draft table, because a draft carries a state label.
+  3. **The car's life** — create, edit (all fourteen columns, including the private note and the "was"
      price), the live profit figure, the malformed-amount block, the ref's one-time assignment, delete →
-     tombstone → undo → the owner's permanent removal, and sold/un-mark.
-  3. **The registries, live** — both state editors reading and writing the registry, the refusal rules, and
+     tombstone → undo → the owner's permanent removal, and sold/un-mark. Creating a car takes **one of the
+     four primary states** and any number of the owner's secondary states (step 2).
+  4. **The registries, live** — both state editors reading and writing the registry (**the car editor creates
+     secondary states only — the four primary states are not the owner's to change**), the refusal rules, and
      the enquiries board and activity feed reading real rows instead of seeds.
-  4. **Images** — upload-first/save-second, cover, reorder, EXIF stripping, the size cap, the placeholder.
-  5. **Taps** — the notice, the record, the badge and the list; and the dashboard's two feed panels.
-  6. **The PDF import** — upload, read, preview, confirm, rejection wording, the randomized filename, the
-     delete.
-  7. **Settings and export** — the three settings with inline validation, password change delegated, the
+  5. **Images** — upload-first/save-second, cover, reorder, EXIF stripping, the size cap, the placeholder.
+  6. **Taps** — the notice, the record, the badge and the list; and the dashboard's two feed panels.
+  7. **Uploads and the template** — the car's PDF template offered as a blank at the upload point, an
+     upload read into **drafts** (one per record, in their own holding place, nothing in `car` or
+     `enquiry`), the owner's images added by hand per draft, the review, the save that creates the record
+     and gives it its `TS-####` and change-check, rejection wording, the held file with its randomized
+     filename, and the delete. The enquiry's imported-PDF flow lands as drafts the same way. A draft's state
+     label is applied at the save against the model step 2 settled.
+  8. **Settings and export** — the three settings with inline validation, password change delegated, the
      operational notice, and the one-action export.
-  8. **The resilience half** — the carried cold-connection finding: a transient store failure becomes a
+  9. **The resilience half** — the carried cold-connection finding: a transient store failure becomes a
      clear retryable state rather than a 500, on the pages that read the store.
+- **Stop at three checkpoints and show a working demonstration at each (owner's ruling, question 5).** The
+  build runs continuously — the builder does not ask between steps — but it stops for the owner's eyes
+  **after step 1 (the door)**, **after step 4 (the car's life and the registries both live)**, and **at the
+  end**. The door is the risky hinge, since nothing is safe to demonstrate while the office is open to
+  anyone; the car's life with the two registries is the biggest slice. At each checkpoint the owner watches
+  a working office, not a report — and he may redirect before the next block of work starts.
 - **Read the code that reads the store before writing to it:** the office read layer, the shared rules, the
   seeds, and the change-check module. The write path follows the shapes the read path already uses.
 - **Keep the store rebuildable and the demonstration whole at every step.** A drop → migrate → seed → open
@@ -372,18 +540,26 @@ The application's own honesty rule is untouched by this: the seed may author, th
 9. …a buyer taps WhatsApp on a car, the privacy notice is shown before the tap, the recorded row holds the
    page, the car's reference and the time and nothing else, and the office's badge and list show it on
    refresh.
-10. …the owner imports an enquiry PDF, he sees an editable preview and nothing at all is written before he
-    confirms; a row that cannot be read is explained rather than dropped; and the file lands in the asset
-    store under a randomized filename whose reference appears in no public response.
-11. …the owner adds a state, renames it, reorders it and maps it to a section, it is available for every car
-    afterwards; deleting a state a car sits in is refused with the reason shown; and buyers still see only
-    the three section names.
+10. …the owner uploads a file holding ten cars, **ten drafts appear and no car exists** — the next `TS-####`
+    is untouched and the showroom is unchanged; he adds one draft's photos by hand, saves it, and **one**
+    car exists carrying the next `TS-####`, its change-check and its photos, while the other nine drafts are
+    untouched; a draft survives a reload and is still a draft; a draft he never saves consumes no code and
+    is still waiting for him; a row that cannot be read is explained and named rather than dropped; and the
+    uploaded file is held under a randomized filename whose reference appears in no public response. The
+    same holds when the file is an enquiry PDF, and no draft is countable or listed as a record.
+11. …the owner adds a **secondary** state, renames it, reorders it and changes its colour, it is available
+    for every car afterwards; the **four primary states cannot be added to, renamed or deleted at all**;
+    deleting a secondary state a car carries is refused with the reason shown; and buyers still see only the
+    three primary-state names — never one of his own.
 12. …the owner gives an enquiry Sold on the day it arrives, nothing about any car changes, and no screen,
     rule or job objects — nothing anywhere required a state to come first.
 13. …the owner saves a malformed WhatsApp number, the save is blocked inline and the previous number stays
     active; and changing the password leaves no password material in any application table.
-14. …the owner presses export once and gets everything the system holds — every car with its costs, every
-    enquiry, every tap, every activity row and every setting.
+14. …the owner presses export once and gets **one ZIP** holding everything the system holds — every car with
+    its costs and photos, every enquiry, every tap, every activity row and every setting — as `master.json`
+    (the nested master, parts intact) and **one CSV per subject** (not one combined sheet, and not an Excel
+    workbook), plus a `README.txt` naming the contents and the date; and requesting the same export without
+    a session returns nothing.
 15. …the office is opened, its numbers and the showroom's agree; the activity feed lists the owner's own
     actions with what changed and when; the figures refresh when the tab regains focus and no Refresh
     control exists.
@@ -397,6 +573,10 @@ The application's own honesty rule is untouched by this: the seed may author, th
     request that tries to change a car's or an enquiry's identity is refused by the store.
 20. …the store is briefly made unreachable, a store-reading page shows a clear, retryable state rather than
     an error page — and shows no invented figure.
+21. …the owner creates a car, he must give it **one of the four primary states**, may add **as many of his
+    own secondary states as he likes** (or none), cannot invent a fifth primary state, and cannot save a car
+    with no primary state at all; and when he looks at the showroom, the car appears under **Available, On
+    Order or Landed** — never under Sold — while none of his secondary states appears anywhere public.
 
 ---
 
@@ -450,19 +630,68 @@ The application's own honesty rule is untouched by this: the seed may author, th
    bent one: the office-access spec's delay schedule and per-IP window were replaced by the provider's own
    bounded lockout (ten attempts, thirty minutes, self-clearing) plus its per-address rate limits — question
    4, answered. See truths 1 and 2.
+9. **Two meanings of one word, "draft" — found while writing this in.** The earlier text already called a
+   car a "draft" when it has no price or no photo (`tasks.md` 3.4; TASK-001's truth 11; the listing-gate
+   line above), *and* the owner's 2026-10-14 ruling calls an upload's staged row a **draft**. Two rules,
+   one word, same layer — the exact shape that makes a builder implement the wrong one. **Winner: the
+   owner's most recent word.** "Draft" now means **only** the staged row an upload produces (truth 9);
+   the listing gate's meaning is renamed **not yet listed**, and the rule itself is unchanged. The live
+   build list (`tasks.md` 3.4) and this file's listing-gate line were reworded; `openspec/tasks/TASK-001/
+   task.md` is **closed history and was left as written**, and this entry is why its line reads as it does.
+10. **The enquiries spec said nothing persists before a confirm; the owner ruled a draft is stored.**
+    The requirement *Imported PDFs are kept, linked, and deletable* ended "before confirmation nothing
+    persists server-side beyond the parsing scratch state". The owner ruled on 2026-10-14 that an upload
+    **is saved** — "it is saved in neo as draft, not real data". **Winner: the owner** — and this is a
+    changed rule, not a bent one: what persists before a save is now a **draft** (a row in its own
+    holding place), and still never a record. Both requirements were rewritten to state the positive rule —
+    what persists before a save is a draft, never an enquiry — and the superseded wording is gone from the
+    spec. See design D13 and truth 9.
+11. **"Sold is a flag, not a state" — the owner overruled it.** Design **D6** decided `car.sold` was a
+    boolean with the sale price and date, *independent of* `state_id`, and it **explicitly rejected
+    "Sold-as-state"** on the ground that reversal corrupts history. On 2026-10-14 the owner ruled that the
+    car's states are **four fixed primary states — Available, On Order, Landed, Sold** — and that **every car
+    sits under one of them**, so **Sold is a primary state** after all. **Winner: the owner** (design
+    **D15**). What D6 was protecting is kept: the **money facts stay on the sale record** (price, date,
+    profit), so un-marking a sale still reverses cleanly — it moves the car back to a non-Sold primary state
+    and logs it, rather than resurrecting money. D6 is marked revised rather than deleted, and its
+    "Sold-as-state (rejected)" line is now history, not a rule. **The same clash also sat inside this plan:**
+    truth 5 read "Sold is an action, not a state" while truth 17 records that Sold *is* one of the four primary
+    states. The owner settled the direction on 2026-10-14 — *"sold is a state with an action … it is a state
+    first, you set it, then an action occurs"* — and truth 5's heading and body were **corrected, not
+    deleted**, to "Sold is a primary state, and setting it is what performs the sale". Its rule keeps its
+    force: the money stays on the sale row, and un-marking returns the car to its previous primary state with
+    its secondary states intact, logged. `specs/inventory`'s contradicted requirement was rewritten with it.
+
+### Deviation filed during the build (2026-10-16; ruled by the Architect, reconciled into the architecture)
+
+**The conflict:** built, the tap notice counts **only the taps since the office last looked** — which this plan
+and `specs/dashboard` did not say when they were written; the requirement read as a plain count of taps. The
+developer **filed it as a deviation** (`developer-workspace/architecture-deviations/TASK-004-tap-seen-watermark.md`)
+rather than quietly editing the spec to match the code that already existed.
+
+**Winner: the owner's ruling (2026-10-16), written into the architecture — not the code alone.** The notice means
+**new since last looked**: a one-row `tap_seen` watermark holds the `at` of the newest tap the office has
+rendered, the badge counts `tap.at > seen_through`, and **every** tap is new while no mark exists. Viewing the
+full tap list writes the mark by **POST** (so no GET changes anything — truth 3), the count clears, the glyph
+stays so the list keeps its entry point, and a later tap counts as new again. Recorded as design **D21**; truth
+**8** and `specs/dashboard` amended; the full tap list given a home of its own in `specs/enquiries`; `tap_seen`
+named as operational read-state — not customer data, not one of `setting`'s three keys; **both names kept**
+(`getOfficeTapCount` = every row, `getNewOfficeTapCount` = since the mark). **The build was right to file rather
+than edit, and the plan was wrong to leave the notice's meaning unsaid** — that is the plan's miss, recorded here.
 
 ---
 
 ## Evidence this layer must leave behind
 
 - **The flows exercised by hand in a browser, before and after** — creating a car, editing it, changing a
-  cost, marking it sold and un-marking it, deleting it and undoing it, uploading photos, importing the PDF,
-  changing a state, saving a setting, exporting. The owner watches; no screenshots are needed, but the
-  *figures before and after* are worth writing down.
+  cost, marking it sold and un-marking it, deleting it and undoing it, uploading photos, **uploading a
+  template and saving its drafts one by one** (with a draft's images added by hand, and one left unsaved),
+  importing the enquiry PDF, changing a state, saving a setting, exporting. The owner watches; no
+  screenshots are needed, but the *figures before and after* are worth writing down.
 - **The refusals, each with what was asked and what came back:** an office URL with no session; a
   signed-out tab; a state deleted while a car sits in it; a malformed WhatsApp number; a malformed amount in
-  the form; a GET that would have changed data; a request carrying its own `content_hash`; a request trying
-  to change a car's identity.
+  the form; **an uploaded file that is not the expected template**; a GET that would have changed data; a
+  request carrying its own `content_hash`; a request trying to change a car's identity.
 - **The store's state after the flows have run**, so that "the office and the showroom agree" can be
   checked rather than claimed — and that **every row the demonstration created carries the demo marker**.
 - **A dry run of the wipe afterwards**, showing the demonstration and everything this layer's writes left

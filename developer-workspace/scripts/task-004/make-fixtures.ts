@@ -10,7 +10,7 @@
  * filled the same way a reader fills it (pdf-lib setTextField), so what the upload receives is exactly
  * the shape /api/upload reads.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, copyFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PDFDocument } from "pdf-lib";
 
@@ -19,10 +19,12 @@ import { carFields } from "../../../lib/template-rules";
 
 const DIR = join(process.cwd(), "developer-workspace/scripts/task-004/runs/flows/fixtures");
 
-// A 1×1 PNG. Small, valid, in one of the three accepted types.
-const PNG_1X1 = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-  "base64",
+// A real, valid PNG. (A hand-rolled 1×1 base64 PNG is rejected by lib/photos.ts's strict chunk walk
+// — "a chunk runs past the end of the file" — so the fixture is a genuine image that the byte
+// boundary accepts.)
+const PNG_SOURCE = join(
+  process.cwd(),
+  "node_modules/playwright-core/lib/tools/dashboard/appIcon.png",
 );
 
 function valueFor(recipe: string, kind: string, marker: string): string {
@@ -45,10 +47,12 @@ async function main() {
   mkdirSync(DIR, { recursive: true });
 
   const pngPath = join(DIR, "photo.png");
-  writeFileSync(pngPath, PNG_1X1);
+  copyFileSync(PNG_SOURCE, pngPath);
+  const pngBytes = readFileSync(pngPath).length;
 
   const stamp = String(Date.now());
   const brands = Array.from({ length: CARS_IN_TEMPLATE }, (_, i) => `TS-FIX-${stamp}-${i + 1}`);
+  const templateFile = `car-template-${stamp}.pdf`;
 
   const bytes = await carTemplatePdf(CARS_IN_TEMPLATE);
   const doc = await PDFDocument.load(bytes);
@@ -59,7 +63,7 @@ async function main() {
     }
   }
   const saved = await doc.save();
-  const tmplPath = join(DIR, "car-template-filled.pdf");
+  const tmplPath = join(DIR, templateFile);
   writeFileSync(tmplPath, saved);
 
   // Read it back — prove the values survived, the same check the upload will make.
@@ -67,12 +71,12 @@ async function main() {
   const rf = reloaded.getForm();
   const readBack = brands.map((_, i) => rf.getTextField(`brand${i === 0 ? "" : `_${i + 1}`}`).getText());
 
-  console.log(`photo.png                 ${PNG_1X1.length} bytes`);
-  console.log(`car-template-filled.pdf   ${saved.length} bytes · ${CARS_IN_TEMPLATE} cars`);
+  console.log(`photo.png                 ${pngBytes} bytes`);
+  console.log(`car template              ${saved.length} bytes · ${CARS_IN_TEMPLATE} cars · ${templateFile}`);
   console.log(`  brands read back: ${readBack.join(", ")}`);
   writeFileSync(
     join(DIR, "fixtures.json"),
-    JSON.stringify({ stamp, brands, carsInTemplate: CARS_IN_TEMPLATE }, null, 2),
+    JSON.stringify({ stamp, brands, carsInTemplate: CARS_IN_TEMPLATE, templateFile }, null, 2),
   );
 }
 

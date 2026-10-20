@@ -1,0 +1,25 @@
+  PASS  signed in — a real office shell, not the door
+  PASS  the notice (its glyph) is in the phone topbar — always present — {"href":"/office/enquiries?tab=taps","label":"2 new WhatsApp taps","count":2,"glyph":true,"circleText":"2","circleBg":"rgb(200, 162, 74)","circleColour":"rgb(26, 20, 5)","circleRing":"rgb(33, 37, 41)"}
+  PASS  named for new taps when there are any, else just "WhatsApp taps" — 2 new WhatsApp taps
+  PASS  and in the desktop sidebar footer (its second home) — {"href":"/office/enquiries?tab=taps","label":"2 new WhatsApp taps","count":2,"glyph":true,"circleText":"2","circleBg":"rgb(200, 162, 74)","circleColour":"rgb(26, 20, 5)","circleRing":"rgb(33, 37, 41)"}
+  PASS  it is the last icon in the topbar (top-right corner) — true
+  PASS  and the last thing in the account row (grouped with the account) — true
+  PASS  it opens the taps tab — ["/office/enquiries?tab=taps","/office/enquiries?tab=taps"]
+  PASS  it carries the WhatsApp glyph, not a bell — true
+  PASS  the circle is the app's gold (fill rgb(200, 162, 74)), with the --dk ring — ["rgb(200, 162, 74)","rgb(33, 37, 41)"]
+  PASS  the circle appears only when there is a new count, and shows it (or its 99+ cap) — {"count":2,"circle":"2"}
+  PASS  the dashboard panel's link reads "All taps" and opens the taps tab — [{"text":"Full log","href":"/office/activity"},{"text":"All taps","href":"/office/enquiries?tab=taps"}]
+  PASS  no manual Refresh control on the dashboard — 0
+  PASS  focusing the dashboard re-fetches the route (an RSC request) — true
+  PASS  and it is a refresh, not a reload — the page's own state survived — kept
+  PASS  the tab was visible when the refresh fired (the visibility gate) — visible
+  PASS  the Enquiries page carries a tab row: Enquiries, Taps — ["Enquiries","Taps"]
+  PASS  with Taps selected (aria-current) and Enquiries plain — [{"text":"Enquiries","href":"/office/enquiries","current":null},{"text":"Taps","href":"/office/enquiries?tab=taps","current":"page"}]
+  PASS  one h1, "Enquiries", for the page — Enquiries
+  PASS  the board is not drawn on the Taps tab — false
+  PASS  the Taps tab lists the tap record — ["Tap on 2021 Camry XSE V62 hr","Tap on 2021 Camry XSE V62 hr"]
+  PASS  viewing the Taps tab clears the badge — the number goes, only the glyph remains — {"cleared":true,"label":"WhatsApp taps","circle":null}
+  PASS  the default Enquiries tab shows the board — {"links":[{"text":"Enquiries","current":"page"},{"text":"Taps","current":null}],"board":true,"taplist":false}
+  PASS  with Enquiries selected (aria-current) — [{"text":"Enquiries","current":"page"},{"text":"Taps","current":null}]
+  PASS  no Chrome was launched (6 → 6)
+TAP-NOTICE CHECK PASSED

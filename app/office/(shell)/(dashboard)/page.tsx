@@ -5,13 +5,14 @@ import { formatNaira, nairaDigits } from "@/lib/money";
 import { requireOfficeSession } from "@/lib/session";
 import { categoryLabel, categoryOf, operator, toActivityEntries, wordOf } from "@/lib/activity-feed";
 import { shortAge, weekdayDay } from "@/lib/office-time";
+import { FocusRefresh } from "@/components/office/FocusRefresh";
 
 // The figures come from the store, so this page renders per request — never from a build-time
 // snapshot of it.
 export const dynamic = "force-dynamic";
 
 /** How many rows a feed panel draws. A feed is "recent" by nature; the log page reads the whole
- *  bounded feed, and the taps panel's full list is the office's to come (Task 19). */
+ *  bounded feed, and the taps panel links on to the full list on the Enquiries page's Taps tab. */
 const RECENT = 5;
 
 // Dashboard — built to the reference runtime model.
@@ -32,6 +33,7 @@ export default async function DashboardPage() {
 
   return (
     <>
+      <FocusRefresh />
       <div className="hrow">
         <div>
           <h1>Dashboard</h1>
@@ -164,7 +166,7 @@ export default async function DashboardPage() {
         <section className="panel" aria-label="Recent WhatsApp taps">
           <div className="ph2">
             <h2>Recent WhatsApp taps</h2>
-            <Link href="/office/enquiries">All enquiries</Link>
+            <Link href="/office/enquiries?tab=taps">All taps</Link>
           </div>
           {taps.length === 0 ? (
             <div className="feed-empty">

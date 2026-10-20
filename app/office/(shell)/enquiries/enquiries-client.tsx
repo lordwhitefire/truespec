@@ -4,10 +4,13 @@ import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { setEnquiryState } from "@/app/office/actions/enquiry";
 import { Dialog } from "@/components/office/Dialog";
-import { CreateFromFile } from "@/components/office/CreateFromFile";
 import type { EditResult } from "@/lib/edit-result";
 
 /* Enquiries board — the store's rows, grouped by the store's states.
+
+   This is the **Enquiries panel** only. The page's header (the `h1`, the explainer and the import
+   control) and the Enquiries/Taps tab row live on the server page (`page.tsx`), above it, so the tab
+   row is shared and the panel is chosen on the server.
 
    Two things the reference did that this does not. It drew the board from a hardcoded seed; the
    board now reads `enquiry` and `enquiry_state` (truth 15). And it let a card be dragged between
@@ -123,25 +126,6 @@ export function Enquiries({
 
   return (
     <>
-      <div className="hrow">
-        <div>
-          <h1>Enquiries</h1>
-          <p className="sub2">
-            The site only records that a WhatsApp tap happened, and on which car. You
-            bring the names and numbers back here by importing the enquiry sheet.
-          </p>
-        </div>
-        {/* Where the sheet comes in (task.md §Q2). Its rows become **drafts**, not enquiries —
-            nothing lands on this board until the owner saves them at Drafts. */}
-        <div className="hbtns">
-          <a className="btn gh" href="/api/enquiry-template">
-            <i className="fa-solid fa-file-arrow-down" aria-hidden="true" />
-            Enquiry template
-          </a>
-          <CreateFromFile hint="Import a filled enquiry template or the sales desk's sheet — its rows become drafts." />
-        </div>
-      </div>
-
       {states.length === 0 ? (
         <p className="note">
           <i className="fa-solid fa-circle-info" />

@@ -77,6 +77,27 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 /* ============ NOTE PILL ============ */
 .note{margin-top:16px;font-size:12.5px;color:var(--mute);display:flex;gap:9px;align-items:flex-start;max-width:720px}
 .note i{color:var(--gold);margin-top:2px}
+/* ============ ENQUIRIES / TAPS TABS ============ */
+/* The tab row lives here, not in globals.css: globals is not loaded in the office area (each office
+   page carries its own sheet), so this page styles its own row. Links, not role="tab" — changing the
+   panel is a navigation, so the selected one carries aria-current and the `.on` look. */
+.etabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:18px 0 22px;flex-wrap:wrap}
+.etab{padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--mute);border-bottom:3px solid transparent;text-decoration:none;transition:color .15s,border-color .15s}
+.etab:hover{color:var(--ink)}
+.etab.on{color:var(--ink);border-bottom-color:var(--gold)}
+/* the Taps panel — the full tap record, the same row the dashboard panel draws (its copy is in
+   office.css, which this page does not load). */
+.taplist{background:var(--lt);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.wt{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--line);align-items:center}
+.wt:last-child{border-bottom:0}
+.wti{width:36px;height:36px;border-radius:50%;background:var(--wa);color:#06220f;display:grid;place-items:center;font-size:15px;flex:none}
+.wt p{font-size:13.5px}
+.wt p a{text-decoration:underline;text-underline-offset:2px}
+.wt p a:hover{color:var(--gold)}
+.wt time{margin-left:auto;font-size:11.5px;color:var(--mute);flex:none}
+.taps-empty{text-align:center;padding:30px 20px;color:var(--mute)}
+.taps-empty i{font-size:24px;color:var(--gold);display:block;margin-bottom:10px}
+.taps-empty p{max-width:340px;margin:0 auto;font-size:13.5px}
 /* ============ MODALS ============ */
 .ovl{position:fixed;inset:0;z-index:60;background:rgba(10,11,13,.62);display:grid;place-items:center;padding:20px}
 .mdl{background:var(--bg);color:var(--ink);max-width:520px;width:100%;border-radius:10px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.5);max-height:88vh;overflow-y:auto}
@@ -122,3 +143,4 @@ textarea.in{height:auto;min-height:70px;padding:9px 12px;resize:vertical}
 dialog.ovl{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0}
 dialog.ovl:not([open]){display:none}
 dialog.ovl::backdrop{background:transparent}
+

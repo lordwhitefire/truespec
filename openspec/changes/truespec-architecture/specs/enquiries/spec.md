@@ -1,6 +1,6 @@
 ## Purpose
 
-Tracking customer conversations: recording WhatsApp taps with no customer PII, importing enquiry details from a manually prepared PDF through a preview-and-confirm flow, and letting the owner track each enquiry by giving it a state (seeded New, Talking, Negotiating, Sold, Lost — his to add to, rename and reorder) under clear retention rules. An enquiry is the customer's asking, held in their own words and apart from the car records they may name.
+Tracking customer conversations: recording WhatsApp taps with no customer PII, importing enquiry details from a manually prepared PDF through a flow that lands them as **drafts** the owner saves one by one, and letting the owner track each enquiry by giving it a state (seeded New, Talking, Negotiating, Sold, Lost — his to add to, rename and reorder) under clear retention rules. An enquiry is the customer's asking, held in their own words and apart from the car records they may name.
 
 ## ADDED Requirements
 
@@ -29,16 +29,27 @@ The WhatsApp entry page SHALL carry a plain-language privacy notice — what is 
 - **WHEN** a visitor opens the WhatsApp page
 - **THEN** the retention and collection notice is visible before they press the tap button
 
-### Requirement: PDF import with preview and explicit confirmation
-The system SHALL accept a PDF prepared externally from a fixed template, parse it into a preview table, let the owner correct every row, and save nothing until the owner confirms. Rejections SHALL be explained rather than dropped silently.
+### Requirement: The full tap list has a home
+The office SHALL offer the complete list of taps — every recorded row — as a view of its own beside the enquiries board, and the dashboard's recent-taps panel SHALL link to it. A panel MAY draw a bounded recent slice; the list the owner opens MUST NOT be quietly short.
 
-#### Scenario: Owner reviews an import
-- **WHEN** the owner uploads an enquiry PDF
-- **THEN** a preview table shows every parsed row, editable, with nothing saved until confirm is pressed
+#### Scenario: The owner opens all taps
+- **WHEN** the owner opens the full tap list
+- **THEN** every recorded tap is shown, and opening it marks them seen for the badge (design D21) without the panel's own bounded read changing
 
-#### Scenario: A row cannot be parsed
-- **WHEN** part of the PDF fails to parse
-- **THEN** the owner is told what was rejected and why, and can correct or exclude it before confirming
+### Requirement: An uploaded enquiry file becomes drafts, never records
+The system SHALL accept a PDF prepared externally from a fixed template, read the enquiry rows it carries, and write each row into a **draft** in a holding place of its own — one draft per row, and never an enquiry. The file SHALL carry the enquiry's **editable fields and nothing else** — name, number, what they asked for, note, and the state — and nothing beyond them SHALL be read, inferred or filled in. The owner SHALL be able to correct any draft and save it on its own: a save is what creates the enquiry, and the enquiry's own rules (its required "what they asked for", its state) are enforced **at that save**, not at upload, because a draft is allowed to be incomplete. Until it is saved a draft SHALL carry no enquiry's key and no change-check, SHALL sit in no state and occupy none — so a waiting draft never blocks a state's deletion, though it MAY hold the state its file named, applied at that save — SHALL not be countable or listed as an enquiry, and SHALL be readable only as a draft. A row that cannot be read SHALL be explained and named, never silently dropped.
+
+#### Scenario: Owner uploads a file
+- **WHEN** the owner uploads an enquiry PDF holding ten rows
+- **THEN** ten drafts exist and no enquiry exists; saving one creates one enquiry, gives it its state and its change-check, and leaves the other nine drafts untouched
+
+#### Scenario: Drafts wait for the owner
+- **WHEN** the owner leaves the office with drafts unsaved
+- **THEN** the drafts are still there when he returns, still drafts, and nothing about them has become an enquiry
+
+#### Scenario: A row cannot be read
+- **WHEN** part of the PDF cannot be read
+- **THEN** the owner is told what was rejected and why, and can correct or exclude it before saving
 
 ### Requirement: Enquiry states as an editable registry
 Every enquiry SHALL carry exactly one state — seeded New, Talking, Negotiating, Sold, Lost — as an owner-editable registry like car states: add, rename, reorder allowed; deletion blocked while any enquiry sits in the state. A state's occupied-ness, not the label, is what blocks deletion. **A state is a label for tracking, not a stage in a flow:** the states carry no order that anything enforces or implies, an enquiry may be given any state at any time, and no rule SHALL require one state to precede another.
@@ -56,11 +67,11 @@ Every enquiry SHALL carry exactly one state — seeded New, Talking, Negotiating
 - **THEN** the deletion is blocked with a count of the enquiries in it
 
 ### Requirement: An enquiry's state never changes a car
-An enquiry state SHALL NOT change any car's state, sold flag, or showroom presence — car tracking and customer tracking are separate decisions the owner makes separately.
+An enquiry state SHALL NOT change any car's state or showroom presence — car tracking and customer tracking are separate decisions the owner makes separately.
 
 #### Scenario: Enquiry reaches Sold
 - **WHEN** the owner gives an enquiry the state Sold
-- **THEN** no car's state, sold flag, or showroom presence changes, and marking a car sold stays a separate action the owner takes himself
+- **THEN** no car's state or showroom presence changes, and marking a car sold stays a separate action the owner takes himself
 
 ### Requirement: Retention schedule for customer data
 Customer data SHALL follow a retention schedule measured from **the date the enquiry was recorded** (keyed in or imported), not from any later contact: every enquiry becomes due for the owner's decision 12 months after it was recorded — the system SHALL NOT need a flag to tell an open enquiry from a closed one, because the state the owner gave it is what tells him, and the action is the same either way. The system SHALL notify the owner when an enquiry becomes due and SHALL NOT delete or anonymise customer data on its own — deletion is the owner's action, taken from that notice or at any time. Buyer records are kept 6 years after sale (accounting period). Deletion of a customer SHALL remove the customer's data — the enquiry row and its imported PDF — leave the tap rows intact (they carry no PII), leave the car record untouched, and log the deletion in activity.
@@ -81,8 +92,8 @@ Customer names, numbers, and notes SHALL be visible only inside the authenticate
 - **THEN** no name, number, or note appears anywhere outside the authenticated office
 
 ### Requirement: Imported PDFs are kept, linked, and deletable
-A confirmed import's PDF SHALL be kept in private storage, linked to the import, and deletable by the owner; before confirmation nothing persists server-side beyond the parsing scratch state.
+An uploaded enquiry PDF SHALL be held in private storage from the moment it is uploaded — the file a draft came from is not discarded while its drafts are still waiting — and once its drafts are saved it is linked to the enquiries it produced and deletable by the owner. The original filename and the asset reference SHALL live only in the database, and a reference SHALL never appear in a public payload. What persists before a save SHALL be a draft and never an enquiry: no enquiry exists, and none is counted, until the owner saves one.
 
 #### Scenario: Owner deletes an imported PDF
-- **WHEN** the owner deletes the stored PDF of a confirmed import
+- **WHEN** the owner deletes the stored PDF of a saved import
 - **THEN** the imported enquiry rows remain, the file is removed, and the deletion is logged

@@ -3,8 +3,12 @@
 // The office shows figures. Every one of them must be the shared rule's output over
 // the one car table. Two independent paths are compared, figure by figure:
 //
-//   RENDERED — the live office pages on :3210 (/office and /office/inventory), read
-//              out of the HTML: what the owner actually sees.
+//   RENDERED — the live office pages on :3210 (/office and /office/inventory), read out of the
+//              signed-in browser tab (attach-only Chrome on CDP :9222) via
+//              `developer-workspace/scripts/task-004/_office-browser.mjs`: what the owner sees.
+//              The office is behind the Clerk door and its session cookie lives only in the
+//              browser, so this side MUST be read through the browser — a server-side fetch only
+//              ever sees the sign-in page.
 //   STORE    — `car` + `cost_line` + `sale` + `car_state` read directly here, with the
 //              shared rules (lib/counts.ts, lib/money.ts, lib/overview.ts). It does
 //              NOT go through lib/office.ts, so a mistake in the office read layer
@@ -16,7 +20,7 @@
 // for context and are never compared: in TASK-003 both the office's table and the data
 // changed, so comparing across them would compare two different datasets, not a rule.
 //
-// Run (needs the office server, per the standing rule on :3210):
+// Run (needs the office server on :3210 AND the signed-in Chrome on CDP :9222, per the standing rule):
 //   node --env-file=.env.local --conditions=react-server --import tsx scripts/reconcile.ts
 //
 // `--conditions=react-server` lets this plain server-side script import lib/db.ts;
@@ -33,15 +37,31 @@ import { sectionOfState, type Section } from "../lib/sections";
 
 loadEnv({ path: ".env.local" });
 
-const BASE = process.env.LEAK_BASE_URL ?? "http://localhost:3210";
+// The host must match the host the owner signed in on (cookies are host-scoped): the signed-in
+// Chrome tabs are on 127.0.0.1:3210, not localhost.
+const BASE = process.env.LEAK_BASE_URL ?? "http://127.0.0.1:3210";
 const HISTORICAL = "developer-workspace/scripts/office-data/ref-dashboard.txt";
 
 // --- the rendered office ----------------------------------------------------
+//
+// The office is behind the Clerk door and the session cookie lives ONLY in the browser, so a
+// server-side `fetch` reads the sign-in page — not the office — and every figure comes back "?".
+// The office side is therefore read through the standing browser procedure: the harness
+// `developer-workspace/scripts/task-004/_office-browser.mjs` attaches to the Chrome on CDP :9222,
+// reads the signed-in tab and detaches. It is imported by path so this script keeps no
+// compile-time dependency on playwright; `BASE` must match the host the owner signed in on
+// (cookies are host-scoped).
+const OFFICE_HARNESS = "../developer-workspace/scripts/task-004/_office-browser.mjs";
 
-async function html(path: string): Promise<string> {
-  const res = await fetch(BASE + path, { signal: AbortSignal.timeout(30000) });
-  if (!res.ok) throw new Error(`${path} answered ${res.status} — is the office server up on ${BASE}?`);
-  return res.text();
+async function readOffice(paths: string[]): Promise<Record<string, string>> {
+  const mod = (await import(OFFICE_HARNESS)) as {
+    readOfficePages: (
+      paths: string[],
+      opts?: { base?: string },
+    ) => Promise<{ html: Record<string, string> }>;
+  };
+  const { html } = await mod.readOfficePages(paths, { base: BASE });
+  return html;
 }
 
 // Tags out, entities in: the office's own words, with the markup removed.
@@ -196,7 +216,8 @@ function renderedCostLabels(invHtml: string): Map<string, string> {
 // --- run --------------------------------------------------------------------
 
 async function main() {
-  const [dashHtml, invHtml, cars] = await Promise.all([html("/office"), html("/office/inventory"), storeCars()]);
+  const office = await readOffice(["/office", "/office/inventory"]);
+  const [dashHtml, invHtml, cars] = [office["/office"], office["/office/inventory"], await storeCars()];
 
   const dash = textOf(dashHtml);
   const overviewCars = cars.map(toOverview);

@@ -40,11 +40,15 @@ The dashboard SHALL refresh on window/tab focus rather than offering a manual Re
 - **THEN** the figures refresh automatically, and no Refresh button exists
 
 ### Requirement: Tap notification is a badge only
-Recent WhatsApp taps SHALL be surfaced by a count badge and the recent-taps list — no separate alert, popup, or sound.
+Recent WhatsApp taps SHALL be surfaced by a count badge and the recent-taps list — no separate alert, popup, or sound. The badge's figure is **the taps since the office last looked**, not an all-time total: opening the full tap list marks them seen and the figure clears, while the tap glyph itself stays so the list keeps a permanent entry point. The seen-mark SHALL be written by a POST (no GET changes data), SHALL be resolved by the store against a tap row it actually holds, and SHALL only ever move forward.
 
 #### Scenario: New tap arrives while the dashboard is open
 - **WHEN** a buyer taps WhatsApp somewhere on the showroom
 - **THEN** the badge/list reflects it on refresh, with no additional alert raised
+
+#### Scenario: The owner looks, and the figure clears
+- **WHEN** the owner opens the full tap list
+- **THEN** those taps are marked seen, the figure clears with the glyph left in place, and a tap arriving afterwards counts as new again
 
 ### Requirement: Recent activity feed
 The dashboard SHALL show a recent-activity feed of the owner's own actions (cars added, states changed, sales, deletions, imports) with subject and time.

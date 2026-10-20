@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TapNotice } from "./TapNotice";
 
 // The office topbar (mobile shell). Which icon it carries depends on the route:
 //   /office/settings → dashboard
@@ -9,7 +10,12 @@ import { usePathname } from "next/navigation";
 //
 // The dead search placeholder is gone (Task 18): search lives where it filters — the keyword
 // fields on Inventory and Activity, not a control here that did nothing.
-export function OfficeTopbar() {
+//
+// The WhatsApp tap notice is the **last** icon on **every** office route (Designer ruling 2):
+// the top-right corner is where a notification icon belongs, and a notice that showed on only some
+// screens would not be one. It is drawn here and, for desktop, in the sidebar footer — CSS reveals
+// exactly the one that fits the width, from the one server-read count.
+export function OfficeTopbar({ tapCount = 0 }: { tapCount?: number }) {
   const pathname = usePathname();
 
   return (
@@ -28,6 +34,7 @@ export function OfficeTopbar() {
           <i className="fa-solid fa-gear" />
         </Link>
       )}
+      <TapNotice className="ico" count={tapCount} />
     </header>
   );
 }
