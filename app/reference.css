@@ -384,7 +384,7 @@ html[data-ts-offline] .nav { top: 38px; }
 .sv .sh { background: none; border: 1px solid var(--line); color: var(--ink); height: 32px; padding: 0 14px; border-radius: 99px; font-size: 12px; cursor: pointer; }
 .sv .sh:hover { border-color: var(--gold); }
 .sv .sh i { margin-right: 6px; color: var(--gold); }
-/* inventory paging (owner request, 2026-10-19) — nine cars a page */
+/* inventory paging (owner request, 2026-10-19) — /inventory nine a page, home twelve */
 .sv .pg { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 38px; }
 .sv .pgb { min-width: 42px; height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 3px; background: none; color: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
 .sv .pgb:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
@@ -392,6 +392,8 @@ html[data-ts-offline] .nav { top: 38px; }
 .sv .pgb:disabled { opacity: .45; cursor: default; }
 .sv .ip #ttl { scroll-margin-top: 80px; }
 .sv .ip #ttl:focus { outline: none; }
+.sv #hinv-h { scroll-margin-top: 80px; }
+.sv #hinv-h:focus { outline: none; }
 /* the inventory grid is 3-up, unlike the home grid (4-up) */
 .sv .ip .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 30px; }
 @media (max-width: 1100px) { .sv .ip .grid { grid-template-columns: repeat(2, 1fr); } }
