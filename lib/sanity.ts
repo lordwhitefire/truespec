@@ -102,7 +102,8 @@ export async function findImageAsset(
 }
 
 /**
- * Put a file in the asset store (an enquiry PDF) and return the id to keep.
+ * Put a file in the asset store (an enquiry PDF, or the daily backup's encrypted archive) and return
+ * the id to keep.
  *
  * The store is private by convention (specs/media): the asset carries a
  * randomised filename and the reference never appears in a public payload, so
@@ -121,13 +122,57 @@ export async function uploadFile(
 }
 
 /**
+ * List the asset store's images and files, with the metadata the office needs to judge them: the
+ * asset id, its kind, the original filename and its size. This is the one read behind both the
+ * cleanup card and the daily backup's retention.
+ */
+export type StoredAsset = {
+  assetId: string;
+  kind: "image" | "file";
+  filename: string | null;
+  size: number | null;
+};
+
+export async function listStoredAssets(): Promise<StoredAsset[]> {
+  const rows = await sanityClient().fetch<
+    { _id: string; _type: string; originalFilename?: string | null; size?: number | null }[]
+  >(
+    `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size}`,
+  );
+  return rows.map((row) => ({
+    assetId: row._id,
+    kind: row._type === "sanity.imageAsset" ? "image" : "file",
+    filename: row.originalFilename ?? null,
+    size: row.size ?? null,
+  }));
+}
+
+/** The file assets only (enquiry PDFs and the daily backups). */
+export async function listFileAssets(): Promise<StoredAsset[]> {
+  const rows = await sanityClient().fetch<
+    { _id: string; originalFilename?: string | null; size?: number | null }[]
+  >(`*[_type == "sanity.fileAsset"]{_id, originalFilename, size}`);
+  return rows.map((row) => ({
+    assetId: row._id,
+    kind: "file" as const,
+    filename: row.originalFilename ?? null,
+    size: row.size ?? null,
+  }));
+}
+
+/**
  * Remove an asset from the store, by the id the store holds.
  *
- * This is the **only** delete in this door. It has two callers, and both are the owner acting
- * himself: the demo wipe (`scripts/demo-wipe.ts`, TASK-003 Task 24, `npm run demo:wipe`) and the
- * owner's own removal of a clear-out car (`removeCarForever`, TASK-004 task 13). No job, rule,
- * request path or seed calls it — nothing is deleted on the owner's behalf
- * (`openspec/tasks/TASK-003/task.md`, truth 10).
+ * This is the **only** delete in this door. Its four callers are:
+ *   - the demonstration wipe (`scripts/demo-wipe.ts`, TASK-003 Task 24, `npm run demo:wipe`);
+ *   - the owner's own removal of a clear-out car (`removeCarForever`, TASK-004 task 13);
+ *   - the owner's delete of an enquiry, when its imported sheet is litter (TASK-006 A);
+ *   - the daily backup's retention, which removes **its own** old backup files and nothing else
+ *     (TASK-006 F).
+ *
+ * No job, rule, request path or seed deletes a client's photo or PDF on the owner's behalf
+ * (`openspec/tasks/TASK-003/task.md`, truth 10). The daily job's only deletion is the exact
+ * `backup-YYYY-MM-DD.json.gz.enc` pattern in its own bucket of files.
  *
  * Deleting the asset *document* is what removes the asset (Sanity's guidance for `@sanity/client`:
  * "Deleting an asset document will also trigger deletion of the actual asset"). Two things Sanity

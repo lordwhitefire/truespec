@@ -50,7 +50,9 @@ export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem"> &
 export function captureFormData(form: FormData): DraftFields {
   const captured: DraftFields = {};
   for (const [name, value] of form.entries()) {
-    if (name === "photo" || typeof value !== "string") continue;
+    // The file input's bytes never enter a draft, and the form-session key must never be restored as
+    // a live identity: a draft survives the page, but the key belongs to one form session only.
+    if (name === "photo" || name === "submissionId" || typeof value !== "string") continue;
     const current = captured[name];
     if (current === undefined) captured[name] = value;
     else if (Array.isArray(current)) current.push(value);

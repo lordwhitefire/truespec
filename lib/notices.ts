@@ -1,10 +1,11 @@
 /**
  * The operational notices, decided in one pure place.
  *
- * `specs/office-settings` (D19): storage-past-threshold and backup status are **read from `setting`
- * rows and only displayed** — the office never computes storage from the image store, and there is no
- * mail channel, so the office is where the owner is told. The rows are written elsewhere (the daily
- * job, TASK-006): `last_backup_at`, `storage_used_bytes`, and `storage_warning_bytes` (default 4 GB).
+ * `specs/office-settings` (D19): the database and asset-store figures and the backup status are **read
+ * from `setting` rows and only displayed** — the office never computes storage from either store, and
+ * there is no mail channel, so the office is where the owner is told. The rows are written elsewhere
+ * (the daily job, TASK-006): `last_backup_at`, `storage_used_bytes`, `storage_warning_bytes`
+ * (default 4 GiB), `database_used_bytes`, and `database_warning_bytes` (default 800 MiB).
  *
  * The rule lives here rather than in the reading module (`lib/settings.ts`, `server-only`) for the
  * same reason `lib/phone.ts` does: a `server-only` module cannot be unit-tested, and this is the part
@@ -19,21 +20,33 @@
 
 import { clock, longDay } from "./office-time";
 
-/** The default storage-warning figure (the spec's "4 GB"). Binary, as storage is counted. */
+/** The default asset-warning figure (the spec's "4 GB"). Binary, as storage is counted. */
 export const DEFAULT_STORAGE_WARNING_BYTES = 4 * 1024 ** 3;
+
+/** The default database-warning figure (the spec's "800 MB"). Neon Free's project limit is 1 GB. */
+export const DEFAULT_DATABASE_WARNING_BYTES = 800 * 1024 ** 2;
 
 /** How long a backup heartbeat may go quiet before the office says so. */
 export const BACKUP_STALE_HOURS = 48;
 
 export type NoticeLevel = "warn" | "info";
-export type NoticeKind = "storage" | "backup";
+export type NoticeKind = "database" | "storage" | "backup";
 export type Notice = { kind: NoticeKind; level: NoticeLevel; title: string; body: string };
+
+/**
+ * A row's number, or the fact that there is no row, or the fact that the row cannot be read. Those
+ * are three different facts; collapsing the third into the first would tell the owner "not reported
+ * yet" about a figure that is present and broken.
+ */
+export type StoredNumber = number | null | "unreadable";
 
 /** What the store holds for the notices. `null` means the row is absent — never zero, never a guess. */
 export type NoticeInput = {
   lastBackupAt: string | null;
-  storageUsedBytes: number | null;
-  storageWarningBytes: number | null;
+  storageUsedBytes: StoredNumber;
+  storageWarningBytes: StoredNumber;
+  databaseUsedBytes: StoredNumber;
+  databaseWarningBytes: StoredNumber;
 };
 
 const HOUR_MS = 3_600_000;
@@ -47,17 +60,42 @@ export function formatBytes(bytes: number): string {
   return `${bytes} B`;
 }
 
-/** The storage notice: past the warning figure, under it, or honestly unreported. */
+function warningFigure(
+  value: StoredNumber,
+  fallback: number,
+): { bytes: number; note: string } {
+  if (value === "unreadable") {
+    return {
+      bytes: fallback,
+      note: ` The stored warning figure could not be read, so the default of ${formatBytes(fallback)} is used.`,
+    };
+  }
+  return { bytes: value ?? fallback, note: "" };
+}
+
+/** The photos-and-files notice: past the warning figure, under it, or honestly unreported. */
 function storageNotice(input: NoticeInput): Notice {
-  const warning = input.storageWarningBytes ?? DEFAULT_STORAGE_WARNING_BYTES;
+  const { bytes: warning, note } = warningFigure(
+    input.storageWarningBytes,
+    DEFAULT_STORAGE_WARNING_BYTES,
+  );
   const used = input.storageUsedBytes;
+
+  if (used === "unreadable") {
+    return {
+      kind: "storage",
+      level: "warn",
+      title: "Photos and files: usage could not be read",
+      body: "The stored asset-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.",
+    };
+  }
 
   if (used === null) {
     return {
       kind: "storage",
       level: "info",
-      title: "Storage",
-      body: "Image storage usage has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.",
+      title: "Photos and files",
+      body: "Photo and file storage usage has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.",
     };
   }
 
@@ -65,16 +103,59 @@ function storageNotice(input: NoticeInput): Notice {
     return {
       kind: "storage",
       level: "warn",
-      title: "Storage is past its warning figure",
-      body: `Image storage is at ${formatBytes(used)} of ${formatBytes(warning)}. Upgrade, or trim photos.`,
+      title: "Photos and files are past their warning figure",
+      body: `Photo and file storage is at ${formatBytes(used)} of ${formatBytes(warning)}. Upgrade, or trim photos.${note}`,
     };
   }
 
   return {
     kind: "storage",
     level: "info",
-    title: "Storage",
-    body: `Image storage is at ${formatBytes(used)} of ${formatBytes(warning)}.`,
+    title: "Photos and files",
+    body: `Photo and file storage is at ${formatBytes(used)} of ${formatBytes(warning)}.${note}`,
+  };
+}
+
+/** The database notice: its own figure, because Neon Free stops writes at 1 GB. */
+function databaseNotice(input: NoticeInput): Notice {
+  const { bytes: warning, note } = warningFigure(
+    input.databaseWarningBytes,
+    DEFAULT_DATABASE_WARNING_BYTES,
+  );
+  const used = input.databaseUsedBytes;
+
+  if (used === "unreadable") {
+    return {
+      kind: "database",
+      level: "warn",
+      title: "Database: usage could not be read",
+      body: "The stored database-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.",
+    };
+  }
+
+  if (used === null) {
+    return {
+      kind: "database",
+      level: "info",
+      title: "Database",
+      body: "Database size has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.",
+    };
+  }
+
+  if (used >= warning) {
+    return {
+      kind: "database",
+      level: "warn",
+      title: "Database is past its warning figure",
+      body: `The database is at ${formatBytes(used)} of ${formatBytes(warning)}. Neon Free stops accepting writes at 1 GB; trim or upgrade.${note}`,
+    };
+  }
+
+  return {
+    kind: "database",
+    level: "info",
+    title: "Database",
+    body: `The database is at ${formatBytes(used)} of ${formatBytes(warning)}.${note}`,
   };
 }
 
@@ -123,7 +204,7 @@ function backupNotice(input: NoticeInput, now: Date): Notice {
   };
 }
 
-/** The notices, in the order the screen shows them: storage, then backup. */
+/** The notices, in the order the screen shows them: database, photos/files, then backup. */
 export function buildNotices(input: NoticeInput, now: Date): Notice[] {
-  return [storageNotice(input), backupNotice(input, now)];
+  return [databaseNotice(input), storageNotice(input), backupNotice(input, now)];
 }

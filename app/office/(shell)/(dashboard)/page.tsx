@@ -156,6 +156,7 @@ export default async function DashboardPage() {
                     )}
                     <span className={`tag ${categoryOf(e.kind) || "other"}`}>{categoryLabel(e.kind)}</span>
                     <time>{shortAge(e.at, now)}</time>
+                    {who.label ? <span className="who">{who.label}</span> : null}
                   </p>
                 </div>
               );

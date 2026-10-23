@@ -11,7 +11,6 @@
 // id is passed in precisely because only the action may know it.
 
 import "server-only";
-import { randomUUID } from "node:crypto";
 import { storeQueryRefusing } from "./store-guard";
 import { readCarInput, type FieldError } from "./car-input";
 import type { DraftFields } from "./device-draft";
@@ -25,6 +24,7 @@ import { enquiryCreateStatement } from "./enquiry-create";
 import {
   carStateById,
   carStateByLabel,
+  countEnquiryDraftsInBatch,
   deleteDraft,
   enquiryStateExists,
   enquiryStateIdByLabel,
@@ -164,7 +164,10 @@ export async function runSaveDraft(
     }
 
     const { text, params } = carCreateStatement({
-      id: randomUUID(),
+      // The draft is the identity. A double save, or a retry after the draft delete failed, lands on
+      // the same car instead of minting a second one; `ON CONFLICT (id) DO NOTHING` in the statement
+      // returns the existing ref.
+      id: draft.id,
       columns: facts.value.columns,
       costs: facts.value.costs,
       secondaryStateIds: facts.value.secondaryStateIds,
@@ -203,13 +206,23 @@ export async function runSaveDraft(
       note: read.seed.note,
       enquiry_state_id: state.id,
     };
+    // One upload's rows share a batch; the first save writes the batch's size into the PDF row.
+    const rowsTotal = await countEnquiryDraftsInBatch(draft.batchId);
     const { text, params } = enquiryCreateStatement({
-      id: randomUUID(),
+      // The draft is the identity. A double save, or a retry after the draft delete failed, resolves
+      // to the same enquiry instead of minting a second one.
+      id: draft.id,
       seed: read.seed,
       stateId: state.id,
       contentHash: enquiryChangeCheck(record),
       hashVersion: CHANGE_CHECK_VERSION,
       actorId,
+      // The imported sheet the draft came from, so the owner's delete can find the file.
+      pdf: {
+        sourceAssetId: draft.sourceAssetId,
+        sourceFilename: draft.sourceFilename,
+        rowsTotal,
+      },
     });
     const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
       field: "draftId",
@@ -226,9 +239,9 @@ export async function runSaveDraft(
   // The draft has become the record: it is no longer waiting. Truth 9 — "saving one draft creates one
   // record and leaves its brother drafts untouched", so only this row goes.
   //
-  // If this last write fails the record already exists, and that changes what must be said: the
-  // message names the exact half-done state and does **not** invite a retry, because saving the same
-  // draft again would make a second record (DR25: never an unverified reassurance, never advice that
+  // If this last write fails the record already exists, and the message names that exact half-done
+  // state. A retry is safe now: the record's id is the draft's own id, so the create resolves to the
+  // same row and the delete runs again (DR25: never an unverified reassurance, never advice that
   // makes things worse).
   try {
     await deleteDraft(draft.id);
@@ -239,7 +252,7 @@ export async function runSaveDraft(
       errors: [
         {
           field: "draftId",
-          message: "The record was made, but the draft could not be cleared — reload before saving it again.",
+          message: "The record was made, but the draft could not be cleared — save it again to clear the draft.",
         },
       ],
     };

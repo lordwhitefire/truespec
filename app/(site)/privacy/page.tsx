@@ -19,7 +19,7 @@ export default async function PrivacyPage() {
         <h1>Privacy notice</h1>
         <p className="upd">
           <i className="fa-regular fa-calendar" />
-          Last updated: 4 October 2026
+          Last updated: 23 October 2026
         </p>
 
         <div className="sumbox">
@@ -118,9 +118,19 @@ export default async function PrivacyPage() {
         <section id="rights">
           <h2>Your rights</h2>
           <p>
-            If you'd like us to delete a WhatsApp enquiry, email a short request to the contact
-            below with enough detail to identify it. Depending on your jurisdiction, you may have
-            other rights; we'll try to help.
+            If you sent us an enquiry and would like it removed, message us on{" "}
+            {digits ? (
+              <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
+                WhatsApp ({num})
+              </a>
+            ) : (
+              "WhatsApp"
+            )}{" "}
+            with enough detail to identify it — for example the car&rsquo;s code, or the number you
+            wrote from. We will remove the enquiry, and its imported sheet when no other enquiry or
+            draft is using it. The tap record — the page, the car&rsquo;s code and the time, and
+            nothing about you — stays. Depending on your jurisdiction, you may have other rights;
+            we&rsquo;ll try to help.
           </p>
         </section>
 

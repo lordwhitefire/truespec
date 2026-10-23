@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import "../car.css";
 import { getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
 import { requireOfficeSession } from "@/lib/session";
@@ -46,5 +47,16 @@ export default async function NewCarPage() {
   await requireOfficeSession();
   const primaries = await getOfficeStates();
   const secondaries = await getOfficeSecondaryStates();
-  return <CarForm mode="add" data={BLANK} primaries={primaries} secondaries={secondaries} />;
+  // The key belongs to this form session: a retry, a double click or a store retry is the same car.
+  // A reload is a new form, so the key is minted here rather than kept in the device draft.
+  const submissionId = randomUUID();
+  return (
+    <CarForm
+      mode="add"
+      data={BLANK}
+      primaries={primaries}
+      secondaries={secondaries}
+      submissionId={submissionId}
+    />
+  );
 }

@@ -4,8 +4,10 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
 import { storeQuery, storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
+import { deleteAsset } from "@/lib/sanity";
 import type { EditResult } from "@/lib/edit-result";
 import { CHANGE_CHECK_VERSION, enquiryChangeCheck } from "@/lib/change-check";
+import { enquiryDeleteStatement } from "@/lib/enquiry-delete";
 import {
   enquiryStateAddStatement,
   enquiryStateHoldersStatement,
@@ -91,6 +93,7 @@ const DUPLICATE_NAME = "Another enquiry state already has that name";
 /** The office pages an enquiry write changes. Public pages never read the owner's states. */
 function revalidateEnquiryPaths(): void {
   revalidatePath("/office/enquiries");
+  revalidatePath("/office/activity");
   revalidatePath("/office/settings");
   revalidatePath("/office");
 }
@@ -351,4 +354,68 @@ export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult
     // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
     return storeRefusal("id", "That enquiry could not be saved", error);
   }
+}
+
+/** What deleting an enquiry reports: the code, and what became of the imported sheet's bytes. */
+export type DeleteEnquiryResult =
+  | {
+      ok: true;
+      ref: string;
+      /** `none` — no sheet; `kept` — still used; `deleted` — litter, bytes gone; `failed` — bytes left. */
+      pdf: "none" | "kept" | "deleted" | "failed";
+      reason?: string;
+    }
+  | Refusal;
+
+/**
+ * Delete an enquiry — the owner's action, behind the confirmation (TASK-006 A).
+ *
+ * The store statement does the data work in one snapshot: the row and its `enquiry.deleted` event,
+ * then the shared sheet only when this was its last enquiry and no waiting draft still names the
+ * asset. It returns the asset id only when the row was removed; the bytes are external, so they are
+ * cleared after and the outcome is reported, never swallowed.
+ *
+ * Taps are page/car counts with no enquiry link, so nothing here touches them. The code names the
+ * event; the customer's details never reach the log.
+ */
+export async function deleteEnquiry(id: string): Promise<DeleteEnquiryResult> {
+  const session = await requireOfficeSession();
+
+  if (typeof id !== "string" || !UUID.test(id)) {
+    return fail("id", "That enquiry could not be identified");
+  }
+
+  const { text, params } = enquiryDeleteStatement({ id, actorId: session.officeUserId });
+  const attempt = await storeQueryRefusing<
+    { ref: string | null; pdf_import_id: string | null; asset_id: string | null }[]
+  >(text, params, {
+    field: "id",
+    action: "That enquiry could not be deleted",
+  });
+  if (!attempt.ok) return attempt;
+
+  const row = attempt.rows[0];
+  // A repeat finds no row: the delete has already happened, so it reports the same thing it would
+  // the first time (D18). The statement wrote no second event.
+  if (!row?.ref) return fail("id", "That enquiry is no longer in the office");
+
+  let pdf: "none" | "kept" | "deleted" | "failed" = "none";
+  let reason: string | undefined;
+  if (row.pdf_import_id !== null) {
+    if (row.asset_id !== null) {
+      const removed = await deleteAsset(row.asset_id);
+      if (removed.deleted) {
+        pdf = "deleted";
+      } else {
+        pdf = "failed";
+        reason = removed.reason;
+      }
+    } else {
+      // Another enquiry or a waiting draft still uses the file. Leaving the bytes is the rule.
+      pdf = "kept";
+    }
+  }
+
+  revalidateEnquiryPaths();
+  return { ok: true, ref: row.ref, pdf, reason };
 }

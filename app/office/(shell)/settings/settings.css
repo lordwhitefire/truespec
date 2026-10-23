@@ -204,6 +204,18 @@ h1{font-size:clamp(24px,3vw,32px);font-weight:700}
 .notice span{display:block;font-size:12.5px;color:var(--mute);margin-top:2px}
 .notice.warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 7%,var(--bg))}
 .notice.warn i{color:var(--warn)}
+.cleanup{display:grid;gap:18px;margin-top:16px}
+.cleanup-group{border-top:1px solid var(--line);padding-top:14px}
+.cleanup-group:first-child{border-top:0;padding-top:0}
+.cleanup-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cleanup-head h3{font-size:13px;font-weight:600;margin:0}
+.cleanup-count{min-width:22px;height:20px;padding:0 7px;border-radius:999px;background:var(--lt);border:1px solid var(--line);display:inline-grid;place-items:center;font-size:11px;font-weight:600;color:var(--mute)}
+.cleanup-list{display:grid;gap:7px}
+.cleanup-row{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--mute);line-height:1.45}
+.cleanup-row b{color:var(--ink);font-weight:600;flex:0 1 auto;min-width:0;max-width:100%;overflow-wrap:anywhere}
+.cleanup-row span{min-width:0;overflow-wrap:anywhere}
+.cleanup-empty{margin:0;font-size:12.5px;color:var(--mute)}
+.cleanup-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 4px;overflow-wrap:anywhere}
 /* the delegated-password card's button sits in the same row shape as every other card's */
 #pChange{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 

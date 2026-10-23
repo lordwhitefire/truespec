@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { setEnquiryState } from "@/app/office/actions/enquiry";
+import { useRouter } from "next/navigation";
+import { deleteEnquiry, setEnquiryState } from "@/app/office/actions/enquiry";
 import { Dialog } from "@/components/office/Dialog";
 import type { EditResult } from "@/lib/edit-result";
 
@@ -71,11 +72,13 @@ export function Enquiries({
   enquiries: BoardEnquiry[];
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [overlay, setOverlay] = useState<null | "detail">(null);
+  const [overlay, setOverlay] = useState<null | "detail" | "delete">(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => setMounted(true), []);
 
@@ -98,7 +101,51 @@ export function Enquiries({
   function openDetail(id: string) {
     setOpenId(id);
     setError(null);
+    setDeleteError(null);
     setOverlay("detail");
+  }
+
+  function openDelete() {
+    setDeleteError(null);
+    setOverlay("delete");
+  }
+
+  function confirmDelete() {
+    if (!cur) {
+      setOverlay(null);
+      return;
+    }
+    const target = cur;
+    setDeleteError(null);
+    start(async () => {
+      let result: Awaited<ReturnType<typeof deleteEnquiry>>;
+      try {
+        result = await deleteEnquiry(target.id);
+      } catch {
+        setDeleteError("The store could not be reached — try that again");
+        return;
+      }
+      if (!result.ok) {
+        setDeleteError(result.errors[0]?.message ?? "The store refused that change");
+        return;
+      }
+
+      const base = `${result.ref} deleted.`;
+      setMsg(
+        result.pdf === "kept"
+          ? `${base} Its imported sheet stays because another enquiry or a waiting draft still uses it.`
+          : result.pdf === "deleted"
+            ? `${base} Its imported sheet was removed too.`
+            : result.pdf === "failed"
+              ? `${base} Its imported sheet could not be removed${result.reason ? ` — ${result.reason}` : ""}.`
+              : base,
+      );
+      setOpenId(null);
+      setOverlay(null);
+      // The action already revalidates the board; this makes the card leave at once rather than
+      // waiting for the next navigation.
+      router.refresh();
+    });
   }
 
   function give(enquiry: BoardEnquiry, state: BoardState) {
@@ -212,7 +259,7 @@ export function Enquiries({
         ? createPortal(
             <>
               <Dialog
-                open={overlay === "detail"}
+                open={overlay === "detail" || overlay === "delete"}
                 onClose={() => setOverlay(null)}
                 id="ovlD"
                 labelledBy="dtitle"
@@ -353,6 +400,71 @@ export function Enquiries({
                       <i className="fa-solid fa-pen" />
                       Edit
                     </a>
+                    <button
+                      className="call danger"
+                      id="dDelete"
+                      type="button"
+                      disabled={pending || !cur}
+                      onClick={openDelete}
+                    >
+                      <i className="fa-solid fa-trash" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </Dialog>
+
+              <Dialog
+                open={overlay === "delete"}
+                onClose={() => setOverlay("detail")}
+                id="ovlDelete"
+                labelledBy="dtitle-delete"
+              >
+                <div className="mdl">
+                  <button
+                    className="mx"
+                    type="button"
+                    aria-label="Close"
+                    onClick={() => setOverlay("detail")}
+                  >
+                    ×
+                  </button>
+                  <h2 id="dtitle-delete">Delete {cur?.ref ?? "this enquiry"}?</h2>
+                  <p className="ms">
+                    This removes the enquiry — the customer&apos;s name, number and what they asked
+                    for. It cannot be undone.
+                  </p>
+                  <p className="ms">
+                    Its taps stay: they are page counts, not this enquiry. Its imported sheet stays
+                    while another enquiry or a waiting draft still uses it; when this was its last
+                    use, the sheet is deleted too.
+                  </p>
+                  {deleteError ? (
+                    <p className="err on" role="alert">
+                      <i className="fa-solid fa-circle-exclamation" />
+                      {deleteError}
+                    </p>
+                  ) : null}
+                  <div className="mrow">
+                    <button
+                      className="call"
+                      type="button"
+                      id="dCancelDelete"
+                      onClick={() => setOverlay("detail")}
+                      disabled={pending}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="call danger"
+                      type="button"
+                      id="dConfirmDelete"
+                      onClick={confirmDelete}
+                      disabled={pending}
+                    >
+                      <i className="fa-solid fa-trash" />
+                      {pending ? "Deleting…" : "Delete enquiry"}
+                    </button>
                   </div>
                 </div>
               </Dialog>

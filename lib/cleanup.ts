@@ -1,6 +1,7 @@
 import "server-only";
 import { storeQuery } from "./store-guard";
 import { sanityClient } from "./sanity";
+import { unreferencedLitter } from "./cleanup-litter";
 
 // Cleanup readiness — what is waiting to be cleared, as it stands.
 //
@@ -34,6 +35,8 @@ export type DeletedCarWaiting = {
 
 export type EnquiryAtItsYear = {
   id: string;
+  /** The `ENQ-####` the office knows it by. The row's UUID is not a name the owner reads. */
+  ref: string;
   name: string | null;
   number: string | null;
   askedFor: string | null;
@@ -59,7 +62,10 @@ export type RowPointingAtAMissingAsset = {
 };
 
 export type MachineLitter = {
-  /** Assets in the store no row references — a half-finished upload, never a record. */
+  /**
+   * Assets in the store no row references — a half-finished upload, never a record. The daily
+   * backup's own retained files are excluded: they match their exact name pattern and are not litter.
+   */
   unreferenced: { assetId: string; kind: string; filename: string | null; bytes: number }[];
   /** Sign-in attempts past 90 days. */
   staleAuthAttempts: number;
@@ -126,12 +132,20 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
 
   // 2. Enquiries at their year. The clock is the row's own created_at.
   const enquiryRows = (await storeQuery(
-    `SELECT id, name, number, asked_for, created_at,
+    `SELECT id, ref, name, number, asked_for, created_at,
             (now()::date - created_at::date) AS age_days
        FROM enquiry
       WHERE created_at <= now() - interval '1 year'
       ORDER BY created_at`,
-  )) as { id: string; name: string | null; number: string | null; asked_for: string | null; created_at: string | Date; age_days: number }[];
+  )) as {
+    id: string;
+    ref: string;
+    name: string | null;
+    number: string | null;
+    asked_for: string | null;
+    created_at: string | Date;
+    age_days: number;
+  }[];
 
   // 3 + 4. Every referencing row, in one pass: the ones that name an asset, and the ones that still
   // hold a stranger's address.
@@ -193,6 +207,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
     })),
     enquiriesAtTheirYear: enquiryRows.map((r) => ({
       id: r.id,
+      ref: r.ref,
       name: r.name,
       number: r.number,
       askedFor: r.asked_for,
@@ -213,14 +228,17 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
       assetId: r.asset_id,
     })),
     machineLitter: {
-      unreferenced: assets
-        .filter((a) => !referenced.has(a._id))
-        .map((a) => ({
+      // A retained backup is the job's own file, not litter. The exact pattern is excluded here;
+      // without it every backup older than the newest seven would sit in the owner's cleanup list.
+      unreferenced: unreferencedLitter(
+        assets.map((a) => ({
           assetId: a._id,
           kind: a._type,
           filename: a.originalFilename,
           bytes: a.size ?? 0,
         })),
+        referenced,
+      ),
       staleAuthAttempts: authRows[0]?.stale ?? 0,
     },
     assetStore: {

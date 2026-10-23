@@ -154,6 +154,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
                           {categoryLabel(e.kind)}
                         </span>
                         <time>{e.clock}</time>
+                        {who.label ? <span className="who">{who.label}</span> : null}
                       </p>
                     </div>
                   );

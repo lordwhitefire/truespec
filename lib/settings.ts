@@ -3,7 +3,7 @@ import "server-only";
 import { storeQuery, storeQueryRefusing } from "./store-guard";
 import { normaliseNigerianMobile } from "./phone";
 import { parseCostAmount } from "./money";
-import type { NoticeInput } from "./notices";
+import type { NoticeInput, StoredNumber } from "./notices";
 
 /**
  * The settings that exist, and the only door to the `setting` table (truth 12; `specs/office-settings`).
@@ -40,14 +40,24 @@ export type SettingKey = (typeof SETTING_KEYS)[number];
  * operational notices the office displays rather than mails.
  *
  * This is the contract with TASK-006, and it is written down here because this is the reading end:
- *   - `last_backup_at`       — an ISO 8601 instant, the job's heartbeat after a backup.
- *   - `storage_used_bytes`   — whole bytes the image store holds, as the job measured it.
+ *   - `last_backup_at`        — an ISO 8601 instant, the job's heartbeat after a backup.
+ *   - `storage_used_bytes`    — whole bytes the image and file store holds, as the job measured it.
  *   - `storage_warning_bytes` — whole bytes; the figure `storage_used_bytes` is measured against.
- *                                Absent, `lib/notices.ts` falls back to the spec's 4 GB.
+ *                                 Absent, `lib/notices.ts` falls back to the spec's 4 GiB.
+ *   - `database_used_bytes`   — whole bytes `pg_database_size` reported.
+ *   - `database_warning_bytes` — whole bytes; the database line's own warning figure.
+ *                                 Absent, `lib/notices.ts` falls back to 800 MB.
  * Nothing here is ever computed live from the image store, and no row is invented: a key with no row
- * reads as `null`, which the notices say out loud rather than papering over.
+ * reads as `null`, which the notices say out loud rather than papering over. A row that is present but
+ * not a number reads as `"unreadable"` (see `lib/notices.ts`), never as absent and never as zero.
  */
-export const NOTICE_KEYS = ["last_backup_at", "storage_used_bytes", "storage_warning_bytes"] as const;
+export const NOTICE_KEYS = [
+  "last_backup_at",
+  "storage_used_bytes",
+  "storage_warning_bytes",
+  "database_used_bytes",
+  "database_warning_bytes",
+] as const;
 
 /** The screen's name for a setting, and the key it is stored under. */
 const KEY_FOR_FIELD = {
@@ -98,11 +108,12 @@ export async function readNotices(): Promise<NoticeInput> {
   );
   const byKey = new Map(rows.map((row) => [row.key, row.value]));
 
-  const number = (key: (typeof NOTICE_KEYS)[number]): number | null => {
+  const number = (key: (typeof NOTICE_KEYS)[number]): StoredNumber => {
     const raw = byKey.get(key);
     if (raw === undefined) return null;
+    if (raw.trim() === "") return "unreadable";
     const n = Number(raw);
-    return Number.isFinite(n) ? n : null;
+    return Number.isFinite(n) ? n : "unreadable";
   };
 
   const rawBackup = byKey.get("last_backup_at");
@@ -114,6 +125,8 @@ export async function readNotices(): Promise<NoticeInput> {
     lastBackupAt,
     storageUsedBytes: number("storage_used_bytes"),
     storageWarningBytes: number("storage_warning_bytes"),
+    databaseUsedBytes: number("database_used_bytes"),
+    databaseWarningBytes: number("database_warning_bytes"),
   };
 }
 

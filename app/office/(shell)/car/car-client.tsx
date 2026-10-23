@@ -140,7 +140,14 @@ function applyCarDraftFields(form: HTMLFormElement, data: DraftFields) {
   );
   for (const field of fields) {
     const name = field.name;
-    if (!name || name === "photo" || name === "photos" || name === "stateId" || name === "carId") {
+    if (
+      !name ||
+      name === "photo" ||
+      name === "photos" ||
+      name === "stateId" ||
+      name === "carId" ||
+      name === "submissionId"
+    ) {
       continue;
     }
     const value = data[name];
@@ -372,6 +379,7 @@ export function CarForm({
   data,
   primaries,
   secondaries = [],
+  submissionId,
 }: {
   mode: "edit" | "add" | "draft";
   data: CarFormData;
@@ -379,6 +387,8 @@ export function CarForm({
   primaries: OfficeState[];
   /** The owner's secondary states (office-only tracking) — none or several. */
   secondaries?: OfficeSecondaryState[];
+  /** Add mode only: the key of this form session, minted by the page. Never restored from a draft. */
+  submissionId?: string;
 }) {
   const isEdit = mode === "edit";
   const isDraft = mode === "draft";
@@ -906,6 +916,11 @@ export function CarForm({
       // never stand in for a failure (DR25).
       if (res.ok) {
         clearCarDraft();
+        if (mode === "add") {
+          // Add mode's proof is the destination: the new car's own page, whose address is its ref.
+          router.push(`/office/car/${encodeURIComponent(res.ref)}`);
+          return;
+        }
         showToast(
           res.changed
             ? `Saved <b>${res.ref}</b>. The showroom updates immediately.`
@@ -1516,6 +1531,11 @@ export function CarForm({
                     row's own key — never chosen, never edited. */}
                 {isEdit && data.carId ? (
                   <input type="hidden" name="carId" value={data.carId} />
+                ) : null}
+                {/* Add mode: the key of this form session. It is the car's key, so a retry or a
+                    double click converges on one row; a reload mints a new form session. */}
+                {mode === "add" && submissionId ? (
+                  <input type="hidden" name="submissionId" value={submissionId} />
                 ) : null}
                 {/* Draft mode: the row the two draft buttons write to — never a record id. */}
                 {isDraft && data.draftId ? (

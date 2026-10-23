@@ -59,6 +59,7 @@ export const ACTIONS: Record<string, { word: string; category: string }> = {
   // chips the car's events use, so the log reads as one history rather than two.
   "enquiry.created": { word: "Added an enquiry", category: "add" },
   "enquiry.updated": { word: "Edited an enquiry", category: "edit" },
+  "enquiry.deleted": { word: "Deleted an enquiry", category: "del" },
 };
 
 export const CATEGORIES = [
@@ -92,10 +93,24 @@ export function countOf(entries: readonly ActivityEntry[], k: string): number {
   return entries.filter((e) => k === "all" || categoryOf(e.kind) === k).length;
 }
 
-/** The row's avatar — the operator's own initial, and their email on hover. */
-export function operator(actor: string | null): { initial: string; title: string } {
-  if (!actor) return { initial: "?", title: "An operator whose account has since been removed" };
-  return { initial: actor.slice(0, 1).toUpperCase(), title: actor };
+/**
+ * The row's operator — the initial always, and the email as a visible label as well as the hover
+ * title (Q9). A touch screen has no hover, so the email cannot live only in `title`; a removed
+ * account keeps the plain "?" and no label.
+ */
+export function operator(actor: string | null): {
+  initial: string;
+  title: string;
+  label: string;
+} {
+  if (!actor) {
+    return {
+      initial: "?",
+      title: "An operator whose account has since been removed",
+      label: "",
+    };
+  }
+  return { initial: actor.slice(0, 1).toUpperCase(), title: actor, label: actor };
 }
 
 /**

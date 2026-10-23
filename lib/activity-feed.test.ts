@@ -87,10 +87,15 @@ test("a restoration reads, chips and counts as a restoration — never as a dele
   assert.equal(countOf(events, "all"), 4, "and the total is still every row");
 });
 
-test("the avatar is the operator's own initial, and says so when their account has gone", () => {
-  assert.deepEqual(operator("umar@truespec.example"), { initial: "U", title: "umar@truespec.example" });
+test("the operator's initial and email are both visible; a removed account keeps the plain ?", () => {
+  assert.deepEqual(operator("umar@truespec.example"), {
+    initial: "U",
+    title: "umar@truespec.example",
+    label: "umar@truespec.example",
+  });
   const gone = operator(null);
   assert.equal(gone.initial, "?");
+  assert.equal(gone.label, "");
   assert.match(gone.title, /removed/);
 });
 

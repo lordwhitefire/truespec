@@ -90,6 +90,22 @@ export async function getDraft(id: string): Promise<DraftRow | null> {
   return rows.length > 0 ? toDraft(rows[0]) : null;
 }
 
+/**
+ * How many enquiry drafts the upload produced, as the save sees them now.
+ *
+ * `enquiry_pdf.rows_total` is metadata, and this is the only honest source for it: the file carried
+ * the rows, and the batch is the row's own record of one upload. The count is taken before the save
+ * deletes the current draft, so the first save writes the whole batch's size; every later save from
+ * the same file reuses the PDF row and leaves the figure alone.
+ */
+export async function countEnquiryDraftsInBatch(batchId: string): Promise<number> {
+  const rows = await storeQuery<{ n: number }[]>(
+    `SELECT count(*)::int AS n FROM draft WHERE batch_id = $1 AND kind = 'enquiry'`,
+    [batchId],
+  );
+  return rows.length > 0 ? rows[0].n : 0;
+}
+
 /** Delete a draft. Idempotent, so a retried delete is a no-op (D18). */
 export async function deleteDraft(id: string): Promise<void> {
   await storeQuery(`DELETE FROM draft WHERE id = $1`, [id]);

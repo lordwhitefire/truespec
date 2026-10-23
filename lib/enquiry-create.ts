@@ -19,8 +19,23 @@
 // **`is_demo` is written here, as a literal** — the same fact as `carCreateStatement` writes, for the
 // same reason (task.md:280-284): an enquiry imported while the demonstration is the fleet is the
 // demonstration's. See `lib/car-create.ts`.
+//
+// **The sheet link is written here too** (TASK-006 B): a draft knows the stored file it came from
+// (`source_asset_id`, `source_filename`). The same statement finds or creates that file's one
+// `enquiry_pdf` row — the unique index on `sanity_asset_id` (0026) is what makes "one stored file,
+// one row" true — and writes its id as the new enquiry's `pdf_import_id`. It is one statement, so a
+// failure cannot leave a PDF row no enquiry points at, and a retry cannot make a second one.
 
 import type { EnquirySeed } from "./draft-save";
+
+export type EnquiryPdfLink = {
+  /** The Sanity asset the draft came from. */
+  sourceAssetId: string;
+  /** The owner's own name for the file. */
+  sourceFilename: string;
+  /** How many enquiry drafts the upload produced. */
+  rowsTotal: number;
+};
 
 export type EnquiryCreateArgs = {
   /** Minted by the caller, so a retried save is the same insert. */
@@ -32,6 +47,8 @@ export type EnquiryCreateArgs = {
   hashVersion: number;
   /** The signed-in owner, for the activity row (D20). */
   actorId: string;
+  /** The imported sheet the draft came from, when it has one. */
+  pdf?: EnquiryPdfLink | null;
 };
 
 export type EnquiryCreate = { text: string; params: unknown[] };
@@ -43,11 +60,21 @@ export type EnquiryCreate = { text: string; params: unknown[] };
 export function enquiryCreateStatement(args: EnquiryCreateArgs): EnquiryCreate {
   return {
     text: `
-      WITH new_enquiry AS (
+      WITH pdf_row AS (
+        INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total)
+        SELECT $10::text, $11::text, $12::int
+         WHERE $10::text IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM enquiry WHERE id = $1)
+        ON CONFLICT (sanity_asset_id) DO UPDATE
+          SET sanity_asset_id = EXCLUDED.sanity_asset_id
+        RETURNING id
+      ),
+      new_enquiry AS (
         INSERT INTO enquiry (
-          id, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version, is_demo
+          id, name, number, asked_for, note, enquiry_state_id, content_hash, hash_version,
+          is_demo, pdf_import_id
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+        SELECT $1, $2, $3, $4, $5, $6, $7, $8, true, (SELECT id FROM pdf_row)
         ON CONFLICT (id) DO NOTHING
         RETURNING id, ref
       ),
@@ -72,6 +99,9 @@ export function enquiryCreateStatement(args: EnquiryCreateArgs): EnquiryCreate {
       args.contentHash,
       args.hashVersion,
       args.actorId,
+      args.pdf?.sourceAssetId ?? null,
+      args.pdf?.sourceFilename ?? null,
+      args.pdf?.rowsTotal ?? null,
     ],
   };
 }

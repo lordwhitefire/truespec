@@ -1,6 +1,5 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOfficeSession } from "@/lib/session";
 import { storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
@@ -18,17 +17,18 @@ import { deleteAsset } from "@/lib/sanity";
  *
  * A Server Action is a public endpoint, so it does everything itself: it checks the
  * session, reads the form through the one reader (`lib/car-input.ts`), proves the
- * state facts against the registry, mints the car's key, computes the change-check
- * and writes. Nothing a browser sent is trusted — not the key, not the hash, not the
- * ref.
+ * state facts against the registry, validates the form-session key, computes the
+ * change-check and writes. Nothing a browser sent is trusted — not the key, not the
+ * hash, not the ref.
  *
  * **It is safe to retry.** The action goes through the one shared store guard
  * (`storeQuery`), which retries a transient failure — a cold Neon compute, a dropped
- * connection. A retry must not make a second car, so the key is minted here, once,
- * before the call: every attempt sends the same `id`, and the store's
- * `ON CONFLICT (id) DO NOTHING` turns a repeat into a no-op. The same statement
- * writes the car, its cost lines, its secondary states and its activity row, so a
- * half-made car cannot exist, and a retry converges on the one it already made.
+ * connection. A retry must not make a second car, so the key belongs to the form
+ * session: the add page mints it once and every submit of that form sends the same
+ * `id`. The store's `ON CONFLICT (id) DO NOTHING` turns a repeat into a no-op. The
+ * same statement writes the car, its cost lines, its secondary states and its
+ * activity row, so a half-made car cannot exist, and a retry converges on the one it
+ * already made.
  */
 
 /**
@@ -61,6 +61,17 @@ function revalidateCarPaths(): void {
 export async function createCar(form: FormData): Promise<CreateCarResult> {
   const session = await requireOfficeSession();
 
+  // The form session's key: minted by the add page, held in the form, sent unchanged on every
+  // submit. It is the car's key, so a double click or a retried action converges on one row. A
+  // missing or malformed key is a stale/forged form, not a new car.
+  const submissionId = form.get("submissionId");
+  if (typeof submissionId !== "string" || !UUID.test(submissionId)) {
+    return {
+      ok: false,
+      errors: [{ field: "form", message: "This form could not be identified — reload the page" }],
+    };
+  }
+
   const read = await readCarForm(form);
   if (!read.ok) return { ok: false, errors: read.errors };
   const { columns, costs, secondaryStateIds, photos } = read.value;
@@ -76,10 +87,10 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     };
   }
 
-  // The key, minted once so a retry is the same car. The change-check is computed
+  // The form session's key, so a retry is the same car. The change-check is computed
   // here from the values as they will be stored — never from the browser (truth 14).
   const { text, params } = carCreateStatement({
-    id: randomUUID(),
+    id: submissionId,
     columns,
     costs,
     secondaryStateIds,

@@ -123,6 +123,16 @@ test("a car draft is the form's text plus photo references — never a photo's b
   assert.equal(stored.includes('"photo"'), false);
 });
 
+test("the add form's session key never enters a device draft", () => {
+  const form = new FormData();
+  form.append("brand", "Toyota");
+  form.append("submissionId", "6f6f6f6f-6f6f-4f6f-8f6f-6f6f6f6f6f6f");
+
+  const captured = captureFormData(form);
+  assert.deepEqual(captured, { brand: "Toyota" });
+  assert.equal("submissionId" in captured, false);
+});
+
 test("storage that refuses, lies, or is gone never throws; the caller gets its fallback", () => {
   const refusing: DraftStorage = {
     getItem() {

@@ -9,11 +9,13 @@ import {
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CarStateEditor } from "./car-state-editor";
+import { CleanupCard } from "./cleanup-card";
 import { EnquiryStateEditor } from "./enquiry-state-editor";
 import type { RegistryState } from "@/lib/car-state";
 import type { EnquiryRegistryState } from "@/lib/enquiry-state";
 import type { OfficeSettings } from "@/lib/settings";
 import type { Notice } from "@/lib/notices";
+import type { WaitingToBeCleared } from "@/lib/cleanup";
 import { normaliseNigerianMobile, waMeDigits } from "@/lib/phone";
 import { clock, longDay } from "@/lib/office-time";
 import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
@@ -35,8 +37,8 @@ import {
    values in the browser and announcing "(demo)" — that is what changed here.
    The password card is no longer a form: the provider holds the password, the office holds none,
    and `Change password` goes to `/office/account`, where the provider's own UI does the work.
-   The System card shows the two operational notices (D19), read from `setting` rows on the server
-   and decided by `lib/notices.ts` — never computed here.
+   The System card shows the three operational notices (D19) — database, photos/files, backup — read
+   from `setting` rows on the server and decided by `lib/notices.ts` — never computed here.
    The Export card is the office's one download (truth 13): a plain link to `/api/export`, which
    returns a single ZIP of everything the store holds. It is not `Link` on purpose — a prefetch
    would build an archive nobody asked for.
@@ -81,11 +83,13 @@ export function Settings({
   enquiryRegistry = [],
   settings,
   notices,
+  cleanup,
 }: {
   registry?: RegistryState[];
   enquiryRegistry?: EnquiryRegistryState[];
   settings: OfficeSettings;
   notices: Notice[];
+  cleanup: WaitingToBeCleared;
 }) {
   const [wa, setWa] = useState(settings.whatsapp.value);
   const [waSnap, setWaSnap] = useState(settings.whatsapp.value);
@@ -658,7 +662,10 @@ export function Settings({
           </div>
         </section>
 
-        {/* ============ 6. EXPORT (one action → one ZIP) ============ */}
+        {/* ============ 6. WAITING TO BE CLEARED (report only) ============ */}
+        <CleanupCard data={cleanup} />
+
+        {/* ============ 7. EXPORT (one action → one ZIP) ============ */}
         {/* A plain anchor, never `Link`: Link prefetches when it scrolls into view, which would
             build a whole archive the owner never asked for. The download is the office's own GET
             — it needs a session like every other read here, and answers with no body at all
