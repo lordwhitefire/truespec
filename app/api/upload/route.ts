@@ -1,11 +1,17 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import {
+  checkDemoAssetCap,
+  uploadLabelForSpace,
+  verifyUploadMark,
+} from "@/lib/demo-assets";
 import { recordCarDrafts, recordEnquiryDrafts, type DraftToStore } from "@/lib/draft";
 import { NOT_OUR_TEMPLATE, readCarFile } from "@/lib/draft-read";
 import { readEnquiryFile } from "@/lib/enquiry-read";
 import { isSameOrigin } from "@/lib/origin-rules";
-import { uploadFile } from "@/lib/sanity";
+import { deleteAsset, listStoredAssets, uploadFile } from "@/lib/sanity";
 import { getOfficeSession } from "@/lib/session";
+import type { Space } from "@/lib/space-rule";
 import { TEMPLATE_CONTENT_TYPE } from "@/lib/template-rules";
 import { checkUploadSize, heldFilename, sourceFilename } from "@/lib/upload-rules";
 
@@ -75,6 +81,15 @@ export async function POST(request: Request): Promise<Response> {
   const size = checkUploadSize(bytes.byteLength);
   if (!size.ok) return refused(413, size.reason);
 
+  // The demo total cap is checked before the file is parsed or held. Main uploads do not list the
+  // asset store; only a demo session pays for the sum.
+  if (session.space === "demo") {
+    const cap = await checkDemoAssetCap(bytes.byteLength, { listStoredAssets });
+    if (!cap.ok) {
+      return refused(cap.code === "over-cap" ? 413 : 503, cap.reason);
+    }
+  }
+
   const car = await readCarFile(bytes);
   if (car.ok) {
     if (car.cars.length === 0) {
@@ -85,7 +100,7 @@ export async function POST(request: Request): Promise<Response> {
         { status: 422 },
       );
     }
-    return await hold("car", car.cars, car.refusals, bytes, sent);
+    return await hold("car", car.cars, car.refusals, bytes, sent, session.space);
   }
 
   // "Not ours" is the one failure that means *try the other kind*: the file is a readable PDF, but
@@ -102,13 +117,17 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  return await hold("enquiry", enquiry.enquiries, enquiry.refusals, bytes, sent);
+  return await hold("enquiry", enquiry.enquiries, enquiry.refusals, bytes, sent, session.space);
 }
 
 /**
  * The two writing steps, shared by both kinds: hold the file beside its drafts, then record the
  * rows as one batch. Called only once at least one row has been read, so a file nothing waits on is
  * never held.
+ *
+ * The label comes from the session's space, never from the request. The upload is verified before a
+ * draft is recorded: an unmarked demo upload would survive the reset, so it is deleted and the
+ * upload fails. A main upload carries `truespec-main`, never the demo mark.
  */
 async function hold(
   kind: "car" | "enquiry",
@@ -116,19 +135,25 @@ async function hold(
   refusals: readonly unknown[],
   bytes: Uint8Array,
   sent: File,
+  space: Space,
 ): Promise<Response> {
   const batchId = randomUUID();
+  const requestedLabel = uploadLabelForSpace(space);
 
-  let assetId: string;
+  let held: { assetId: string; label: string | null };
   try {
-    const held = await uploadFile(Buffer.from(bytes), {
+    held = await uploadFile(Buffer.from(bytes), {
       filename: heldFilename(randomUUID()),
       contentType: TEMPLATE_CONTENT_TYPE,
+      label: requestedLabel,
     });
-    assetId = held.assetId;
   } catch {
     return refused(503, "The file could not be held. Try again.");
   }
+
+  const mark = await verifyUploadMark(held, requestedLabel, { deleteAsset });
+  if (!mark.ok) return refused(503, mark.reason);
+  const assetId = held.assetId;
 
   try {
     const batch = {

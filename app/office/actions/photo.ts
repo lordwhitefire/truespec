@@ -1,7 +1,12 @@
 "use server";
 
+import {
+  checkDemoAssetCap,
+  uploadLabelForSpace,
+  verifyUploadMark,
+} from "@/lib/demo-assets";
 import { requireOfficeSession } from "@/lib/session";
-import { imageUrl, uploadImage } from "@/lib/sanity";
+import { deleteAsset, imageUrl, listStoredAssets, uploadImage } from "@/lib/sanity";
 import { preparePhoto } from "@/lib/photos";
 import { checkPhotoSize } from "@/lib/photo-rules";
 import type { FieldError } from "@/lib/car-input";
@@ -42,7 +47,7 @@ function storeName(name: string): string {
 }
 
 export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResult> {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
 
   const file = form.get("photo");
   if (!(file instanceof File) || file.size === 0) {
@@ -59,11 +64,24 @@ export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResu
   const prepared = preparePhoto(bytes, type);
   if (!prepared.ok) return { ok: false, errors: [{ field: "photos", message: prepared.reason }] };
 
+  // The demo total cap is checked on the bytes that would actually be uploaded, after the EXIF
+  // strip. Main uploads do not list the asset store.
+  if (session.space === "demo") {
+    const cap = await checkDemoAssetCap(prepared.bytes.length, { listStoredAssets });
+    if (!cap.ok) {
+      return { ok: false, errors: [{ field: "photos", message: cap.reason }] };
+    }
+  }
+
+  const requestedLabel = uploadLabelForSpace(session.space);
+
+  let asset: { assetId: string; label: string | null };
   try {
-    const asset = await uploadImage(prepared.bytes, { filename: storeName(file.name), contentType: type });
-    // The id is what the store keeps; the address is derived from it by the one derivation
-    // (`lib/sanity.ts`), never stored (truth 7: the asset-reference column never holds a web address).
-    return { ok: true, assetId: asset.assetId, url: imageUrl(asset.assetId) };
+    asset = await uploadImage(prepared.bytes, {
+      filename: storeName(file.name),
+      contentType: type,
+      label: requestedLabel,
+    });
   } catch {
     return {
       ok: false,
@@ -75,4 +93,13 @@ export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResu
       ],
     };
   }
+
+  const mark = await verifyUploadMark(asset, requestedLabel, { deleteAsset });
+  if (!mark.ok) {
+    return { ok: false, errors: [{ field: "photos", message: mark.reason }] };
+  }
+
+  // The id is what the store keeps; the address is derived from it by the one derivation
+  // (`lib/sanity.ts`), never stored (truth 7: the asset-reference column never holds a web address).
+  return { ok: true, assetId: asset.assetId, url: imageUrl(asset.assetId) };
 }

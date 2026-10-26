@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–11 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–12 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -136,11 +136,11 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 ### Phase 4 — Demo uploads
 
-- [ ] Task 12: Server-set demo label, verification, 15 MB and total cap
+- [x] Task 12: Server-set demo label, verification, 15 MB and total cap
 
 ### Checkpoint D2 — after Task 12
-- [ ] Mark, verify, cap and main-upload tests pass.
-- [ ] An unmarked demo upload cannot survive.
+- [x] Mark, verify, cap and main-upload tests pass.
+- [x] An unmarked demo upload cannot survive.
 
 ### Phase 5 — Demo UI, sign-up and privacy
 
@@ -528,21 +528,23 @@ verified; a missing requested label deletes the just-uploaded asset and refuses.
 unreadable check. The 15 MB per-file cap is unchanged.
 
 **Acceptance criteria:**
-- [ ] A demo upload carries exactly `truespec-demo`; a main upload never carries it.
-- [ ] A client cannot set or forge the label.
-- [ ] A missing label deletes the asset and refuses the upload.
-- [ ] The cap counts only demo-marked assets; main assets do not count.
-- [ ] An over-cap or unreadable cap check refuses with a clear message.
-- [ ] The 15 MB per-file cap is unchanged.
+- [x] A demo upload carries exactly `truespec-demo`; a main upload never carries it. (Code path and
+  label decision tested; the live upload is blocked — owner action.)
+- [x] A client cannot set or forge the label. (The label is derived from the server session's space;
+  neither upload path reads a label from the request.)
+- [x] A missing label deletes the asset and refuses the upload.
+- [x] The cap counts only demo-marked assets; main assets do not count.
+- [x] An over-cap or unreadable cap check refuses with a clear message.
+- [x] The 15 MB per-file cap is unchanged.
 
 **Verification:**
-- [ ] `node --import tsx --test lib/demo-assets.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --import tsx --test lib/demo-assets.test.ts`
+- [x] `npm run typecheck`
+- [x] Full suite (501 pass) and `npm run build`.
 
 **Dependencies:** Tasks 6, 10.
 
 **Files likely touched:**
-- `lib/sanity.ts`
 - `lib/demo-assets.ts`
 - `app/api/upload/route.ts`
 - `app/office/actions/photo.ts`

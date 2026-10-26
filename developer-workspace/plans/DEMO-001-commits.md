@@ -40,8 +40,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | committed | `754afef` |
 | 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `lib/sanity.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | committed | `c65ae66` |
 | 10 | `OfficeSession.space` and cross-space sign-out | `lib/session-space.ts`, `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts` | focused tests + typecheck | committed | `26b335c` |
-| 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx` | typecheck + build + static render | committed; hash recorded in T12 | — |
-| 12 | Demo upload mark, verification and cap | `lib/sanity.ts`, `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck | pending | — |
+| 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx` | typecheck + build + static render | committed | `efee9ea` |
+| 12 | Demo upload mark, verification and cap | `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck + build | committed; hash recorded in T13 | — |
 | 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx`, `app/office/(shell)/settings/cleanup-card.tsx` | focused tests + typecheck | pending | — |
 | 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | focused tests + typecheck | pending | — |
 | 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts` | typecheck + build + copy review | pending | — |
@@ -87,5 +87,10 @@ task hash.
   demo; the component's static render carries the exact copy and `role="note"`. `npm run typecheck`,
   `npm run build` and the full suite (487 pass) pass. The full demo/main shell render is blocked —
   owner action, not claimed.
+- 2026-10-26: Task 12 implemented. The server chooses the exact label from the session's space; both
+  upload paths verify it, delete an unmarked upload and refuse. The demo cap counts only exact
+  `truespec-demo` assets and defaults to 2 GiB; an over-cap, unreadable or misconfigured check
+  refuses. `lib/demo-assets.test.ts` (14 tests), the full suite (501 pass), `npm run typecheck` and
+  `npm run build` pass. A live demo upload is blocked — owner action, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.
