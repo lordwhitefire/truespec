@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–18 code complete, checks pass; live setup and copy approval remain the owner's. **Code
+**Status:** code complete — Tasks 1–19 built and code-level gates pass; live verification and copy approval remain the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -159,14 +159,14 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 - [x] Task 16: Cleanup card and machine-litter exclusions
 - [x] Task 17: Retire `demo:wipe`
 - [x] Task 18: Owner setup handover outside the repository
-- [ ] Task 19: Full code-level gates and honest report
+- [x] Task 19: Full code-level gates and honest report
 
 ### Checkpoint F — final
-- [ ] `npm run typecheck`, `npm test`, `npm run build`, `npm run leak-check`,
+- [x] `npm run typecheck`, `npm test`, `npm run build`, `npm run leak-check`,
       `npm run store-freshness`, `npm run db:migrate` (main only) and `openspec validate --all`
       are run and reported with exact figures.
-- [ ] Live-only checks are named blocked — owner action, not passed.
-- [ ] No secret is in the repository, a log or the report.
+- [x] Live-only checks are named blocked — owner action, not passed.
+- [x] No secret is in the repository, a log or the report.
 
 ---
 
@@ -776,19 +776,19 @@ checks are named blocked — owner action, never passed. The report says "code c
 verification pending owner setup."
 
 **Acceptance criteria:**
-- [ ] `npm run typecheck` — 0.
-- [ ] `npm test` — all pass.
-- [ ] `npm run build` — 0.
-- [ ] `npm run leak-check` — PASSED where the remote store is reachable; timeout is a blocked check.
-- [ ] `npm run store-freshness` — PASSED.
-- [ ] `npm run db:migrate` — main up to date; demo blocked (owner connection).
-- [ ] `openspec validate --all` — passes.
-- [ ] The report names exact commands and figures; no claim without a command or store reading.
-- [ ] Live checks are blocked, not passed; no secret appears.
+- [x] `npm run typecheck` — 0.
+- [x] `npm test` — 504 pass, 0 fail.
+- [x] `npm run build` — 0.
+- [x] `npm run leak-check` — PASSED where the remote store is reachable; timeout is a blocked check.
+- [x] `npm run store-freshness` — PASSED (9 routes).
+- [x] `npm run db:migrate` — main up to date; demo blocked (owner connection).
+- [x] `openspec validate --all` — 2 passed, 0 failed.
+- [x] The report names exact commands and figures; no claim without a command or store reading.
+- [x] Live checks are blocked, not passed; no secret appears.
 
 **Verification:**
-- [ ] Every command above is run and its output recorded.
-- [ ] The report is read back for honesty and secret leakage.
+- [x] Every command above is run and its output recorded.
+- [x] The report is read back for honesty and secret leakage.
 
 **Dependencies:** Tasks 1–18.
 

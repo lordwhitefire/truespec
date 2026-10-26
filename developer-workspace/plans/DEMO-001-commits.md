@@ -47,8 +47,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts`, `lib/config.test.ts`, `app/office/door.css`, `developer-workspace/notes/DEMO-001-copy-review.md` | typecheck + build + full suite + copy review | committed; copy approval pending | `e9282f3` |
 | 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/cleanup-litter.test.ts`, `scripts/cleanup-readiness.ts` | focused tests + typecheck + full suite | committed | `84f2a60` |
 | 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts`, `lib/sanity.ts` | typecheck + fail-closed run | committed | `07a566f` |
-| 18 | Owner setup handover | `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the repository; plan/ledger record committed) | handover review + secret scan + mode check | committed (record only); hash recorded in T19 | — |
-| 19 | Full code-level gates and report | `developer-workspace/reports/DEMO-001-report.md` | full gates + honest report | pending | — |
+| 18 | Owner setup handover | `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the repository; plan/ledger record committed) | handover review + secret scan + mode check | committed (record only) | `2c03fde` |
+| 19 | Full code-level gates and report | `developer-workspace/reports/DEMO-001-report.md` | full gates + honest report | committed (this report) | — (this commit) |
 
 **Hash bookkeeping:** a task's hash is recorded in the next task's commit (the commit cannot contain
 its own hash). `git log --oneline` is always the live truth. The final report commit records the last
@@ -125,5 +125,11 @@ task hash.
   branch identity rules, the demo branch creation/migration/recovery order, the snapshot/first-reset
   order, the Clerk outer switch and the verification checklist. The secret-pattern scan is clean;
   the path does not appear in `git status`.
+- 2026-10-26: Task 19 gates run. `npm run typecheck` exit 0; `npm test` 504 pass, 0 fail;
+  `npm run build` exit 0; `npm run leak-check` PASSED on 21 public routes; `npm run store-freshness`
+  PASSED on 9 routes; `npm run db:migrate` main up to date; `openspec validate --all` 2 passed,
+  0 failed. The report is `developer-workspace/reports/DEMO-001-report.md`; live checks are blocked
+  owner actions, and the privacy/sign-up copy remains pending approval. The handover is mode 600 and
+  outside git; no secret is recorded.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.
