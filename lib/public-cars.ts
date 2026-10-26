@@ -1,5 +1,5 @@
 import "server-only";
-import { storeQuery } from "./store-guard";
+import { storeQueryMain } from "./store-guard";
 import { getConfig } from "./config";
 import { countStock, type StockCounts } from "./counts";
 import { PUBLIC_SECTIONS } from "./sections";
@@ -31,7 +31,7 @@ function mapRows(rows: RawCarRow[]): PublicCar[] {
 }
 
 export async function getPublicCars(): Promise<PublicCar[]> {
-  const rows = (await storeQuery(`${SELECT_CARS} ORDER BY c.ref`)) as RawCarRow[];
+  const rows = (await storeQueryMain(`${SELECT_CARS} ORDER BY c.ref`)) as RawCarRow[];
   // The showroom presents three of the four sections and never Sold (D15): a car is
   // listed only under a public section, so a Sold car is kept out even if its sale
   // record were somehow absent.
@@ -39,14 +39,14 @@ export async function getPublicCars(): Promise<PublicCar[]> {
 }
 
 export async function getPublicCar(ref: string): Promise<PublicCar | null> {
-  const rows = (await storeQuery(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
+  const rows = (await storeQueryMain(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
   if (!row || !isListed(row)) return null;
   return mapRows([row])[0];
 }
 
 export async function getPublicCarForView(ref: string): Promise<PublicCar | null> {
-  const rows = (await storeQuery(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
+  const rows = (await storeQueryMain(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
   if (!row) return null;
   return mapRows([row])[0];
@@ -60,7 +60,7 @@ export async function getPublicCounts(): Promise<StockCounts> {
 }
 
 export async function getSetting(key: string): Promise<string | null> {
-  const rows = (await storeQuery(`SELECT value FROM setting WHERE key = $1`, [key])) as {
+  const rows = (await storeQueryMain(`SELECT value FROM setting WHERE key = $1`, [key])) as {
     value: string;
   }[];
   return rows[0]?.value ?? null;

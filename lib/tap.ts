@@ -1,5 +1,5 @@
 import "server-only";
-import { storeQueryOnce } from "./store-guard";
+import { storeQueryOnceMain } from "./store-guard";
 import type { TapInput } from "./tap-rules";
 
 /**
@@ -14,11 +14,11 @@ import type { TapInput } from "./tap-rules";
  * reads the row back and counts `tap`'s columns, so "three facts and nothing else" is checked against
  * the table and not against this comment.
  *
- * It goes through `storeQueryOnce`, not `storeQuery`: a tap is an event, not a state, so a retry after
+ * It goes through `storeQueryOnceMain`, not `storeQueryMain`: a tap is an event, not a state, so a retry after
  * a lost reply would count one tap twice. See that function's note.
  */
 export const TAP_INSERT = `INSERT INTO tap (page, car_ref) VALUES ($1, $2)`;
 
 export async function recordTap(input: TapInput): Promise<void> {
-  await storeQueryOnce(TAP_INSERT, [input.page, input.carRef]);
+  await storeQueryOnceMain(TAP_INSERT, [input.page, input.carRef]);
 }

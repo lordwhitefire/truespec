@@ -1,5 +1,6 @@
 import "server-only";
-import { db } from "./db";
+import { demoDb, mainDb } from "./db";
+import type { Space } from "./space-rule";
 import { runWithRetry } from "./store-retry-rules";
 import { writeFailedMessage } from "./store-refusal-rules";
 
@@ -19,15 +20,34 @@ import { writeFailedMessage } from "./store-refusal-rules";
  * (`INSERT … ON CONFLICT … DO UPDATE … RETURNING`, and idempotent `UPDATE` / `DELETE`), so a reply
  * lost on the way back cannot double-apply. That is Neon's documented precondition for retrying.
  *
- * This module is a deliberate singleton: `db()` is imported nowhere else under `lib/`, so no store
- * call can slip past the retry. If every attempt fails the last error is thrown, which an `error.tsx`
- * boundary turns into a retryable state — never a bare 500 and never a fabricated figure.
+ * This module is a deliberate singleton: `mainDb()` and `demoDb()` are imported nowhere else under
+ * `lib/`, so no store call can slip past the retry. If every attempt fails the last error is thrown,
+ * which an `error.tsx` boundary turns into a retryable state — never a bare 500 and never a
+ * fabricated figure.
+ *
+ * There are two door families. The main doors (`storeQueryMain`, `storeQueryOnceMain`,
+ * `storeQueryMainRefusing`) are always main and never load Clerk. The office doors
+ * (`storeQuery`, `storeQueryRefusing`) resolve the signed-in space, or accept the space the session
+ * check already resolved, and choose main or demo. A page or action cannot choose a door by itself.
  */
+export type StoreDoorOptions = { space?: Space };
+
+async function clientFor(options?: StoreDoorOptions) {
+  if (options?.space === "main") return mainDb();
+  if (options?.space === "demo") return demoDb();
+
+  // Lazy on purpose: a CLI or a public main door must be importable under
+  // `--conditions=react-server` without pulling in `next/headers` or Clerk.
+  const { resolveSpace } = await import("./space");
+  return (await resolveSpace()) === "main" ? mainDb() : demoDb();
+}
+
 export async function storeQuery<T = unknown>(
   text: string,
   params: unknown[] = [],
+  options?: StoreDoorOptions,
 ): Promise<T> {
-  const sql = db();
+  const sql = await clientFor(options);
   return runWithRetry(async () => (await sql.query(text, params)) as T);
 }
 
@@ -43,14 +63,34 @@ export async function storeQuery<T = unknown>(
  *
  * One tap lost costs a tap that already happened; it never costs a wrong number and never costs the
  * buyer anything, because the page does not wait for the answer. It lives here, rather than reaching
- * for the pool itself, so `db()` still has exactly one holder under `lib/`.
+ * for the pool itself, so `mainDb()` still has exactly one holder under `lib/`.
+ *
+ * A tap is a main event even when the visitor's Clerk session says demo: the public showroom is
+ * main, so its taps belong to main. The tap is therefore a main-only door.
  */
+export async function storeQueryOnceMain<T = unknown>(
+  text: string,
+  params: unknown[] = [],
+): Promise<T> {
+  const sql = mainDb();
+  return (await sql.query(text, params)) as T;
+}
+
+/** The old name, kept as a main-only alias. New call sites use `storeQueryOnceMain`. */
 export async function storeQueryOnce<T = unknown>(
   text: string,
   params: unknown[] = [],
 ): Promise<T> {
-  const sql = db();
-  return (await sql.query(text, params)) as T;
+  return storeQueryOnceMain<T>(text, params);
+}
+
+/** The main-only retrying door: public showroom, backup, cleanup and scripts. */
+export async function storeQueryMain<T = unknown>(
+  text: string,
+  params: unknown[] = [],
+): Promise<T> {
+  const sql = mainDb();
+  return runWithRetry(async () => (await sql.query(text, params)) as T);
 }
 
 /**
@@ -83,9 +123,23 @@ export async function storeQueryRefusing<T = unknown>(
   text: string,
   params: unknown[],
   refusal: { field: string; action: string },
+  options?: StoreDoorOptions,
 ): Promise<{ ok: true; rows: T } | StoreRefusal> {
   try {
-    return { ok: true, rows: await storeQuery<T>(text, params) };
+    return { ok: true, rows: await storeQuery<T>(text, params, options) };
+  } catch (error) {
+    return storeRefusal(refusal.field, refusal.action, error);
+  }
+}
+
+/** The main-only refusing door: a main write whose store failure is an in-place refusal. */
+export async function storeQueryMainRefusing<T = unknown>(
+  text: string,
+  params: unknown[],
+  refusal: { field: string; action: string },
+): Promise<{ ok: true; rows: T } | StoreRefusal> {
+  try {
+    return { ok: true, rows: await storeQueryMain<T>(text, params) };
   } catch (error) {
     return storeRefusal(refusal.field, refusal.action, error);
   }
