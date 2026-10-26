@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–4 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–5 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -97,16 +97,16 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 - [x] Task 2: Main and demo database clients
 - [x] Task 3: Store doors + public showroom and tap pinned to main
 - [x] Task 4: Backup, settings notices and cleanup pinned to main
-- [ ] Task 5: Import-safety and door-isolation proofs
+- [x] Task 5: Import-safety and door-isolation proofs
 
 ### Checkpoint A — after Tasks 1–3
 - [ ] Focused tests and `npm run typecheck` pass.
 - [ ] Public showroom and tap cannot reach demo.
 
 ### Checkpoint B — after Tasks 4–5
-- [ ] Backup, settings notices and cleanup are main-only.
-- [ ] Main-door import test passes under `--conditions=react-server`.
-- [ ] A demo request cannot reach main at the door.
+- [x] Backup, settings notices and cleanup are main-only.
+- [x] Main-door import test passes under `--conditions=react-server`.
+- [x] A demo request cannot reach main at the door.
 
 ### Phase 2 — Snapshot and reset (highest risk)
 
@@ -299,25 +299,24 @@ Clerk are not pulled in. A door-level test proves a demo request cannot reach ma
 cookie/header/query cannot choose main.
 
 **Acceptance criteria:**
-- [ ] The import-safety test runs under `--conditions=react-server`.
-- [ ] Importing a main door does not load `next/headers`, `@clerk/nextjs/server` or `lib/space.ts`.
-- [ ] A demo request through the office door cannot reach main.
-- [ ] A forged cookie, header or query parameter claiming main is ignored.
-- [ ] An anonymous office request is refused before a store read.
+- [x] The import-safety test runs under `--conditions=react-server`.
+- [x] Importing a main door does not load `next/headers`, `@clerk/nextjs/server` or `lib/space.ts`.
+- [x] A demo request through the office door cannot reach main.
+- [x] A forged cookie, header or query parameter claiming main is ignored.
+- [x] An anonymous office request is refused before a store read.
 
 **Verification:**
-- [ ] `node --conditions=react-server --import tsx --test lib/store-guard-import.test.ts`
-- [ ] `node --import tsx --test lib/space-isolation.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --conditions=react-server --import tsx --test lib/store-guard-import.test.ts`
+- [x] `node --conditions=react-server --import tsx --test lib/space-isolation.test.ts`
+- [x] `npm run typecheck`
 
 **Dependencies:** Tasks 1–4.
 
 **Files likely touched:**
 - `lib/store-guard-import.test.ts` (new)
 - `lib/space-isolation.test.ts` (new)
-- `package.json` (only if a dedicated test script is needed)
 
-**Estimated scope:** Small (2–3 files).
+**Estimated scope:** Small (2 files).
 
 ---
 
