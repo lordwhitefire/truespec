@@ -194,12 +194,16 @@ export async function listFileAssets(): Promise<StoredAsset[]> {
 /**
  * Remove an asset from the store, by the id the store holds.
  *
- * This is the **only** delete in this door. Its four callers are:
- *   - the demonstration wipe (`scripts/demo-wipe.ts`, TASK-003 Task 24, `npm run demo:wipe`);
+ * This is the **only** delete in this door. Its callers are:
  *   - the owner's own removal of a clear-out car (`removeCarForever`, TASK-004 task 13);
  *   - the owner's delete of an enquiry, when its imported sheet is litter (TASK-006 A);
  *   - the daily backup's retention, which removes **its own** old backup files and nothing else
- *     (TASK-006 F).
+ *     (TASK-006 F);
+ *   - the demo reset's marked-asset cleanup and the upload verification that deletes an unmarked
+ *     just-uploaded asset (DEMO-001).
+ *
+ * The old demonstration wipe was retired: it deleted by `is_demo`, and those rows are main data now.
+ * There is no replacement CLI that deletes by that flag.
  *
  * No job, rule, request path or seed deletes a client's photo or PDF on the owner's behalf
  * (`openspec/tasks/TASK-003/task.md`, truth 10). The daily job's only deletion is the exact

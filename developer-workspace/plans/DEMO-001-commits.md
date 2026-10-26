@@ -45,8 +45,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx` | typecheck + build + source inspection | committed | `ba0dee8` |
 | 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | typecheck + build + source inspection | committed | `478f3eb` |
 | 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts`, `lib/config.test.ts`, `app/office/door.css`, `developer-workspace/notes/DEMO-001-copy-review.md` | typecheck + build + full suite + copy review | committed; copy approval pending | `e9282f3` |
-| 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/cleanup-litter.test.ts`, `scripts/cleanup-readiness.ts` | focused tests + typecheck + full suite | committed; hash recorded in T17 | — |
-| 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts` | typecheck | pending | — |
+| 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/cleanup-litter.test.ts`, `scripts/cleanup-readiness.ts` | focused tests + typecheck + full suite | committed | `84f2a60` |
+| 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts`, `lib/sanity.ts` | typecheck + fail-closed run | committed; hash recorded in T18 | — |
 | 18 | Owner setup handover | `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the repository; not committed) | handover review | pending | — |
 | 19 | Full code-level gates and report | `developer-workspace/reports/DEMO-001-report.md` | full gates + honest report | pending | — |
 
@@ -114,5 +114,10 @@ task hash.
   still prints the asset-store count and no longer derives a false "referenced" count from the
   filtered list. `lib/cleanup-litter.test.ts` (5 tests), the full suite (504 pass) and
   `npm run typecheck` pass.
+- 2026-10-26: Task 17 implemented. `demo:wipe` is removed from `package.json`; `scripts/demo-wipe.ts`
+  is a fail-closed stub with no database/Sanity import and exits 1. `grep` finds no active old
+  command, `lib/demo-reset.ts` has no `is_demo`, and the owner's office delete is unchanged. The
+  `deleteAsset` caller comment now records the retired wipe and the current callers.
+  `npm run typecheck` and the fail-closed run pass.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.

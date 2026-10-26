@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–16 code complete, checks pass; live setup and copy approval remain the owner's. **Code
+**Status:** in progress — Tasks 1–17 code complete, checks pass; live setup and copy approval remain the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -157,7 +157,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 ### Phase 6 — Cleanup exclusions, legacy retirement, handover and gates
 
 - [x] Task 16: Cleanup card and machine-litter exclusions
-- [ ] Task 17: Retire `demo:wipe`
+- [x] Task 17: Retire `demo:wipe`
 - [ ] Task 18: Owner setup handover outside the repository
 - [ ] Task 19: Full code-level gates and honest report
 
@@ -708,21 +708,25 @@ deletion path; the owner's office delete remains the main-data path. Record the 
 meaning as legacy main data.
 
 **Acceptance criteria:**
-- [ ] `demo:wipe` is gone from `package.json`.
-- [ ] `scripts/demo-wipe.ts` is gone or fails closed without opening a database.
-- [ ] No replacement `is_demo` CLI exists.
-- [ ] The reset does not depend on `is_demo`.
-- [ ] The owner's office delete still removes main data he chooses.
+- [x] `demo:wipe` is gone from `package.json`.
+- [x] `scripts/demo-wipe.ts` is gone or fails closed without opening a database. (It is a fail-closed
+  stub: no `pg`/Sanity import, no environment read, no database connection; it exits 1.)
+- [x] No replacement `is_demo` CLI exists. (The retired stub is the only file; no new command.)
+- [x] The reset does not depend on `is_demo`. (`grep -n is_demo lib/demo-reset.ts` is empty.)
+- [x] The owner's office delete still removes main data he chooses. (No owner-delete code changed.)
 
 **Verification:**
-- [ ] `grep -r "demo:wipe\|demo-wipe" package.json scripts` returns no active command.
-- [ ] `npm run typecheck`
+- [x] `grep -r "demo:wipe\|demo-wipe" package.json scripts` returns no active command.
+- [x] `npm run typecheck`
+- [x] `node --import tsx scripts/demo-wipe.ts` exits 1 with the retirement message and no database
+  access.
 
 **Dependencies:** Task 9 (confirm the reset does not depend on `is_demo`).
 
 **Files likely touched:**
 - `package.json`
-- `scripts/demo-wipe.ts` (delete or fail-closed stub)
+- `scripts/demo-wipe.ts` (fail-closed stub)
+- `lib/sanity.ts` (stale caller comment corrected)
 
 **Estimated scope:** Small (2 files).
 
