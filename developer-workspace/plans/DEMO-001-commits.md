@@ -28,11 +28,11 @@ after each commit.
 
 | Point | Task | Scope | Files | Status | Hash |
 |---|---|---|---|---|---|
-| C0 | — | Plan and this tracker | `developer-workspace/plans/DEMO-001.md`, `developer-workspace/plans/DEMO-001-commits.md` | pending | — |
-| C1 | 1 | Pure space rule and request resolver | `lib/space-rule.ts`, `lib/space.ts`, `lib/space.test.ts` | implemented, checks pass; commit pending | — |
-| C2 | 2 | Main and demo database clients | `lib/db.ts`, `lib/config.ts`, `lib/db.test.ts`, `package.json` | implemented, checks pass; commit pending | — |
-| C3 | 3 | Store doors + main-only public showroom and tap | `lib/store-guard.ts`, `lib/public-cars.ts`, `lib/tap.ts`, `lib/store-guard.test.ts` | implemented, checks pass; commit pending | — |
-| C4 | 4 | Backup, notices and cleanup pinned to main | `lib/backup-run-live.ts`, `lib/settings.ts`, `lib/cleanup.ts`, `scripts/reconcile.ts` | implemented, checks pass; commit pending | — |
+| C0 | — | Plan and this tracker | `developer-workspace/plans/DEMO-001.md`, `developer-workspace/plans/DEMO-001-commits.md` | committed | `1bf99c4` |
+| C1 | 1 | Pure space rule and request resolver | `lib/space-rule.ts`, `lib/space.ts`, `lib/space.test.ts` | committed | `a10ef70` |
+| C2 | 2 | Main and demo database clients | `lib/db.ts`, `lib/config.ts`, `lib/db.test.ts`, `package.json` | committed | `9d86bc6` |
+| C3 | 3 | Store doors + main-only public showroom and tap | `lib/store-guard.ts`, `lib/public-cars.ts`, `lib/tap.ts`, `lib/store-guard.test.ts` | committed | `b95f411` |
+| C4 | 4 | Backup, notices and cleanup pinned to main | `lib/backup-run-live.ts`, `lib/settings.ts`, `lib/cleanup.ts`, `scripts/reconcile.ts` | committed | `0b8c8e6` |
 | C5 | 5 | Import-safety and door-isolation proofs | `lib/store-guard-import.test.ts`, `lib/space-isolation.test.ts`, `package.json` (only if a script is needed) | not started | — |
 | C6 | 6 | Sanity labels/created-time + one-time snapshot tool | `lib/sanity.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | not started | — |
 | C7 | 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | not started | — |
@@ -53,5 +53,7 @@ after each commit.
 
 - 2026-10-26: Tasks 1–4 implemented. Focused tests and `npm run typecheck` pass. Commits C1–C4 are
   the next action; C0 commits the plan and this tracker.
+- 2026-10-26: C0–C4 committed locally (`1bf99c4`, `a10ef70`, `9d86bc6`, `b95f411`, `0b8c8e6`).
+  No push. Next: C5 (import-safety and door-isolation proofs).
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.
