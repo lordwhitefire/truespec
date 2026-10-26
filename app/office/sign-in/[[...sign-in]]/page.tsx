@@ -43,9 +43,14 @@ export default async function OfficeSignInPage() {
       <p className="office-door-sub">Sign in to continue.</p>
       <SignIn />
       {demoSignupEnabled ? (
-        <p className="office-door-demo">
-          <Link href="/office/sign-up">Try the demo office</Link>
-        </p>
+        <>
+          <p className="office-door-demo">
+            Just signed up? This page is expected — sign in to continue to the demo office.
+          </p>
+          <p className="office-door-demo">
+            <Link href="/office/sign-up">Try the demo office</Link>
+          </p>
+        </>
       ) : null}
     </main>
   );
