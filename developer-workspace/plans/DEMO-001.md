@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–17 code complete, checks pass; live setup and copy approval remain the owner's. **Code
+**Status:** in progress — Tasks 1–18 code complete, checks pass; live setup and copy approval remain the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -158,7 +158,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 - [x] Task 16: Cleanup card and machine-litter exclusions
 - [x] Task 17: Retire `demo:wipe`
-- [ ] Task 18: Owner setup handover outside the repository
+- [x] Task 18: Owner setup handover outside the repository
 - [ ] Task 19: Full code-level gates and honest report
 
 ### Checkpoint F — final
@@ -743,24 +743,26 @@ snapshot/first-reset order, and the verification steps. It contains no secret va
 ever added, the file is mode 600.
 
 **Acceptance criteria:**
-- [ ] The file is outside the repository.
-- [ ] It names `truespec_space = "main"` and every env name without a value.
-- [ ] It says `DEMO_SIGNUP_ENABLED=1` / `DEMO_RESET_ENABLED=1`, not `true`.
-- [ ] It says `DATABASE_URL_UNPOOLED` is required for the lock and `DEMO_DATABASE_URL` is direct.
-- [ ] It says the demo branch is `demo`, created from `production`, and must be migrated with main.
-- [ ] It says the first demo account must not arrive before the snapshot and first reset.
-- [ ] It says Clerk's sign-up mode is the outer switch.
-- [ ] No secret, key, connection string or person appears.
+- [x] The file is outside the repository.
+- [x] It names `truespec_space = "main"` and every env name without a value.
+- [x] It says `DEMO_SIGNUP_ENABLED=1` / `DEMO_RESET_ENABLED=1`, not `true`.
+- [x] It says `DATABASE_URL_UNPOOLED` is required for the lock and `DEMO_DATABASE_URL` is direct.
+- [x] It says the demo branch is `demo`, created from `production`, and must be migrated with main.
+- [x] It says the first demo account must not arrive before the snapshot and first reset.
+- [x] It says Clerk's sign-up mode is the outer switch.
+- [x] No secret, key, connection string or person appears.
 
 **Verification:**
-- [ ] Read back the file; `grep` for `postgres://`, `postgresql://`, `sk_`, `whsec_`, long tokens.
-- [ ] Confirm the path is outside `git status`.
-- [ ] `stat -c '%a'` is 600 if any value is added.
+- [x] Read back the file; `grep` for `postgres://`, `postgresql://`, `sk_`, `whsec_`, long tokens
+  returns nothing.
+- [x] Confirm the path is outside `git status`.
+- [x] `stat -c '%a'` is 600. (The file contains no values; it is mode 600 anyway.)
 
 **Dependencies:** Tasks 1–17.
 
 **Files likely touched:**
-- `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (new, outside repo)
+- `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (new, outside repo;
+  its plan/ledger record is committed, the handover itself is not)
 
 **Estimated scope:** Small (1 file).
 
