@@ -10,6 +10,12 @@ export class ConfigError extends Error {
 
 export type AppConfig = {
   databaseUrl: string;
+  /**
+   * The one direct demo-branch connection string. Optional for main-only runs;
+   * `demoDb()` refuses when it is missing or invalid. It is not in `REQUIRED`, so a
+   * main-only build and the owner's main pages do not depend on the demo branch.
+   */
+  demoDatabaseUrl: string | null;
   clerkPublishableKey: string;
   clerkSecretKey: string;
   sanityProjectId: string;
@@ -50,6 +56,10 @@ export function getConfig(): AppConfig {
     string
   >;
 
+  // Deliberately not required and not validated here: a malformed demo URL must
+  // fail the demo path, not the main path. `demoDb()` validates it when called.
+  const demoDatabaseUrl = process.env.DEMO_DATABASE_URL?.trim() || null;
+
   const wrong: string[] = [];
   if (values.DATABASE_URL && !/^postgres(ql)?:\/\//.test(values.DATABASE_URL)) {
     wrong.push("DATABASE_URL (must be a postgresql:// connection string)");
@@ -79,6 +89,7 @@ export function getConfig(): AppConfig {
 
   cached = {
     databaseUrl: values.DATABASE_URL,
+    demoDatabaseUrl,
     clerkPublishableKey: values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     clerkSecretKey: values.CLERK_SECRET_KEY,
     sanityProjectId: values.SANITY_PROJECT_ID,
