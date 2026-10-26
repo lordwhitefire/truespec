@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–7 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–8 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -112,7 +112,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 - [x] Task 6: Sanity label/created-time support and the one-time snapshot tool
 - [x] Task 7: `restoreArchive` `preserveTables`
-- [ ] Task 8: Reset target proof and direct main advisory lock
+- [x] Task 8: Reset target proof and direct main advisory lock
 - [ ] Task 9: Reset route, restore orchestration, demo-asset cleanup and cron
 
 ### Checkpoint C1 — after Tasks 6–7
@@ -396,17 +396,20 @@ cleanup, and is released in `finally`. If that URL is missing or pooled, the res
 touching demo. If the lock connection drops, the run fails.
 
 **Acceptance criteria:**
-- [ ] The four branch checks pass only when the demo branch ID equals `DEMO_BRANCH_ID`, the name is
+- [x] The four branch checks pass only when the demo branch ID equals `DEMO_BRANCH_ID`, the name is
       `demo`, the branch is not the default branch, and the URL host is its read-write endpoint.
-- [ ] The non-default and host checks are additional, not substitutes for ID/name.
-- [ ] Missing `DATABASE_URL_UNPOOLED` or a pooled host refuses before any demo connection.
-- [ ] `pg_try_advisory_lock(hashtext('truespec-demo-reset'))` is used; no main data write occurs.
-- [ ] A second reset refuses while the lock is held; a dropped lock connection fails the run.
-- [ ] Zero or more than one seed asset refuses; a demo upload with the same filename does not count.
+- [x] The non-default and host checks are additional, not substitutes for ID/name.
+- [x] Missing `DATABASE_URL_UNPOOLED` or a pooled host refuses before any demo connection.
+- [x] `pg_try_advisory_lock(hashtext('truespec-demo-reset'))` is used; no main data write occurs.
+- [x] A second reset refuses while the lock is held; a dropped lock connection fails the run.
+- [x] Zero or more than one seed asset refuses; a demo upload with the same filename does not count.
 
 **Verification:**
-- [ ] `node --import tsx --test lib/demo-reset.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --conditions=react-server --import tsx --test lib/demo-reset.test.ts` (20 tests)
+- [x] `npm run typecheck`
+
+**Live check:** the Neon API proof and the real `pg` lock are owner actions; the tests inject the
+API and the lock client. They are not claimed as a live run.
 
 **Dependencies:** Tasks 2–3.
 
