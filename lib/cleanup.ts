@@ -109,7 +109,13 @@ type RawAddressRow = {
   origin: string | null;
 };
 
-type RawAsset = { _id: string; _type: string; originalFilename: string | null; size: number | null };
+type RawAsset = {
+  _id: string;
+  _type: string;
+  originalFilename: string | null;
+  size: number | null;
+  label: string | null;
+};
 
 // The driver hands a `timestamptz` back as a Date; every timestamp leaves this module as an ISO
 // string, so callers never have to think about which one they got.
@@ -183,7 +189,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
   let note: string | null = null;
   try {
     assets = (await sanityClient().fetch(
-      `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size}`,
+      `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label}`,
     )) as RawAsset[];
     readable = true;
   } catch (err) {
@@ -228,14 +234,16 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
       assetId: r.asset_id,
     })),
     machineLitter: {
-      // A retained backup is the job's own file, not litter. The exact pattern is excluded here;
-      // without it every backup older than the newest seven would sit in the owner's cleanup list.
+      // A retained backup, the fixed seed and demo uploads are system-owned, not litter. Their exact
+      // names/labels are excluded by the pure rule; without it they would sit in the owner's cleanup
+      // list and invite him to clear something the system still needs.
       unreferenced: unreferencedLitter(
         assets.map((a) => ({
           assetId: a._id,
           kind: a._type,
           filename: a.originalFilename,
           bytes: a.size ?? 0,
+          label: a.label,
         })),
         referenced,
       ),

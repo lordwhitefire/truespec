@@ -55,12 +55,9 @@ async function main(): Promise<void> {
   }
   console.log("   the clock is the row's own created_at — retention runs from creation");
 
-  section("3. every stored file, by its owner's record");
-  const referencedAssets = w.assetStore.assets - w.machineLitter.unreferenced.length;
-  console.log(
-    `   rows that name an asset: ${referencedAssets} referenced asset(s) · ` +
-      `rows that hold an address: ${w.rowsHoldingAnAddress.length}`,
-  );
+  section("3. the asset store and the rows that hold an address");
+  console.log(`   asset store: ${w.assetStore.assets} asset(s)`);
+  console.log(`   rows that hold an address: ${w.rowsHoldingAnAddress.length}`);
 
   section("4. a row pointing at an asset the store does not hold");
   if (!w.assetStore.readable) {

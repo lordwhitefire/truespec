@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–15 code complete, checks pass; live setup and copy approval remain the owner's. **Code
+**Status:** in progress — Tasks 1–16 code complete, checks pass; live setup and copy approval remain the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -156,7 +156,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 ### Phase 6 — Cleanup exclusions, legacy retirement, handover and gates
 
-- [ ] Task 16: Cleanup card and machine-litter exclusions
+- [x] Task 16: Cleanup card and machine-litter exclusions
 - [ ] Task 17: Retire `demo:wipe`
 - [ ] Task 18: Owner setup handover outside the repository
 - [ ] Task 19: Full code-level gates and honest report
@@ -674,23 +674,26 @@ or a demo upload as litter. The main report may count the asset store, but its u
 does not include demo space assets.
 
 **Acceptance criteria:**
-- [ ] The seed label and fixed seed filename are excluded.
-- [ ] All `backup-` files are excluded.
-- [ ] All exact `truespec-demo` assets are excluded.
-- [ ] The unreferenced list does not include demo space assets.
-- [ ] The main report still counts the asset store.
+- [x] The seed label and fixed seed filename are excluded.
+- [x] All `backup-` files are excluded. (The existing exact `backup-YYYY-MM-DD.json.gz.enc` rule is
+  unchanged.)
+- [x] All exact `truespec-demo` assets are excluded. (Exact label match; prefix near-misses remain
+  litter and are tested.)
+- [x] The unreferenced list does not include demo space assets.
+- [x] The main report still counts the asset store. (`scripts/cleanup-readiness.ts` prints the store
+  count; it no longer derives a misleading "referenced" count from the filtered litter list.)
 
 **Verification:**
-- [ ] `node --import tsx --test lib/cleanup-litter.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --import tsx --test lib/cleanup-litter.test.ts` (5 tests)
+- [x] `npm run typecheck`
+- [x] Full suite (504 pass).
 
 **Dependencies:** Tasks 6, 12.
 
 **Files likely touched:**
 - `lib/cleanup.ts`
 - `lib/cleanup-litter.ts`
-- `lib/sanity.ts`
-- `app/office/(shell)/settings/settings-client.tsx`
+- `lib/cleanup-litter.test.ts`
 - `scripts/cleanup-readiness.ts`
 
 **Estimated scope:** Medium (5 files).
