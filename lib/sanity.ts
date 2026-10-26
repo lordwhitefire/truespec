@@ -60,6 +60,8 @@ export type UploadedAsset = {
   size: number | null;
   width: number | null;
   height: number | null;
+  /** The server-set label Sanity stored, read back from the upload response. */
+  label: string | null;
 };
 
 /**
@@ -70,11 +72,12 @@ export type UploadedAsset = {
  */
 export async function uploadImage(
   bytes: Buffer,
-  options: { filename: string; contentType: string },
+  options: { filename: string; contentType: string; label?: string },
 ): Promise<UploadedAsset> {
   const asset = await sanityClient().assets.upload("image", bytes, {
     filename: options.filename,
     contentType: options.contentType,
+    label: options.label,
   });
   return {
     assetId: asset._id,
@@ -82,6 +85,7 @@ export async function uploadImage(
     size: asset.size ?? null,
     width: asset.metadata?.dimensions?.width ?? null,
     height: asset.metadata?.dimensions?.height ?? null,
+    label: (asset as { label?: string }).label ?? null,
   };
 }
 
@@ -112,13 +116,19 @@ export async function findImageAsset(
  */
 export async function uploadFile(
   bytes: Buffer,
-  options: { filename: string; contentType: string },
-): Promise<{ assetId: string; url: string; size: number | null }> {
+  options: { filename: string; contentType: string; label?: string },
+): Promise<{ assetId: string; url: string; size: number | null; label: string | null }> {
   const asset = await sanityClient().assets.upload("file", bytes, {
     filename: options.filename,
     contentType: options.contentType,
+    label: options.label,
   });
-  return { assetId: asset._id, url: asset.url, size: asset.size ?? null };
+  return {
+    assetId: asset._id,
+    url: asset.url,
+    size: asset.size ?? null,
+    label: (asset as { label?: string }).label ?? null,
+  };
 }
 
 /**
@@ -131,32 +141,53 @@ export type StoredAsset = {
   kind: "image" | "file";
   filename: string | null;
   size: number | null;
+  /** The server-set label, when the asset has one. Exact matches are the system-file identity. */
+  label: string | null;
+  /** Sanity's creation time for the asset; the demo cleanup uses it as a time boundary. */
+  createdAt: string | null;
 };
 
 export async function listStoredAssets(): Promise<StoredAsset[]> {
   const rows = await sanityClient().fetch<
-    { _id: string; _type: string; originalFilename?: string | null; size?: number | null }[]
+    {
+      _id: string;
+      _type: string;
+      originalFilename?: string | null;
+      size?: number | null;
+      label?: string | null;
+      _createdAt?: string | null;
+    }[]
   >(
-    `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size}`,
+    `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label, _createdAt}`,
   );
   return rows.map((row) => ({
     assetId: row._id,
     kind: row._type === "sanity.imageAsset" ? "image" : "file",
     filename: row.originalFilename ?? null,
     size: row.size ?? null,
+    label: row.label ?? null,
+    createdAt: row._createdAt ?? null,
   }));
 }
 
 /** The file assets only (enquiry PDFs and the daily backups). */
 export async function listFileAssets(): Promise<StoredAsset[]> {
   const rows = await sanityClient().fetch<
-    { _id: string; originalFilename?: string | null; size?: number | null }[]
-  >(`*[_type == "sanity.fileAsset"]{_id, originalFilename, size}`);
+    {
+      _id: string;
+      originalFilename?: string | null;
+      size?: number | null;
+      label?: string | null;
+      _createdAt?: string | null;
+    }[]
+  >(`*[_type == "sanity.fileAsset"]{_id, originalFilename, size, label, _createdAt}`);
   return rows.map((row) => ({
     assetId: row._id,
     kind: "file" as const,
     filename: row.originalFilename ?? null,
     size: row.size ?? null,
+    label: row.label ?? null,
+    createdAt: row._createdAt ?? null,
   }));
 }
 

@@ -10,6 +10,7 @@
     "test": "node --conditions=react-server --import tsx --test \"lib/**/*.test.ts\"",
     "db:migrate": "tsx scripts/migrate.ts",
     "backup:restore": "tsx scripts/backup-restore.ts",
+    "demo:snapshot": "node --import tsx --conditions=react-server scripts/demo-snapshot.ts",
     "demo:wipe": "node --import tsx --conditions=react-server scripts/demo-wipe.ts",
     "db:seed": "tsx scripts/seed.ts",
     "leak-check": "tsx scripts/leak-check.ts",

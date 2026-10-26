@@ -1,8 +1,8 @@
 # DEMO-001 — commit tracker
 
-**Purpose:** commits are made at the plan's **checkpoints**, not after every task. A checkpoint
-commit contains all task work since the previous checkpoint, so the owner can revert to a coherent
-point without a trail of tiny commits. The checkpoint's focused tests and typecheck must pass first.
+**Purpose:** one local commit per task, so the owner can revert any single task without reverting the
+whole build. A task's focused tests and typecheck must pass before its commit. The commits are the
+revert points; the checkpoint letters below are review milestones, not commits.
 
 **Where:** `/home/lordwhitefire/current-project/truespec`, branch `main`, local repository.
 **No push** unless the owner asks. A commit here is a local revert point, not a published change.
@@ -18,47 +18,60 @@ commit:
 - `openspec/research/demo-mode-owner-decisions.md`
 - `product-management/*`
 
-**Commit message:** `DEMO-001 checkpoint <A|B|C1|C2|D1|D2|E|F>: <scope>` — one line, imperative,
-no secret, no row, no person.
+**Commit message:** `DEMO-001 T<n>: <scope>` — one line, imperative, no secret, no row, no person.
+The existing `C1`–`C4` commits are Tasks 1–4 under the earlier naming; they remain valid revert
+points.
 
-**Revert:** `git revert <hash>` keeps history; `git reset --hard <hash>` is local-only and would
-discard uncommitted work, so it is never used without the owner asking. The tracker records the hash
-after each commit.
+**Revert:** `git revert <hash>` keeps history. If a later task changed the same lines, git reports a
+conflict; resolve it or revert the later task first. `git reset --hard` is local-only and would
+discard uncommitted work, so it is never used without the owner asking.
 
-## Checkpoint commits
+## Task commits
 
-| Checkpoint | Tasks | Scope | Gate | Status | Hash |
+| Task | Scope | Main files | Gate | Status | Hash |
 |---|---|---|---|---|---|
-| A | 1–3 | Space rule, two DB clients, doors, public showroom and tap main-only | Focused tests + typecheck | committed as the fine-grained C1–C3; this is the checkpoint point | `b95f411` |
-| B | 4–5 | Backup/notices/cleanup main-only; import-safety and door-isolation proofs | Focused tests + typecheck | committed | `6a3749b` |
-| C1 | 6–7 | One-time snapshot tool; `restoreArchive` `preserveTables` | Focused tests + typecheck | not started | — |
-| C2 | 8–9 | Reset target proof, direct main lock, reset route, demo-asset cleanup, cron | Focused tests + typecheck + build | not started | — |
-| D1 | 10–11 | `OfficeSession.space`, cross-space sign-out, demo banner | Focused tests + typecheck | not started | — |
-| D2 | 12 | Demo upload mark, verification and cap | Focused tests + typecheck | not started | — |
-| E | 13–15 | Demo Settings, no buyer preview, sign-up page and privacy | Typecheck + build + copy review | not started | — |
-| F | 16–19 | Cleanup exclusions, retire `demo:wipe`, handover, full gates and report | Full gates + honest report | not started | — |
+| 1 | Pure space rule and request resolver | `lib/space-rule.ts`, `lib/space.ts`, `lib/space.test.ts` | focused tests + typecheck | committed (C1) | `a10ef70` |
+| 2 | Main and demo database clients | `lib/db.ts`, `lib/config.ts`, `lib/db.test.ts`, `package.json` | focused tests + typecheck | committed (C2) | `9d86bc6` |
+| 3 | Store doors and main-only public reads | `lib/store-guard.ts`, `lib/public-cars.ts`, `lib/tap.ts`, `lib/store-guard.test.ts` | focused tests + typecheck | committed (C3) | `b95f411` |
+| 4 | Backup, notices and cleanup pinned to main | `lib/backup-run-live.ts`, `lib/settings.ts`, `lib/cleanup.ts`, `scripts/reconcile.ts` | focused tests + typecheck | committed (C4) | `0b8c8e6` |
+| 5 | Import-safety and door-isolation proofs | `lib/store-guard-import.test.ts`, `lib/space-isolation.test.ts` | focused tests + typecheck | committed | `6a3749b` |
+| 6 | Sanity label/created-time and the one-time snapshot tool | `lib/sanity.ts`, `lib/demo-snapshot.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | focused tests + typecheck | committed; hash recorded in T7 | — |
+| 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | pending | — |
+| 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | pending | — |
+| 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | pending | — |
+| 10 | `OfficeSession.space` and cross-space sign-out | `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts`, `lib/store-guard.ts` | focused tests + typecheck | pending | — |
+| 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx`, `app/office/(shell)/office.css` | focused tests + typecheck | pending | — |
+| 12 | Demo upload mark, verification and cap | `lib/sanity.ts`, `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck | pending | — |
+| 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx`, `app/office/(shell)/settings/cleanup-card.tsx` | focused tests + typecheck | pending | — |
+| 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | focused tests + typecheck | pending | — |
+| 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts` | typecheck + build + copy review | pending | — |
+| 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/sanity.ts`, `app/office/(shell)/settings/settings-client.tsx`, `scripts/cleanup-readiness.ts` | focused tests + typecheck | pending | — |
+| 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts` | typecheck | pending | — |
+| 18 | Owner setup handover | `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the repository; not committed) | handover review | pending | — |
+| 19 | Full code-level gates and report | `developer-workspace/reports/DEMO-001-report.md` | full gates + honest report | pending | — |
 
-**Checkpoint commit contents:** every task file since the previous checkpoint, plus this tracker's
-updated row. The handover at C18 is outside the repository and is not committed. The report at C19
-is committed with the final checkpoint if it is not ignored.
+**Hash bookkeeping:** a task's hash is recorded in the next task's commit (the commit cannot contain
+its own hash). `git log --oneline` is always the live truth. The final report commit records the last
+task hash.
 
-## History before the checkpoint-only rule
+## Review milestones
 
-- `1bf99c4` — C0: plan and this tracker.
-- `a10ef70` — C1: pure space rule and request resolver.
-- `9d86bc6` — C2: main and demo database clients.
-- `b95f411` — C3: store doors and main-only public reads. Together with C1–C2, this is checkpoint A.
-- `0b8c8e6` — C4: backup, notices and cleanup pinned to main. This is part of checkpoint B.
-- `9237219` — ledger: recorded the C0–C4 hashes.
-
-The owner set the checkpoint-only rule after C4. History is not rewritten; the next commit is
-checkpoint B after Task 5. The fine-grained commits remain usable revert points.
+- **A** — Tasks 1–3: space rule, two clients, doors, public showroom and tap.
+- **B** — Tasks 4–5: main-only backup/notices/cleanup; import and door isolation proofs.
+- **C1** — Tasks 6–7: snapshot and `preserveTables`.
+- **C2** — Tasks 8–9: reset target proof, lock, route and cleanup.
+- **D1** — Tasks 10–11: session space and demo banner.
+- **D2** — Task 12: demo uploads.
+- **E** — Tasks 13–15: demo UI, no buyer preview, sign-up and privacy.
+- **F** — Tasks 16–19: cleanup exclusions, legacy wipe retirement, handover, gates and report.
 
 ## Progress notes
 
-- 2026-10-26: Tasks 1–4 implemented. Focused tests and `npm run typecheck` pass. Checkpoint A is
-  covered by C1–C3 (`b95f411`); Task 4 is in C4 (`0b8c8e6`).
-- 2026-10-26: checkpoint-only rule adopted. Task 5 passes; checkpoint B committed as `6a3749b`
-  (Task 4 is already in C4). No separate Task 5 commit.
+- 2026-10-26: Tasks 1–5 implemented. Focused tests and `npm run typecheck` pass. The owner chose
+  per-task commits so any task can be reverted on its own.
+- Task 5's commit is `6a3749b` (it also carried the plan/tracker update made at the time). The
+  earlier `C1`–`C4` commits are Tasks 1–4.
+- 2026-10-26: Task 6 implemented. `lib/demo-snapshot.test.ts` (7 tests) and `npm run typecheck`
+  pass. The live Sanity upload is owner action, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
-  file is the checkpoint ledger.
+  file is the commit ledger.

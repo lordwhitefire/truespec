@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–5 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–6 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -100,8 +100,8 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 - [x] Task 5: Import-safety and door-isolation proofs
 
 ### Checkpoint A — after Tasks 1–3
-- [ ] Focused tests and `npm run typecheck` pass.
-- [ ] Public showroom and tap cannot reach demo.
+- [x] Focused tests and `npm run typecheck` pass.
+- [x] Public showroom and tap cannot reach demo.
 
 ### Checkpoint B — after Tasks 4–5
 - [x] Backup, settings notices and cleanup are main-only.
@@ -110,7 +110,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 ### Phase 2 — Snapshot and reset (highest risk)
 
-- [ ] Task 6: Sanity label/created-time support and the one-time snapshot tool
+- [x] Task 6: Sanity label/created-time support and the one-time snapshot tool
 - [ ] Task 7: `restoreArchive` `preserveTables`
 - [ ] Task 8: Reset target proof and direct main advisory lock
 - [ ] Task 9: Reset route, restore orchestration, demo-asset cleanup and cron
@@ -330,26 +330,30 @@ older seed-labelled assets so exactly one remains, and prints only counts, time 
 id/filename.
 
 **Acceptance criteria:**
-- [ ] Uploads can carry a label; listings return label and `_createdAt`.
-- [ ] The snapshot reads main only and creates no schema or table.
-- [ ] Missing key or main URL refuses; a demo URL naming main refuses.
-- [ ] Exactly one asset carries `truespec-demo-seed` after the run.
-- [ ] A demo upload with the same filename is not counted or deleted.
-- [ ] Output contains no row, key, connection string or person.
+- [x] Uploads can carry a label; listings return label and `_createdAt`.
+- [x] The snapshot reads main only and creates no schema or table.
+- [x] Missing key or main URL refuses; a demo URL naming main refuses.
+- [x] Exactly one asset carries `truespec-demo-seed` after the run.
+- [x] A demo upload with the same filename is not counted or deleted.
+- [x] Output contains no row, key, connection string or person.
 
 **Verification:**
-- [ ] `node --import tsx --test lib/demo-snapshot.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --conditions=react-server --import tsx --test lib/demo-snapshot.test.ts`
+- [x] `npm run typecheck`
+
+**Live check:** the first real snapshot upload and the Sanity label read are owner actions; the
+tests use the injected asset door. They are not claimed as a live run.
 
 **Dependencies:** Tasks 2–3.
 
 **Files likely touched:**
 - `lib/sanity.ts`
-- `scripts/demo-snapshot.ts` (new)
+- `lib/demo-snapshot.ts` (new orchestration)
+- `scripts/demo-snapshot.ts` (new CLI)
 - `lib/demo-snapshot.test.ts` (new)
 - `package.json` (`demo:snapshot` script)
 
-**Estimated scope:** Medium (4 files).
+**Estimated scope:** Medium (5 files).
 
 ---
 
