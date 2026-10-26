@@ -29,7 +29,7 @@
 import { readFileSync } from "node:fs";
 import { config as loadEnv } from "dotenv";
 
-import { db } from "../lib/db";
+import { mainDb } from "../lib/db";
 import { countStock } from "../lib/counts";
 import { costLabelFor, formatNaira, isCostComplete, profitKobo, totalCostKobo } from "../lib/money";
 import { reachLine, stillBuildingLine, stockOverview, type OverviewCar } from "../lib/overview";
@@ -112,7 +112,7 @@ type RawStoreRow = {
 };
 
 async function storeCars(): Promise<StoreCar[]> {
-  const sql = db();
+  const sql = mainDb();
   const rows = (await sql.query(`
     SELECT c.ref, c.brand, c.model, c.trim, c.year, s.label AS state, s.section, s.is_new_arrival,
            c.doorstep_price_kobo, sale.sold_at, sale.sale_price_kobo,

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { storeQuery, storeQueryRefusing } from "./store-guard";
+import { storeQuery, storeQueryMain, storeQueryRefusing } from "./store-guard";
 import { normaliseNigerianMobile } from "./phone";
 import { parseCostAmount } from "./money";
 import type { NoticeInput, StoredNumber } from "./notices";
@@ -102,7 +102,9 @@ export async function readSettings(): Promise<OfficeSettings> {
  * refuses to invent one either way.
  */
 export async function readNotices(): Promise<NoticeInput> {
-  const rows = await storeQuery<{ key: string; value: string }[]>(
+  // The notices are main's operational state. A demo session must not read the owner's backup or
+  // storage figures, and a demo write must never move them.
+  const rows = await storeQueryMain<{ key: string; value: string }[]>(
     `SELECT key, value FROM setting WHERE key = ANY($1::text[])`,
     [NOTICE_KEYS],
   );
