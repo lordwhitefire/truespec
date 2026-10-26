@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–12 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–13 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -144,7 +144,7 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 ### Phase 5 — Demo UI, sign-up and privacy
 
-- [ ] Task 13: Demo Settings omits System and cleanup-readiness cards
+- [x] Task 13: Demo Settings omits System and cleanup-readiness cards
 - [ ] Task 14: No buyer-page preview for a demo car
 - [ ] Task 15: Clerk sign-up page, demo link and corrected privacy notice
 
@@ -562,23 +562,28 @@ props. The System card and cleanup-readiness card are absent for demo. The rest 
 available for practice; main is unchanged.
 
 **Acceptance criteria:**
-- [ ] Demo Settings omits the System card and the cleanup-readiness card.
-- [ ] Demo Settings does not call `readNotices` or `lib/cleanup.ts`.
-- [ ] Demo client props contain no main storage, backup or asset filenames.
-- [ ] The editable settings still work in demo.
-- [ ] Main Settings is unchanged.
+- [x] Demo Settings omits the System card and the cleanup-readiness card. (Code path in place; the
+  live demo render is blocked — owner action.)
+- [x] Demo Settings does not call `readNotices` or `listWaitingToBeCleared`. (Both calls are behind
+  the non-demo branch; a demo request evaluates neither.)
+- [x] Demo client props contain no main storage, backup or asset filenames. (Demo passes neither
+  `notices` nor `cleanup`, so the RSC payload carries no such values.)
+- [x] The editable settings still work in demo. (`readSettings`, both registries and their saves stay
+  space-aware; no code changed.)
+- [x] Main Settings is unchanged. (Main still passes both props and renders both cards.)
 
 **Verification:**
-- [ ] `npm run typecheck`
-- [ ] `npm run build`
-- [ ] Inspect the demo page source/props for main operational values.
+- [x] `npm run typecheck`
+- [x] `npm run build`
+- [x] Inspect the demo page source/props for main operational values. (Source inspection: the two
+  readers are non-demo-only; demo props are `undefined`. Live render blocked — owner action.)
+- [x] Full suite (501 pass).
 
 **Dependencies:** Task 10.
 
 **Files likely touched:**
 - `app/office/(shell)/settings/page.tsx`
 - `app/office/(shell)/settings/settings-client.tsx`
-- `app/office/(shell)/settings/cleanup-card.tsx` (only if the card boundary needs a guard)
 
 **Estimated scope:** Small (2–3 files).
 

@@ -88,8 +88,10 @@ export function Settings({
   registry?: RegistryState[];
   enquiryRegistry?: EnquiryRegistryState[];
   settings: OfficeSettings;
-  notices: Notice[];
-  cleanup: WaitingToBeCleared;
+  // Main supplies both; a demo page supplies neither, so the System and cleanup-readiness cards
+  // are absent and no main operational values reach this client component.
+  notices?: Notice[];
+  cleanup?: WaitingToBeCleared;
 }) {
   const [wa, setWa] = useState(settings.whatsapp.value);
   const [waSnap, setWaSnap] = useState(settings.whatsapp.value);
@@ -635,35 +637,37 @@ export function Settings({
         </section>
 
         {/* ============ 5. SYSTEM (operational notices) ============ */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-solid fa-heart-pulse" />
-            <h2>System</h2>
-          </div>
-          <p className="cd">
-            Read from what the system records about itself. The office displays these; it never
-            estimates them.
-          </p>
-          <div className="notices">
-            {notices.map((n) => (
-              <div className={`notice ${n.level}`} key={n.kind} data-kind={n.kind}>
-                <i
-                  className={`fa-solid ${
-                    n.level === "warn" ? "fa-triangle-exclamation" : "fa-circle-info"
-                  }`}
-                  aria-hidden="true"
-                />
-                <div>
-                  <b>{n.title}</b>
-                  <span>{n.body}</span>
+        {notices !== undefined ? (
+          <section className="card">
+            <div className="ch">
+              <i className="fa-solid fa-heart-pulse" />
+              <h2>System</h2>
+            </div>
+            <p className="cd">
+              Read from what the system records about itself. The office displays these; it never
+              estimates them.
+            </p>
+            <div className="notices">
+              {notices.map((n) => (
+                <div className={`notice ${n.level}`} key={n.kind} data-kind={n.kind}>
+                  <i
+                    className={`fa-solid ${
+                      n.level === "warn" ? "fa-triangle-exclamation" : "fa-circle-info"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <div>
+                    <b>{n.title}</b>
+                    <span>{n.body}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {/* ============ 6. WAITING TO BE CLEARED (report only) ============ */}
-        <CleanupCard data={cleanup} />
+        {cleanup !== undefined ? <CleanupCard data={cleanup} /> : null}
 
         {/* ============ 7. EXPORT (one action → one ZIP) ============ */}
         {/* A plain anchor, never `Link`: Link prefetches when it scrolls into view, which would

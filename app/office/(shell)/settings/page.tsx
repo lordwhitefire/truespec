@@ -23,15 +23,21 @@ export const dynamic = "force-dynamic";
    live here too: it is a telling, not a queue of buttons. */
 
 export default async function SettingsPage() {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
+  const isDemo = session.space === "demo";
+
+  // The three editable settings and both state registries are space-aware. The operational notices
+  // and the cleanup report are main's alone: a demo session gets `readSettings` and the registries,
+  // and the two main-only readers are not called, so no main storage, backup or asset values enter
+  // the demo page or its client props.
   const [registry, enquiryRegistry, settings, noticeRows, cleanup] = await Promise.all([
     getCarStateRegistry(),
     getEnquiryStateRegistry(),
     readSettings(),
-    readNotices(),
-    listWaitingToBeCleared(),
+    isDemo ? null : readNotices(),
+    isDemo ? null : listWaitingToBeCleared(),
   ]);
-  const notices = buildNotices(noticeRows, new Date());
+  const notices = noticeRows === null ? undefined : buildNotices(noticeRows, new Date());
 
   return (
     <Settings
@@ -39,7 +45,7 @@ export default async function SettingsPage() {
       enquiryRegistry={enquiryRegistry}
       settings={settings}
       notices={notices}
-      cleanup={cleanup}
+      cleanup={cleanup ?? undefined}
     />
   );
 }
