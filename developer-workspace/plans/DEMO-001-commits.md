@@ -38,8 +38,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 6 | Sanity label/created-time and the one-time snapshot tool | `lib/sanity.ts`, `lib/demo-snapshot.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | focused tests + typecheck | committed | `6b14af7` |
 | 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | committed | `c0b3ba9` |
 | 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | committed | `754afef` |
-| 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `lib/sanity.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | committed; hash recorded in T10 | — |
-| 10 | `OfficeSession.space` and cross-space sign-out | `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts`, `lib/store-guard.ts` | focused tests + typecheck | pending | — |
+| 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `lib/sanity.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | committed | `c65ae66` |
+| 10 | `OfficeSession.space` and cross-space sign-out | `lib/session-space.ts`, `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts` | focused tests + typecheck | committed; hash recorded in T11 | — |
 | 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx`, `app/office/(shell)/office.css` | focused tests + typecheck | pending | — |
 | 12 | Demo upload mark, verification and cap | `lib/sanity.ts`, `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck | pending | — |
 | 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx`, `app/office/(shell)/settings/cleanup-card.tsx` | focused tests + typecheck | pending | — |
@@ -80,5 +80,8 @@ task hash.
 - 2026-10-26: Task 9 implemented. `lib/demo-reset.test.ts` (32 tests), the full suite (478 pass),
   `npm run typecheck` and `npm run build` pass. The route is built; the first live reset, the demo
   branch and the real snapshot remain owner actions, not claimed.
+- 2026-10-26: Task 10 implemented. `lib/session.test.ts` (16 tests), the full suite (487 pass),
+  `npm run typecheck` and `npm run build` pass. The session row is read and created in the resolved
+  space; the live Clerk session and the demo branch remain owner actions, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.

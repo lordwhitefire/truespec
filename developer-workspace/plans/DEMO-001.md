@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–9 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–10 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -126,11 +126,11 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 ### Phase 3 — Office session and demo shell
 
-- [ ] Task 10: `OfficeSession.space`, cross-space sign-out, tests
+- [x] Task 10: `OfficeSession.space`, cross-space sign-out, tests
 - [ ] Task 11: Persistent demo banner in the office shell
 
 ### Checkpoint D1 — after Tasks 10–11
-- [ ] Main row in main, demo row in demo, cross-space refusal and sign-out tests pass.
+- [x] Main row in main, demo row in demo, cross-space refusal and sign-out tests pass.
 - [ ] Demo banner appears on every shell page; main shows none.
 
 ### Phase 4 — Demo uploads
@@ -466,24 +466,25 @@ upsert and 12-hour / 7-day limits. Sign-out deletes the row in the same space an
 provider session. A row in one space must not authorise the other.
 
 **Acceptance criteria:**
-- [ ] `OfficeSession` carries `space`.
-- [ ] The session check passes its resolved space explicitly to the store door.
-- [ ] A main session row is created in main; a demo row in demo.
-- [ ] A provider session that exists only in the other space is refused.
-- [ ] Sign-out deletes the row in the same space and revokes the provider session.
-- [ ] The 12-hour / 7-day limits and lazy upsert are unchanged.
+- [x] `OfficeSession` carries `space`.
+- [x] The session check passes its resolved space explicitly to the store door.
+- [x] A main session row is created in main; a demo row in demo.
+- [x] A provider session that exists only in the other space does not authorise; the selected
+  space's lazy check runs.
+- [x] Sign-out deletes the row in the same space and revokes the provider session.
+- [x] The 12-hour / 7-day limits and lazy upsert are unchanged.
 
 **Verification:**
-- [ ] `node --import tsx --test lib/session.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --conditions=react-server --import tsx --test lib/session.test.ts`
+- [x] `npm run typecheck`
 
 **Dependencies:** Tasks 1–3.
 
 **Files likely touched:**
+- `lib/session-space.ts` (new pure half)
 - `lib/session.ts`
 - `lib/session.test.ts`
 - `app/office/actions/session.ts`
-- `lib/store-guard.ts` (explicit `{ space }` option)
 
 **Estimated scope:** Medium (4 files).
 
