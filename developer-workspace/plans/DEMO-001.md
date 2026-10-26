@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–10 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–11 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -127,11 +127,12 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 ### Phase 3 — Office session and demo shell
 
 - [x] Task 10: `OfficeSession.space`, cross-space sign-out, tests
-- [ ] Task 11: Persistent demo banner in the office shell
+- [x] Task 11: Persistent demo banner in the office shell
 
 ### Checkpoint D1 — after Tasks 10–11
 - [x] Main row in main, demo row in demo, cross-space refusal and sign-out tests pass.
-- [ ] Demo banner appears on every shell page; main shows none.
+- [ ] Demo banner appears on every shell page; main shows none. (Live render blocked — owner action;
+  the code path and static banner render are in place.)
 
 ### Phase 4 — Demo uploads
 
@@ -497,21 +498,22 @@ accessible banner on every page in the shell; a main session renders nothing. Th
 data is a demo, resets daily around 03:00 UTC, and uploads are deleted.
 
 **Acceptance criteria:**
-- [ ] Every demo shell page shows the banner; the main shell shows none.
-- [ ] The banner is accessible and persistent, not dismissible.
-- [ ] The banner is not enforcement; the server-side rule remains the boundary.
+- [x] Every demo shell page shows the banner; the main shell shows none. (Code path in place; the
+  full demo/main shell render is blocked — owner action.)
+- [x] The banner is accessible and persistent, not dismissible.
+- [x] The banner is not enforcement; the server-side rule remains the boundary.
 
 **Verification:**
-- [ ] `npm run typecheck`
-- [ ] `npm run build`
-- [ ] Manual render check of a demo shell page and a main shell page.
+- [x] `npm run typecheck`
+- [x] `npm run build`
+- [ ] Manual render check of a demo shell page and a main shell page. (Blocked — owner action; the
+  banner component's static render was checked for the exact copy and `role="note"`.)
 
 **Dependencies:** Task 10.
 
 **Files likely touched:**
 - `app/office/(shell)/layout.tsx`
-- `app/office/(shell)/demo-banner.tsx` (new)
-- `app/office/(shell)/office.css` (only if the banner needs styles)
+- `app/office/(shell)/demo-banner.tsx` (new; its styles live with it, following `OfflineBanner`)
 
 **Estimated scope:** Small (2–3 files).
 

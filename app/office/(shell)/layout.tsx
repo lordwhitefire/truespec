@@ -6,6 +6,7 @@ import { OfflineBanner } from "@/components/office/OfflineBanner";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { requireOfficeSession } from "@/lib/session";
 import { getNewOfficeTapCount } from "@/lib/office";
+import { DemoBanner } from "./demo-banner";
 import { signOutOffice } from "../actions/session";
 
 // The shared Office shell: sidebar (desktop) / topbar (mobile) + bottom nav.
@@ -84,7 +85,11 @@ export default async function OfficeLayout({ children }: { children: React.React
 
         <OfficeTopbar tapCount={tapCount} />
 
-        <main className="main">{children}</main>
+        <main className="main">
+          {/* The demo notice is shell-wide and not dismissible. Main renders nothing. */}
+          {session.space === "demo" ? <DemoBanner /> : null}
+          {children}
+        </main>
       </div>
       <OfficeBottomNav />
     </>

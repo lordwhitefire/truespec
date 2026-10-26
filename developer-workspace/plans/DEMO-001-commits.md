@@ -39,8 +39,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | committed | `c0b3ba9` |
 | 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | committed | `754afef` |
 | 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `lib/sanity.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | committed | `c65ae66` |
-| 10 | `OfficeSession.space` and cross-space sign-out | `lib/session-space.ts`, `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts` | focused tests + typecheck | committed; hash recorded in T11 | — |
-| 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx`, `app/office/(shell)/office.css` | focused tests + typecheck | pending | — |
+| 10 | `OfficeSession.space` and cross-space sign-out | `lib/session-space.ts`, `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts` | focused tests + typecheck | committed | `26b335c` |
+| 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx` | typecheck + build + static render | committed; hash recorded in T12 | — |
 | 12 | Demo upload mark, verification and cap | `lib/sanity.ts`, `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck | pending | — |
 | 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx`, `app/office/(shell)/settings/cleanup-card.tsx` | focused tests + typecheck | pending | — |
 | 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | focused tests + typecheck | pending | — |
@@ -83,5 +83,9 @@ task hash.
 - 2026-10-26: Task 10 implemented. `lib/session.test.ts` (16 tests), the full suite (487 pass),
   `npm run typecheck` and `npm run build` pass. The session row is read and created in the resolved
   space; the live Clerk session and the demo branch remain owner actions, not claimed.
+- 2026-10-26: Task 11 implemented. The shell renders the banner only when the session's space is
+  demo; the component's static render carries the exact copy and `role="note"`. `npm run typecheck`,
+  `npm run build` and the full suite (487 pass) pass. The full demo/main shell render is blocked —
+  owner action, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.
