@@ -30,7 +30,7 @@ after each commit.
 | Checkpoint | Tasks | Scope | Gate | Status | Hash |
 |---|---|---|---|---|---|
 | A | 1–3 | Space rule, two DB clients, doors, public showroom and tap main-only | Focused tests + typecheck | committed as the fine-grained C1–C3; this is the checkpoint point | `b95f411` |
-| B | 4–5 | Backup/notices/cleanup main-only; import-safety and door-isolation proofs | Focused tests + typecheck | Task 4 in `0b8c8e6`; Task 5 passes; checkpoint B commit is this point | — |
+| B | 4–5 | Backup/notices/cleanup main-only; import-safety and door-isolation proofs | Focused tests + typecheck | committed | `6a3749b` |
 | C1 | 6–7 | One-time snapshot tool; `restoreArchive` `preserveTables` | Focused tests + typecheck | not started | — |
 | C2 | 8–9 | Reset target proof, direct main lock, reset route, demo-asset cleanup, cron | Focused tests + typecheck + build | not started | — |
 | D1 | 10–11 | `OfficeSession.space`, cross-space sign-out, demo banner | Focused tests + typecheck | not started | — |
@@ -58,7 +58,7 @@ checkpoint B after Task 5. The fine-grained commits remain usable revert points.
 
 - 2026-10-26: Tasks 1–4 implemented. Focused tests and `npm run typecheck` pass. Checkpoint A is
   covered by C1–C3 (`b95f411`); Task 4 is in C4 (`0b8c8e6`).
-- 2026-10-26: checkpoint-only rule adopted. Task 5 passes; checkpoint B is the next commit (Task 4
-  is already in C4). No separate Task 5 commit.
+- 2026-10-26: checkpoint-only rule adopted. Task 5 passes; checkpoint B committed as `6a3749b`
+  (Task 4 is already in C4). No separate Task 5 commit.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the checkpoint ledger.
