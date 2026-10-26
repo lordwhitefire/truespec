@@ -220,13 +220,6 @@ export default async function PrivacyPage() {
             )}
             .
           </p>
-          <div className="own">
-            <i className="fa-solid fa-user-shield" />
-            <span>
-              <b>Owner note:</b> replace the &quot;last updated&quot; date and any contact details
-              before publishing.
-            </span>
-          </div>
         </section>
       </main>
     </>
