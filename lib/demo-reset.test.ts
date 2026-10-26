@@ -8,20 +8,29 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import {
   acquireMainResetLock,
   createResetLock,
   preflightReset,
+  resetHttpStatus,
   ResetError,
+  runDemoReset,
+  type DemoResetClient,
+  type DemoResetDeps,
   type LockClient,
   type ResetEnv,
   type ResetLock,
   type ResetPreflightDeps,
   type ResetPreflightResult,
+  type ResetSummary,
 } from "./demo-reset";
 import { normalizeNeonHost, verifyDemoBranch, type FetchLike } from "./neon-api";
 import { DEMO_SEED_FILENAME, DEMO_SEED_LABEL } from "./demo-snapshot";
+import { encryptBackup } from "./backup-crypto";
+import { BACKUP_SEQUENCES, BACKUP_TABLES } from "./backup-tables";
+import type { BackupArchive } from "./backup-archive";
 import type { StoredAsset } from "./sanity";
 
 const NOW = new Date("2026-10-26T03:00:00.000Z");
@@ -660,4 +669,442 @@ test("the live lock refuses a pooled or invalid DATABASE_URL_UNPOOLED before con
     /pooled host/,
   );
   await assert.rejects(() => acquireMainResetLock("not a url"), /valid PostgreSQL URL/);
+});
+
+const SNAPSHOT_AT = "2026-10-25T02:00:00.000Z";
+
+function emptyArchive(): BackupArchive {
+  const tables = {} as BackupArchive["tables"];
+  for (const table of BACKUP_TABLES) tables[table] = [];
+  const sequences = {} as BackupArchive["sequences"];
+  for (const name of BACKUP_SEQUENCES) {
+    sequences[name] = { last_value: 1, is_called: false };
+  }
+  return {
+    format: "truespec-backup",
+    version: 1,
+    generated_at: SNAPSHOT_AT,
+    tables,
+    sequences,
+  };
+}
+
+function seedEnvelope(archive: BackupArchive = emptyArchive(), key = KEY): Buffer {
+  return encryptBackup(JSON.stringify(archive), key);
+}
+
+type DemoFakeOptions = {
+  beforeCounts?: Partial<Record<string, number>>;
+  afterCounts?: Partial<Record<string, number>>;
+  sequenceStates?: Partial<
+    Record<string, { last_value: number; is_called: boolean }>
+  >;
+  omitColumnsFor?: string;
+  failOn?: (sql: string) => Error | undefined;
+};
+
+/** A demo client that answers the restore's exact queries and records them. */
+function fakeDemoClient(options: DemoFakeOptions = {}) {
+  const calls: { text: string; params?: unknown[] }[] = [];
+  const defaultSequences = emptyArchive().sequences;
+  let truncated = false;
+  let committed = false;
+  let rolledBack = false;
+  let ended = false;
+
+  const client: DemoResetClient = {
+    async query(text, params) {
+      calls.push({ text, params });
+      const injected = options.failOn?.(text);
+      if (injected) throw injected;
+
+      if (text.includes("information_schema.columns")) {
+        return {
+          rows: BACKUP_TABLES.filter(
+            (table) => table !== options.omitColumnsFor,
+          ).map((table) => ({
+            table_name: table,
+            column_name: "id",
+            data_type: "integer",
+          })),
+        };
+      }
+      if (text === "BEGIN") return { rows: [] };
+      if (text.startsWith("TRUNCATE")) {
+        truncated = true;
+        return { rows: [] };
+      }
+      if (text.startsWith("SELECT count(*)")) {
+        const table = /FROM "([^"]+)"/.exec(text)?.[1] ?? "";
+        const counts = truncated ? options.afterCounts : options.beforeCounts;
+        return { rows: [{ n: counts?.[table] ?? (truncated ? 0 : 5) }] };
+      }
+      if (text.startsWith("SELECT setval")) return { rows: [] };
+      if (text.startsWith("SELECT last_value")) {
+        const name = /FROM "([^"]+)"/.exec(text)?.[1] ?? "";
+        return {
+          rows: [
+            options.sequenceStates?.[name] ??
+              defaultSequences[name as keyof typeof defaultSequences],
+          ],
+        };
+      }
+      if (text === "COMMIT") {
+        committed = true;
+        return { rows: [] };
+      }
+      if (text === "ROLLBACK") {
+        rolledBack = true;
+        return { rows: [] };
+      }
+      return { rows: [] };
+    },
+    async end() {
+      ended = true;
+    },
+  };
+
+  return {
+    client,
+    calls,
+    get truncated() {
+      return truncated;
+    },
+    get committed() {
+      return committed;
+    },
+    get rolledBack() {
+      return rolledBack;
+    },
+    get ended() {
+      return ended;
+    },
+  };
+}
+
+function baseResetDeps(overrides: Partial<DemoResetDeps> = {}): DemoResetDeps {
+  return {
+    ...baseDeps(),
+    downloadSeed: async () => seedEnvelope(),
+    openDemo: async () => fakeDemoClient().client,
+    listStoredAssets: async () => [seedAsset(), demoUpload()],
+    deleteAsset: async (assetId) => ({ assetId, deleted: true }),
+    ...overrides,
+  };
+}
+
+function resetSummary(overrides: Partial<ResetSummary> = {}): ResetSummary {
+  return {
+    ok: false,
+    step: "x",
+    startedAt: NOW.toISOString(),
+    snapshotAt: null,
+    rowsBefore: null,
+    rowsAfter: null,
+    cleanup: null,
+    durationMs: 0,
+    seedAssetId: null,
+    ...overrides,
+  };
+}
+
+test("runDemoReset refuses auth and disabled before any seed or demo work", async () => {
+  const cases: { authorization: string | null; enabled: string; step: string }[] = [
+    { authorization: null, enabled: "1", step: "auth" },
+    { authorization: "Bearer cron-secret", enabled: "0", step: "disabled" },
+  ];
+
+  for (const item of cases) {
+    let downloads = 0;
+    let opens = 0;
+    const result = await runDemoReset({
+      ...baseResetDeps({
+        authorization: item.authorization,
+        env: baseEnv({ demoResetEnabled: item.enabled }),
+      }),
+      downloadSeed: async () => {
+        downloads += 1;
+        return seedEnvelope();
+      },
+      openDemo: async () => {
+        opens += 1;
+        return fakeDemoClient().client;
+      },
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.step, item.step);
+    assert.deepEqual({ downloads, opens }, { downloads: 0, opens: 0 });
+  }
+});
+
+test("a successful reset restores the snapshot and cleans only exact pre-reset demo uploads", async () => {
+  const demo = fakeDemoClient({ beforeCounts: { car: 4 } });
+  const deleted: string[] = [];
+  let downloaded = "";
+  let opened = "";
+  let releases = 0;
+  const held = lock({
+    release: async () => {
+      releases += 1;
+      return { released: true };
+    },
+  });
+
+  const result = await runDemoReset({
+    ...baseResetDeps({ openLock: async () => held }),
+    downloadSeed: async (assetId) => {
+      downloaded = assetId;
+      return seedEnvelope();
+    },
+    openDemo: async (url) => {
+      opened = url;
+      return demo.client;
+    },
+    listStoredAssets: async () => [
+      seedAsset(),
+      demoUpload("old-demo"),
+      { ...demoUpload("post-reset"), createdAt: "2026-10-26T03:30:00.000Z" },
+      { ...demoUpload("main-label"), label: "truespec-main" },
+      { ...demoUpload("unlabelled"), label: null },
+      { ...demoUpload("seed-copy"), label: DEMO_SEED_LABEL },
+      { ...demoUpload("no-created-at"), createdAt: null },
+    ],
+    deleteAsset: async (assetId) => {
+      deleted.push(assetId);
+      return { assetId, deleted: true };
+    },
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.step, "done");
+  assert.equal(result.snapshotAt, SNAPSHOT_AT);
+  assert.equal(result.rowsBefore?.car, 4);
+  assert.equal(result.rowsAfter?.car, 0);
+  assert.equal(
+    result.rowsBefore !== null && "schema_migrations" in result.rowsBefore,
+    false,
+  );
+  assert.equal(
+    result.rowsAfter !== null && "schema_migrations" in result.rowsAfter,
+    false,
+  );
+  assert.deepEqual(result.cleanup, { candidates: 1, deleted: 1, failed: 0 });
+  assert.deepEqual(deleted, ["old-demo"]);
+  assert.equal(downloaded, "asset-seed");
+  assert.equal(opened, DEMO_URL);
+  assert.equal(result.seedAssetId, "asset-seed");
+  assert.equal(releases, 1);
+  assert.equal(demo.committed, true);
+  assert.equal(demo.ended, true);
+  assert.equal(result.durationMs >= 0, true);
+
+  const truncate =
+    demo.calls.find((call) => call.text.startsWith("TRUNCATE"))?.text ?? "";
+  assert.match(truncate, /TRUNCATE TABLE/);
+  assert.doesNotMatch(truncate, /schema_migrations/);
+  assert.doesNotMatch(truncate, /CASCADE/);
+  assert.equal(
+    demo.calls.some((call) => /INSERT INTO/.test(call.text)),
+    false,
+  );
+});
+
+test("a corrupt or unparseable seed refuses before opening demo", async () => {
+  const cases: { name: string; envelope: Buffer; step: string }[] = [
+    {
+      name: "wrong key",
+      envelope: seedEnvelope(emptyArchive(), randomBytes(32).toString("base64")),
+      step: "decrypt",
+    },
+    {
+      name: "not JSON",
+      envelope: encryptBackup("not json", KEY),
+      step: "parse",
+    },
+  ];
+
+  for (const item of cases) {
+    let opened = false;
+    let released = 0;
+    const result = await runDemoReset({
+      ...baseResetDeps({
+        openLock: async () =>
+          lock({
+            release: async () => {
+              released += 1;
+              return { released: true };
+            },
+          }),
+      }),
+      downloadSeed: async () => item.envelope,
+      openDemo: async () => {
+        opened = true;
+        return fakeDemoClient().client;
+      },
+    });
+    assert.equal(result.ok, false, item.name);
+    assert.equal(result.step, item.step, item.name);
+    assert.equal(opened, false, item.name);
+    assert.equal(released, 1, item.name);
+  }
+});
+
+test("a schema mismatch leaves demo untouched", async () => {
+  const demo = fakeDemoClient({ omitColumnsFor: "car" });
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "schema");
+  assert.match(result.error ?? "", /no table car/);
+  assert.equal(demo.truncated, false);
+  assert.equal(demo.committed, false);
+  assert.equal(demo.ended, true);
+});
+
+test("a count mismatch rolls back and never claims the restore", async () => {
+  const demo = fakeDemoClient({ afterCounts: { car: 1 } });
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "verify");
+  assert.match(result.error ?? "", /restored car has 1 rows/);
+  assert.equal(demo.rolledBack, true);
+  assert.equal(demo.committed, false);
+  assert.equal(result.rowsAfter, null);
+});
+
+test("a sequence mismatch rolls back", async () => {
+  const demo = fakeDemoClient({
+    sequenceStates: { ts_ref_seq: { last_value: 99, is_called: true } },
+  });
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "verify");
+  assert.match(result.error ?? "", /sequence ts_ref_seq/);
+  assert.equal(demo.rolledBack, true);
+  assert.equal(demo.committed, false);
+});
+
+test("a statement timeout is reported and never claimed as success", async () => {
+  const timeout = Object.assign(
+    new Error("canceling statement due to statement timeout"),
+    { code: "57014" },
+  );
+  const demo = fakeDemoClient({
+    failOn: (sql) => (sql.startsWith("TRUNCATE") ? timeout : undefined),
+  });
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "timeout");
+  assert.match(result.error ?? "", /time limit/);
+  assert.equal(demo.rolledBack, true);
+  assert.equal(demo.committed, false);
+});
+
+test("a dropped main lock after the restore is a lock failure and cleanup does not run", async () => {
+  const demo = fakeDemoClient();
+  let checks = 0;
+  let cleanupListed = false;
+  const held = lock({
+    check: async () => {
+      checks += 1;
+      if (checks === 2) {
+        throw new ResetError("lock", "the main lock connection dropped");
+      }
+    },
+  });
+
+  const result = await runDemoReset({
+    ...baseResetDeps({ openLock: async () => held }),
+    openDemo: async () => demo.client,
+    listStoredAssets: async () => {
+      cleanupListed = true;
+      return [];
+    },
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "lock");
+  assert.match(result.error ?? "", /dropped/);
+  assert.equal(cleanupListed, false);
+  assert.equal(result.cleanup, null);
+  assert.equal(demo.committed, true);
+  assert.equal(checks, 2);
+});
+
+test("a cleanup failure leaves the data reset standing and is reported", async () => {
+  const demo = fakeDemoClient();
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+    listStoredAssets: async () => [demoUpload("old-demo")],
+    deleteAsset: async (assetId) => ({
+      assetId,
+      deleted: false,
+      reason: "HTTP 409",
+    }),
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "cleanup");
+  assert.deepEqual(result.cleanup, {
+    candidates: 1,
+    deleted: 0,
+    failed: 1,
+    error: "1 demo asset(s) could not be deleted",
+  });
+  assert.equal(result.rowsAfter?.car, 0);
+  assert.equal(demo.committed, true);
+});
+
+test("a cleanup listing failure is reported, not hidden", async () => {
+  const demo = fakeDemoClient();
+  const result = await runDemoReset({
+    ...baseResetDeps(),
+    openDemo: async () => demo.client,
+    listStoredAssets: async () => {
+      throw new Error("sanity down");
+    },
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.step, "cleanup");
+  assert.equal(result.cleanup?.error, "the asset store could not be listed");
+  assert.equal(result.cleanup?.candidates, 0);
+  assert.equal(demo.committed, true);
+});
+
+test("the route status maps auth, disabled, lock, success and other failures", () => {
+  assert.equal(resetHttpStatus(resetSummary({ ok: true, step: "done" })), 200);
+  assert.equal(resetHttpStatus(resetSummary({ step: "auth" })), 401);
+  assert.equal(resetHttpStatus(resetSummary({ step: "disabled" })), 403);
+  assert.equal(resetHttpStatus(resetSummary({ step: "lock" })), 409);
+  assert.equal(resetHttpStatus(resetSummary({ step: "timeout" })), 500);
+  assert.equal(resetHttpStatus(resetSummary({ step: "cleanup" })), 500);
+});
+
+test("the reset cron runs at 03:00 UTC and the backup stays at 02:00 UTC", () => {
+  const config = JSON.parse(
+    readFileSync(new URL("../vercel.json", import.meta.url), "utf8"),
+  ) as { crons: { path: string; schedule: string }[] };
+  const schedules = new Map(
+    config.crons.map((cron) => [cron.path, cron.schedule] as const),
+  );
+  assert.equal(schedules.get("/api/cron/daily"), "0 2 * * *");
+  assert.equal(schedules.get("/api/demo/reset"), "0 3 * * *");
+  assert.equal(config.crons.length, 2);
 });

@@ -17,15 +17,32 @@
  * `finally`. The connection is for the lock only and writes no main data. A second reset gets
  * `acquired: false`; a dropped connection makes `check()` fail.
  *
- * The restore and cleanup are Task 9's half; this module returns the lock and the one seed asset so
- * the caller can hold the lock across both and release it once.
+ * The restore and cleanup follow in `runDemoReset`, holding the lock across both and releasing it
+ * once. The demo connection is a direct `pg` client with a statement and query timeout inside the
+ * route's 300-second ceiling; a timeout is a named failure, never a success.
  *
  * This module deliberately has no `server-only` import: the tests import it directly. The route
  * that binds the real asset door and the environment is the server-side half.
  */
 import { Client } from "pg";
 
-import { isSameDatabase, RestoreError } from "./backup-restore";
+import type { BackupArchive } from "./backup-archive";
+import { decryptBackup } from "./backup-crypto";
+import {
+  isSameDatabase,
+  parseBackupArchive,
+  readColumnTypes,
+  restoreArchive,
+  RestoreError,
+  type RestoreClient,
+  type RestoreRow,
+} from "./backup-restore";
+import {
+  BACKUP_TABLES,
+  quoteIdentifier,
+  type BackupTable,
+} from "./backup-tables";
+import { cleanupDemoAssets } from "./demo-assets";
 import { DEMO_SEED_LABEL } from "./demo-snapshot";
 import { NeonApiError, verifyDemoBranch, type FetchLike } from "./neon-api";
 import type { StoredAsset } from "./sanity";
@@ -52,7 +69,12 @@ export type ResetSummary = {
   snapshotAt: string | null;
   rowsBefore: Record<string, number> | null;
   rowsAfter: Record<string, number> | null;
-  cleanup: { candidates: number; deleted: number; failed: number } | null;
+  cleanup: {
+    candidates: number;
+    deleted: number;
+    failed: number;
+    error?: string;
+  } | null;
   durationMs: number;
   seedAssetId: string | null;
 };
@@ -358,4 +380,212 @@ export async function preflightReset(
       },
     },
   };
+}
+
+/** The demo connection: a direct `pg` client, closed by `runDemoReset` in its `finally`. */
+export type DemoResetClient = RestoreClient & {
+  end: () => Promise<void>;
+  on?: (event: "error", listener: (error: Error) => void) => unknown;
+};
+
+/** 240 seconds leaves the route 60 seconds inside `maxDuration = 300` to report the timeout. */
+export const DEMO_RESET_TIMEOUT_MS = 240_000;
+
+/**
+ * Open the direct `pg` connection the restore uses. Both timeouts are set on the session, so a
+ * statement that hangs is cancelled by PostgreSQL (`57014`) rather than being killed by the route
+ * with no summary. An idle-client `error` event gets a listener so a dropped connection cannot
+ * become an unhandled process error.
+ */
+export async function openDemoClient(connectionString: string): Promise<DemoResetClient> {
+  const client = new Client({
+    connectionString,
+    connectionTimeoutMillis: 10_000,
+    statement_timeout: DEMO_RESET_TIMEOUT_MS,
+    query_timeout: DEMO_RESET_TIMEOUT_MS,
+  });
+  client.on("error", () => {});
+  try {
+    await client.connect();
+  } catch {
+    throw new ResetError("connect", "the demo database could not be reached");
+  }
+  return client;
+}
+
+/** The data tables the reset replaces. `schema_migrations` is preserved and is not counted. */
+const RESET_TABLES: readonly BackupTable[] = BACKUP_TABLES.filter(
+  (table) => table !== "schema_migrations",
+);
+
+async function readCounts(client: RestoreClient): Promise<Record<string, number>> {
+  const counts: Record<string, number> = {};
+  for (const table of RESET_TABLES) {
+    const result = await client.query(
+      `SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`,
+    );
+    counts[table] = Number(result.rows[0]?.n);
+  }
+  return counts;
+}
+
+function isTimeout(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  if (code === "57014") return true;
+  return error instanceof Error && /timeout/i.test(error.message);
+}
+
+function failureStep(error: unknown, fallback: string): string {
+  if (error instanceof ResetError || error instanceof RestoreError) return error.step;
+  return isTimeout(error) ? "timeout" : fallback;
+}
+
+function failureMessage(error: unknown): string {
+  if (error instanceof ResetError || error instanceof RestoreError) return error.message;
+  return isTimeout(error) ? "the reset exceeded its time limit" : "the step failed";
+}
+
+export type DemoResetDeps = ResetPreflightDeps & {
+  downloadSeed: (assetId: string) => Promise<Buffer>;
+  openDemo: (demoUrl: string) => Promise<DemoResetClient>;
+  listStoredAssets: () => Promise<StoredAsset[]>;
+  deleteAsset: (assetId: string) => Promise<{
+    assetId: string;
+    deleted: boolean;
+    reason?: string;
+  }>;
+};
+
+/**
+ * The whole reset after the pre-write checks: download, decrypt, parse, read demo's schema, restore
+ * in one transaction, then clean the pre-reset demo uploads. The lock is held across all of it and
+ * released in `finally`.
+ *
+ * The data restore is the part that must stand: once `restoreArchive` commits, a cleanup failure is
+ * reported as `step: "cleanup"` and the summary is not `ok` — but the demo data stays restored and
+ * no unmarked asset is touched. A timeout, a parse/schema/count/sequence failure, or a dropped main
+ * lock never reports success.
+ */
+export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
+  const preflight = await preflightReset(deps);
+  if (!preflight.ok) return preflight.summary;
+
+  const { lock, seed, demoUrl, startedAt, summary } = preflight.context;
+  let demoClient: DemoResetClient | null = null;
+  let step = "download";
+
+  try {
+    await lock.check();
+
+    let envelope: Buffer;
+    try {
+      envelope = await deps.downloadSeed(seed.assetId);
+    } catch (error) {
+      throw new ResetError(
+        "download",
+        error instanceof Error
+          ? error.message
+          : "the seed asset could not be downloaded",
+      );
+    }
+
+    step = "decrypt";
+    let plaintext: string;
+    try {
+      plaintext = decryptBackup(envelope, deps.env.backupEncryptionKey!.trim());
+    } catch {
+      throw new ResetError(
+        "decrypt",
+        "the seed could not be decrypted (wrong key or corrupt archive)",
+      );
+    }
+
+    step = "parse";
+    const archive = parseBackupArchive(plaintext);
+    summary.snapshotAt = archive.generated_at;
+
+    step = "connect";
+    try {
+      demoClient = await deps.openDemo(demoUrl);
+    } catch (error) {
+      if (error instanceof ResetError) throw error;
+      throw new ResetError("connect", "the demo database could not be reached");
+    }
+
+    step = "columns";
+    const columnTypes = await readColumnTypes(demoClient);
+
+    step = "count-before";
+    summary.rowsBefore = await readCounts(demoClient);
+
+    step = "restore";
+    const restored = await restoreArchive(demoClient, archive, columnTypes, {
+      preserveTables: ["schema_migrations"],
+    });
+    summary.rowsAfter = restored.tables;
+
+    // The lock is the only thing stopping a second reset. If it dropped, the restore that just
+    // committed cannot be undone; the run is still reported as a lock failure.
+    step = "lock";
+    await lock.check();
+
+    step = "cleanup";
+    const cleanup = await cleanupDemoAssets({
+      startedAt,
+      listStoredAssets: deps.listStoredAssets,
+      deleteAsset: deps.deleteAsset,
+    });
+    summary.cleanup = {
+      candidates: cleanup.candidates,
+      deleted: cleanup.deleted,
+      failed: cleanup.failed,
+      ...(cleanup.error ? { error: cleanup.error } : {}),
+    };
+
+    if (cleanup.failed > 0 || cleanup.error) {
+      summary.ok = false;
+      summary.step = "cleanup";
+      summary.error =
+        cleanup.error ?? `${cleanup.failed} demo asset(s) could not be deleted`;
+    } else {
+      summary.ok = true;
+      summary.step = "done";
+    }
+  } catch (error) {
+    summary.ok = false;
+    summary.step = failureStep(error, step);
+    summary.error = failureMessage(error);
+  } finally {
+    if (demoClient) {
+      try {
+        await demoClient.end();
+      } catch {
+        // The step's failure is the one to report; a close failure adds nothing safe to say.
+      }
+    }
+
+    let released: { released: boolean; error?: string };
+    try {
+      released = await lock.release();
+    } catch {
+      released = { released: false, error: "the main lock could not be released" };
+    }
+    if (!released.released && summary.ok) {
+      summary.ok = false;
+      summary.step = "lock";
+      summary.error = released.error ?? "the main lock could not be released";
+    }
+    summary.durationMs = Date.now() - startedAt.getTime();
+  }
+
+  return summary;
+}
+
+/** The route's status: auth 401, disabled 403, lock conflict 409, success 200, else 500. */
+export function resetHttpStatus(summary: ResetSummary): number {
+  if (summary.ok) return 200;
+  if (summary.step === "auth") return 401;
+  if (summary.step === "disabled") return 403;
+  if (summary.step === "lock") return 409;
+  return 500;
 }

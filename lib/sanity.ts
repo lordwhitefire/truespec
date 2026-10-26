@@ -241,3 +241,20 @@ export async function findFileAsset(
   if (!row) return null;
   return { assetId: row._id, url: row.url, size: row.size ?? null };
 }
+
+/**
+ * Download a file asset's bytes. The seed is ciphertext in the public-read dataset, so the URL is
+ * not a secret; the key that makes it readable stays in the environment. Only the HTTP status is
+ * reported on failure — never the URL.
+ */
+export async function downloadFileAsset(assetId: string): Promise<Buffer> {
+  const asset = await findFileAsset(assetId);
+  if (!asset) {
+    throw new Error("the seed asset is not in the store");
+  }
+  const response = await fetch(asset.url, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`the seed asset download was refused (HTTP ${response.status})`);
+  }
+  return Buffer.from(await response.arrayBuffer());
+}

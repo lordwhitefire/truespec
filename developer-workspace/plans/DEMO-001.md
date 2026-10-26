@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–8 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–9 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -113,16 +113,16 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 - [x] Task 6: Sanity label/created-time support and the one-time snapshot tool
 - [x] Task 7: `restoreArchive` `preserveTables`
 - [x] Task 8: Reset target proof and direct main advisory lock
-- [ ] Task 9: Reset route, restore orchestration, demo-asset cleanup and cron
+- [x] Task 9: Reset route, restore orchestration, demo-asset cleanup and cron
 
 ### Checkpoint C1 — after Tasks 6–7
 - [x] Snapshot tool unit tests and `preserveTables` tests pass.
 - [x] No schema or table is created by the snapshot tool.
 
 ### Checkpoint C2 — after Tasks 8–9
-- [ ] Wrong-target, missing-lock-URL, lock-drop and seed-count tests pass.
-- [ ] `schema_migrations` preservation test passes.
-- [ ] `npm run build` passes.
+- [x] Wrong-target, missing-lock-URL, lock-drop and seed-count tests pass.
+- [x] `schema_migrations` preservation test passes.
+- [x] `npm run build` passes.
 
 ### Phase 3 — Office session and demo shell
 

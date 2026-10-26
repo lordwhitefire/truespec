@@ -37,8 +37,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 5 | Import-safety and door-isolation proofs | `lib/store-guard-import.test.ts`, `lib/space-isolation.test.ts` | focused tests + typecheck | committed | `6a3749b` |
 | 6 | Sanity label/created-time and the one-time snapshot tool | `lib/sanity.ts`, `lib/demo-snapshot.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | focused tests + typecheck | committed | `6b14af7` |
 | 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | committed | `c0b3ba9` |
-| 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | committed; hash recorded in T9 | — |
-| 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | pending | — |
+| 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | committed | `754afef` |
+| 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `lib/sanity.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | committed; hash recorded in T10 | — |
 | 10 | `OfficeSession.space` and cross-space sign-out | `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts`, `lib/store-guard.ts` | focused tests + typecheck | pending | — |
 | 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx`, `app/office/(shell)/office.css` | focused tests + typecheck | pending | — |
 | 12 | Demo upload mark, verification and cap | `lib/sanity.ts`, `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck | pending | — |
@@ -77,5 +77,8 @@ task hash.
   pass; the demo-branch restore itself is owner action, not claimed.
 - 2026-10-26: Task 8 implemented. `lib/demo-reset.test.ts` (20 tests) and `npm run typecheck`
   pass. The Neon API proof and the real `pg` lock are owner actions, not claimed.
+- 2026-10-26: Task 9 implemented. `lib/demo-reset.test.ts` (32 tests), the full suite (478 pass),
+  `npm run typecheck` and `npm run build` pass. The route is built; the first live reset, the demo
+  branch and the real snapshot remain owner actions, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.
