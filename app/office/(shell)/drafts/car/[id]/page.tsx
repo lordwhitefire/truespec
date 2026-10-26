@@ -29,7 +29,8 @@ function photoURL(assetId: string): string {
 }
 
 export default async function EditCarDraftPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
+  const isDemo = session.space === "demo";
   const { id } = await params;
 
   const [draft, primaries, secondaries] = await Promise.all([
@@ -49,5 +50,13 @@ export default async function EditCarDraftPage({ params }: { params: Promise<{ i
   const photos = draft.imageAssetIds.map((assetId) => ({ assetId, url: photoURL(assetId) }));
   const data = carFormDataFromDraft(draft, states, photos, shortAge(draft.createdAt, new Date()));
 
-  return <CarForm mode="draft" data={data} primaries={primaries} secondaries={secondaries} />;
+  return (
+    <CarForm
+      mode="draft"
+      data={data}
+      primaries={primaries}
+      secondaries={secondaries}
+      isDemo={isDemo}
+    />
+  );
 }

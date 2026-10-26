@@ -42,8 +42,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 10 | `OfficeSession.space` and cross-space sign-out | `lib/session-space.ts`, `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts` | focused tests + typecheck | committed | `26b335c` |
 | 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx` | typecheck + build + static render | committed | `efee9ea` |
 | 12 | Demo upload mark, verification and cap | `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck + build | committed | `13eefa0` |
-| 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx` | typecheck + build + source inspection | committed; hash recorded in T14 | — |
-| 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | focused tests + typecheck | pending | — |
+| 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx` | typecheck + build + source inspection | committed | `ba0dee8` |
+| 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | typecheck + build + source inspection | committed; hash recorded in T15 | — |
 | 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts` | typecheck + build + copy review | pending | — |
 | 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/sanity.ts`, `app/office/(shell)/settings/settings-client.tsx`, `scripts/cleanup-readiness.ts` | focused tests + typecheck | pending | — |
 | 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts` | typecheck | pending | — |
@@ -97,5 +97,9 @@ task hash.
   the demo client props. Main still supplies both and renders both cards. `npm run typecheck`,
   `npm run build` and the full suite (501 pass) pass. The live demo Settings render is blocked —
   owner action, not claimed.
+- 2026-10-26: Task 14 implemented. `CarForm` requires `isDemo`; the edit, add and draft pages pass
+  the session's space. The "Preview the buyer page" block is absent for a demo car and unchanged for
+  main. `npm run typecheck`, `npm run build` and the full suite (501 pass) pass. The live demo/main
+  car render is blocked — owner action, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.

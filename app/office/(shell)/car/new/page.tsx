@@ -44,7 +44,8 @@ const BLANK: CarFormData = {
 };
 
 export default async function NewCarPage() {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
+  const isDemo = session.space === "demo";
   const primaries = await getOfficeStates();
   const secondaries = await getOfficeSecondaryStates();
   // The key belongs to this form session: a retry, a double click or a store retry is the same car.
@@ -57,6 +58,7 @@ export default async function NewCarPage() {
       primaries={primaries}
       secondaries={secondaries}
       submissionId={submissionId}
+      isDemo={isDemo}
     />
   );
 }

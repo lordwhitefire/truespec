@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–13 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–14 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -145,12 +145,12 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 ### Phase 5 — Demo UI, sign-up and privacy
 
 - [x] Task 13: Demo Settings omits System and cleanup-readiness cards
-- [ ] Task 14: No buyer-page preview for a demo car
+- [x] Task 14: No buyer-page preview for a demo car
 - [ ] Task 15: Clerk sign-up page, demo link and corrected privacy notice
 
 ### Checkpoint E — after Tasks 13–15
-- [ ] `npm run typecheck` and `npm run build` pass.
-- [ ] Demo props contain no main storage, backup or asset filenames.
+- [x] `npm run typecheck` and `npm run build` pass.
+- [x] Demo props contain no main storage, backup or asset filenames.
 - [ ] Privacy/sign-up copy is shown to the owner and marked pending approval.
 
 ### Phase 6 — Cleanup exclusions, legacy retirement, handover and gates
@@ -596,15 +596,19 @@ page" control is absent for a demo car; the main office keeps it. The public sho
 demo data.
 
 **Acceptance criteria:**
-- [ ] A demo car has no buyer-page preview control.
-- [ ] A main car keeps the preview control.
-- [ ] The add, edit and draft car paths use the same space-aware prop.
-- [ ] The public showroom is unaffected.
+- [x] A demo car has no buyer-page preview control. (Code path in place; the live demo render is
+  blocked — owner action.)
+- [x] A main car keeps the preview control. (The same hardcoded link renders when `isDemo` is false.)
+- [x] The add, edit and draft car paths use the same space-aware prop. (`CarForm` requires `isDemo`;
+  all three pages pass it from `requireOfficeSession()`.)
+- [x] The public showroom is unaffected. (No public path changed; the showroom remains main-only.)
 
 **Verification:**
-- [ ] `npm run typecheck`
-- [ ] `npm run build`
-- [ ] Manual render check of a demo car and a main car.
+- [x] `npm run typecheck`
+- [x] `npm run build`
+- [ ] Manual render check of a demo car and a main car. (Blocked — owner action; source inspection
+  confirms the link is gated and the three call sites pass the session space.)
+- [x] Full suite (501 pass).
 
 **Dependencies:** Task 10.
 

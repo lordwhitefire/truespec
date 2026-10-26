@@ -380,6 +380,7 @@ export function CarForm({
   primaries,
   secondaries = [],
   submissionId,
+  isDemo,
 }: {
   mode: "edit" | "add" | "draft";
   data: CarFormData;
@@ -389,6 +390,8 @@ export function CarForm({
   secondaries?: OfficeSecondaryState[];
   /** Add mode only: the key of this form session, minted by the page. Never restored from a draft. */
   submissionId?: string;
+  /** A demo car has no buyer-page preview: the link would open main, not the demo inventory. */
+  isDemo: boolean;
 }) {
   const isEdit = mode === "edit";
   const isDraft = mode === "draft";
@@ -1921,24 +1924,26 @@ export function CarForm({
                 Costs, profit, private states and these notes are never sent to the
                 browser — it&apos;s a server rule, not a setting.
               </p>
-              <p style={{ marginTop: 10 }}>
-                <a
-                  href="/car/2019-toyota-sienna-xle"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    color: "var(--gold)",
-                    textDecoration: "underline",
-                    textUnderlineOffset: "2px",
-                  }}
-                >
-                  Preview the buyer page{" "}
-                  <i
-                    className="fa-solid fa-arrow-up-right-from-square"
-                    style={{ fontSize: 10 }}
-                  />
-                </a>
-              </p>
+              {isDemo ? null : (
+                <p style={{ marginTop: 10 }}>
+                  <a
+                    href="/car/2019-toyota-sienna-xle"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      color: "var(--gold)",
+                      textDecoration: "underline",
+                      textUnderlineOffset: "2px",
+                    }}
+                  >
+                    Preview the buyer page{" "}
+                    <i
+                      className="fa-solid fa-arrow-up-right-from-square"
+                      style={{ fontSize: 10 }}
+                    />
+                  </a>
+                </p>
+              )}
             </div>
           </div>
         </aside>

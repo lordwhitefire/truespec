@@ -73,7 +73,8 @@ function photoURL(assetId: string): string {
 }
 
 export default async function EditCarPage({ params }: { params: Promise<{ ref: string }> }) {
-  await requireOfficeSession();
+  const session = await requireOfficeSession();
+  const isDemo = session.space === "demo";
   const { ref } = await params;
 
   const [car, primaries, secondaries] = await Promise.all([
@@ -135,5 +136,13 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
     secondaryStateIds: car.secondary_state_ids,
   };
 
-  return <CarForm mode="edit" data={data} primaries={primaries} secondaries={secondaries} />;
+  return (
+    <CarForm
+      mode="edit"
+      data={data}
+      primaries={primaries}
+      secondaries={secondaries}
+      isDemo={isDemo}
+    />
+  );
 }
