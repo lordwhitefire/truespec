@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "../../door.css";
 import { SignIn } from "@clerk/nextjs";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { demoSwitchOn } from "@/lib/config";
 import { checkOfficeSession, SIGN_OUT_PATH } from "@/lib/session";
 
 // The door reads the provider's session, so it renders per request.
@@ -15,9 +17,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * The office's one door (design D4). The provider's own sign-in is mounted here,
- * inside the office — the application builds no password form and no account-creation
- * route, and the provider is in invite-only mode, so there is no public sign-up.
+ * The office's main door (design D4). The provider's own sign-in is mounted here, inside the
+ * office — the application builds no password form. Main access is invitation-only by provider
+ * metadata. A demo account is created at `/office/sign-up` only when `DEMO_SIGNUP_ENABLED` is on;
+ * the secondary demo link below is the only addition to the normal sign-in screen.
  *
  * A request that already holds a live office session is sent inside. One whose
  * provider session exists but whose own limits have been crossed goes through the
@@ -29,6 +32,8 @@ export default async function OfficeSignInPage() {
   if (state.status === "active") redirect("/office");
   if (state.status === "ended") redirect(SIGN_OUT_PATH);
 
+  const demoSignupEnabled = demoSwitchOn(process.env.DEMO_SIGNUP_ENABLED);
+
   return (
     <main className="office-door">
       <h1 className="office-door-title">TrueSpec Office</h1>
@@ -37,6 +42,11 @@ export default async function OfficeSignInPage() {
       </p>
       <p className="office-door-sub">Sign in to continue.</p>
       <SignIn />
+      {demoSignupEnabled ? (
+        <p className="office-door-demo">
+          <Link href="/office/sign-up">Try the demo office</Link>
+        </p>
+      ) : null}
     </main>
   );
 }

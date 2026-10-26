@@ -43,8 +43,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 11 | Persistent demo banner | `app/office/(shell)/layout.tsx`, `app/office/(shell)/demo-banner.tsx` | typecheck + build + static render | committed | `efee9ea` |
 | 12 | Demo upload mark, verification and cap | `lib/demo-assets.ts`, `app/api/upload/route.ts`, `app/office/actions/photo.ts`, `lib/demo-assets.test.ts` | focused tests + typecheck + build | committed | `13eefa0` |
 | 13 | Demo Settings omits System and cleanup cards | `app/office/(shell)/settings/page.tsx`, `app/office/(shell)/settings/settings-client.tsx` | typecheck + build + source inspection | committed | `ba0dee8` |
-| 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | typecheck + build + source inspection | committed; hash recorded in T15 | — |
-| 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts` | typecheck + build + copy review | pending | — |
+| 14 | No buyer-page preview for a demo car | `app/office/(shell)/car/[ref]/page.tsx`, `app/office/(shell)/car/new/page.tsx`, `app/office/(shell)/car/car-client.tsx`, `app/office/(shell)/drafts/car/[id]/page.tsx` | typecheck + build + source inspection | committed | `478f3eb` |
+| 15 | Sign-up page, demo link, corrected privacy notice | `app/office/sign-up/[[...sign-up]]/page.tsx`, `app/office/sign-in/[[...sign-in]]/page.tsx`, `app/(site)/privacy/page.tsx`, `lib/config.ts`, `lib/config.test.ts`, `app/office/door.css`, `developer-workspace/notes/DEMO-001-copy-review.md` | typecheck + build + full suite + copy review | committed; hash recorded in T16; copy approval pending | — |
 | 16 | Cleanup card and machine-litter exclusions | `lib/cleanup.ts`, `lib/cleanup-litter.ts`, `lib/sanity.ts`, `app/office/(shell)/settings/settings-client.tsx`, `scripts/cleanup-readiness.ts` | focused tests + typecheck | pending | — |
 | 17 | Retire `demo:wipe` | `package.json`, `scripts/demo-wipe.ts` | typecheck | pending | — |
 | 18 | Owner setup handover | `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the repository; not committed) | handover review | pending | — |
@@ -101,5 +101,12 @@ task hash.
   the session's space. The "Preview the buyer page" block is absent for a demo car and unchanged for
   main. `npm run typecheck`, `npm run build` and the full suite (501 pass) pass. The live demo/main
   car render is blocked — owner action, not claimed.
+- 2026-10-26: Task 15 implemented. Clerk's `<SignUp />` is mounted at `/office/sign-up` with
+  `fallbackRedirectUrl="/office"`; `DEMO_SIGNUP_ENABLED` gates the route and the sign-in page's
+  secondary demo link through the shared `demoSwitchOn` rule. The privacy notice is corrected for the
+  optional demo account, sign-in-only email, daily reset, upload deletion, no marketing email and the
+  provider's authentication messages. `lib/config.test.ts` (1 test), the full suite (502 pass),
+  `npm run typecheck` and `npm run build` pass. Exact copy is recorded for owner approval in
+  `developer-workspace/notes/DEMO-001-copy-review.md`; approval is pending, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.

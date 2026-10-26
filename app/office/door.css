@@ -64,3 +64,16 @@ body {
   font-size: 13.5px;
   margin: 0 0 22px;
 }
+
+.office-door-demo {
+  color: var(--mute);
+  font-size: 13.5px;
+  margin: 10px 0 0;
+  text-align: center;
+}
+
+.office-door-demo a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

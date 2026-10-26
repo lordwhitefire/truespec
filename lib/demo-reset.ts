@@ -3,7 +3,7 @@
  *
  * The order is the safety property:
  *   1. bearer `CRON_SECRET`;
- *   2. `DEMO_RESET_ENABLED === "1"` (every other value is off);
+ *   2. `demoSwitchOn(DEMO_RESET_ENABLED)` — only the exact string `"1"` is on;
  *   3. required configuration (including a direct `DATABASE_URL_UNPOOLED`);
  *   4. the demo URL is not main, pooled and direct hosts compared;
  *   5. the Neon API proves the configured branch id/name/default flag and that the URL host is its
@@ -42,6 +42,7 @@ import {
   quoteIdentifier,
   type BackupTable,
 } from "./backup-tables";
+import { demoSwitchOn } from "./config";
 import { cleanupDemoAssets } from "./demo-assets";
 import { DEMO_SEED_LABEL } from "./demo-snapshot";
 import { NeonApiError, verifyDemoBranch, type FetchLike } from "./neon-api";
@@ -267,7 +268,7 @@ export async function preflightReset(
   if (!env.cronSecret || deps.authorization !== `Bearer ${env.cronSecret}`) {
     return failure("auth", "unauthorized", startedAt);
   }
-  if (env.demoResetEnabled !== "1") {
+  if (!demoSwitchOn(env.demoResetEnabled)) {
     return failure("disabled", "demo reset is disabled", startedAt);
   }
 

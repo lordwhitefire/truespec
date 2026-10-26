@@ -8,6 +8,15 @@ export class ConfigError extends Error {
   }
 }
 
+/**
+ * Both demo switches are on only for the exact string `"1"`. Every other value — `"true"`,
+ * `"yes"`, `"0"`, an empty string, or unset — is off. `DEMO_SIGNUP_ENABLED` and
+ * `DEMO_RESET_ENABLED` use this one rule.
+ */
+export function demoSwitchOn(value: string | undefined): boolean {
+  return value === "1";
+}
+
 export type AppConfig = {
   databaseUrl: string;
   /**

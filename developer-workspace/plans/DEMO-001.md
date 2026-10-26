@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–14 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–15 code complete, checks pass; live setup and copy approval remain the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -146,12 +146,13 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 - [x] Task 13: Demo Settings omits System and cleanup-readiness cards
 - [x] Task 14: No buyer-page preview for a demo car
-- [ ] Task 15: Clerk sign-up page, demo link and corrected privacy notice
+- [x] Task 15: Clerk sign-up page, demo link and corrected privacy notice (copy pending owner approval)
 
 ### Checkpoint E — after Tasks 13–15
 - [x] `npm run typecheck` and `npm run build` pass.
 - [x] Demo props contain no main storage, backup or asset filenames.
-- [ ] Privacy/sign-up copy is shown to the owner and marked pending approval.
+- [ ] Privacy/sign-up copy is shown to the owner and marked pending approval. (Exact text is in
+  `developer-workspace/notes/DEMO-001-copy-review.md`; approval is pending.)
 
 ### Phase 6 — Cleanup exclusions, legacy retirement, handover and gates
 
@@ -632,26 +633,34 @@ privacy notice and remove every "no accounts" / "no sign-up" claim. No credentia
 material, no `mailto`, no invented email address.
 
 **Acceptance criteria:**
-- [ ] Clerk's `<SignUp />` is mounted with `fallbackRedirectUrl="/office"`.
-- [ ] The flag off hides the link and redirects the sign-up route to sign-in.
-- [ ] The sign-up page carries the four demo statements and links the privacy notice.
-- [ ] The privacy notice explains the optional demo account, sign-in-only email, daily reset and
-      upload deletion, no marketing email, and the provider's authentication messages.
-- [ ] No page claims there is no sign-up path; no `mailto` or invented address appears.
-- [ ] The client's normal sign-in screen is otherwise unchanged.
+- [x] Clerk's `<SignUp />` is mounted with `fallbackRedirectUrl="/office"`.
+- [x] The flag off hides the link and redirects the sign-up route to sign-in. (Code path; the live
+  flag check is blocked — owner action.)
+- [x] The sign-up page carries the four demo statements and links the privacy notice.
+- [x] The privacy notice explains the optional demo account, sign-in-only email, daily reset and
+  upload deletion, no marketing email, and the provider's authentication messages.
+- [x] No page claims there is no sign-up path; no `mailto` or invented address appears. (Grep of
+  `app/`, `components/` and `lib/` finds no such claim or address.)
+- [x] The client's normal sign-in screen is otherwise unchanged. (Only the secondary demo link and
+  the corrected source comment were added.)
 
 **Verification:**
-- [ ] `npm run typecheck`
-- [ ] `npm run build`
+- [x] `npm run typecheck`
+- [x] `npm run build`
+- [x] Full suite (502 pass).
 - [ ] Copy review: show the exact privacy and sign-up text to the owner; mark pending approval.
+  (Exact text is in `developer-workspace/notes/DEMO-001-copy-review.md`; owner approval pending.)
 
-**Dependencies:** Task 2 (shared exact-`"1"` check).
+**Dependencies:** Task 2 (shared exact-`"1"` check; `demoSwitchOn` now lives in `lib/config.ts` and is
+used by both switches).
 
 **Files likely touched:**
 - `app/office/sign-up/[[...sign-up]]/page.tsx` (new)
 - `app/office/sign-in/[[...sign-in]]/page.tsx`
 - `app/(site)/privacy/page.tsx`
 - `lib/config.ts` (shared flag check)
+- `lib/config.test.ts` (new)
+- `app/office/door.css`
 
 **Estimated scope:** Medium (4 files).
 
