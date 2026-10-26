@@ -1,6 +1,6 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** in progress — Tasks 1–6 complete, checks pass; live setup remains the owner's. **Code
+**Status:** in progress — Tasks 1–7 complete, checks pass; live setup remains the owner's. **Code
 boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
 Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
 passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
@@ -111,13 +111,13 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 ### Phase 2 — Snapshot and reset (highest risk)
 
 - [x] Task 6: Sanity label/created-time support and the one-time snapshot tool
-- [ ] Task 7: `restoreArchive` `preserveTables`
+- [x] Task 7: `restoreArchive` `preserveTables`
 - [ ] Task 8: Reset target proof and direct main advisory lock
 - [ ] Task 9: Reset route, restore orchestration, demo-asset cleanup and cron
 
 ### Checkpoint C1 — after Tasks 6–7
-- [ ] Snapshot tool unit tests and `preserveTables` tests pass.
-- [ ] No schema or table is created by the snapshot tool.
+- [x] Snapshot tool unit tests and `preserveTables` tests pass.
+- [x] No schema or table is created by the snapshot tool.
 
 ### Checkpoint C2 — after Tasks 8–9
 - [ ] Wrong-target, missing-lock-URL, lock-drop and seed-count tests pass.
@@ -364,14 +364,17 @@ truncate, insert and the count check. The default keeps the existing full-restor
 manual main restore does not pass the option. The demo reset will pass `schema_migrations`.
 
 **Acceptance criteria:**
-- [ ] `preserveTables` skips truncate, insert and count for the named table.
-- [ ] Existing calls without the option behave exactly as before.
-- [ ] A test proves `schema_migrations` survives while other tables are replaced.
-- [ ] A test proves a wrong column type still refuses before truncation.
+- [x] `preserveTables` skips truncate, insert and count for the named table.
+- [x] Existing calls without the option behave exactly as before.
+- [x] A test proves `schema_migrations` survives while other tables are replaced.
+- [x] A test proves a wrong column type still refuses before truncation.
 
 **Verification:**
-- [ ] `node --import tsx --test lib/backup-restore.test.ts`
-- [ ] `npm run typecheck`
+- [x] `node --import tsx --test lib/backup-restore.test.ts` (14 tests)
+- [x] `npm run typecheck`
+
+**Live check:** the demo-branch restore is owner action; the tests use an in-memory client. They are
+not claimed as a live run.
 
 **Dependencies:** None (existing backup code).
 

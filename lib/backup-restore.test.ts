@@ -15,7 +15,7 @@ import {
   type RestoreRow,
 } from "./backup-restore";
 import type { BackupArchive } from "./backup-archive";
-import { BACKUP_TABLES } from "./backup-tables";
+import { BACKUP_TABLES, type BackupTable } from "./backup-tables";
 
 function archive(): BackupArchive {
   const tables = Object.fromEntries(
@@ -108,6 +108,28 @@ test("the truncate names every table and restarts identities", () => {
   assert.match(text, /RESTART IDENTITY CASCADE/);
 });
 
+test("the truncate skips a preserved table and does not cascade into it", () => {
+  const text = truncateStatement(["schema_migrations"]);
+  assert.doesNotMatch(text, /"schema_migrations"/);
+  for (const table of BACKUP_TABLES) {
+    if (table !== "schema_migrations") assert.match(text, new RegExp(`"${table}"`));
+  }
+  assert.doesNotMatch(text, /CASCADE/);
+});
+
+test("a preserved table's rows are not planned for insert or checked against the target", () => {
+  const fixture = archive();
+  fixture.tables.schema_migrations = [{ version: "main-1", extra: true }];
+  const plans = buildInsertPlans(
+    fixture,
+    { ...columnTypes, schema_migrations: { version: "text" } },
+    ["schema_migrations"],
+  );
+
+  assert.equal(plans.some((plan) => plan.table === "schema_migrations"), false);
+  assert.equal(plans.some((plan) => plan.table === "car"), true);
+});
+
 test("a jsonb array is sent as JSON text, not as a PostgreSQL array literal", () => {
   const plans = buildInsertPlans(archive(), columnTypes);
   const car = plans.find((plan) => plan.table === "car");
@@ -146,6 +168,8 @@ test("restore runs one transaction, parents first, verifies counts, sets both se
 
   assert.equal(calls[0]?.text, "BEGIN");
   assert.match(calls[1]?.text ?? "", /^TRUNCATE TABLE/);
+  assert.match(calls[1]?.text ?? "", /"schema_migrations"/);
+  assert.match(calls[1]?.text ?? "", /CASCADE/);
   assert.equal(calls.at(-1)?.text, "COMMIT");
   assert.equal(result.tables.office_user, 1);
   assert.equal(result.tables.car, 1);
@@ -177,4 +201,116 @@ test("a count mismatch rolls back and names the table", async () => {
   await assert.rejects(() => restoreArchive(client, fixture, columnTypes), /restored .* has 999 rows/);
   assert.ok(calls.includes("ROLLBACK"));
   assert.equal(calls.includes("COMMIT"), false);
+});
+
+test("preserveTables keeps schema_migrations while replacing the data tables", async () => {
+  const fixture = archive();
+  fixture.tables.schema_migrations = [{ version: "main-1" }];
+  const state: Record<string, RestoreRow[]> = {
+    schema_migrations: [{ version: "demo-1", dirty: false }],
+    car: [{ id: "old-car" }],
+  };
+  const calls: { text: string; params?: unknown[] }[] = [];
+
+  const client: RestoreClient = {
+    async query(text, params) {
+      calls.push({ text, params });
+      if (text === "BEGIN" || text === "COMMIT" || text === "ROLLBACK") return { rows: [] };
+      if (text.startsWith("TRUNCATE TABLE")) {
+        for (const match of text.matchAll(/"([^"]+)"/g)) {
+          const table = match[1];
+          if (table) state[table] = [];
+        }
+        return { rows: [] };
+      }
+      if (text.startsWith("INSERT INTO")) {
+        const table = text.match(/^INSERT INTO "([^"]+)"/)?.[1] ?? "";
+        state[table] ??= [];
+        state[table].push({});
+        return { rows: [] };
+      }
+      if (text.startsWith("SELECT count(*)")) {
+        const table = text.match(/"([^"]+)"/)?.[1] ?? "";
+        return { rows: [{ n: (state[table] ?? []).length }] };
+      }
+      if (text.startsWith("SELECT last_value")) {
+        const name = text.match(/"([^"]+)"/)?.[1] ?? "";
+        const sequence = fixture.sequences[name as keyof typeof fixture.sequences];
+        return {
+          rows: [{ last_value: sequence.last_value, is_called: sequence.is_called }],
+        };
+      }
+      return { rows: [] };
+    },
+  };
+
+  const result = await restoreArchive(
+    client,
+    fixture,
+    { ...columnTypes, schema_migrations: { version: "text" } },
+    { preserveTables: ["schema_migrations"] },
+  );
+
+  assert.deepEqual(state.schema_migrations, [{ version: "demo-1", dirty: false }]);
+  assert.equal(state.car?.length, 1);
+  assert.equal(state.car?.[0]?.id, undefined);
+  assert.equal(result.tables.schema_migrations, undefined);
+  assert.equal(result.tables.car, 1);
+
+  const truncate = calls.find((call) => call.text.startsWith("TRUNCATE TABLE"))?.text ?? "";
+  assert.doesNotMatch(truncate, /"schema_migrations"/);
+  assert.equal(
+    calls.some(
+      (call) => call.text.startsWith("INSERT INTO") && call.text.includes('"schema_migrations"'),
+    ),
+    false,
+  );
+  assert.equal(
+    calls.some(
+      (call) =>
+        call.text.startsWith("SELECT count(*)") && call.text.includes('"schema_migrations"'),
+    ),
+    false,
+  );
+});
+
+test("a schema mismatch refuses before BEGIN and TRUNCATE", async () => {
+  const calls: string[] = [];
+  const client: RestoreClient = {
+    async query(text) {
+      calls.push(text);
+      return { rows: [] };
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      restoreArchive(
+        client,
+        archive(),
+        { ...columnTypes, car: { id: "uuid", state_id: "uuid" } },
+        { preserveTables: ["schema_migrations"] },
+      ),
+    /car columns do not match/,
+  );
+  assert.deepEqual(calls, []);
+});
+
+test("an unknown preserveTables name refuses before any write", async () => {
+  const calls: string[] = [];
+  const client: RestoreClient = {
+    async query(text) {
+      calls.push(text);
+      return { rows: [] };
+    },
+  };
+
+  await assert.rejects(
+    () =>
+      restoreArchive(client, archive(), columnTypes, {
+        preserveTables: ["not_a_table" as BackupTable],
+      }),
+    /unknown preserveTables/,
+  );
+  assert.deepEqual(calls, []);
 });

@@ -35,8 +35,8 @@ discard uncommitted work, so it is never used without the owner asking.
 | 3 | Store doors and main-only public reads | `lib/store-guard.ts`, `lib/public-cars.ts`, `lib/tap.ts`, `lib/store-guard.test.ts` | focused tests + typecheck | committed (C3) | `b95f411` |
 | 4 | Backup, notices and cleanup pinned to main | `lib/backup-run-live.ts`, `lib/settings.ts`, `lib/cleanup.ts`, `scripts/reconcile.ts` | focused tests + typecheck | committed (C4) | `0b8c8e6` |
 | 5 | Import-safety and door-isolation proofs | `lib/store-guard-import.test.ts`, `lib/space-isolation.test.ts` | focused tests + typecheck | committed | `6a3749b` |
-| 6 | Sanity label/created-time and the one-time snapshot tool | `lib/sanity.ts`, `lib/demo-snapshot.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | focused tests + typecheck | committed; hash recorded in T7 | — |
-| 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | pending | — |
+| 6 | Sanity label/created-time and the one-time snapshot tool | `lib/sanity.ts`, `lib/demo-snapshot.ts`, `scripts/demo-snapshot.ts`, `lib/demo-snapshot.test.ts`, `package.json` | focused tests + typecheck | committed | `6b14af7` |
+| 7 | `restoreArchive` `preserveTables` | `lib/backup-restore.ts`, `lib/backup-restore.test.ts` | focused tests + typecheck | committed; hash recorded in T8 | — |
 | 8 | Reset target proof and direct main advisory lock | `lib/demo-reset.ts`, `lib/neon-api.ts`, `lib/demo-reset.test.ts` | focused tests + typecheck | pending | — |
 | 9 | Reset route, restore, demo-asset cleanup, cron | `app/api/demo/reset/route.ts`, `lib/demo-reset.ts`, `lib/demo-assets.ts`, `vercel.json`, `lib/demo-reset.test.ts` | focused tests + typecheck + build | pending | — |
 | 10 | `OfficeSession.space` and cross-space sign-out | `lib/session.ts`, `lib/session.test.ts`, `app/office/actions/session.ts`, `lib/store-guard.ts` | focused tests + typecheck | pending | — |
@@ -73,5 +73,7 @@ task hash.
   earlier `C1`–`C4` commits are Tasks 1–4.
 - 2026-10-26: Task 6 implemented. `lib/demo-snapshot.test.ts` (7 tests) and `npm run typecheck`
   pass. The live Sanity upload is owner action, not claimed.
+- 2026-10-26: Task 7 implemented. `lib/backup-restore.test.ts` (14 tests) and `npm run typecheck`
+  pass; the demo-branch restore itself is owner action, not claimed.
 - The plan file's task checkboxes are updated as tasks complete. The plan remains the roadmap; this
   file is the commit ledger.

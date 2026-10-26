@@ -11,10 +11,16 @@
  *   2. **The target must not be the main database.** `connectionIdentity` normalises Neon's
  *      `-pooler` host so the pooled and direct addresses of the same branch compare equal. The
  *      script refuses a missing `DATABASE_URL_RESTORE`, a missing main URL, or the same database.
- *   3. **The replacement is one transaction.** `TRUNCATE` all 18 tables, insert in `BACKUP_TABLES`
- *      order (parents first), verify every row count, set both sequences, verify their state, then
- *      commit. An error rolls the data back. Sequence changes are not transactional in PostgreSQL;
- *      the script reports a post-commit mismatch rather than pretending they are.
+ *   3. **The replacement is one transaction.** `TRUNCATE` every table except the ones the caller
+ *      preserves, insert in `BACKUP_TABLES` order (parents first), verify every restored row count,
+ *      set both sequences, verify their state, then commit. An error rolls the data back. Sequence
+ *      changes are not transactional in PostgreSQL; the script reports a post-commit mismatch
+ *      rather than pretending they are.
+ *
+ * `preserveTables` exists for the demo reset: the demo branch keeps its own `schema_migrations`
+ * rows while every data table is replaced by the fixed snapshot. A preserved table is skipped by
+ * truncate, insert and the count check. The default is empty, so the manual main restore is exactly
+ * the full restore it was before.
  *
  * `json`/`jsonb` values need one special case: the `pg` driver treats a JavaScript array as a
  * PostgreSQL array literal, which is invalid JSON for a jsonb column. `prepareValue` therefore
@@ -157,9 +163,18 @@ export function isSameDatabase(a: string, b: string): boolean {
   );
 }
 
-/** The one TRUNCATE; `CASCADE` is Belt-and-braces because every referencing table is listed. */
-export function truncateStatement(): string {
-  return `TRUNCATE TABLE ${BACKUP_TABLES.map(quoteIdentifier).join(", ")} RESTART IDENTITY CASCADE`;
+/**
+ * The one TRUNCATE. With no preserved tables, `CASCADE` is belt-and-braces because every referencing
+ * table is listed. With a preserved table, `CASCADE` is omitted: PostgreSQL would otherwise truncate
+ * the preserved table if something referenced one being emptied, and the promise is that it is
+ * skipped. The demo's `schema_migrations` has no foreign keys, so the plain TRUNCATE is enough.
+ */
+export function truncateStatement(preserveTables: readonly BackupTable[] = []): string {
+  const preserved = new Set(preserveTables);
+  const tables = BACKUP_TABLES.filter((table) => !preserved.has(table));
+  if (tables.length === 0) return "";
+  const cascade = preserved.size === 0 ? " CASCADE" : "";
+  return `TRUNCATE TABLE ${tables.map(quoteIdentifier).join(", ")} RESTART IDENTITY${cascade}`;
 }
 
 /** Read the target's column types; the restore needs `json`/`jsonb` and the exact column set. */
@@ -208,9 +223,12 @@ export type InsertPlan = {
 export function buildInsertPlans(
   archive: BackupArchive,
   columnTypes: Record<string, Record<string, string>>,
+  preserveTables: readonly BackupTable[] = [],
 ): InsertPlan[] {
+  const preserved = new Set(preserveTables);
   const plans: InsertPlan[] = [];
   for (const table of BACKUP_TABLES) {
+    if (preserved.has(table)) continue;
     const rows = archive.tables[table] as RestoreRow[];
     if (rows.length === 0) {
       plans.push({ table, columns: [], values: [] });
@@ -248,16 +266,35 @@ export function buildInsertPlans(
   return plans;
 }
 
+export type RestoreOptions = {
+  /**
+   * Tables whose target rows must survive the replacement. They are skipped by truncate, insert and
+   * the count check. The demo reset passes `schema_migrations`; the manual main restore passes
+   * nothing and keeps the full-restore behaviour.
+   */
+  preserveTables?: readonly BackupTable[];
+};
+
 export async function restoreArchive(
   client: RestoreClient,
   archive: BackupArchive,
   columnTypes: Record<string, Record<string, string>>,
+  options: RestoreOptions = {},
 ): Promise<{ tables: Record<string, number>; sequences: Record<string, BackupSequenceState> }> {
-  const plans = buildInsertPlans(archive, columnTypes);
+  const preserveTables = options.preserveTables ?? [];
+  const unknown = preserveTables.filter(
+    (table) => !(BACKUP_TABLES as readonly string[]).includes(table),
+  );
+  if (unknown.length > 0) {
+    throw new RestoreError("options", `unknown preserveTables: ${unknown.join(", ")}`);
+  }
+  const preserved = new Set(preserveTables);
+  const plans = buildInsertPlans(archive, columnTypes, preserveTables);
 
   await client.query("BEGIN");
   try {
-    await client.query(truncateStatement());
+    const truncate = truncateStatement(preserveTables);
+    if (truncate) await client.query(truncate);
 
     for (const plan of plans) {
       if (plan.columns.length === 0) continue;
@@ -270,8 +307,10 @@ export async function restoreArchive(
     }
 
     // Counts before the sequences: a mismatch rolls the data back and never claims a restore.
+    // A preserved table is not part of the claim: it was not replaced, so it is not counted here.
     const counts: Record<string, number> = {};
     for (const table of BACKUP_TABLES) {
+      if (preserved.has(table)) continue;
       const result = await client.query(
         `SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`,
       );
