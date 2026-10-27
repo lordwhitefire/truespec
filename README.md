@@ -119,6 +119,7 @@ Write commands (care — can modify data): `npm run db:seed`, `npm run db:migrat
 - Task registry: `openspec/tasks-registry.md`
 - Runtime checklist: `developer-workspace/procedures/LAUNCH-001-runtime-checklist.md`
 - Agent reports: `developer-workspace/reports/`
+- Environments: `docs/environments.md`
 
 ## Licence
 
