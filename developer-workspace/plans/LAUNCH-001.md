@@ -968,16 +968,16 @@ owner. Scripts are helpers; no single script and no GitHub Actions workflow is t
 and the change task checkboxes, and write the honest report.
 
 **Acceptance criteria:**
-- [ ] `openspec validate --all` passes.
-- [ ] The report lists every runtime check PASS / FAIL / NOT RUN with evidence, the owner approvals and
+- [x] `openspec validate --all` passes.
+- [x] The report lists every runtime check PASS / FAIL / NOT RUN with evidence, the owner approvals and
       the residue.
-- [ ] The registry records LAUNCH-001 as built and leaves the independent testing phase to the owner.
-- [ ] No push is made.
+- [x] The registry records LAUNCH-001 as built and leaves the independent testing phase to the owner.
+- [x] No push is made.
 
 **Verification:**
-- [ ] Runtime checklist H1–H3.
-- [ ] Report reviewed for secrets and invented claims.
-- [ ] `git status` shows only the intended files staged/committed.
+- [x] Runtime checklist H1–H3.
+- [x] Report reviewed for secrets and invented claims.
+- [x] `git status` shows only the intended files staged/committed.
 
 **Dependencies:** 28.
 **Files:** `openspec/tasks-registry.md`, `openspec/changes/launch-foundations/tasks.md`,
@@ -985,9 +985,9 @@ and the change task checkboxes, and write the honest report.
 **Size:** M (3 files).
 
 **Final checkpoint**
-- [ ] Every runtime checklist item is PASS, or an accepted NOT RUN with reason and evidence.
-- [ ] The report states what was built, what was verified and what was not.
-- [ ] The working tree contains no accidental secret and no unrelated staged file.
+- [x] Every runtime checklist item is PASS, or an accepted NOT RUN with reason and evidence.
+- [x] The report states what was built, what was verified and what was not.
+- [x] The working tree contains no accidental secret and no unrelated staged file.
 
 ---
 
