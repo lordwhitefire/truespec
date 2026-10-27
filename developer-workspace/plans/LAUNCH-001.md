@@ -692,26 +692,31 @@ scripts and tests. Format the tree once in a separate mechanical commit so the c
 door, run as a documented pre-merge job against the local/demo branch.
 
 **Acceptance criteria:**
-- [ ] Home, inventory and a car page load and show their main heading.
-- [ ] An anonymous office request is sent to sign-in and no office data is rendered.
-- [ ] The test runs against a local build; no database secret is required in GitHub.
-- [ ] The pre-merge command is documented.
+- [x] Home, inventory and a car page load and show their main heading.
+- [x] An anonymous office request is sent to sign-in and no office data is rendered.
+- [x] The test runs against a local build; no database secret is required in GitHub.
+- [x] The pre-merge command is documented (`npm run smoke-test`, docs/release-checklist.md).
 
 **Verification:**
-- [ ] Runtime checklist D5.
-- [ ] Run the smoke test locally against `:3210`.
-- [ ] No production data is written.
+- [x] Runtime checklist D5 — smoke test passes (5 checks) against `:3210`.
+- [x] Run the smoke test locally against `:3210`.
+- [x] No production data is written.
 
 **Dependencies:** 17.
 **Files:** `playwright.config.ts`, `e2e/smoke.spec.ts`, `package.json`,
 `docs/release-checklist.md`.
 **Size:** M (4 files).
 
+**Done (2026-10-27).** Smoke test uses playwright-core connected to the existing Chrome on CDP
+:9222 — never launches a browser, never opens a tab. Home/inventory/car load with main headings;
+anonymous office request goes to sign-in with no office data rendered. 5 checks passed. Evidence:
+`developer-workspace/reports/LAUNCH-001-task18.md`.
+
 **Checkpoint 6 — security and delivery**
-- [ ] D1, D5, D6, D7 pass. D6/D7 pass (Task 16, 21/21, 0 CSP violations); D1 waits for Task 17,
-      D5 waits for Task 18.
+- [ ] D1, D5, D6, D7 pass. D6/D7 pass (Task 16, 21/21, 0 CSP violations); D1/D5 pass (Tasks 17/18,
+      lint/format/smoke all green).
 - [x] No CSP violation on the exercised routes.
-- [ ] Lint and format green; smoke test green.
+- [x] Lint and format green; smoke test green.
 
 ---
 
