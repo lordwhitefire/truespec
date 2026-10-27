@@ -5,11 +5,11 @@ environment.
 
 ## Environments
 
-| Environment | Purpose | Database | Assets |
-|-------------|---------|----------|--------|
-| Local | Developer machine, testing | Demo Neon branch (local `DATABASE_URL`) | Local Sanity assets |
-| Preview | Preview deployments for review | Demo Neon branch | Sanity `preview` dataset |
-| Production | Public showroom and office | Main Neon branch | Production Sanity dataset |
+| Environment | Purpose                        | Database                                | Assets                    |
+| ----------- | ------------------------------ | --------------------------------------- | ------------------------- |
+| Local       | Developer machine, testing     | Demo Neon branch (local `DATABASE_URL`) | Local Sanity assets       |
+| Preview     | Preview deployments for review | Demo Neon branch                        | Sanity `preview` dataset  |
+| Production  | Public showroom and office     | Main Neon branch                        | Production Sanity dataset |
 
 ## Preview isolation
 
