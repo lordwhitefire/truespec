@@ -8,6 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --conditions=react-server --import tsx --test \"lib/**/*.test.ts\"",
+    "lint": "eslint \"app/**/*.{ts,tsx}\" \"components/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"scripts/**/*.{ts,tsx}\" \"*.mjs\"",
+    "format:check": "prettier --check app components lib scripts docs next.config.mjs eslint.config.mjs .prettierrc .prettierignore package.json",
     "db:migrate": "tsx scripts/migrate.ts",
     "backup:restore": "tsx scripts/backup-restore.ts",
     "demo:snapshot": "node --import tsx --conditions=react-server scripts/demo-snapshot.ts",
@@ -17,6 +19,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.15",
+    "@fortawesome/fontawesome-free": "6.5.1",
     "@neon/config": "^1.8.6",
     "@neon/env": "^1.5.3",
     "@neondatabase/serverless": "^1.2.0",
@@ -31,12 +34,21 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@types/node": "^26.6.4",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.72.1",
+    "@typescript-eslint/parser": "^8.72.1",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
     "playwright-core": "^1.64.0",
+    "prettier": "^3.9.10",
     "tsx": "^4.23.15",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1"
   }
 }
