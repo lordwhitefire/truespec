@@ -1,0 +1,130 @@
+/* Terms of service — matches reference and privacy */
+.doc {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.crumb {
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--mute);
+}
+.crumb a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.crumb a:hover {
+  color: var(--gold);
+}
+.doc h1 {
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 0 0 8px 0;
+}
+.upd {
+  font-size: 13px;
+  color: var(--mute);
+  margin-bottom: 26px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.upd i {
+  color: var(--gold);
+  margin-top: 2px;
+}
+.own {
+  background: var(--lt);
+  border: 1px dashed var(--gold);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  color: var(--mute);
+  margin: 0 0 26px 0;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.own i {
+  color: var(--gold);
+  margin-top: 2px;
+}
+.own b {
+  color: var(--ink);
+}
+.sumbox {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 26px;
+}
+.sumbox h2 {
+  font-size: 15px;
+  margin: 0 0 10px 0;
+}
+.sumbox p {
+  margin: 0;
+  line-height: 1.55;
+}
+.chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.schip {
+  font-size: 12.5px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--mute);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.schip i {
+  color: var(--gold);
+}
+.toc {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+  margin: 0 0 26px 0;
+}
+.toc a {
+  color: var(--mute);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  margin-right: 14px;
+}
+.toc a:hover {
+  color: var(--ink);
+}
+.doc h2 {
+  font-size: 17px;
+  margin: 26px 0 10px 0;
+}
+.doc p,
+.doc li {
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+.doc a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.doc a:hover {
+  color: var(--gold);
+}
+.ul {
+  display: grid;
+  gap: 10px;
+  padding-left: 22px;
+}
+@media (max-width: 560px) {
+  .doc {
+    padding: 32px 20px 60px;
+  }
+}

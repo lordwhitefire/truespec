@@ -24,15 +24,7 @@ import { Photo } from "@/components/Photo";
 // /not-found, cannot make for themselves.)
 export const dynamic = "force-dynamic";
 
-// Public-area fonts — matches the reference car page, which loads Oswald 600;700
-// (no 400/500) plus Inter 400;500;600. Text requesting weight 400/500 therefore
-// resolves through Chrome's font-weight substitution exactly as the reference does.
-const fonts = (
-  <link
-    href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  />
-);
+
 
 // The chrome's store reads live in small Suspense islands, not in the layout's own body
 // (plan Task 8a). An `await` in the layout holds the entire page back, and a loading boundary
@@ -162,7 +154,6 @@ async function SiteFabLive() {
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {fonts}
       <OfflineNotice />
       <div id="site-header">
         <div className="top" id="top">
@@ -226,6 +217,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <div id="site-footer">
         <footer id="contact">
           <div className="w">
+            <h3 className="sr-only">TrueSpec Automotive footer</h3>
             <div className="fg">
               <div>
                 <h4>
@@ -315,7 +307,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <div className="cp">
               <span>&copy; {new Date().getFullYear()} TrueSpec Automotive. All rights reserved.</span>
               <span>
-                <a href="/privacy">Privacy notice</a> · Imported from the USA
+                <a href="/privacy">Privacy notice</a> ·
+                <a href="/terms">Terms of service</a> ·
+                Imported from the USA
               </span>
             </div>
           </div>
