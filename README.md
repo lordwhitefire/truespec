@@ -79,7 +79,7 @@ real keys, tokens or connection strings.
 Named variables include `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `NEON_BRANCH`, `NEON_API_KEY`,
 `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `SANITY_PROJECT_ID`, `SANITY_DATASET`,
 `SANITY_TOKEN`, `SESSION_SECRET`, `NEXT_PUBLIC_CLERK_*`, `DEMO_*`, `BACKUP_ENCRYPTION_KEY`,
-`CRON_SECRET` and `NEXT_PUBLIC_CLERK_SIGN_IN_URL`.
+`CRON_SECRET`, `NEXT_PUBLIC_CLERK_SIGN_IN_URL`, `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`.
 
 ## Tests, build and deployment
 
@@ -103,6 +103,14 @@ not a GitHub Actions workflow or branch protection. The owner decides whether to
 Read-only commands (safe against production): `npm test`, `npm run typecheck`, `npm run build`.
 Write commands (care — can modify data): `npm run db:seed`, `npm run db:migrate`,
 `npm run backup:restore`, `npm run demo:snapshot`, `npm run demo:wipe`.
+
+## Monitoring
+
+- `docs/monitoring.md` — UptimeRobot monitor for `https://truespec-k4y6.vercel.app/` (5-minute
+  interval, alerts the owner). The owner creates the account and monitor; with no monitor
+  configured, runtime checklist F1 is `NOT RUN`.
+- Error tracking: `docs/security.md` — Sentry behind optional `SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_DSN`;
+  with no DSN no error-tracker network call is made.
 
 ## Links
 
