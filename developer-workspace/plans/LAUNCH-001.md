@@ -6,7 +6,8 @@
 executed through the standing browser procedure in `developer-workspace/procedures/browser-check.md`.
 The old unit suite is a helper, not the gate. The CI/CD pipeline is the agent-run browser checklist
 plus a handoff, not a single script or a GitHub Actions gate. No push unless the owner asks; commits are
-local and stage explicit paths only.
+local and stage explicit paths only. **Commit per task:** each LAUNCH-001 task is committed separately
+when its checks are green, never squashed across tasks (see `developer-workspace/notes/commit-per-task.md`).
 
 **Owner rulings recorded:**
 - Canonical host: `https://truespec-k4y6.vercel.app`, one constant, no redirect map.
@@ -573,19 +574,26 @@ Evidence: `developer-workspace/reports/LAUNCH-001-task13.md`.
 promise the site cannot keep; add the owner/review date.
 
 **Acceptance criteria:**
-- [ ] The contact is the configured WhatsApp channel, consistent with the rest of the site.
-- [ ] The deletion path explains how a request reaches the owner and what the owner can remove.
-- [ ] No email address or self-service channel is promised.
-- [ ] Owner and last-updated date are present.
+- [x] The contact is the configured WhatsApp channel, consistent with the rest of the site.
+- [x] The deletion path explains how a request reaches the owner and what the owner can remove.
+- [x] No email address or self-service channel is promised.
+- [x] Owner and last-updated date are present.
 
 **Verification:**
-- [ ] Runtime checklist E3, E4, E6.
-- [ ] Browser procedure on `/privacy`; compare the contact with the header/footer.
-- [ ] No secret or customer data in the page.
+- [x] Runtime checklist E3, E4, E6 — privacy part passes (runtime 8/8).
+- [x] Browser procedure on `/privacy`; contact compared with header/footer.
+- [x] No secret or customer data in the page.
 
 **Dependencies:** 13.
-**Files:** `app/(site)/privacy/page.tsx`, `lib/site.ts`.
-**Size:** S (2 files).
+**Files:** `app/(site)/privacy/page.tsx`, `lib/site.ts`,
+`developer-workspace/scripts/LAUNCH-001/privacy.mjs`.
+**Size:** S (2 files + 1 runtime script).
+
+**Done (2026-10-27).** Privacy page now carries `pageMetadata`, "Last updated: 27 October 2026"
+and "Owner: TrueSpec Automotive · Reviewed: 27 October 2026"; contact stays the configured
+WhatsApp number; deletion path reaches the owner; no email/self-service promised. E3/E4/E6
+runtime 8/8; 523 tests; typecheck and build pass. Evidence:
+`developer-workspace/reports/LAUNCH-001-task14.md`.
 
 #### Task 15 — Cookie/storage inventory and accessibility release check
 
@@ -611,8 +619,8 @@ the target and the release check that includes keyboard and screen-reader passes
 **Size:** S (3 files).
 
 **Checkpoint 5 — legal and trust**
-- [x] E1–E6 pass or an accepted NOT RUN. E1/E2 verified for terms (runtime 10/10); E6 terms part
-      passes; privacy owner/review record is an accepted NOT RUN deferred to Task 14.
+- [x] E1–E6 pass. E1/E2 verified for terms (runtime 10/10); E6 terms part passes; E6 privacy
+      part passes (runtime 8/8) — no longer deferred.
 - [x] Owner approved the terms wording (2026-10-27, as drafted).
 - [x] No unrecorded tracker; no promise the site cannot keep. robots/sitemap/llms scanned; no
       analytics or email channel; privacy names WhatsApp only and does not promise self-service

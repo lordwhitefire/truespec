@@ -1,7 +1,16 @@
 import Link from "next/link";
 import "./privacy.css";
 import "../../reference.css";
+import { pageMetadata, PRIVACY_LAST_UPDATED } from "@/lib/site";
 import { getSetting } from "@/lib/public-cars";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy notice",
+  description:
+    "TrueSpec privacy notice: what we store, the WhatsApp contact channel, demo accounts, deletion, and no analytics.",
+  path: "/privacy",
+});
 
 export default async function PrivacyPage() {
   // The site layout above this page is force-dynamic, so the number is read per request: the notice
@@ -18,7 +27,11 @@ export default async function PrivacyPage() {
         <h1>Privacy notice</h1>
         <p className="upd">
           <i className="fa-regular fa-calendar" />
-          Last updated: 26 October 2026
+          Last updated: {PRIVACY_LAST_UPDATED}
+        </p>
+        <p className="own">
+          <i className="fa-regular fa-user" />
+          <b>Owner:</b> TrueSpec Automotive · <b>Reviewed:</b> {PRIVACY_LAST_UPDATED}
         </p>
 
         <div className="sumbox">

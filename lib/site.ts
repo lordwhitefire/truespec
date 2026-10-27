@@ -23,9 +23,14 @@ export const SITE_URL = new URL(SITE_ORIGIN);
 
 /**
  * Last-updated and reviewed date for public legal pages. Moves with the owner's approval date —
- * privacy's own record is updated by Task 14; terms records this one.
+ * privacy's own record is updated by Task 14; terms records its own.
  */
 export const TERMS_LAST_UPDATED = "27 October 2026";
+
+/**
+ * Last-updated and reviewed date for the privacy notice. Moves when the privacy page changes.
+ */
+export const PRIVACY_LAST_UPDATED = "27 October 2026";
 
 /**
  * Turn a route path or an already-absolute image URL into an absolute URL on the canonical origin.
