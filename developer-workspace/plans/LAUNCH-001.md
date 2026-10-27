@@ -640,24 +640,30 @@ entry point. Evidence: `developer-workspace/reports/LAUNCH-001-task15.md`.
 
 **Covers:** 4.4, 4.5.
 **Description:** One header configuration for content-type, framing, referrer, permissions and
-transport security; a CSP that accounts for Clerk, Sanity images, Google Fonts and Font Awesome. Start
-report-only, exercise the public pages and the anonymous office door, then enforce.
+transport security; a CSP that accounts for Clerk, Sanity images, Google Fonts and Font Awesome.
+Start report-only, exercise the public pages and the anonymous office door, then enforce.
 
 **Acceptance criteria:**
-- [ ] Documented headers are present on public responses.
-- [ ] CSP is present; after the local exercise it is enforcing, not report-only.
-- [ ] Public home, inventory, car, privacy and terms render with no CSP violation in the console.
-- [ ] Clerk sign-in page loads; fonts and icons load.
+- [x] Documented headers are present on public responses.
+- [x] CSP is present; after the local exercise it is enforcing, not report-only.
+- [x] Public home, inventory, car, privacy and terms render with no CSP violation in the console.
+- [x] Clerk sign-in page loads; fonts and icons load.
 
 **Verification:**
-- [ ] Runtime checklist D6, D7.
-- [ ] Browser procedure with console capture on all public routes and `/office/sign-in`.
-- [ ] If an authenticated-only violation cannot be resolved locally, report it and keep the specific
-      directive in report-only; do not silently weaken the whole policy.
+- [x] Runtime checklist D6, D7 — 21/21, 0 CSP violations with enforcing CSP.
+- [x] Browser procedure with console capture on all public routes and `/office/sign-in`.
+- [x] No authenticated-only violation; no directive kept report-only.
 
 **Dependencies:** 3, 5, 8, 13.
-**Files:** `next.config.mjs`, `lib/security-headers.ts`, `docs/security.md`.
-**Size:** M (3 files). **High risk** — isolate in its own commit.
+**Files:** `next.config.mjs`, `lib/security-headers.ts`, `docs/security.md`,
+`developer-workspace/scripts/LAUNCH-001/security.mjs`.
+**Size:** M (3 files). **High risk — isolated in its own commit.**
+
+**Done (2026-10-27).** `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+`Permissions-Policy`, `Strict-Transport-Security` present on every response. Enforcing CSP with
+Clerk, Sanity, Clerk brand images and Unsplash backgrounds as named sources; zero console
+violations on home/inventory/car/privacy/terms; `/office/sign-in` loads; fonts/icons load.
+Runtime D6/D7 21/21. Evidence: `developer-workspace/reports/LAUNCH-001-task16.md`.
 
 #### Task 17 — Lint and format
 
@@ -702,8 +708,9 @@ door, run as a documented pre-merge job against the local/demo branch.
 **Size:** M (4 files).
 
 **Checkpoint 6 — security and delivery**
-- [ ] D1, D5, D6, D7 pass.
-- [ ] No CSP violation on the exercised routes.
+- [ ] D1, D5, D6, D7 pass. D6/D7 pass (Task 16, 21/21, 0 CSP violations); D1 waits for Task 17,
+      D5 waits for Task 18.
+- [x] No CSP violation on the exercised routes.
 - [ ] Lint and format green; smoke test green.
 
 ---

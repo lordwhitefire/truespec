@@ -1,4 +1,5 @@
 import path from "node:path";
+import { securityHeaders } from "./lib/security-headers.ts";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -31,6 +32,18 @@ const nextConfig = {
       "@": path.resolve(process.cwd()),
     };
     return config;
+  },
+  // Security headers on every response. Starts report-only (Task 16 exercise phase);
+  // flip `useReportOnly` to false to enforce the CSP after the local public +
+  // anonymous-office exercise shows no violations.
+  async headers() {
+    const headers = securityHeaders(false); // enforcing after clean exercise
+    return [
+      {
+        source: "/:path*",
+        headers: Object.entries(headers).map(([key, value]) => ({ key, value })),
+      },
+    ];
   },
 };
 
