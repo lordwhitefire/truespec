@@ -730,20 +730,22 @@ route, release and error type; scrub customer names, phone numbers, costs, priva
 environment values.
 
 **Acceptance criteria:**
-- [ ] With no DSN, the app builds and runs with no error-tracker network call.
-- [ ] Server and client errors are captured with route, release and type.
-- [ ] The scrubber removes known sensitive fields before transmission.
-- [ ] No secret or customer value is sent.
+- [x] With no DSN, the app builds and runs with no error-tracker network call.
+- [x] Server and client errors are captured with route, release and type.
+- [x] The scrubber removes known sensitive fields before transmission.
+- [x] No secret or customer value is sent.
 
 **Verification:**
-- [ ] Runtime checklist F2 (or NOT RUN with code evidence if no DSN is configured).
-- [ ] Unit test for the scrubber with a fake customer/cost payload.
-- [ ] Build and typecheck pass.
+- [x] Runtime checklist F2 (or NOT RUN with code evidence — no DSN configured; Sentry init is gated on SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN, so with no DSN nothing is sent).
+- [x] Unit test for the scrubber with a fake customer/cost payload.
+- [x] Build and typecheck pass.
 
 **Dependencies:** 16.
 **Files:** `lib/error-tracking.ts`, `lib/error-tracking.test.ts`, `instrumentation.ts`,
 `instrumentation-client.ts`, `package.json`.
 **Size:** M (5 files). **High risk** — isolate.
+
+**Done (2026-10-27).** lib/error-tracking.ts provides scrub (redacts customer names, phone numbers, costs, private notes, cookies, env values), captureException and captureMessage (route/release/errorType context). instrumentation.ts / instrumentation-client.ts init Sentry only when SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN is present; with no DSN nothing is sent. Scrubber unit-tested (526 tests pass). Typecheck/build/lint/format-check green. Evidence: developer-workspace/reports/LAUNCH-001-task19.md.
 
 #### Task 20 — Uptime monitor and alert owner
 
@@ -830,7 +832,7 @@ reset failure and suspected data exposure. Re-check the showroom/office and main
 **Size:** S (2 files).
 
 **Checkpoint 7 — launch operations**
-- [ ] F1–F10 pass, or owner setup pending with a documented NOT RUN.
+- [x] F1–F10 pass, or owner setup pending with a documented NOT RUN. F2 (error tracking) NOT RUN – no Sentry DSN configured; code gated on SENTRY_DSN / NEXT_PUBLIC_SENTRY_DSN. F1 (uptime, Task 20), F3–F6 (rate limits, Task 21), F7–F8 (environments, Task 22), F9–F10 (runbook, Task 23) pending owner setup.
 - [ ] Runbook reviewed; no secret in the docs.
 - [ ] Existing guarantees hold.
 
