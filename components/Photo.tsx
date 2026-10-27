@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
 
+import { sizedPhotoUrl } from "@/lib/photo-url";
 import { PhotoBox } from "./PhotoBox";
 
 /**
@@ -56,9 +57,15 @@ export type PhotoProps = ImgHTMLAttributes<HTMLImageElement> & {
    * leave the image transparent and unannounced so the box shows through.
    */
   boxRef?: string;
+  /**
+   * The slot's display size. When set, the browser asks Sanity for this derivative and the intrinsic
+   * width/height are reserved. Card slots pass roughly twice the CSS size so the image is sharp on a
+   * high-density phone without shipping the original upload.
+   */
+  sized?: { width: number; height: number };
 };
 
-export function Photo({ src, alt, boxRef, onError, ...rest }: PhotoProps) {
+export function Photo({ src, alt, boxRef, sized, onError, srcSet, ...rest }: PhotoProps) {
   const [failed, setFailed] = useState(false);
   const el = useRef<HTMLImageElement | null>(null);
 
@@ -71,14 +78,24 @@ export function Photo({ src, alt, boxRef, onError, ...rest }: PhotoProps) {
     if (im && im.complete && im.naturalWidth === 0) setFailed(true);
   }, []);
 
-  const boxed = !src || failed;
-  const shown = boxed ? (boxRef ? undefined : PHOTO_PLACEHOLDER) : src;
+  const addressed = src
+    ? sized
+      ? sizedPhotoUrl(src, sized.width, sized.height)
+      : src
+    : undefined;
+  const boxed = !addressed || failed;
+  const shown = boxed ? (boxRef ? undefined : PHOTO_PLACEHOLDER) : addressed;
+  const dimensions = sized ? { width: sized.width, height: sized.height } : {};
 
   return (
     <>
       {boxRef ? <PhotoBox refCode={boxRef} /> : null}
       <img
         {...rest}
+        // A failed or empty slot must not keep asking for a candidate from the set; the box behind
+        // it is the final state.
+        {...(boxed || !srcSet ? {} : { srcSet })}
+        {...dimensions}
         ref={el}
         src={shown}
         // The boxed slot inside a drawn box is decorative — the car's name is already beside it (E2).

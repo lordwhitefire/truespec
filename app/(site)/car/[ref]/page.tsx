@@ -3,12 +3,15 @@ import { notFound } from "next/navigation";
 import "@/app/(site)/car/car.css";
 import { CarBehaviors } from "@/components/site/CarBehaviors";
 import { Photo } from "@/components/Photo";
-import { carHref } from "@/components/site/car-view";
+import { carHref, carTitle, mileageLabel } from "@/components/site/car-view";
 import { carWaLink, waClass, waLink, waOffProps } from "@/components/whatsapp";
 import { formatNaira } from "@/lib/money";
 import { sectionLabel, tokenOf } from "@/lib/sections";
 import { isSpecial, type PublicCar } from "@/lib/serialize";
 import { getPublicCarForView, getPublicCars, getSetting } from "@/lib/public-cars";
+import { pageMetadata } from "@/lib/site";
+import { carGallerySrcSet, sizedPhotoUrl } from "@/lib/photo-url";
+import { buildCarJsonLd } from "@/lib/structured-data";
 import { CarLayers, RelatedShell } from "./car-parts";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +23,35 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { ref } = await params;
   const car = await getPublicCarForView(ref);
-  if (!car) return { title: "Car not found | TrueSpec Automotive" };
-  if (car.sold) return { title: "Sold | TrueSpec Automotive" };
-  const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
-  return { title: `${name} | TrueSpec Automotive` };
+  if (!car) {
+    // The not-found boundary answers 404; keep the metadata honest too.
+    return { title: "Car not found | TrueSpec Automotive", robots: { index: false, follow: false } };
+  }
+
+  const name = carTitle(car);
+  const price = formatNaira(car.priceKobo);
+  const mileage = mileageLabel(car) ?? "Mileage not stated";
+  const image = car.photos[0] ? sizedPhotoUrl(car.photos[0], 1200, 630) : undefined;
+  const sold = car.sold || car.section === "sold";
+
+  if (sold) {
+    return pageMetadata({
+      title: `Sold — ${name}`,
+      description: `Sold — ${name}. ${price}, ${mileage}. See what else TrueSpec Automotive has available.`,
+      path: carHref(car),
+      image,
+      imageAlt: `${name} — sold`,
+      noIndex: true,
+    });
+  }
+
+  return pageMetadata({
+    title: name,
+    description: `${name} — ${price}, ${mileage}. ${sectionLabel(car.section)} from TrueSpec Automotive.`,
+    path: carHref(car),
+    image,
+    imageAlt: name,
+  });
 }
 
 const RELATED_H2: Record<string, string> = {
@@ -86,9 +114,24 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   // status and lets the co-located boundary render the view this page used to render inline.
   if (!car) notFound();
 
-  // Separate sold from unknown - sold cars exist but are not listed
-  if (car.sold) {
-    return soldPageView(car, all, number ?? "");
+  // Separate sold from unknown - sold cars exist but are not listed. A car whose
+  // configured section is Sold but whose sale row is absent is still sold, not a
+  // normal listing; the sold view and noindex keep it out of the index.
+  const sold = car.sold || car.section === "sold";
+  const jsonLd = buildCarJsonLd(car);
+  const jsonLdScript = (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+    />
+  );
+  if (sold) {
+    return (
+      <>
+        {jsonLdScript}
+        {soldPageView(car, all, number ?? "")}
+      </>
+    );
   }
 
   const num = number ?? "";
@@ -107,6 +150,8 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   );
 
   const related = all.filter((c) => c.ref !== car.ref).slice(0, 11);
+  const cover = car.photos[0] ?? "";
+  const coverSrcSet = cover ? carGallerySrcSet(cover) : undefined;
   const lead = leadSentence(car);
   const paragraphs = overview(car);
   const slug = [car.year, car.brand, car.model, car.trim]
@@ -122,6 +167,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
 
   return (
     <>
+      {jsonLdScript}
       <div className="crumbs">
         <div className="w" id="crumb">
           <a href="/">Home</a>
@@ -172,7 +218,17 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                       <span className="ld">Landed</span>
                     ) : null}
                   </div>
-                  <Photo id="gi" src={car.photos[0] ?? ""} alt={`${h1Title(car)} photo 1`} boxRef={car.ref} />
+                  <Photo
+                    id="gi"
+                    src={cover}
+                    srcSet={coverSrcSet}
+                    sizes="(max-width: 1000px) calc(100vw - 48px), 832px"
+                    alt={`${h1Title(car)} photo 1`}
+                    boxRef={car.ref}
+                    sized={{ width: 1200, height: 720 }}
+                    fetchPriority="high"
+                    decoding="async"
+                  />
                   {/* No photos: the drawn box stands alone — nothing to count, step through or
                       thumbnail (DR5); the box itself is the car's own gradient (D7/E2). One photo
                       keeps its counter and loses the arrows. */}
@@ -202,7 +258,13 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                         aria-label={`Photo ${i + 1}`}
                         data-i={i}
                       >
-                        <Photo src={p} alt="" />
+                        <Photo
+                          src={p}
+                          alt=""
+                          sized={{ width: 320, height: 180 }}
+                          loading="lazy"
+                          decoding="async"
+                        />
                       </button>
                     ))}
                   </div>
@@ -371,7 +433,13 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
             {related.map((c) => (
               <a className="rc" href={carHref(c)} key={c.ref}>
                 <div className="ph">
-                  <Photo src={c.photos[0]} alt="" loading="lazy" />
+                  <Photo
+                    src={c.photos[0]}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    sized={{ width: 580, height: 320 }}
+                  />
                 </div>
                 <div className="bd">
                   <h3>{cardTitle(c)}</h3>
@@ -459,7 +527,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
   const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
   const month = car.soldAt
     ? new Date(car.soldAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })
-    : "";
+    : null;
   const soldWa = waLink(
     num,
     `Hello TrueSpec, I saw the link to the ${name} — it's sold. I'm after something similar.`,
@@ -483,10 +551,14 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
           <Photo
             src={car.photos[0]}
             alt={name}
+            sized={{ width: 840, height: 525 }}
+            fetchPriority="high"
+            decoding="async"
             style={{
               display: "block",
               width: "100%",
               maxWidth: 420,
+              height: "auto",
               aspectRatio: "16 / 10",
               objectFit: "cover",
               borderRadius: 12,
@@ -500,8 +572,8 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
         </div>
         <h1>That one found a new owner</h1>
         <p>
-          {name} went in {month}. Good car — it moved quickly. Here&apos;s what I can put you in
-          instead:
+          {name} {month ? `went in ${month}` : "is sold"}. Good car — it moved quickly. Here&apos;s
+          what I can put you in instead:
         </p>
         <div className="row">
           <a
@@ -531,7 +603,13 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
               {similar.map((c) => (
                 <a className="rc" href={carHref(c)} key={c.ref}>
                   <div className="ph">
-                    <Photo src={c.photos[0]} alt="" loading="lazy" />
+                    <Photo
+                    src={c.photos[0]}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    sized={{ width: 580, height: 320 }}
+                  />
                   </div>
                   <div className="bd">
                     <h3>{[c.brand, c.model, c.year].filter(Boolean).join(" ")}</h3>

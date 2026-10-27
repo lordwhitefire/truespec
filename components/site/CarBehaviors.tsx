@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { WA_OFF_REASON, waClass } from "@/components/whatsapp";
+import { carGallerySrcSet, sizedPhotoUrl } from "@/lib/photo-url";
 
 type Props = {
   photos: string[];
@@ -186,7 +187,11 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
       const set = () => {
         const src = imgs[gi];
         if (im) {
-          im.src = src;
+          // The server rendered the first photo as a display-size derivative; every later step
+          // must keep both the fallback and the responsive set on a derivative too, or the
+          // browser would fetch the original upload after the first thumb click.
+          im.src = sizedPhotoUrl(src, 1200, 720);
+          im.srcset = carGallerySrcSet(src);
           im.alt = `${alt} photo ${gi + 1}`;
           im.onload = () => {
             im.classList.remove("sw");
@@ -199,6 +204,7 @@ export function CarBehaviors({ photos, alt, wa, viewing, name, slug, status, was
           im.onerror = () => {
             im.classList.remove("sw");
             im.removeAttribute("src");
+            im.removeAttribute("srcset");
             im.alt = "";
           };
         }

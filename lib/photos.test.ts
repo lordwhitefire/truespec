@@ -12,6 +12,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { resolvePhotoUrl } from "./serialize";
+import { carGallerySrcSet, sizedPhotoUrl } from "./photo-url";
 
 const PROJECT = "c2lc8g8n";
 const DATASET = "production";
@@ -33,6 +34,44 @@ test("no derivative parameters are added — the asset is served as it is", () =
   // derivative, and v1 builds none (specs/media).
   const url = resolvePhotoUrl(ASSET, PROJECT, DATASET);
   assert.ok(!url.includes("?"), `address carries parameters: ${url}`);
+});
+
+test("a display-size derivative names its slot, crops and asks for a modern format", () => {
+  const url = resolvePhotoUrl(ASSET, PROJECT, DATASET);
+  const sized = new URL(sizedPhotoUrl(url, 800, 800));
+  assert.equal(sized.searchParams.get("w"), "800");
+  assert.equal(sized.searchParams.get("h"), "800");
+  assert.equal(sized.searchParams.get("fit"), "crop");
+  assert.equal(sized.searchParams.get("auto"), "format");
+  assert.equal(sized.searchParams.get("q"), "75");
+  // The original asset is untouched.
+  assert.ok(url.endsWith("-1200x800.jpg"));
+});
+
+test("sizedPhotoUrl leaves a non-Sanity address alone", () => {
+  const other = "https://example.com/photo.jpg";
+  assert.equal(sizedPhotoUrl(other, 800, 800), other);
+});
+
+test("the car gallery offers display-width candidates, not the original", () => {
+  const url = resolvePhotoUrl(ASSET, PROJECT, DATASET);
+  const entries = carGallerySrcSet(url)
+    .split(", ")
+    .map((entry) => {
+      const [address, descriptor] = entry.split(" ");
+      const sized = new URL(address);
+      return {
+        width: Number(sized.searchParams.get("w")),
+        height: Number(sized.searchParams.get("h")),
+        fit: sized.searchParams.get("fit"),
+        descriptor,
+      };
+    });
+
+  assert.deepEqual(entries.map((e) => e.width), [640, 960, 1440]);
+  assert.deepEqual(entries.map((e) => e.height), [384, 576, 864]);
+  assert.deepEqual(entries.map((e) => e.descriptor), ["640w", "960w", "1440w"]);
+  assert.ok(entries.every((e) => e.fit === "crop"));
 });
 
 test("anything that is not an asset reference is refused, never passed through", () => {
