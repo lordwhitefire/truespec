@@ -1,11 +1,11 @@
-import "../../../car/car.css";
-import { notFound } from "next/navigation";
-import { getEnquiryStateRegistry, getOfficeEnquiryForEdit } from "@/lib/office";
-import { requireOfficeSession } from "@/lib/session";
-import { EnquiryForm } from "@/components/office/EnquiryForm";
+import '../../../car/car.css';
+import { notFound } from 'next/navigation';
+import { getEnquiryStateRegistry, getOfficeEnquiryForEdit } from '@/lib/office';
+import { requireOfficeSession } from '@/lib/session';
+import { EnquiryForm } from '@/components/office/EnquiryForm';
 
 // An enquiry is the store's row, so this page renders per request — never from a build-time snapshot.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Editing a saved enquiry (owner ruling 2026-10-20, #4): every detail can change, and the activity
    log gets one entry naming the `ENQ-####` — never the customer. The route is the row's id; the
@@ -18,7 +18,10 @@ export default async function EditEnquiryPage({ params }: { params: Promise<{ id
   await requireOfficeSession();
   const { id } = await params;
 
-  const [enquiry, states] = await Promise.all([getOfficeEnquiryForEdit(id), getEnquiryStateRegistry()]);
+  const [enquiry, states] = await Promise.all([
+    getOfficeEnquiryForEdit(id),
+    getEnquiryStateRegistry(),
+  ]);
   if (enquiry === null) notFound();
 
   const options = states.map((state) => ({ id: state.id, label: state.label }));
@@ -33,7 +36,7 @@ export default async function EditEnquiryPage({ params }: { params: Promise<{ id
         name: enquiry.name,
         number: enquiry.number,
         askedFor: enquiry.askedFor,
-        note: enquiry.note ?? "",
+        note: enquiry.note ?? '',
         stateId: enquiry.stateId,
       }}
     />

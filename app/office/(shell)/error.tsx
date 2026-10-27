@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Retryable } from "@/components/retryable";
-import "./office.css";
+import { Retryable } from '@/components/retryable';
+import './office.css';
 
 // A page inside the office shell failed its own read. The boundary lives in the same segment as
 // the shell, so the sidebar, top bar and signed-in identity stay, and the retry lands in the

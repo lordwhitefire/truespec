@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Dialog } from "./Dialog";
-import "./MoreSheet.css";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Dialog } from './Dialog';
+import './MoreSheet.css';
 
 // The More cell's three destinations (Task 20) — the sidebar's order and the sidebar's words
 // (`OfficeNav.tsx`): Drafts, Activity log, Settings. Everything else the sidebar carries already
@@ -15,9 +15,9 @@ import "./MoreSheet.css";
 // tap closes it (Task 16's opt-in). A choice closes it too — the link navigates and the sheet
 // goes with it.
 const destinations: { href: string; label: string; icon: string }[] = [
-  { href: "/office/drafts", label: "Drafts", icon: "fa-inbox" },
-  { href: "/office/activity", label: "Activity log", icon: "fa-list-check" },
-  { href: "/office/settings", label: "Settings", icon: "fa-gear" },
+  { href: '/office/drafts', label: 'Drafts', icon: 'fa-inbox' },
+  { href: '/office/activity', label: 'Activity log', icon: 'fa-list-check' },
+  { href: '/office/settings', label: 'Settings', icon: 'fa-gear' },
 ];
 
 export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -40,8 +40,8 @@ export function MoreSheet({ open, onClose }: { open: boolean; onClose: () => voi
                 key={d.href}
                 href={d.href}
                 onClick={onClose}
-                aria-current={current ? "page" : undefined}
-                className={current ? "on" : undefined}
+                aria-current={current ? 'page' : undefined}
+                className={current ? 'on' : undefined}
               >
                 <i className={`fa-solid ${d.icon}`} />
                 {d.label}

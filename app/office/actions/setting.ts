@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { saveSetting, type SaveSettingResult } from "@/lib/settings";
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { saveSetting, type SaveSettingResult } from '@/lib/settings';
 
 /**
  * The three settings, saved for real — truth 12, build step 8.
@@ -26,14 +26,14 @@ import { saveSetting, type SaveSettingResult } from "@/lib/settings";
  *  button, the tagline sits under the brand — so the revalidation is the root layout, which is every
  *  route beneath it, rather than a list that would have to be kept in step with the showroom. */
 function revalidateSettingPaths(): void {
-  revalidatePath("/", "layout");
-  revalidatePath("/office/settings");
+  revalidatePath('/', 'layout');
+  revalidatePath('/office/settings');
 }
 
 /** The WhatsApp number, stored normalised to `+234…`. A refusal returns its reason. */
 export async function saveWhatsapp(value: string): Promise<SaveSettingResult> {
   await requireOfficeSession();
-  const result = await saveSetting("whatsapp", value);
+  const result = await saveSetting('whatsapp', value);
   if (result.ok) revalidateSettingPaths();
   return result;
 }
@@ -41,7 +41,7 @@ export async function saveWhatsapp(value: string): Promise<SaveSettingResult> {
 /** The tagline — one line under the brand. */
 export async function saveTagline(value: string): Promise<SaveSettingResult> {
   await requireOfficeSession();
-  const result = await saveSetting("tagline", value);
+  const result = await saveSetting('tagline', value);
   if (result.ok) revalidateSettingPaths();
   return result;
 }
@@ -49,7 +49,7 @@ export async function saveTagline(value: string): Promise<SaveSettingResult> {
 /** The full-tank default — a form prefill only, never a rate and never a real cost. */
 export async function saveFullTankDefault(value: string): Promise<SaveSettingResult> {
   await requireOfficeSession();
-  const result = await saveSetting("tank", value);
+  const result = await saveSetting('tank', value);
   if (result.ok) revalidateSettingPaths();
   return result;
 }

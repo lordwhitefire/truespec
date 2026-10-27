@@ -1,6 +1,6 @@
-import "server-only";
-import { csvOf, type CsvValue } from "./csv";
-import { storeQuery } from "./store-guard";
+import 'server-only';
+import { csvOf, type CsvValue } from './csv';
+import { storeQuery } from './store-guard';
 
 /**
  * The export (truth 13): *"One action produces everything the system holds — every car with its
@@ -60,7 +60,7 @@ import { storeQuery } from "./store-guard";
 /** One subject of the export: the name the spec gives it, its table, and its file. */
 type Subject = {
   /** The spec's own word for it — used for the counts, the README and the master's keys. */
-  key: "cars" | "costs" | "photos" | "enquiries" | "taps" | "activity" | "settings";
+  key: 'cars' | 'costs' | 'photos' | 'enquiries' | 'taps' | 'activity' | 'settings';
   /** The table the header is read from. */
   table: string;
   /** The file inside the ZIP. */
@@ -73,40 +73,60 @@ type Subject = {
 
 export const SUBJECTS: readonly Subject[] = [
   {
-    key: "cars",
-    table: "car",
-    file: "cars.csv",
+    key: 'cars',
+    table: 'car',
+    file: 'cars.csv',
     // Every car, tombstoned or not, with the state's own label beside its id (see the header note).
-    extra: ["state"],
+    extra: ['state'],
     sql: `SELECT c.*, s.label AS state
             FROM car c
             JOIN car_state s ON s.id = c.state_id
            ORDER BY c.ref, c.id`,
   },
-  { key: "costs", table: "cost_line", file: "costs.csv", sql: `SELECT * FROM cost_line ORDER BY car_id, kind, id` },
-  { key: "photos", table: "car_photo", file: "photos.csv", sql: `SELECT * FROM car_photo ORDER BY car_id, position, id` },
-  { key: "enquiries", table: "enquiry", file: "enquiries.csv", sql: `SELECT * FROM enquiry ORDER BY created_at, id` },
-  { key: "taps", table: "tap", file: "taps.csv", sql: `SELECT * FROM tap ORDER BY at, id` },
   {
-    key: "activity",
-    table: "activity_event",
-    file: "activity.csv",
+    key: 'costs',
+    table: 'cost_line',
+    file: 'costs.csv',
+    sql: `SELECT * FROM cost_line ORDER BY car_id, kind, id`,
+  },
+  {
+    key: 'photos',
+    table: 'car_photo',
+    file: 'photos.csv',
+    sql: `SELECT * FROM car_photo ORDER BY car_id, position, id`,
+  },
+  {
+    key: 'enquiries',
+    table: 'enquiry',
+    file: 'enquiries.csv',
+    sql: `SELECT * FROM enquiry ORDER BY created_at, id`,
+  },
+  { key: 'taps', table: 'tap', file: 'taps.csv', sql: `SELECT * FROM tap ORDER BY at, id` },
+  {
+    key: 'activity',
+    table: 'activity_event',
+    file: 'activity.csv',
     // The actor's email beside the id: `office_user` is not one of the seven subjects.
-    extra: ["actor"],
+    extra: ['actor'],
     sql: `SELECT a.*, u.email AS actor
             FROM activity_event a
             LEFT JOIN office_user u ON u.id = a.actor_id
            ORDER BY a.at, a.id`,
   },
-  { key: "settings", table: "setting", file: "settings.csv", sql: `SELECT * FROM setting ORDER BY key` },
+  {
+    key: 'settings',
+    table: 'setting',
+    file: 'settings.csv',
+    sql: `SELECT * FROM setting ORDER BY key`,
+  },
 ];
 
 /** One finished file: a name inside the archive, and its bytes as text. */
 export type ExportFile = { name: string; body: string };
 
 /** The two files that are not a subject, named so the README and the ZIP agree on the order. */
-export const README_FILE = "README.txt";
-export const MASTER_FILE = "master.json";
+export const README_FILE = 'README.txt';
+export const MASTER_FILE = 'master.json';
 
 type Row = Record<string, unknown>;
 type CatalogRow = { table_name: string; column_name: string };
@@ -120,7 +140,7 @@ const COLUMNS_SQL = `SELECT table_name, column_name
 function cellFor(row: Row, column: string): CsvValue {
   if (!(column in row)) {
     throw new Error(
-      `The export asked for column "${column}", which the store did not return — the catalog and the query disagree.`,
+      `The export asked for column "${column}", which the store did not return — the catalog and the query disagree.`
     );
   }
   return row[column] as CsvValue;
@@ -142,34 +162,34 @@ function readme(at: Date, files: readonly { file: string; rows: number }[]): str
   // One aligned column, computed — never hand-spaced, which is how a README drifts out of line
   // the moment a longer filename appears.
   const entries = [
-    { name: README_FILE, note: "this file — what is inside, and when it was made" },
+    { name: README_FILE, note: 'this file — what is inside, and when it was made' },
     {
       name: MASTER_FILE,
-      note: "the same records, kept in their shape: each car carries its own cost lines and photos",
+      note: 'the same records, kept in their shape: each car carries its own cost lines and photos',
     },
-    ...files.map((f) => ({ name: f.file, note: `${f.rows} row${f.rows === 1 ? "" : "s"}` })),
+    ...files.map((f) => ({ name: f.file, note: `${f.rows} row${f.rows === 1 ? '' : 's'}` })),
   ];
   const width = Math.max(...entries.map((e) => e.name.length));
 
   return [
-    "TrueSpec — data export",
+    'TrueSpec — data export',
     `Made ${at.toISOString()}`,
-    "",
-    "Everything the system holds, as of the moment above. This archive is the whole of it;",
-    "nothing in it was sent anywhere to make it.",
-    "",
+    '',
+    'Everything the system holds, as of the moment above. This archive is the whole of it;',
+    'nothing in it was sent anywhere to make it.',
+    '',
     ...entries.map((e) => `  ${e.name.padEnd(width)}  ${e.note}`),
-    "",
-    "Every .csv is plain text: a header row, then one row per record. Fields are separated by",
-    "commas and records by CRLF; a field that contains a comma, a quote or a line break is",
-    "wrapped in quotes with its own quotes doubled. A blank cell means the store holds no",
-    "value there — it is never a placeholder. Dates are ISO 8601 in UTC, so the same instant",
-    "reads the same everywhere.",
-    "",
-    "master.json carries the same rows as the .csv files, so the two always say the same",
-    "thing; only the shape differs.",
-    "",
-  ].join("\n");
+    '',
+    'Every .csv is plain text: a header row, then one row per record. Fields are separated by',
+    'commas and records by CRLF; a field that contains a comma, a quote or a line break is',
+    'wrapped in quotes with its own quotes doubled. A blank cell means the store holds no',
+    'value there — it is never a placeholder. Dates are ISO 8601 in UTC, so the same instant',
+    'reads the same everywhere.',
+    '',
+    'master.json carries the same rows as the .csv files, so the two always say the same',
+    'thing; only the shape differs.',
+    '',
+  ].join('\n');
 }
 
 /**
@@ -205,13 +225,21 @@ export async function buildExport(now: Date): Promise<ExportFile[]> {
   for (const [index, subject] of SUBJECTS.entries()) {
     const stored = columnsByTable.get(subject.table);
     if (!stored || stored.length === 0) {
-      throw new Error(`The store reports no columns for "${subject.table}"; the export cannot be built.`);
+      throw new Error(
+        `The store reports no columns for "${subject.table}"; the export cannot be built.`
+      );
     }
     const header = [...stored, ...(subject.extra ?? [])];
     const rows = rowSets[index];
 
     counts[subject.key] = rows.length;
-    csvs.push({ name: subject.file, body: csvOf(header, rows.map((row) => header.map((c) => cellFor(row, c)))) });
+    csvs.push({
+      name: subject.file,
+      body: csvOf(
+        header,
+        rows.map((row) => header.map((c) => cellFor(row, c)))
+      ),
+    });
   }
 
   // The master keeps the nesting a flat file cannot: a car owns its cost lines and its photos,
@@ -235,8 +263,14 @@ export async function buildExport(now: Date): Promise<ExportFile[]> {
   };
 
   const ordered: ExportFile[] = [
-    { name: README_FILE, body: readme(now, SUBJECTS.map((s, i) => ({ file: s.file, rows: rowSets[i].length }))) },
-    { name: MASTER_FILE, body: JSON.stringify(master, null, 2) + "\n" },
+    {
+      name: README_FILE,
+      body: readme(
+        now,
+        SUBJECTS.map((s, i) => ({ file: s.file, rows: rowSets[i].length }))
+      ),
+    },
+    { name: MASTER_FILE, body: JSON.stringify(master, null, 2) + '\n' },
     ...csvs,
   ];
 

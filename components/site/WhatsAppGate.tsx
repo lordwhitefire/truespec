@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { carRefInPath } from "@/lib/tap-rules";
+import { useEffect, useRef, useState } from 'react';
+import { carRefInPath } from '@/lib/tap-rules';
 
 /**
  * The step between a buyer and WhatsApp (truth 8):
@@ -40,9 +40,9 @@ const WA_LINK = /^https:\/\/wa\.me\//;
 function recordTap(): void {
   try {
     const page = window.location.pathname;
-    void fetch("/api/tap", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
+    void fetch('/api/tap', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ page, carRef: carRefInPath(page) }),
       keepalive: true,
     }).catch(() => {
@@ -62,9 +62,11 @@ export function WhatsAppGate() {
   useEffect(() => {
     function onClick(event: MouseEvent) {
       if (event.defaultPrevented) return;
-      const link = (event.target as Element | null)?.closest?.("a[href]") as HTMLAnchorElement | null;
+      const link = (event.target as Element | null)?.closest?.(
+        'a[href]'
+      ) as HTMLAnchorElement | null;
       if (!link) return;
-      const target = link.getAttribute("href") ?? "";
+      const target = link.getAttribute('href') ?? '';
       if (!WA_LINK.test(target)) return;
 
       const plain =
@@ -81,8 +83,8 @@ export function WhatsAppGate() {
       setHref(target);
     }
 
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   // The dialog follows `href`: the notice is up while a link is waiting, and gone once it is answered.
@@ -101,7 +103,7 @@ export function WhatsAppGate() {
     recordTap();
     // Opened in the buyer's own gesture, so a popup blocker does not stop it; if anything does, fall
     // back to a plain navigation rather than leaving them with nothing.
-    const opened = window.open(target, "_blank", "noopener,noreferrer");
+    const opened = window.open(target, '_blank', 'noopener,noreferrer');
     if (!opened) window.location.assign(target);
   }
 
@@ -115,9 +117,9 @@ export function WhatsAppGate() {
     >
       <h2 id="wagn-h">Before you go to WhatsApp</h2>
       <p>
-        TrueSpec records three things when you tap through, so the office knows a car was asked about:{" "}
-        <b>the page you tapped from</b>, <b>the car&rsquo;s code</b> (when you tap on a car) and{" "}
-        <b>the time</b>. Nothing else — no name, no number, no message.
+        TrueSpec records three things when you tap through, so the office knows a car was asked
+        about: <b>the page you tapped from</b>, <b>the car&rsquo;s code</b> (when you tap on a car)
+        and <b>the time</b>. Nothing else — no name, no number, no message.
       </p>
       <p className="wagn-more">
         <a href="/privacy">Read the full privacy notice</a>

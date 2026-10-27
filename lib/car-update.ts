@@ -1,5 +1,5 @@
-import type { CarColumns, CarCostLine } from "./car-input";
-import type { SaleInput } from "./sale";
+import type { CarColumns, CarCostLine } from './car-input';
+import type { SaleInput } from './sale';
 
 /**
  * The one statement that changes a car.

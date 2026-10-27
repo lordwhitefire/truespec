@@ -1,4 +1,4 @@
-import { STORE_STATE_CSS } from "./store-state-styles";
+import { STORE_STATE_CSS } from './store-state-styles';
 
 /**
  * The wait while the store wakes (design D18).

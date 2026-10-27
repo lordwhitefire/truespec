@@ -24,10 +24,10 @@
  * This module deliberately has no `server-only` import: the tests import it directly. The route
  * that binds the real asset door and the environment is the server-side half.
  */
-import { Client } from "pg";
+import { Client } from 'pg';
 
-import type { BackupArchive } from "./backup-archive";
-import { decryptBackup } from "./backup-crypto";
+import type { BackupArchive } from './backup-archive';
+import { decryptBackup } from './backup-crypto';
 import {
   isSameDatabase,
   parseBackupArchive,
@@ -36,17 +36,13 @@ import {
   RestoreError,
   type RestoreClient,
   type RestoreRow,
-} from "./backup-restore";
-import {
-  BACKUP_TABLES,
-  quoteIdentifier,
-  type BackupTable,
-} from "./backup-tables";
-import { demoSwitchOn } from "./config";
-import { cleanupDemoAssets } from "./demo-assets";
-import { DEMO_SEED_LABEL } from "./demo-snapshot";
-import { NeonApiError, verifyDemoBranch, type FetchLike } from "./neon-api";
-import type { StoredAsset } from "./sanity";
+} from './backup-restore';
+import { BACKUP_TABLES, quoteIdentifier, type BackupTable } from './backup-tables';
+import { demoSwitchOn } from './config';
+import { cleanupDemoAssets } from './demo-assets';
+import { DEMO_SEED_LABEL } from './demo-snapshot';
+import { NeonApiError, verifyDemoBranch, type FetchLike } from './neon-api';
+import type { StoredAsset } from './sanity';
 
 export type ResetEnv = {
   cronSecret?: string;
@@ -83,10 +79,10 @@ export type ResetSummary = {
 export class ResetError extends Error {
   constructor(
     readonly step: string,
-    message: string,
+    message: string
   ) {
     super(message);
-    this.name = "ResetError";
+    this.name = 'ResetError';
   }
 }
 
@@ -101,7 +97,7 @@ export type ResetLock = {
 export type LockClient = {
   query: (text: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>;
   end: () => Promise<void>;
-  on?: (event: "error", listener: (error: Error) => void) => unknown;
+  on?: (event: 'error', listener: (error: Error) => void) => unknown;
 };
 
 export type ResetPreflightDeps = {
@@ -123,8 +119,7 @@ export type ResetContext = {
 };
 
 export type ResetPreflightResult =
-  | { ok: true; context: ResetContext }
-  | { ok: false; summary: ResetSummary };
+  { ok: true; context: ResetContext } | { ok: false; summary: ResetSummary };
 
 export function resetEnvFromProcess(): ResetEnv {
   return {
@@ -144,7 +139,7 @@ function failure(
   step: string,
   error: string,
   startedAt: Date,
-  seedAssetId: string | null = null,
+  seedAssetId: string | null = null
 ): ResetPreflightResult {
   return {
     ok: false,
@@ -170,13 +165,10 @@ function assertDirectMainUrl(connectionString: string): void {
   try {
     hostname = new URL(connectionString).hostname;
   } catch {
-    throw new ResetError(
-      "configuration",
-      "DATABASE_URL_UNPOOLED is not a valid PostgreSQL URL",
-    );
+    throw new ResetError('configuration', 'DATABASE_URL_UNPOOLED is not a valid PostgreSQL URL');
   }
-  if (hostname.includes("-pooler")) {
-    throw new ResetError("configuration", "DATABASE_URL_UNPOOLED names a pooled host");
+  if (hostname.includes('-pooler')) {
+    throw new ResetError('configuration', 'DATABASE_URL_UNPOOLED names a pooled host');
   }
 }
 
@@ -186,19 +178,19 @@ function assertDirectMainUrl(connectionString: string): void {
  */
 export async function createResetLock(client: LockClient): Promise<ResetLock> {
   let dropped = false;
-  client.on?.("error", () => {
+  client.on?.('error', () => {
     dropped = true;
   });
 
   let acquired = false;
   try {
     const result = await client.query(
-      "SELECT pg_try_advisory_lock(hashtext('truespec-demo-reset')) AS locked",
+      "SELECT pg_try_advisory_lock(hashtext('truespec-demo-reset')) AS locked"
     );
     acquired = result.rows[0]?.locked === true;
   } catch {
     await client.end().catch(() => {});
-    throw new ResetError("lock", "the main lock could not be acquired");
+    throw new ResetError('lock', 'the main lock could not be acquired');
   }
 
   if (!acquired) {
@@ -206,7 +198,7 @@ export async function createResetLock(client: LockClient): Promise<ResetLock> {
     return {
       acquired: false,
       check: async () => {
-        throw new ResetError("lock", "the main lock is not held");
+        throw new ResetError('lock', 'the main lock is not held');
       },
       release: async () => ({ released: true }),
     };
@@ -216,12 +208,12 @@ export async function createResetLock(client: LockClient): Promise<ResetLock> {
     acquired: true,
     async check() {
       if (dropped) {
-        throw new ResetError("lock", "the main lock connection dropped");
+        throw new ResetError('lock', 'the main lock connection dropped');
       }
       try {
-        await client.query("SELECT 1");
+        await client.query('SELECT 1');
       } catch {
-        throw new ResetError("lock", "the main lock connection dropped");
+        throw new ResetError('lock', 'the main lock connection dropped');
       }
     },
     async release() {
@@ -233,7 +225,7 @@ export async function createResetLock(client: LockClient): Promise<ResetLock> {
         await client.end().catch(() => {});
         return {
           released: false,
-          error: "the main lock connection could not be released",
+          error: 'the main lock connection could not be released',
         };
       }
     },
@@ -250,7 +242,7 @@ export async function acquireMainResetLock(connectionString: string): Promise<Re
   try {
     await client.connect();
   } catch {
-    throw new ResetError("lock", "the main lock database could not be reached");
+    throw new ResetError('lock', 'the main lock database could not be reached');
   }
   return createResetLock(client);
 }
@@ -259,36 +251,32 @@ export async function acquireMainResetLock(connectionString: string): Promise<Re
  * Run the checks before any demo write. On success the caller owns the lock and must release it in
  * a `finally`; the summary's `ok` is still false until the restore and cleanup finish.
  */
-export async function preflightReset(
-  deps: ResetPreflightDeps,
-): Promise<ResetPreflightResult> {
+export async function preflightReset(deps: ResetPreflightDeps): Promise<ResetPreflightResult> {
   const startedAt = deps.now ?? new Date();
   const env = deps.env;
 
   if (!env.cronSecret || deps.authorization !== `Bearer ${env.cronSecret}`) {
-    return failure("auth", "unauthorized", startedAt);
+    return failure('auth', 'unauthorized', startedAt);
   }
   if (!demoSwitchOn(env.demoResetEnabled)) {
-    return failure("disabled", "demo reset is disabled", startedAt);
+    return failure('disabled', 'demo reset is disabled', startedAt);
   }
 
   const required: [keyof ResetEnv, string][] = [
-    ["demoDatabaseUrl", "DEMO_DATABASE_URL"],
-    ["databaseUrl", "DATABASE_URL"],
-    ["databaseUrlUnpooled", "DATABASE_URL_UNPOOLED"],
-    ["backupEncryptionKey", "BACKUP_ENCRYPTION_KEY"],
-    ["neonApiKey", "NEON_API_KEY"],
-    ["neonProjectId", "NEON_PROJECT_ID"],
-    ["demoBranchId", "DEMO_BRANCH_ID"],
+    ['demoDatabaseUrl', 'DEMO_DATABASE_URL'],
+    ['databaseUrl', 'DATABASE_URL'],
+    ['databaseUrlUnpooled', 'DATABASE_URL_UNPOOLED'],
+    ['backupEncryptionKey', 'BACKUP_ENCRYPTION_KEY'],
+    ['neonApiKey', 'NEON_API_KEY'],
+    ['neonProjectId', 'NEON_PROJECT_ID'],
+    ['demoBranchId', 'DEMO_BRANCH_ID'],
   ];
-  const missing = required
-    .filter(([key]) => !env[key]?.trim())
-    .map(([, name]) => name);
+  const missing = required.filter(([key]) => !env[key]?.trim()).map(([, name]) => name);
   if (missing.length > 0) {
     return failure(
-      "configuration",
-      `missing required configuration: ${missing.join(", ")}`,
-      startedAt,
+      'configuration',
+      `missing required configuration: ${missing.join(', ')}`,
+      startedAt
     );
   }
 
@@ -300,7 +288,7 @@ export async function preflightReset(
     assertDirectMainUrl(unpooledUrl);
   } catch (error) {
     if (error instanceof ResetError) return failure(error.step, error.message, startedAt);
-    return failure("configuration", "DATABASE_URL_UNPOOLED could not be checked", startedAt);
+    return failure('configuration', 'DATABASE_URL_UNPOOLED could not be checked', startedAt);
   }
 
   let sameDatabase: boolean;
@@ -308,12 +296,16 @@ export async function preflightReset(
     sameDatabase = isSameDatabase(demoUrl, databaseUrl);
   } catch (error) {
     if (error instanceof RestoreError) {
-      return failure("target", "DEMO_DATABASE_URL or DATABASE_URL is not a valid PostgreSQL URL", startedAt);
+      return failure(
+        'target',
+        'DEMO_DATABASE_URL or DATABASE_URL is not a valid PostgreSQL URL',
+        startedAt
+      );
     }
-    return failure("target", "the demo target could not be compared with main", startedAt);
+    return failure('target', 'the demo target could not be compared with main', startedAt);
   }
   if (sameDatabase) {
-    return failure("target", "refusing: DEMO_DATABASE_URL names the main database", startedAt);
+    return failure('target', 'refusing: DEMO_DATABASE_URL names the main database', startedAt);
   }
 
   try {
@@ -326,24 +318,20 @@ export async function preflightReset(
     });
   } catch (error) {
     if (error instanceof NeonApiError || error instanceof ResetError) {
-      return failure("target", error.message, startedAt);
+      return failure('target', error.message, startedAt);
     }
-    return failure("target", "the demo branch could not be verified", startedAt);
+    return failure('target', 'the demo branch could not be verified', startedAt);
   }
 
   let assets: StoredAsset[];
   try {
     assets = await deps.listFileAssets();
   } catch {
-    return failure("seed", "the asset store could not be listed", startedAt);
+    return failure('seed', 'the asset store could not be listed', startedAt);
   }
   const seeds = assets.filter((asset) => asset.label === DEMO_SEED_LABEL);
   if (seeds.length !== 1) {
-    return failure(
-      "seed",
-      `expected exactly one seed asset, found ${seeds.length}`,
-      startedAt,
-    );
+    return failure('seed', `expected exactly one seed asset, found ${seeds.length}`, startedAt);
   }
   const seed = seeds[0]!;
 
@@ -354,10 +342,10 @@ export async function preflightReset(
     if (error instanceof ResetError) {
       return failure(error.step, error.message, startedAt, seed.assetId);
     }
-    return failure("lock", "the main lock could not be acquired", startedAt, seed.assetId);
+    return failure('lock', 'the main lock could not be acquired', startedAt, seed.assetId);
   }
   if (!lock.acquired) {
-    return failure("lock", "another reset is running", startedAt, seed.assetId);
+    return failure('lock', 'another reset is running', startedAt, seed.assetId);
   }
 
   return {
@@ -370,7 +358,7 @@ export async function preflightReset(
       startedAt,
       summary: {
         ok: false,
-        step: "locked",
+        step: 'locked',
         startedAt: startedAt.toISOString(),
         snapshotAt: null,
         rowsBefore: null,
@@ -386,7 +374,7 @@ export async function preflightReset(
 /** The demo connection: a direct `pg` client, closed by `runDemoReset` in its `finally`. */
 export type DemoResetClient = RestoreClient & {
   end: () => Promise<void>;
-  on?: (event: "error", listener: (error: Error) => void) => unknown;
+  on?: (event: 'error', listener: (error: Error) => void) => unknown;
 };
 
 /** 240 seconds leaves the route 60 seconds inside `maxDuration = 300` to report the timeout. */
@@ -405,26 +393,24 @@ export async function openDemoClient(connectionString: string): Promise<DemoRese
     statement_timeout: DEMO_RESET_TIMEOUT_MS,
     query_timeout: DEMO_RESET_TIMEOUT_MS,
   });
-  client.on("error", () => {});
+  client.on('error', () => {});
   try {
     await client.connect();
   } catch {
-    throw new ResetError("connect", "the demo database could not be reached");
+    throw new ResetError('connect', 'the demo database could not be reached');
   }
   return client;
 }
 
 /** The data tables the reset replaces. `schema_migrations` is preserved and is not counted. */
 const RESET_TABLES: readonly BackupTable[] = BACKUP_TABLES.filter(
-  (table) => table !== "schema_migrations",
+  (table) => table !== 'schema_migrations'
 );
 
 async function readCounts(client: RestoreClient): Promise<Record<string, number>> {
   const counts: Record<string, number> = {};
   for (const table of RESET_TABLES) {
-    const result = await client.query(
-      `SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`,
-    );
+    const result = await client.query(`SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`);
     counts[table] = Number(result.rows[0]?.n);
   }
   return counts;
@@ -432,18 +418,18 @@ async function readCounts(client: RestoreClient): Promise<Record<string, number>
 
 function isTimeout(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;
-  if (code === "57014") return true;
+  if (code === '57014') return true;
   return error instanceof Error && /timeout/i.test(error.message);
 }
 
 function failureStep(error: unknown, fallback: string): string {
   if (error instanceof ResetError || error instanceof RestoreError) return error.step;
-  return isTimeout(error) ? "timeout" : fallback;
+  return isTimeout(error) ? 'timeout' : fallback;
 }
 
 function failureMessage(error: unknown): string {
   if (error instanceof ResetError || error instanceof RestoreError) return error.message;
-  return isTimeout(error) ? "the reset exceeded its time limit" : "the step failed";
+  return isTimeout(error) ? 'the reset exceeded its time limit' : 'the step failed';
 }
 
 export type DemoResetDeps = ResetPreflightDeps & {
@@ -473,7 +459,7 @@ export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
 
   const { lock, seed, demoUrl, startedAt, summary } = preflight.context;
   let demoClient: DemoResetClient | null = null;
-  let step = "download";
+  let step = 'download';
 
   try {
     await lock.check();
@@ -483,54 +469,52 @@ export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
       envelope = await deps.downloadSeed(seed.assetId);
     } catch (error) {
       throw new ResetError(
-        "download",
-        error instanceof Error
-          ? error.message
-          : "the seed asset could not be downloaded",
+        'download',
+        error instanceof Error ? error.message : 'the seed asset could not be downloaded'
       );
     }
 
-    step = "decrypt";
+    step = 'decrypt';
     let plaintext: string;
     try {
       plaintext = decryptBackup(envelope, deps.env.backupEncryptionKey!.trim());
     } catch {
       throw new ResetError(
-        "decrypt",
-        "the seed could not be decrypted (wrong key or corrupt archive)",
+        'decrypt',
+        'the seed could not be decrypted (wrong key or corrupt archive)'
       );
     }
 
-    step = "parse";
+    step = 'parse';
     const archive = parseBackupArchive(plaintext);
     summary.snapshotAt = archive.generated_at;
 
-    step = "connect";
+    step = 'connect';
     try {
       demoClient = await deps.openDemo(demoUrl);
     } catch (error) {
       if (error instanceof ResetError) throw error;
-      throw new ResetError("connect", "the demo database could not be reached");
+      throw new ResetError('connect', 'the demo database could not be reached');
     }
 
-    step = "columns";
+    step = 'columns';
     const columnTypes = await readColumnTypes(demoClient);
 
-    step = "count-before";
+    step = 'count-before';
     summary.rowsBefore = await readCounts(demoClient);
 
-    step = "restore";
+    step = 'restore';
     const restored = await restoreArchive(demoClient, archive, columnTypes, {
-      preserveTables: ["schema_migrations"],
+      preserveTables: ['schema_migrations'],
     });
     summary.rowsAfter = restored.tables;
 
     // The lock is the only thing stopping a second reset. If it dropped, the restore that just
     // committed cannot be undone; the run is still reported as a lock failure.
-    step = "lock";
+    step = 'lock';
     await lock.check();
 
-    step = "cleanup";
+    step = 'cleanup';
     const cleanup = await cleanupDemoAssets({
       startedAt,
       listStoredAssets: deps.listStoredAssets,
@@ -545,12 +529,11 @@ export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
 
     if (cleanup.failed > 0 || cleanup.error) {
       summary.ok = false;
-      summary.step = "cleanup";
-      summary.error =
-        cleanup.error ?? `${cleanup.failed} demo asset(s) could not be deleted`;
+      summary.step = 'cleanup';
+      summary.error = cleanup.error ?? `${cleanup.failed} demo asset(s) could not be deleted`;
     } else {
       summary.ok = true;
-      summary.step = "done";
+      summary.step = 'done';
     }
   } catch (error) {
     summary.ok = false;
@@ -569,12 +552,12 @@ export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
     try {
       released = await lock.release();
     } catch {
-      released = { released: false, error: "the main lock could not be released" };
+      released = { released: false, error: 'the main lock could not be released' };
     }
     if (!released.released && summary.ok) {
       summary.ok = false;
-      summary.step = "lock";
-      summary.error = released.error ?? "the main lock could not be released";
+      summary.step = 'lock';
+      summary.error = released.error ?? 'the main lock could not be released';
     }
     summary.durationMs = Date.now() - startedAt.getTime();
   }
@@ -585,8 +568,8 @@ export async function runDemoReset(deps: DemoResetDeps): Promise<ResetSummary> {
 /** The route's status: auth 401, disabled 403, lock conflict 409, success 200, else 500. */
 export function resetHttpStatus(summary: ResetSummary): number {
   if (summary.ok) return 200;
-  if (summary.step === "auth") return 401;
-  if (summary.step === "disabled") return 403;
-  if (summary.step === "lock") return 409;
+  if (summary.step === 'auth') return 401;
+  if (summary.step === 'disabled') return 403;
+  if (summary.step === 'lock') return 409;
   return 500;
 }

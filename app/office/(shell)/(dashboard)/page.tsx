@@ -1,15 +1,21 @@
-import "../office.css";
-import Link from "next/link";
-import { getOfficeActivity, getOfficeDashboard, getOfficeTaps } from "@/lib/office";
-import { formatNaira, nairaDigits } from "@/lib/money";
-import { requireOfficeSession } from "@/lib/session";
-import { categoryLabel, categoryOf, operator, toActivityEntries, wordOf } from "@/lib/activity-feed";
-import { shortAge, weekdayDay } from "@/lib/office-time";
-import { FocusRefresh } from "@/components/office/FocusRefresh";
+import '../office.css';
+import Link from 'next/link';
+import { getOfficeActivity, getOfficeDashboard, getOfficeTaps } from '@/lib/office';
+import { formatNaira, nairaDigits } from '@/lib/money';
+import { requireOfficeSession } from '@/lib/session';
+import {
+  categoryLabel,
+  categoryOf,
+  operator,
+  toActivityEntries,
+  wordOf,
+} from '@/lib/activity-feed';
+import { shortAge, weekdayDay } from '@/lib/office-time';
+import { FocusRefresh } from '@/components/office/FocusRefresh';
 
 // The figures come from the store, so this page renders per request — never from a build-time
 // snapshot of it.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /** How many rows a feed panel draws. A feed is "recent" by nature; the log page reads the whole
  *  bounded feed, and the taps panel links on to the full list on the Enquiries page's Taps tab. */
@@ -57,7 +63,8 @@ export default async function DashboardPage() {
             {nairaDigits(d.moneyTiedUp.kobo)}
           </div>
           <p className="foot">
-            Across <b>{d.moneyTiedUp.of} cars</b> in stock — includes cars with incomplete costs, because that money is spent.
+            Across <b>{d.moneyTiedUp.of} cars</b> in stock — includes cars with incomplete costs,
+            because that money is spent.
           </p>
         </div>
         <div className="kpi warn">
@@ -72,9 +79,9 @@ export default async function DashboardPage() {
           <p className="foot w">
             <b>
               From {d.projectedProfit.counted} of {d.projectedProfit.of} cars.
-            </b>{" "}
-            {d.projectedProfit.stillBuilding} excluded: costs incomplete.{" "}
-            <Link href="/office/inventory" style={{ textDecoration: "underline" }}>
+            </b>{' '}
+            {d.projectedProfit.stillBuilding} excluded: costs incomplete.{' '}
+            <Link href="/office/inventory" style={{ textDecoration: 'underline' }}>
               See which
             </Link>
           </p>
@@ -89,8 +96,9 @@ export default async function DashboardPage() {
             {nairaDigits(d.realProfit.kobo)}
           </div>
           <p className="foot">
-            <b>{d.counts.sold} car sold</b> — {d.sold?.label ?? "—"}, sale price{" "}
-            {d.sold?.priceKobo != null ? formatNaira(d.sold.priceKobo) : "—"}. Sits in Inventory → Sold.
+            <b>{d.counts.sold} car sold</b> — {d.sold?.label ?? '—'}, sale price{' '}
+            {d.sold?.priceKobo != null ? formatNaira(d.sold.priceKobo) : '—'}. Sits in Inventory →
+            Sold.
           </p>
         </div>
       </div>
@@ -133,7 +141,9 @@ export default async function DashboardPage() {
           {entries.length === 0 ? (
             <div className="feed-empty">
               <i className="fa-solid fa-list-check" />
-              <p>Nothing has been done to a car yet. Add one, or change one, and it will appear here.</p>
+              <p>
+                Nothing has been done to a car yet. Add one, or change one, and it will appear here.
+              </p>
             </div>
           ) : (
             entries.slice(0, RECENT).map((e) => {
@@ -144,8 +154,8 @@ export default async function DashboardPage() {
                     {who.initial}
                   </span>
                   <p>
-                    {wordOf(e.kind)}{" "}
-                    {e.kind.startsWith("car.") ? (
+                    {wordOf(e.kind)}{' '}
+                    {e.kind.startsWith('car.') ? (
                       <b>
                         <Link href={`/office/car/${e.subject}`} title={`Open ${e.subject}`}>
                           {e.subject}
@@ -154,7 +164,9 @@ export default async function DashboardPage() {
                     ) : (
                       <b>{e.subject}</b>
                     )}
-                    <span className={`tag ${categoryOf(e.kind) || "other"}`}>{categoryLabel(e.kind)}</span>
+                    <span className={`tag ${categoryOf(e.kind) || 'other'}`}>
+                      {categoryLabel(e.kind)}
+                    </span>
                     <time>{shortAge(e.at, now)}</time>
                     {who.label ? <span className="who">{who.label}</span> : null}
                   </p>
@@ -189,7 +201,7 @@ export default async function DashboardPage() {
                     </>
                   ) : (
                     <>
-                      Tap on{" "}
+                      Tap on{' '}
                       <Link href={`/office/car/${t.carRef}`} title={`Open ${t.carRef}`}>
                         {t.car}
                       </Link>

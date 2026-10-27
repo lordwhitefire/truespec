@@ -1,11 +1,11 @@
-import "./activity.css";
-import { getOfficeActivity } from "@/lib/office";
-import { toActivityEntries } from "@/lib/activity-feed";
-import { requireOfficeSession } from "@/lib/session";
-import { Activity } from "./activity-client";
+import './activity.css';
+import { getOfficeActivity } from '@/lib/office';
+import { toActivityEntries } from '@/lib/activity-feed';
+import { requireOfficeSession } from '@/lib/session';
+import { Activity } from './activity-client';
 
 // The log is the store's rows, so this page renders per request — never from a build-time snapshot.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Activity log — the office's own record, from `activity_event` (truth 15, D20).
 

@@ -1,16 +1,16 @@
-import type { Metadata } from "next";
-import "../../door.css";
-import "../account.css";
-import { UserProfile } from "@clerk/nextjs";
-import Link from "next/link";
-import { requireOfficeSession } from "@/lib/session";
+import type { Metadata } from 'next';
+import '../../door.css';
+import '../account.css';
+import { UserProfile } from '@clerk/nextjs';
+import Link from 'next/link';
+import { requireOfficeSession } from '@/lib/session';
 
 // Behind the door, so it reads the session per request.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 // A surface of its own, so it carries its own title rather than inheriting the showroom's.
 export const metadata: Metadata = {
-  title: "Your account | TrueSpec Office",
+  title: 'Your account | TrueSpec Office',
 };
 
 /**

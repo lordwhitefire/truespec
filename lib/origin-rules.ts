@@ -22,9 +22,9 @@
  */
 export function isSameOrigin(
   origin: string | null | undefined,
-  host: string | null | undefined,
+  host: string | null | undefined
 ): boolean {
-  if (typeof origin !== "string" || typeof host !== "string") return false;
+  if (typeof origin !== 'string' || typeof host !== 'string') return false;
   if (origin.length === 0 || host.length === 0) return false;
 
   let originHost: string;
@@ -32,7 +32,7 @@ export function isSameOrigin(
     const url = new URL(origin);
     // A scheme we do not serve is not our origin. This also refuses `Origin: null` (a sandboxed
     // frame or a local file), which `new URL` rejects outright.
-    if (url.protocol !== "https:" && url.protocol !== "http:") return false;
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
     originHost = url.host;
   } catch {
     return false;

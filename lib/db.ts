@@ -1,6 +1,6 @@
-import "server-only";
-import { neon } from "@neondatabase/serverless";
-import { ConfigError, getConfig } from "./config";
+import 'server-only';
+import { neon } from '@neondatabase/serverless';
+import { ConfigError, getConfig } from './config';
 
 // The database is reachable only server-side; the connection string never
 // reaches the browser (design D2). RLS is not the boundary — this module is.
@@ -12,7 +12,7 @@ let mainClient: ReturnType<typeof neon> | null = null;
 let demoClient: ReturnType<typeof neon> | null = null;
 
 function requirePostgresUrl(value: string | null | undefined, name: string): string {
-  if (value === undefined || value === null || value.trim() === "") {
+  if (value === undefined || value === null || value.trim() === '') {
     throw new ConfigError(`${name} is missing. The demo space is not configured.`);
   }
 
@@ -24,7 +24,7 @@ function requirePostgresUrl(value: string | null | undefined, name: string): str
     throw new ConfigError(`${name} is not a valid postgresql:// connection string.`);
   }
 
-  if (parsed.protocol !== "postgres:" && parsed.protocol !== "postgresql:") {
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
     throw new ConfigError(`${name} is not a valid postgresql:// connection string.`);
   }
   if (!parsed.hostname) {
@@ -43,7 +43,7 @@ export function mainDb() {
     // rebuild-from-nothing, `npm run build` kept answering from rows the store no longer held, and
     // the public pages were rendered from a store that had not existed for hours. The store is the
     // truth (design D2) — a cached read of it is a stale figure, so every read opts out.
-    mainClient = neon(getConfig().databaseUrl, { fetchOptions: { cache: "no-store" } });
+    mainClient = neon(getConfig().databaseUrl, { fetchOptions: { cache: 'no-store' } });
   }
   return mainClient;
 }
@@ -56,8 +56,8 @@ export function mainDb() {
  */
 export function demoDb() {
   if (!demoClient) {
-    const url = requirePostgresUrl(getConfig().demoDatabaseUrl, "DEMO_DATABASE_URL");
-    demoClient = neon(url, { fetchOptions: { cache: "no-store" } });
+    const url = requirePostgresUrl(getConfig().demoDatabaseUrl, 'DEMO_DATABASE_URL');
+    demoClient = neon(url, { fetchOptions: { cache: 'no-store' } });
   }
   return demoClient;
 }

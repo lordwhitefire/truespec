@@ -5,14 +5,14 @@ routes). Configured in `lib/security-headers.ts` and wired through `next.config.
 
 ## Headers on every response
 
-| Header | Value | Purpose |
-|--------|-------|---------|
-| `X-Content-Type-Options` | `nosniff` | Stop the browser from MIME-sniffing responses. |
-| `X-Frame-Options` | `DENY` | Prevent clickjacking via framing. |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Send only the origin to third parties. |
-| `Permissions-Policy` | `geolocation=(), microphone=(), camera=(), payment=(), usb=()` | Disable powerful features by default. |
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Enforce HTTPS for a year. |
-| `Content-Security-Policy` | see below | Restrict executable and loadable resources. |
+| Header                      | Value                                                          | Purpose                                        |
+| --------------------------- | -------------------------------------------------------------- | ---------------------------------------------- |
+| `X-Content-Type-Options`    | `nosniff`                                                      | Stop the browser from MIME-sniffing responses. |
+| `X-Frame-Options`           | `DENY`                                                         | Prevent clickjacking via framing.              |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`                              | Send only the origin to third parties.         |
+| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=(), payment=(), usb=()` | Disable powerful features by default.          |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`                          | Enforce HTTPS for a year.                      |
+| `Content-Security-Policy`   | see below                                                      | Restrict executable and loadable resources.    |
 
 ## Content Security Policy
 

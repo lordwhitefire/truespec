@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
-import { deleteEnquiry, setEnquiryState } from "@/app/office/actions/enquiry";
-import { Dialog } from "@/components/office/Dialog";
-import type { EditResult } from "@/lib/edit-result";
+import { useEffect, useState, useTransition } from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { deleteEnquiry, setEnquiryState } from '@/app/office/actions/enquiry';
+import { Dialog } from '@/components/office/Dialog';
+import type { EditResult } from '@/lib/edit-result';
 
 /* Enquiries board — the store's rows, grouped by the store's states.
 
@@ -46,21 +46,21 @@ export type BoardEnquiry = {
 };
 
 /** The trailing group for enquiries the store holds with no state — never a state, and never faked. */
-const NO_STATE: BoardState = { id: "", label: "No state", colour: "#8a9096" };
+const NO_STATE: BoardState = { id: '', label: 'No state', colour: '#8a9096' };
 
 const initials = (n: string) =>
   n
-    .split(" ")
+    .split(' ')
     .map((w) => w[0])
     .slice(0, 2)
-    .join("")
+    .join('')
     .toUpperCase();
 
 /** The international digits of a Nigerian number, however it was typed (the product's own rule). */
 function intl(number: string): string {
-  const digits = number.replace(/\D/g, "");
-  if (digits.startsWith("234")) return digits;
-  if (digits.startsWith("0")) return `234${digits.slice(1)}`;
+  const digits = number.replace(/\D/g, '');
+  if (digits.startsWith('234')) return digits;
+  if (digits.startsWith('0')) return `234${digits.slice(1)}`;
   return digits;
 }
 
@@ -72,7 +72,7 @@ export function Enquiries({
   enquiries: BoardEnquiry[];
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
-  const [overlay, setOverlay] = useState<null | "detail" | "delete">(null);
+  const [overlay, setOverlay] = useState<null | 'detail' | 'delete'>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -102,12 +102,12 @@ export function Enquiries({
     setOpenId(id);
     setError(null);
     setDeleteError(null);
-    setOverlay("detail");
+    setOverlay('detail');
   }
 
   function openDelete() {
     setDeleteError(null);
-    setOverlay("delete");
+    setOverlay('delete');
   }
 
   function confirmDelete() {
@@ -122,23 +122,23 @@ export function Enquiries({
       try {
         result = await deleteEnquiry(target.id);
       } catch {
-        setDeleteError("The store could not be reached — try that again");
+        setDeleteError('The store could not be reached — try that again');
         return;
       }
       if (!result.ok) {
-        setDeleteError(result.errors[0]?.message ?? "The store refused that change");
+        setDeleteError(result.errors[0]?.message ?? 'The store refused that change');
         return;
       }
 
       const base = `${result.ref} deleted.`;
       setMsg(
-        result.pdf === "kept"
+        result.pdf === 'kept'
           ? `${base} Its imported sheet stays because another enquiry or a waiting draft still uses it.`
-          : result.pdf === "deleted"
+          : result.pdf === 'deleted'
             ? `${base} Its imported sheet was removed too.`
-            : result.pdf === "failed"
-              ? `${base} Its imported sheet could not be removed${result.reason ? ` — ${result.reason}` : ""}.`
-              : base,
+            : result.pdf === 'failed'
+              ? `${base} Its imported sheet could not be removed${result.reason ? ` — ${result.reason}` : ''}.`
+              : base
       );
       setOpenId(null);
       setOverlay(null);
@@ -150,24 +150,22 @@ export function Enquiries({
 
   function give(enquiry: BoardEnquiry, state: BoardState) {
     const form = new FormData();
-    form.set("id", enquiry.id);
-    form.set("stateId", state.id);
+    form.set('id', enquiry.id);
+    form.set('stateId', state.id);
     setError(null);
     start(async () => {
       let result: EditResult;
       try {
         result = await setEnquiryState(form);
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
         return;
       }
       if (result.ok) {
-        setMsg(
-          `Gave ${enquiry.name} the state ${state.label}. The cars are untouched.`,
-        );
+        setMsg(`Gave ${enquiry.name} the state ${state.label}. The cars are untouched.`);
         return;
       }
-      setError(result.errors[0]?.message ?? "The store refused that change");
+      setError(result.errors[0]?.message ?? 'The store refused that change');
     });
   }
 
@@ -176,19 +174,19 @@ export function Enquiries({
       {states.length === 0 ? (
         <p className="note">
           <i className="fa-solid fa-circle-info" />
-          No enquiry state has been set up, so there is nothing to lay the board out in. Add one in{" "}
+          No enquiry state has been set up, so there is nothing to lay the board out in. Add one in{' '}
           <b>Settings → Customer states</b>.
         </p>
       ) : null}
 
       <div className="board" id="board">
         {columns.map((col) => {
-          const cards = enquiries.filter((e) => (e.stateId ?? "") === col.id);
+          const cards = enquiries.filter((e) => (e.stateId ?? '') === col.id);
           return (
             <section
-              key={col.id || "none"}
+              key={col.id || 'none'}
               className="col"
-              data-col={col.id || "none"}
+              data-col={col.id || 'none'}
               aria-label={col.label}
             >
               <div className="ch">
@@ -208,7 +206,7 @@ export function Enquiries({
                       aria-label={`Open enquiry: ${e.name}`}
                       onClick={() => openDetail(e.id)}
                       onKeyDown={(ev) => {
-                        if (ev.key === "Enter") {
+                        if (ev.key === 'Enter') {
                           // The platform's Enter default would activate whatever the dialog has just
                           // focused (the close control), closing it in the same keystroke.
                           ev.preventDefault();
@@ -249,17 +247,16 @@ export function Enquiries({
 
       <p className="note">
         <i className="fa-solid fa-arrows-left-right" />
-        Two tracks, never forced together: <b>enquiry state</b> follows the
-        customer conversation; <b>car state</b> follows the vehicle. Giving a
-        customer the state Sold does not move the car — that is a separate decision
-        on the car&apos;s own page.
+        Two tracks, never forced together: <b>enquiry state</b> follows the customer conversation;{' '}
+        <b>car state</b> follows the vehicle. Giving a customer the state Sold does not move the car
+        — that is a separate decision on the car&apos;s own page.
       </p>
 
       {mounted
         ? createPortal(
             <>
               <Dialog
-                open={overlay === "detail" || overlay === "delete"}
+                open={overlay === 'detail' || overlay === 'delete'}
                 onClose={() => setOverlay(null)}
                 id="ovlD"
                 labelledBy="dtitle"
@@ -277,44 +274,44 @@ export function Enquiries({
                   </button>
                   <h2 id="dtitle">Enquiry</h2>
                   <p className="ms">
-                    The site never saw the conversation — it only recorded the tap.
-                    What is here was brought in by you.
+                    The site never saw the conversation — it only recorded the tap. What is here was
+                    brought in by you.
                   </p>
                   <div className="dgrid">
                     <div className="dr">
                       <span>Ref</span>
-                      <b id="dRef">{cur ? cur.ref : ""}</b>
+                      <b id="dRef">{cur ? cur.ref : ''}</b>
                     </div>
                     <div className="dr">
                       <span>Phone</span>
                       <a
                         id="dPhone"
-                        href={cur ? tel(cur.number) : "#"}
+                        href={cur ? tel(cur.number) : '#'}
                         style={{
-                          textDecoration: "underline",
-                          textUnderlineOffset: "2px",
+                          textDecoration: 'underline',
+                          textUnderlineOffset: '2px',
                         }}
                       >
-                        {cur ? cur.number : ""}
+                        {cur ? cur.number : ''}
                       </a>
                     </div>
                     <div className="dr">
                       <span>Asked for</span>
-                      <b id="dCar">{cur ? cur.askedFor : ""}</b>
+                      <b id="dCar">{cur ? cur.askedFor : ''}</b>
                     </div>
                     <div className="dr">
                       <span>Came from</span>
                       <span
                         id="dSrc"
                         style={{
-                          textTransform: "none",
-                          letterSpacing: "0",
+                          textTransform: 'none',
+                          letterSpacing: '0',
                           fontWeight: 400,
-                          fontSize: "13.5px",
-                          color: "var(--ink)",
+                          fontSize: '13.5px',
+                          color: 'var(--ink)',
                         }}
                       >
-                        {cur ? (cur.imported ? "The imported sheet" : "Keyed in by hand") : ""}
+                        {cur ? (cur.imported ? 'The imported sheet' : 'Keyed in by hand') : ''}
                       </span>
                     </div>
                     <div className="dr">
@@ -322,29 +319,27 @@ export function Enquiries({
                       <span
                         id="dSince"
                         style={{
-                          textTransform: "none",
-                          letterSpacing: "0",
+                          textTransform: 'none',
+                          letterSpacing: '0',
                           fontWeight: 400,
-                          fontSize: "13.5px",
-                          color: "var(--ink)",
+                          fontSize: '13.5px',
+                          color: 'var(--ink)',
                         }}
                       >
-                        {cur ? cur.since : ""}
+                        {cur ? cur.since : ''}
                       </span>
                     </div>
                   </div>
                   <div className="dgrid">
-                    <div className="dr" style={{ display: "block" }}>
-                      <span style={{ display: "block", marginBottom: "8px" }}>
-                        Enquiry state
-                      </span>
+                    <div className="dr" style={{ display: 'block' }}>
+                      <span style={{ display: 'block', marginBottom: '8px' }}>Enquiry state</span>
                       <div className="stpills" id="dPills" aria-busy={pending}>
                         {cur
                           ? states.map((s) => (
                               <button
                                 key={s.id}
                                 type="button"
-                                className={"stb" + (cur.stateId === s.id ? " on" : "")}
+                                className={'stb' + (cur.stateId === s.id ? ' on' : '')}
                                 data-mv={s.id}
                                 disabled={pending}
                                 onClick={() => give(cur, s)}
@@ -362,12 +357,10 @@ export function Enquiries({
                     </div>
                   </div>
                   <div className="dgrid">
-                    <div className="dr" style={{ display: "block" }}>
-                      <span style={{ display: "block", marginBottom: "8px" }}>
-                        Notes
-                      </span>
+                    <div className="dr" style={{ display: 'block' }}>
+                      <span style={{ display: 'block', marginBottom: '8px' }}>Notes</span>
                       <p className="ms" id="dNotes" style={{ margin: 0 }}>
-                        {cur?.note ? cur.note : "Nothing noted yet."}
+                        {cur?.note ? cur.note : 'Nothing noted yet.'}
                       </p>
                     </div>
                   </div>
@@ -381,21 +374,21 @@ export function Enquiries({
                     <a
                       className="wab"
                       id="dWa"
-                      href={cur ? wa(cur) : "#"}
+                      href={cur ? wa(cur) : '#'}
                       target="_blank"
                       rel="noreferrer"
                     >
                       <i className="fa-brands fa-whatsapp" />
                       WhatsApp them
                     </a>
-                    <a className="call" id="dCall" href={cur ? tel(cur.number) : "#"}>
+                    <a className="call" id="dCall" href={cur ? tel(cur.number) : '#'}>
                       <i className="fa-solid fa-phone" />
                       Call
                     </a>
                     <a
                       className="call"
                       id="dEdit"
-                      href={cur ? `/office/enquiries/${cur.id}/edit` : "#"}
+                      href={cur ? `/office/enquiries/${cur.id}/edit` : '#'}
                     >
                       <i className="fa-solid fa-pen" />
                       Edit
@@ -415,8 +408,8 @@ export function Enquiries({
               </Dialog>
 
               <Dialog
-                open={overlay === "delete"}
-                onClose={() => setOverlay("detail")}
+                open={overlay === 'delete'}
+                onClose={() => setOverlay('detail')}
                 id="ovlDelete"
                 labelledBy="dtitle-delete"
               >
@@ -425,11 +418,11 @@ export function Enquiries({
                     className="mx"
                     type="button"
                     aria-label="Close"
-                    onClick={() => setOverlay("detail")}
+                    onClick={() => setOverlay('detail')}
                   >
                     ×
                   </button>
-                  <h2 id="dtitle-delete">Delete {cur?.ref ?? "this enquiry"}?</h2>
+                  <h2 id="dtitle-delete">Delete {cur?.ref ?? 'this enquiry'}?</h2>
                   <p className="ms">
                     This removes the enquiry — the customer&apos;s name, number and what they asked
                     for. It cannot be undone.
@@ -450,7 +443,7 @@ export function Enquiries({
                       className="call"
                       type="button"
                       id="dCancelDelete"
-                      onClick={() => setOverlay("detail")}
+                      onClick={() => setOverlay('detail')}
                       disabled={pending}
                     >
                       Cancel
@@ -463,17 +456,17 @@ export function Enquiries({
                       disabled={pending}
                     >
                       <i className="fa-solid fa-trash" />
-                      {pending ? "Deleting…" : "Delete enquiry"}
+                      {pending ? 'Deleting…' : 'Delete enquiry'}
                     </button>
                   </div>
                 </div>
               </Dialog>
 
               <div className="toast" id="toast" role="status">
-                <span id="tmsg">{msg ?? ""}</span>
+                <span id="tmsg">{msg ?? ''}</span>
               </div>
             </>,
-            document.body,
+            document.body
           )
         : null}
     </>

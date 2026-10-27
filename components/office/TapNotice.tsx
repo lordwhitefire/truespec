@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { TapBadge } from "./TapBadge";
+import Link from 'next/link';
+import { TapBadge } from './TapBadge';
 
 // The tap notice as a **link**: the one figure, carried in the shell's two homes (Designer ruling 2)
 // — the phone topbar (rightmost icon, every office route) and the desktop sidebar's account footer —
@@ -19,7 +19,7 @@ import { TapBadge } from "./TapBadge";
 // footer (where `.sfoot a` already styles it).
 export function TapNotice({ count, className }: { count: number; className?: string }) {
   const n = count > 0 ? count : 0;
-  const label = n > 0 ? `${n} new WhatsApp ${n === 1 ? "tap" : "taps"}` : "WhatsApp taps";
+  const label = n > 0 ? `${n} new WhatsApp ${n === 1 ? 'tap' : 'taps'}` : 'WhatsApp taps';
   return (
     <Link className={className} href="/office/enquiries?tab=taps" aria-label={label}>
       <TapBadge count={n} />

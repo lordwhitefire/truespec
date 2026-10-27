@@ -22,19 +22,19 @@
 // Deliberately free of `server-only` (and of pdf-lib): the names and words are pure, and the upload
 // that reads a filled blank will want them without wanting the PDF machinery.
 
-import { CAR_RECIPE, type Field } from "./change-check";
+import { CAR_RECIPE, type Field } from './change-check';
 
 /** What the download is called on disk. */
-export const TEMPLATE_FILENAME = "truespec-car-template.pdf";
+export const TEMPLATE_FILENAME = 'truespec-car-template.pdf';
 
 /** What it is served as. */
-export const TEMPLATE_CONTENT_TYPE = "application/pdf";
+export const TEMPLATE_CONTENT_TYPE = 'application/pdf';
 
 /**
  * The form field's name for each recipe field. The state is the only one that differs, and only in
  * name: the owner writes the state he knows, not a key the store minted.
  */
-const FORM_NAME: Readonly<Record<string, string>> = { state_id: "state" };
+const FORM_NAME: Readonly<Record<string, string>> = { state_id: 'state' };
 
 /**
  * The words the owner reads beside each field.
@@ -44,20 +44,20 @@ const FORM_NAME: Readonly<Record<string, string>> = { state_id: "state" };
  * letters costs a reader nothing — the number is the same number.)
  */
 const WORDS: Readonly<Record<string, string>> = {
-  brand: "Brand",
-  model: "Model",
-  trim: "Trim",
-  year: "Year",
-  exterior_color: "Exterior colour",
-  interior_color: "Interior colour",
-  mileage: "Mileage (km)",
-  features: "Features (separate each with a comma)",
-  note: "Note (buyers read this)",
-  private_note: "Private note (never shown to buyers)",
-  was_price_kobo: "Was price (NGN) — optional",
-  arrival_note: "Arrival note",
-  doorstep_price_kobo: "Doorstep price (NGN)",
-  state_id: "State (Available, On Order, Landed or Sold — or a state of yours)",
+  brand: 'Brand',
+  model: 'Model',
+  trim: 'Trim',
+  year: 'Year',
+  exterior_color: 'Exterior colour',
+  interior_color: 'Interior colour',
+  mileage: 'Mileage (km)',
+  features: 'Features (separate each with a comma)',
+  note: 'Note (buyers read this)',
+  private_note: 'Private note (never shown to buyers)',
+  was_price_kobo: 'Was price (NGN) — optional',
+  arrival_note: 'Arrival note',
+  doorstep_price_kobo: 'Doorstep price (NGN)',
+  state_id: 'State (Available, On Order, Landed or Sold — or a state of yours)',
 };
 
 /**
@@ -69,7 +69,7 @@ const WORDS: Readonly<Record<string, string>> = {
  * is the one place the blank's own separator is declared. `lib/template-rules.test.ts` ties it to
  * the caption the owner reads, so the words and the reading cannot drift apart.
  */
-export const FEATURE_SEPARATOR = ",";
+export const FEATURE_SEPARATOR = ',';
 
 /**
  * Is this recipe field money — an amount the owner writes in **naira** and the store keeps in
@@ -77,7 +77,7 @@ export const FEATURE_SEPARATOR = ",";
  * the recipe rather than letting a name be parsed at runtime and quietly believed.
  */
 export function isMoneyField(recipeName: string): boolean {
-  return recipeName.endsWith("_kobo");
+  return recipeName.endsWith('_kobo');
 }
 
 /**
@@ -87,12 +87,12 @@ export function isMoneyField(recipeName: string): boolean {
  * matters: the store calls a year, a mileage and a price all `number`, but a price is written as
  * money and a year is not.
  */
-export type FieldReading = "text" | "whole" | "money" | "list";
+export type FieldReading = 'text' | 'whole' | 'money' | 'list';
 
-export function readingFor(recipeName: string, kind: Field["kind"]): FieldReading {
-  if (kind === "json") return "list";
-  if (kind === "number") return isMoneyField(recipeName) ? "money" : "whole";
-  return "text";
+export function readingFor(recipeName: string, kind: Field['kind']): FieldReading {
+  if (kind === 'json') return 'list';
+  if (kind === 'number') return isMoneyField(recipeName) ? 'money' : 'whole';
+  return 'text';
 }
 
 export type TemplateField = {
@@ -103,7 +103,7 @@ export type TemplateField = {
   /** The words drawn beside it. */
   words: string;
   /** How its value is written down in the record (a number, a comma-separated list, or plain text). */
-  kind: Field["kind"];
+  kind: Field['kind'];
   /** How the owner writes it on the blank, and so how the upload reads it back. */
   reads: FieldReading;
 };
@@ -148,12 +148,15 @@ export const TEMPLATE_MAX_CARS = 20;
  * serving a blank other than the one that was asked for.
  */
 export function readCarCount(
-  value: string | null | undefined,
+  value: string | null | undefined
 ): { ok: true; cars: number } | { ok: false; reason: string } {
-  const raw = (value ?? "").trim();
-  if (raw === "") return { ok: true, cars: 1 };
+  const raw = (value ?? '').trim();
+  if (raw === '') return { ok: true, cars: 1 };
   if (!/^[0-9]+$/.test(raw)) {
-    return { ok: false, reason: `The number of cars must be a whole number, 1 to ${TEMPLATE_MAX_CARS}.` };
+    return {
+      ok: false,
+      reason: `The number of cars must be a whole number, 1 to ${TEMPLATE_MAX_CARS}.`,
+    };
   }
   const cars = Number(raw);
   if (cars < 1 || cars > TEMPLATE_MAX_CARS) {

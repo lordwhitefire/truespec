@@ -9,8 +9,8 @@
 //   - every total exposes its reach (counted, of) so nothing is dropped or quietly
 //     included (R-MON-9).
 
-import { countStock, type Countable, type StockCounts } from "./counts";
-import { isCostComplete, profitKobo, totalCostKobo, type CostLineInput } from "./money";
+import { countStock, type Countable, type StockCounts } from './counts';
+import { isCostComplete, profitKobo, totalCostKobo, type CostLineInput } from './money';
 
 export type OverviewCar = Countable & {
   /** The car's one doorstep price — the same whatever its state (R-MON-11). */
@@ -73,7 +73,7 @@ export function stockOverview(cars: readonly OverviewCar[]): StockOverview {
 // and named. A loss contributes as it is (R-MON-6).
 function sumProfit(
   cars: readonly OverviewCar[],
-  price: (car: OverviewCar) => { priceKobo: number | null; salePriceKobo: number | null },
+  price: (car: OverviewCar) => { priceKobo: number | null; salePriceKobo: number | null }
 ): MoneyTotal {
   let kobo = 0;
   let counted = 0;

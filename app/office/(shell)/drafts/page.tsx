@@ -1,17 +1,17 @@
-import "./drafts.css";
-import { getDrafts } from "@/lib/draft-store";
-import { getCarStateRegistry, getEnquiryStateRegistry } from "@/lib/office";
-import { shortAge } from "@/lib/office-time";
-import { carFields } from "@/lib/template-rules";
-import { imageUrl } from "@/lib/sanity";
-import { formatNaira, parseCostAmount } from "@/lib/money";
-import { carFieldValue, carFormDataFromDraft, type DraftFormState } from "@/lib/draft-form";
-import { requireOfficeSession } from "@/lib/session";
-import { Drafts, type DraftBatch, type DraftCard, type StateOption } from "./drafts-client";
+import './drafts.css';
+import { getDrafts } from '@/lib/draft-store';
+import { getCarStateRegistry, getEnquiryStateRegistry } from '@/lib/office';
+import { shortAge } from '@/lib/office-time';
+import { carFields } from '@/lib/template-rules';
+import { imageUrl } from '@/lib/sanity';
+import { formatNaira, parseCostAmount } from '@/lib/money';
+import { carFieldValue, carFormDataFromDraft, type DraftFormState } from '@/lib/draft-form';
+import { requireOfficeSession } from '@/lib/session';
+import { Drafts, type DraftBatch, type DraftCard, type StateOption } from './drafts-client';
 
 // Drafts are the store's rows, so this page renders per request — never from a build-time snapshot
 // of it.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Drafts — the holding place, reviewed (truth 9).
 
@@ -27,29 +27,29 @@ export const dynamic = "force-dynamic";
    another here. */
 
 /** The car's fields as the blank names them, minus the state — the state is offered, not read. */
-const CAR_FIELDS = carFields(1).filter((f) => f.recipe !== "state_id");
+const CAR_FIELDS = carFields(1).filter((f) => f.recipe !== 'state_id');
 
 /** The enquiry's four details, as the sheet names them (`lib/enquiry-read.ts` reads the same words). */
 const ENQUIRY_FIELDS: { recipe: string; label: string }[] = [
-  { recipe: "name", label: "Name" },
-  { recipe: "number", label: "Phone number" },
-  { recipe: "asked_for", label: "Asked for" },
-  { recipe: "note", label: "Note" },
+  { recipe: 'name', label: 'Name' },
+  { recipe: 'number', label: 'Phone number' },
+  { recipe: 'asked_for', label: 'Asked for' },
+  { recipe: 'note', label: 'Note' },
 ];
 
 /** The two fields the reader stores in kobo; every other value is already the words to show. */
-const MONEY = new Set(["was_price_kobo", "doorstep_price_kobo"]);
+const MONEY = new Set(['was_price_kobo', 'doorstep_price_kobo']);
 
 function show(value: unknown, isMoney: boolean): string {
-  if (value === null || value === undefined || value === "") return "";
-  if (isMoney && typeof value === "number") return formatNaira(value);
-  if (Array.isArray(value)) return value.map((v) => String(v)).join(", ");
+  if (value === null || value === undefined || value === '') return '';
+  if (isMoney && typeof value === 'number') return formatNaira(value);
+  if (Array.isArray(value)) return value.map((v) => String(v)).join(', ');
   return String(value);
 }
 
 /** A car field as the form would show it, with a typed naira amount still reading as money. */
 function carDisplay(value: string, isMoney: boolean): string {
-  if (!isMoney || value.trim() === "") return value;
+  if (!isMoney || value.trim() === '') return value;
   const parsed = parseCostAmount(value);
   return parsed.ok ? formatNaira(parsed.amountMinor) : value;
 }
@@ -66,14 +66,14 @@ export default async function DraftsPage() {
   // A car's own state must be one of the four primaries (the same rule the save enforces); an
   // enquiry may be given any state the owner keeps.
   const carOptions: StateOption[] = carStates
-    .filter((s) => s.kind === "primary")
+    .filter((s) => s.kind === 'primary')
     .map((s) => ({ id: s.id, label: s.label }));
   const enquiryOptions: StateOption[] = enquiryStates.map((s) => ({ id: s.id, label: s.label }));
   // The draft form's mapping needs each primary's section, not just its id and name.
   const primaryStates: DraftFormState[] = carStates.flatMap((s) =>
-    s.kind === "primary" && s.section !== null
+    s.kind === 'primary' && s.section !== null
       ? [{ id: s.id, label: s.label, section: s.section }]
-      : [],
+      : []
   );
 
   // One entry per upload, newest first, the drafts within it kept in the order the store returned
@@ -87,7 +87,7 @@ export default async function DraftsPage() {
     // through `carFormDataFromDraft` — the same bridge the edit page uses.
     let fields: { label: string; value: string }[];
     let editHref: string | undefined;
-    if (d.kind === "car") {
+    if (d.kind === 'car') {
       const mapped = carFormDataFromDraft(d, primaryStates, [], waiting);
       fields = CAR_FIELDS.map((f) => ({
         label: f.words,
@@ -104,7 +104,7 @@ export default async function DraftsPage() {
 
     // The state the file named, matched to the registry so the chooser opens on it — `null` when the
     // file named none, or named one that is gone (then the save asks, rather than inventing one).
-    const options = d.kind === "car" ? carOptions : enquiryOptions;
+    const options = d.kind === 'car' ? carOptions : enquiryOptions;
     const stateId =
       d.stateLabel !== null ? (options.find((o) => o.label === d.stateLabel)?.id ?? null) : null;
 

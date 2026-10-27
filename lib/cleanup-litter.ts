@@ -15,9 +15,9 @@
  * backup-named, seed-marked or demo-marked asset is not litter; a client-named asset with no
  * reference is.
  */
-import { isBackupFilename } from "./backup-run";
-import { DEMO_UPLOAD_LABEL } from "./demo-assets";
-import { DEMO_SEED_FILENAME, DEMO_SEED_LABEL } from "./demo-snapshot";
+import { isBackupFilename } from './backup-run';
+import { DEMO_UPLOAD_LABEL } from './demo-assets';
+import { DEMO_SEED_FILENAME, DEMO_SEED_LABEL } from './demo-snapshot';
 
 export type LitterAsset = {
   assetId: string;
@@ -30,7 +30,7 @@ export type LitterAsset = {
 
 export function unreferencedLitter(
   assets: LitterAsset[],
-  referenced: ReadonlySet<string>,
+  referenced: ReadonlySet<string>
 ): LitterAsset[] {
   return assets.filter(
     (asset) =>
@@ -38,6 +38,6 @@ export function unreferencedLitter(
       !isBackupFilename(asset.filename) &&
       asset.label !== DEMO_SEED_LABEL &&
       asset.filename !== DEMO_SEED_FILENAME &&
-      asset.label !== DEMO_UPLOAD_LABEL,
+      asset.label !== DEMO_UPLOAD_LABEL
   );
 }

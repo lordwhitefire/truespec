@@ -1,15 +1,11 @@
-"use server";
+'use server';
 
-import {
-  checkDemoAssetCap,
-  uploadLabelForSpace,
-  verifyUploadMark,
-} from "@/lib/demo-assets";
-import { requireOfficeSession } from "@/lib/session";
-import { deleteAsset, imageUrl, listStoredAssets, uploadImage } from "@/lib/sanity";
-import { preparePhoto } from "@/lib/photos";
-import { checkPhotoSize } from "@/lib/photo-rules";
-import type { FieldError } from "@/lib/car-input";
+import { checkDemoAssetCap, uploadLabelForSpace, verifyUploadMark } from '@/lib/demo-assets';
+import { requireOfficeSession } from '@/lib/session';
+import { deleteAsset, imageUrl, listStoredAssets, uploadImage } from '@/lib/sanity';
+import { preparePhoto } from '@/lib/photos';
+import { checkPhotoSize } from '@/lib/photo-rules';
+import type { FieldError } from '@/lib/car-input';
 
 /**
  * The office's one upload — the write boundary truth 7 names (build step 5, Task 18).
@@ -36,40 +32,42 @@ import type { FieldError } from "@/lib/car-input";
  */
 
 export type UploadCarPhotoResult =
-  | { ok: true; assetId: string; url: string }
-  | { ok: false; errors: FieldError[] };
+  { ok: true; assetId: string; url: string } | { ok: false; errors: FieldError[] };
 
 /** A filename fit to store: no directory parts, nothing but ordinary characters, never blank. */
 function storeName(name: string): string {
-  const base = name.split("/").pop() ?? name.split("\\").pop() ?? "";
-  const cleaned = base.replace(/[^\w.\- ]+/g, "_").trim().slice(0, 120);
-  return cleaned || "photo";
+  const base = name.split('/').pop() ?? name.split('\\').pop() ?? '';
+  const cleaned = base
+    .replace(/[^\w.\- ]+/g, '_')
+    .trim()
+    .slice(0, 120);
+  return cleaned || 'photo';
 }
 
 export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResult> {
   const session = await requireOfficeSession();
 
-  const file = form.get("photo");
+  const file = form.get('photo');
   if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, errors: [{ field: "photos", message: "Choose a photo to add" }] };
+    return { ok: false, errors: [{ field: 'photos', message: 'Choose a photo to add' }] };
   }
 
   // The cap, before the bytes are read. `preparePhoto` asks the same rule again of the bytes
   // themselves — this first ask is only so an oversized file is refused without being read.
   const size = checkPhotoSize(file.size);
-  if (!size.ok) return { ok: false, errors: [{ field: "photos", message: size.reason }] };
+  if (!size.ok) return { ok: false, errors: [{ field: 'photos', message: size.reason }] };
 
   const type = file.type;
   const bytes = Buffer.from(await file.arrayBuffer());
   const prepared = preparePhoto(bytes, type);
-  if (!prepared.ok) return { ok: false, errors: [{ field: "photos", message: prepared.reason }] };
+  if (!prepared.ok) return { ok: false, errors: [{ field: 'photos', message: prepared.reason }] };
 
   // The demo total cap is checked on the bytes that would actually be uploaded, after the EXIF
   // strip. Main uploads do not list the asset store.
-  if (session.space === "demo") {
+  if (session.space === 'demo') {
     const cap = await checkDemoAssetCap(prepared.bytes.length, { listStoredAssets });
     if (!cap.ok) {
-      return { ok: false, errors: [{ field: "photos", message: cap.reason }] };
+      return { ok: false, errors: [{ field: 'photos', message: cap.reason }] };
     }
   }
 
@@ -87,8 +85,9 @@ export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResu
       ok: false,
       errors: [
         {
-          field: "photos",
-          message: "The picture store could not be reached, so the photo was not uploaded. Try again.",
+          field: 'photos',
+          message:
+            'The picture store could not be reached, so the photo was not uploaded. Try again.',
         },
       ],
     };
@@ -96,7 +95,7 @@ export async function uploadCarPhoto(form: FormData): Promise<UploadCarPhotoResu
 
   const mark = await verifyUploadMark(asset, requestedLabel, { deleteAsset });
   if (!mark.ok) {
-    return { ok: false, errors: [{ field: "photos", message: mark.reason }] };
+    return { ok: false, errors: [{ field: 'photos', message: mark.reason }] };
   }
 
   // The id is what the store keeps; the address is derived from it by the one derivation

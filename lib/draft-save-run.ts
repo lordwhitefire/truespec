@@ -10,17 +10,17 @@
 // call this. Nothing here rechecks the session, so **nothing but the action may call it** — the actor
 // id is passed in precisely because only the action may know it.
 
-import "server-only";
-import { storeQueryRefusing } from "./store-guard";
-import { readCarInput, type FieldError } from "./car-input";
-import type { DraftFields } from "./device-draft";
-import type { EnquiryValues } from "./enquiry-form";
-import { carFormFacts, toCarForm } from "./car-form";
-import { carCreateStatement } from "./car-create";
-import { carChangeCheck, CHANGE_CHECK_VERSION, enquiryChangeCheck } from "./change-check";
-import { SOLD_SECTION } from "./sale";
-import { readDraftAsCar, readEnquirySeed } from "./draft-save";
-import { enquiryCreateStatement } from "./enquiry-create";
+import 'server-only';
+import { storeQueryRefusing } from './store-guard';
+import { readCarInput, type FieldError } from './car-input';
+import type { DraftFields } from './device-draft';
+import type { EnquiryValues } from './enquiry-form';
+import { carFormFacts, toCarForm } from './car-form';
+import { carCreateStatement } from './car-create';
+import { carChangeCheck, CHANGE_CHECK_VERSION, enquiryChangeCheck } from './change-check';
+import { SOLD_SECTION } from './sale';
+import { readDraftAsCar, readEnquirySeed } from './draft-save';
+import { enquiryCreateStatement } from './enquiry-create';
 import {
   carStateById,
   carStateByLabel,
@@ -31,11 +31,10 @@ import {
   enquiryStateLabelById,
   getDraft,
   type DraftRow,
-} from "./draft-store";
+} from './draft-store';
 
 export type SaveDraftResult =
-  | { ok: true; kind: "car" | "enquiry"; ref?: string }
-  | { ok: false; errors: FieldError[] };
+  { ok: true; kind: 'car' | 'enquiry'; ref?: string } | { ok: false; errors: FieldError[] };
 
 /** Saving a draft's form in place: the row stays, nothing is created, no code is spent. */
 export type SaveDraftFieldsResult = { ok: true } | { ok: false; errors: FieldError[] };
@@ -46,15 +45,14 @@ export type SaveDraftFieldsResult = { ok: true } | { ok: false; errors: FieldErr
  * a car form cannot become an enquiry, or the other way round.
  */
 export type DraftSavePayload =
-  | { kind: "car"; form: FormData }
-  | { kind: "enquiry"; values: EnquiryValues };
+  { kind: 'car'; form: FormData } | { kind: 'enquiry'; values: EnquiryValues };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** A draft field as text: a repeated value keeps its first entry (the form never repeats these). */
 function fieldText(value: DraftFields[string] | undefined): string {
-  if (Array.isArray(value)) return value.length > 0 ? value[0].trim() : "";
-  return typeof value === "string" ? value.trim() : "";
+  if (Array.isArray(value)) return value.length > 0 ? value[0].trim() : '';
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 /**
@@ -67,9 +65,9 @@ function fieldText(value: DraftFields[string] | undefined): string {
  */
 async function carStateForSave(
   draft: DraftRow,
-  chosen: string,
+  chosen: string
 ): Promise<{ ok: true; id: string } | { ok: false }> {
-  if (chosen !== "") {
+  if (chosen !== '') {
     if (!UUID.test(chosen)) return { ok: false };
     const state = await carStateById(chosen);
     return state === null ? { ok: false } : { ok: true, id: state.id };
@@ -88,9 +86,9 @@ async function carStateForSave(
  */
 async function enquiryStateForSave(
   draft: DraftRow,
-  chosen: string,
+  chosen: string
 ): Promise<{ ok: true; id: string | null } | { ok: false }> {
-  if (chosen !== "") {
+  if (chosen !== '') {
     if (!UUID.test(chosen)) return { ok: false };
     return (await enquiryStateExists(chosen)) ? { ok: true, id: chosen } : { ok: false };
   }
@@ -112,23 +110,30 @@ export async function runSaveDraft(
   draftId: string,
   chosen: string,
   actorId: string,
-  payload: DraftSavePayload | null = null,
+  payload: DraftSavePayload | null = null
 ): Promise<SaveDraftResult> {
   if (!UUID.test(draftId)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
   const draft = await getDraft(draftId);
   if (draft === null) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
   if (payload !== null && payload.kind !== draft.kind) {
     return {
       ok: false,
       errors: [
         {
-          field: "draftId",
-          message: payload.kind === "car" ? "This draft is not a car" : "This draft is not an enquiry",
+          field: 'draftId',
+          message:
+            payload.kind === 'car' ? 'This draft is not a car' : 'This draft is not an enquiry',
         },
       ],
     };
@@ -136,17 +141,20 @@ export async function runSaveDraft(
 
   let createdRef: string | undefined;
 
-  if (draft.kind === "car") {
+  if (draft.kind === 'car') {
     const state = await carStateForSave(draft, chosen);
     if (!state.ok) {
-      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+      return {
+        ok: false,
+        errors: [{ field: 'stateId', message: "Choose one of the car's four states" }],
+      };
     }
 
     // The edited form is judged by the very reader the office form uses; an untouched upload is
     // rebuilt from + read against `values` (truth 9). The draft row stays the truth for photos:
     // the edit form writes them there as it goes, so a browser list cannot add or reorder them.
     const read =
-      payload?.kind === "car"
+      payload?.kind === 'car'
         ? readCarInput(toCarForm(payload.form))
         : readDraftAsCar(draft.values, state.id);
     if (!read.ok) return { ok: false, errors: read.errors };
@@ -159,7 +167,12 @@ export async function runSaveDraft(
     if (facts.value.section === SOLD_SECTION) {
       return {
         ok: false,
-        errors: [{ field: "stateId", message: "A new car can't start as sold — save it first, then mark it sold" }],
+        errors: [
+          {
+            field: 'stateId',
+            message: "A new car can't start as sold — save it first, then mark it sold",
+          },
+        ],
       };
     }
 
@@ -177,23 +190,29 @@ export async function runSaveDraft(
       actorId,
     });
     const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
-      field: "draftId",
-      action: "That car could not be created",
+      field: 'draftId',
+      action: 'That car could not be created',
     });
     if (!attempt.ok) return attempt;
     const rows = attempt.rows;
     if (!rows[0]?.ref) {
-      return { ok: false, errors: [{ field: "draftId", message: "The car could not be created. Try again." }] };
+      return {
+        ok: false,
+        errors: [{ field: 'draftId', message: 'The car could not be created. Try again.' }],
+      };
     }
     createdRef = rows[0].ref;
   } else {
     const state = await enquiryStateForSave(draft, chosen);
     if (!state.ok) {
-      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the enquiry's states" }] };
+      return {
+        ok: false,
+        errors: [{ field: 'stateId', message: "Choose one of the enquiry's states" }],
+      };
     }
 
     const read = readEnquirySeed(
-      payload?.kind === "enquiry" ? { ...payload.values } : draft.values,
+      payload?.kind === 'enquiry' ? { ...payload.values } : draft.values
     );
     if (!read.ok) return { ok: false, errors: read.errors };
 
@@ -225,13 +244,16 @@ export async function runSaveDraft(
       },
     });
     const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
-      field: "draftId",
-      action: "That enquiry could not be created",
+      field: 'draftId',
+      action: 'That enquiry could not be created',
     });
     if (!attempt.ok) return attempt;
     const rows = attempt.rows;
     if (!rows[0]?.ref) {
-      return { ok: false, errors: [{ field: "draftId", message: "The enquiry could not be created. Try again." }] };
+      return {
+        ok: false,
+        errors: [{ field: 'draftId', message: 'The enquiry could not be created. Try again.' }],
+      };
     }
     createdRef = rows[0].ref;
   }
@@ -246,13 +268,17 @@ export async function runSaveDraft(
   try {
     await deleteDraft(draft.id);
   } catch (error) {
-    console.error("[store] write failed — the draft could not be cleared after its record was made", error);
+    console.error(
+      '[store] write failed — the draft could not be cleared after its record was made',
+      error
+    );
     return {
       ok: false,
       errors: [
         {
-          field: "draftId",
-          message: "The record was made, but the draft could not be cleared — save it again to clear the draft.",
+          field: 'draftId',
+          message:
+            'The record was made, but the draft could not be cleared — save it again to clear the draft.',
         },
       ],
     };
@@ -271,28 +297,40 @@ export async function runSaveDraft(
 export async function runSaveDraftAsDraft(
   draftId: string,
   fields: DraftFields,
-  chosen: string,
+  chosen: string
 ): Promise<SaveDraftFieldsResult> {
   if (!UUID.test(draftId)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
   const draft = await getDraft(draftId);
   if (draft === null) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
   // An enquiry has no edit layer: its four values are the record's own names, so the save writes
   // them straight to `values`. No state is a real choice (`enquiry_state_id` is nullable), so the
   // empty choice clears the label rather than keeping the old one.
-  if (draft.kind === "enquiry") {
+  if (draft.kind === 'enquiry') {
     let label: string | null = null;
-    if (chosen !== "") {
+    if (chosen !== '') {
       if (!UUID.test(chosen)) {
-        return { ok: false, errors: [{ field: "stateId", message: "Choose one of the enquiry's states" }] };
+        return {
+          ok: false,
+          errors: [{ field: 'stateId', message: "Choose one of the enquiry's states" }],
+        };
       }
       label = await enquiryStateLabelById(chosen);
       if (label === null) {
-        return { ok: false, errors: [{ field: "stateId", message: "Choose one of the enquiry's states" }] };
+        return {
+          ok: false,
+          errors: [{ field: 'stateId', message: "Choose one of the enquiry's states" }],
+        };
       }
     }
 
@@ -312,24 +350,33 @@ export async function runSaveDraftAsDraft(
           AND kind = 'enquiry'
         RETURNING id`,
       [draftId, JSON.stringify(values), label],
-      { field: "draftId", action: "That draft could not be saved" },
+      { field: 'draftId', action: 'That draft could not be saved' }
     );
     if (!attempt.ok) return attempt;
     if (attempt.rows.length === 0) {
-      return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+      return {
+        ok: false,
+        errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+      };
     }
 
     return { ok: true };
   }
 
   let label = draft.stateLabel;
-  if (chosen !== "") {
+  if (chosen !== '') {
     if (!UUID.test(chosen)) {
-      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+      return {
+        ok: false,
+        errors: [{ field: 'stateId', message: "Choose one of the car's four states" }],
+      };
     }
     const state = await carStateById(chosen);
-    if (state === null || state.kind !== "primary") {
-      return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+    if (state === null || state.kind !== 'primary') {
+      return {
+        ok: false,
+        errors: [{ field: 'stateId', message: "Choose one of the car's four states" }],
+      };
     }
     label = state.label;
   }
@@ -343,11 +390,14 @@ export async function runSaveDraftAsDraft(
         AND kind = 'car'
       RETURNING id`,
     [draftId, JSON.stringify(fields), label],
-    { field: "draftId", action: "That draft could not be saved" },
+    { field: 'draftId', action: 'That draft could not be saved' }
   );
   if (!attempt.ok) return attempt;
   if (attempt.rows.length === 0) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
 
   return { ok: true };

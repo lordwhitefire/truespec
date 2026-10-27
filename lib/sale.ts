@@ -21,10 +21,10 @@
 // to the state being set. Everything else about sold-ness is the state's and is read from
 // the registry (`car_state`), never from here.
 
-import type { Section } from "./sections";
+import type { Section } from './sections';
 
 /** The one section that means Sold (R-SEC-1). */
-export const SOLD_SECTION: Section = "sold";
+export const SOLD_SECTION: Section = 'sold';
 
 /** A sale as it is entered: the two money facts, which travel together (truth 5). */
 export type SaleInput = { salePriceKobo: number; soldAt: string };

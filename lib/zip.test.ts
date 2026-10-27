@@ -1,12 +1,12 @@
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
-import { crc32, inflateRawSync } from "node:zlib";
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { crc32, inflateRawSync } from 'node:zlib';
 import {
   CENTRAL_HEADER_SIGNATURE,
   END_OF_CENTRAL_SIGNATURE,
   LOCAL_HEADER_SIGNATURE,
   buildZip,
-} from "./zip";
+} from './zip';
 
 /**
  * The export must be one ZIP that can actually be opened (truth 13; task.md: "open the ZIP and show
@@ -23,7 +23,7 @@ import {
  *   - the timestamp is the instant asked for, read as UTC.
  */
 
-const NOW = new Date("2026-10-15T23:59:30.000Z");
+const NOW = new Date('2026-10-15T23:59:30.000Z');
 
 const decoder = new TextDecoder();
 
@@ -60,10 +60,18 @@ function readLocalHeaders(zip: Uint8Array): LocalHeader[] {
 }
 
 /** Decode the end-of-central-directory record, which is the first thing a reader looks for. */
-function readEndRecord(zip: Uint8Array): { count: number; directorySize: number; directoryOffset: number } {
+function readEndRecord(zip: Uint8Array): {
+  count: number;
+  directorySize: number;
+  directoryOffset: number;
+} {
   const at = zip.byteLength - 22;
   const v = new DataView(zip.buffer, zip.byteOffset + at);
-  assert.equal(v.getUint32(0, true), END_OF_CENTRAL_SIGNATURE, "the archive must end with its end record");
+  assert.equal(
+    v.getUint32(0, true),
+    END_OF_CENTRAL_SIGNATURE,
+    'the archive must end with its end record'
+  );
   return {
     count: v.getUint16(10, true),
     directorySize: v.getUint32(12, true),
@@ -73,54 +81,65 @@ function readEndRecord(zip: Uint8Array): { count: number; directorySize: number;
 
 const ENTRIES = [
   // Small enough that deflate does not pay, so this one exercises the *stored* method.
-  { name: "README.txt", data: "read me" },
+  { name: 'README.txt', data: 'read me' },
   // Large enough to compress, exercising the deflate method.
-  { name: "master.json", data: JSON.stringify({ cars: Array.from({ length: 40 }, (_, i) => ({ ref: `TS-${1000 + i}`, note: "a line long enough to compress well, repeated" })) }) },
-  { name: "costs.csv", data: "" }, // a subject with no rows — a real and expected case
-  { name: "cars.csv", data: "id,ref\r\n1,TS-1001\r\n" },
+  {
+    name: 'master.json',
+    data: JSON.stringify({
+      cars: Array.from({ length: 40 }, (_, i) => ({
+        ref: `TS-${1000 + i}`,
+        note: 'a line long enough to compress well, repeated',
+      })),
+    }),
+  },
+  { name: 'costs.csv', data: '' }, // a subject with no rows — a real and expected case
+  { name: 'cars.csv', data: 'id,ref\r\n1,TS-1001\r\n' },
 ];
 
-describe("the CRC the archive carries", () => {
-  it("is the standard CRC-32", () => {
+describe('the CRC the archive carries', () => {
+  it('is the standard CRC-32', () => {
     // The canonical check value from the CRC-32 definition: if this ever differs, every checksum
     // in the archive is wrong and extractors will reject files that are actually fine.
-    assert.equal(crc32("123456789") >>> 0, 0xcbf43926);
+    assert.equal(crc32('123456789') >>> 0, 0xcbf43926);
   });
 
-  it("is taken over the uncompressed bytes, for a compressed entry too", () => {
+  it('is taken over the uncompressed bytes, for a compressed entry too', () => {
     const zip = buildZip(ENTRIES, NOW);
     const headers = readLocalHeaders(zip);
-    const big = headers.find((h) => h.name === "master.json")!;
-    assert.equal(big.method, 8, "the big file should be deflated");
+    const big = headers.find((h) => h.name === 'master.json')!;
+    assert.equal(big.method, 8, 'the big file should be deflated');
     assert.equal(big.crc, crc32(ENTRIES[1].data) >>> 0);
     assert.equal(big.uncompressedSize, Buffer.byteLength(ENTRIES[1].data));
-    assert.ok(big.compressedSize < big.uncompressedSize, "compression should have paid");
+    assert.ok(big.compressedSize < big.uncompressedSize, 'compression should have paid');
   });
 
-  it("is zero-length safe — an empty subject still has a correct checksum and size", () => {
+  it('is zero-length safe — an empty subject still has a correct checksum and size', () => {
     const zip = buildZip(ENTRIES, NOW);
-    const empty = readLocalHeaders(zip).find((h) => h.name === "costs.csv")!;
-    assert.equal(empty.crc, crc32("") >>> 0);
+    const empty = readLocalHeaders(zip).find((h) => h.name === 'costs.csv')!;
+    assert.equal(empty.crc, crc32('') >>> 0);
     assert.equal(empty.compressedSize, 0);
     assert.equal(empty.uncompressedSize, 0);
   });
 });
 
-describe("the payloads", () => {
-  it("come back as their own bytes, compressed or not", () => {
+describe('the payloads', () => {
+  it('come back as their own bytes, compressed or not', () => {
     const zip = buildZip(ENTRIES, NOW);
     for (const header of readLocalHeaders(zip)) {
       const entry = ENTRIES.find((e) => e.name === header.name)!;
-      const payload = zip.subarray(header.payloadStart, header.payloadStart + header.compressedSize);
+      const payload = zip.subarray(
+        header.payloadStart,
+        header.payloadStart + header.compressedSize
+      );
       const bytes = header.method === 8 ? inflateRawSync(payload) : payload;
-      assert.equal(Buffer.from(bytes).toString("utf8"), entry.data, `${header.name} must survive`);
+      assert.equal(Buffer.from(bytes).toString('utf8'), entry.data, `${header.name} must survive`);
       assert.equal(crc32(bytes) >>> 0, header.crc, `${header.name} must checksum`);
     }
   });
 });
 
-describe("the structure", () => {
-  it("names every entry in the central directory, at offsets that point back at what was written", () => {
+describe('the structure', () => {
+  it('names every entry in the central directory, at offsets that point back at what was written', () => {
     const zip = buildZip(ENTRIES, NOW);
     const end = readEndRecord(zip);
     assert.equal(end.count, ENTRIES.length);
@@ -130,20 +149,28 @@ describe("the structure", () => {
     let at = end.directoryOffset;
     for (let i = 0; i < end.count; i++) {
       const v = new DataView(zip.buffer, zip.byteOffset + at);
-      assert.equal(v.getUint32(0, true), CENTRAL_HEADER_SIGNATURE, "each directory entry has the right signature");
+      assert.equal(
+        v.getUint32(0, true),
+        CENTRAL_HEADER_SIGNATURE,
+        'each directory entry has the right signature'
+      );
       const nameLength = v.getUint16(28, true);
       const localOffset = v.getUint32(42, true);
       const name = decoder.decode(zip.subarray(at + 46, at + 46 + nameLength));
-      assert.equal(name, ENTRIES[i].name, "the directory is in the order the entries were given");
+      assert.equal(name, ENTRIES[i].name, 'the directory is in the order the entries were given');
       // the offset must land on a real local header carrying the same CRC
       const back = new DataView(zip.buffer, zip.byteOffset + localOffset);
-      assert.equal(back.getUint32(0, true), LOCAL_HEADER_SIGNATURE, "a recorded offset must point at a local header");
-      assert.equal(back.getUint32(14, true), v.getUint32(16, true), "the same file, the same CRC");
+      assert.equal(
+        back.getUint32(0, true),
+        LOCAL_HEADER_SIGNATURE,
+        'a recorded offset must point at a local header'
+      );
+      assert.equal(back.getUint32(14, true), v.getUint32(16, true), 'the same file, the same CRC');
       at += 46 + nameLength;
     }
   });
 
-  it("stamps every entry with the instant it was asked for, read as UTC", () => {
+  it('stamps every entry with the instant it was asked for, read as UTC', () => {
     const zip = buildZip(ENTRIES, NOW);
     const end = readEndRecord(zip);
     const v = new DataView(zip.buffer, zip.byteOffset + end.directoryOffset);
@@ -156,8 +183,8 @@ describe("the structure", () => {
     assert.equal((dosTime >> 5) & 0x3f, NOW.getUTCMinutes());
   });
 
-  it("refuses more entries than the format can name", () => {
-    const tooMany = Array.from({ length: 65_536 }, (_, i) => ({ name: `f${i}`, data: "x" }));
+  it('refuses more entries than the format can name', () => {
+    const tooMany = Array.from({ length: 65_536 }, (_, i) => ({ name: `f${i}`, data: 'x' }));
     assert.throws(() => buildZip(tooMany, NOW), /65535/);
   });
 });

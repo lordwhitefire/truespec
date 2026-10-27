@@ -1,33 +1,56 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
+import { ClerkProvider } from '@clerk/nextjs';
+import type { Metadata } from 'next';
+import type { CSSProperties } from 'react';
+import { Inter, Oswald } from 'next/font/google';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { SITE_DESCRIPTION, SITE_TITLE, SITE_URL } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: "TrueSpec — cars you can trust",
-  description: "A Nigerian vehicle-import showroom: browse, judge a car completely, chat on WhatsApp.",
+  metadataBase: SITE_URL,
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
 };
+
+// Self-hosted by next/font at build time: no third-party font request, and the generated fallback
+// metrics keep the text's space stable while the web font swaps in.
+const oswald = Oswald({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-oswald',
+  display: 'swap',
+});
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+// The site and office stylesheets both name the font aliases, but the door and office shell
+// stylesheets are standalone and do not import globals.css. Define the aliases once on <html>
+// so every area resolves them, and keep the fallback stack for a failed font file.
+const fontVars = {
+  '--font-head': 'var(--font-oswald, Oswald), sans-serif',
+  '--font-body': 'var(--font-inter, Inter), sans-serif',
+} as CSSProperties;
 
 // Matches the reference: only the literal "light" is honoured; anything else is dark.
 const themeInit = `(function(){var t="dark";try{t=localStorage.getItem("ts-theme")||"dark";}catch(e){}if(t!=="light")t="dark";document.documentElement.dataset.theme=t;})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${oswald.variable} ${inter.variable}`}
+      style={fontVars}
+    >
       <head>
-        {/* Fonts are loaded per area in (site)/layout.tsx and office/layout.tsx —
-        each area mirrors the reference's own Oswald weights (public: 600;700,
-        office: 500;600;700) so font-weight substitution resolves identically. */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        />
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <ClerkProvider>
-          {children}
-        </ClerkProvider>
+        <ClerkProvider>{children}</ClerkProvider>
       </body>
     </html>
   );

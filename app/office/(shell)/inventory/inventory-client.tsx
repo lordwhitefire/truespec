@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
-import { formatNaira } from "@/lib/money";
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { createPortal } from 'react-dom';
+import { formatNaira } from '@/lib/money';
 import {
   INVENTORY_DEFAULT_PAGE_SIZE,
   INVENTORY_PAGE_SIZES,
   isInventoryPageSize,
   pageSlice,
   type InventoryPageSize,
-} from "@/lib/inventory-paging";
-import type { Section } from "@/lib/sections";
-import type { StockCounts } from "@/lib/counts";
-import { Dialog } from "@/components/office/Dialog";
-import { deleteCar, undoDeleteCar } from "../../actions/car";
+} from '@/lib/inventory-paging';
+import type { Section } from '@/lib/sections';
+import type { StockCounts } from '@/lib/counts';
+import { Dialog } from '@/components/office/Dialog';
+import { deleteCar, undoDeleteCar } from '../../actions/car';
 
 // Inventory client — reproduces the reference office-inventory.html behaviour
 // exactly: state chips (zero-count hidden unless active), search + sort, the
@@ -50,28 +50,28 @@ export type InventoryRow = {
 
 export type InventoryState = { label: string; section: Section };
 
-const ALL = "__all";
-const SOLD = "__sold";
-const PAGE_SIZE_KEY = "truespec.office.inventory.page-size";
+const ALL = '__all';
+const SOLD = '__sold';
+const PAGE_SIZE_KEY = 'truespec.office.inventory.page-size';
 
 // Presentation only: the dot colour follows the car's section. Per-state colour
 // is named for TASK-003, not built here.
 const SECTION_CLASS: Record<Section, string> = {
-  available: "av",
-  "on order": "ow",
-  landed: "ld",
-  sold: "sd",
+  available: 'av',
+  'on order': 'ow',
+  landed: 'ld',
+  sold: 'sd',
 };
 
 function stChip(c: InventoryRow) {
   return (
     <>
-      <span className={`st ${c.sold ? "sd" : SECTION_CLASS[c.section]}`}>
+      <span className={`st ${c.sold ? 'sd' : SECTION_CLASS[c.section]}`}>
         <i />
-        {c.sold ? "Sold" : c.state}
+        {c.sold ? 'Sold' : c.state}
       </span>
       {c.note ? (
-        <div style={{ fontSize: "11.5px", color: "var(--mute)", marginTop: 4 }}>{c.note}</div>
+        <div style={{ fontSize: '11.5px', color: 'var(--mute)', marginTop: 4 }}>{c.note}</div>
       ) : null}
     </>
   );
@@ -96,7 +96,7 @@ function profitCell(c: InventoryRow) {
     );
   }
   return (
-    <span className={`money pf ${c.profit < 0 ? "loss" : "pok"}`}>
+    <span className={`money pf ${c.profit < 0 ? 'loss' : 'pok'}`}>
       <b>{formatNaira(c.profit)}</b>
       {c.profit < 0 ? <span className="loss"> loss</span> : null}
     </span>
@@ -114,8 +114,8 @@ export function InventoryClient({
 }) {
   const [rows, setRows] = useState(initial);
   const [fState, setFState] = useState<string>(ALL);
-  const [q, setQ] = useState("");
-  const [sort, setSort] = useState("new");
+  const [q, setQ] = useState('');
+  const [sort, setSort] = useState('new');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<InventoryPageSize>(INVENTORY_DEFAULT_PAGE_SIZE);
   const [del, setDel] = useState<InventoryRow | null>(null);
@@ -130,7 +130,7 @@ export function InventoryClient({
   const tmrRef = useRef<number | null>(null);
   // Where focus goes after a deletion: the next visible row's delete control, or the heading
   // when the deleted row was the last one (Task 17). Set before the row leaves, read after.
-  const pendingFocusRef = useRef<string | "heading" | null>(null);
+  const pendingFocusRef = useRef<string | 'heading' | null>(null);
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
@@ -154,22 +154,22 @@ export function InventoryClient({
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
   // same measure stays on screen as a static "8 s" label (Task 11).
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const sync = () => setReduced(mq.matches);
     sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
   }, []);
 
   const list = useMemo(() => {
     let l = rows.filter(
       (c) =>
         (fState === ALL || (fState === SOLD ? c.sold : !c.sold && c.state === fState)) &&
-        (!q || (c.name + " " + c.ref).toLowerCase().includes(q)),
+        (!q || (c.name + ' ' + c.ref).toLowerCase().includes(q))
     );
-    if (sort === "ph") l = [...l].sort((a, b) => b.price - a.price);
-    else if (sort === "pl") l = [...l].sort((a, b) => a.price - b.price);
-    else if (sort === "pf") l = [...l].sort((a, b) => (b.profit ?? -1) - (a.profit ?? -1));
+    if (sort === 'ph') l = [...l].sort((a, b) => b.price - a.price);
+    else if (sort === 'pl') l = [...l].sort((a, b) => a.price - b.price);
+    else if (sort === 'pf') l = [...l].sort((a, b) => (b.profit ?? -1) - (a.profit ?? -1));
     return l;
   }, [rows, fState, q, sort]);
 
@@ -190,15 +190,15 @@ export function InventoryClient({
     if (target === null) return;
     pendingFocusRef.current = null;
     const t = window.setTimeout(() => {
-      if (target === "heading") {
-        document.getElementById("inv-h")?.focus();
+      if (target === 'heading') {
+        document.getElementById('inv-h')?.focus();
         return;
       }
       // Both the table and the phone cards render this car; only one shape is on screen.
       const next = Array.from(
-        document.querySelectorAll<HTMLElement>(`button.ab.del[data-car-id="${target}"]`),
+        document.querySelectorAll<HTMLElement>(`button.ab.del[data-car-id="${target}"]`)
       ).find((el) => el.getClientRects().length > 0);
-      (next ?? document.getElementById("inv-h"))?.focus();
+      (next ?? document.getElementById('inv-h'))?.focus();
     }, 0);
     return () => window.clearTimeout(t);
   }, [rows]);
@@ -206,9 +206,9 @@ export function InventoryClient({
   // The chips come from the owner's registry; only the counts are view facet
   // counts, except Sold, which is the counting rule's own sold figure.
   const chips: { key: string; label: string }[] = [
-    { key: ALL, label: "All" },
+    { key: ALL, label: 'All' },
     ...states.map((s) => ({ key: s.label, label: s.label })),
-    { key: SOLD, label: "Sold" },
+    { key: SOLD, label: 'Sold' },
   ];
 
   const chipCounts = (k: string) =>
@@ -234,14 +234,17 @@ export function InventoryClient({
     const next = Math.min(Math.max(n, 1), pageCount);
     if (next === current) return;
     setPage(next);
-    window.setTimeout(() => document.getElementById("inv-h")?.focus(), 0);
+    window.setTimeout(() => document.getElementById('inv-h')?.focus(), 0);
   }
 
   function clearFilters() {
     setFState(ALL);
-    setQ("");
+    setQ('');
     setPage(1);
-    if (qRef.current) qRef.current.value = "";
+    if (qRef.current) qRef.current.value = '';
+    // The empty block (and the button that was just pressed) unmounts when the list returns.
+    // Move focus to the search field so the keyboard user is not dropped on the body.
+    window.setTimeout(() => qRef.current?.focus(), 0);
   }
 
   function openDelete(c: InventoryRow) {
@@ -253,9 +256,14 @@ export function InventoryClient({
   function closeOffer() {
     if (tmrRef.current) window.clearTimeout(tmrRef.current);
     tmrRef.current = null;
+    const undoHadFocus =
+      document.activeElement instanceof HTMLElement && document.activeElement.id === 'undo';
     setToastMsg(null);
     setUndoOn(false);
     undoRef.current = null;
+    // The offer's own end can hide the Undo button while it holds focus. Put the keyboard user
+    // back on the inventory heading rather than dropping focus onto the body.
+    if (undoHadFocus) window.setTimeout(() => document.getElementById('inv-h')?.focus(), 0);
   }
 
   function showToast(message: string, isError: boolean, ms: number) {
@@ -273,15 +281,14 @@ export function InventoryClient({
     const car = del;
     if (!car) return;
     const at = list.findIndex((x) => x.id === car.id);
-    pendingFocusRef.current =
-      at >= 0 && at < list.length - 1 ? list[at + 1].id : "heading";
+    pendingFocusRef.current = at >= 0 && at < list.length - 1 ? list[at + 1].id : 'heading';
     setDel(null);
     setRows((r) => r.filter((x) => x.id !== car.id));
     startWrite(async () => {
       const res = await deleteCar(car.id);
       if (!res.ok) {
         setRows((r) => [...r, car].sort((a, b) => a.ref.localeCompare(b.ref)));
-        showToast(res.errors[0]?.message ?? "That car could not be deleted.", true, 6000);
+        showToast(res.errors[0]?.message ?? 'That car could not be deleted.', true, 6000);
         return;
       }
       undoRef.current = car;
@@ -307,11 +314,13 @@ export function InventoryClient({
     setUndoOn(false);
     setRows((r) => [...r, car].sort((a, b) => a.ref.localeCompare(b.ref)));
     showToast(`${car.name} ${car.year} restored.`, false, 4000);
+    // Undo hides the button that was just pressed; keep the keyboard user on a stable target.
+    window.setTimeout(() => document.getElementById('inv-h')?.focus(), 0);
     startWrite(async () => {
       const res = await undoDeleteCar(car.id);
       if (!res.ok) {
         setRows((r) => r.filter((x) => x.id !== car.id));
-        showToast(res.errors[0]?.message ?? "That car could not be restored.", true, 6000);
+        showToast(res.errors[0]?.message ?? 'That car could not be restored.', true, 6000);
       }
     });
   }
@@ -385,7 +394,8 @@ export function InventoryClient({
             <button
               key={key}
               type="button"
-              className={fState === key ? "on" : undefined}
+              className={fState === key ? 'on' : undefined}
+              aria-pressed={fState === key}
               onClick={() => {
                 setFState(key);
                 setPage(1);
@@ -401,7 +411,8 @@ export function InventoryClient({
       <p className="ecount" id="count">
         {list.length === rows.length ? (
           <>
-            <b>{rows.length} cars</b>{" — "}
+            <b>{rows.length} cars</b>
+            {' — '}
             {stock} in stock, {counts.sold} sold
           </>
         ) : (
@@ -426,14 +437,14 @@ export function InventoryClient({
             </thead>
             <tbody id="rows">
               {shown.map((c) => (
-                <tr key={c.ref} className={c.sold ? "soldrow" : undefined}>
+                <tr key={c.ref} className={c.sold ? 'soldrow' : undefined}>
                   <td className="carx">
                     <b>
                       {c.name} {c.year}
                     </b>
                     <small>
                       {c.ref} · {c.mileage}
-                      {c.sold ? ` · sold ${c.soldOn}` : ""}
+                      {c.sold ? ` · sold ${c.soldOn}` : ''}
                     </small>
                   </td>
                   <td>{stChip(c)}</td>
@@ -474,7 +485,7 @@ export function InventoryClient({
         {shown.map((c) => (
           <article
             key={c.ref}
-            className={`ccard${c.sold ? " soldrow" : ""}`}
+            className={`ccard${c.sold ? ' soldrow' : ''}`}
             style={c.sold ? { opacity: 0.75 } : undefined}
           >
             <div className="chead">
@@ -482,14 +493,14 @@ export function InventoryClient({
                 {c.name} {c.year}
                 <small>
                   {c.ref} · {c.mileage}
-                  {c.sold ? ` · sold ${c.soldOn}` : ""}
+                  {c.sold ? ` · sold ${c.soldOn}` : ''}
                 </small>
               </h3>
               {stChip(c)}
             </div>
             <div className="cmoney">
               <div>
-                <small>Price{c.sold ? " (sold for)" : ""}</small>
+                <small>Price{c.sold ? ' (sold for)' : ''}</small>
                 <b>{formatNaira(c.price)}</b>
               </div>
               <div>
@@ -500,8 +511,8 @@ export function InventoryClient({
                   </a>
                 ) : (
                   <b
-                    className={c.profit < 0 ? undefined : "pok"}
-                    style={c.profit < 0 ? { color: "var(--bad)" } : undefined}
+                    className={c.profit < 0 ? undefined : 'pok'}
+                    style={c.profit < 0 ? { color: 'var(--bad)' } : undefined}
                   >
                     {formatNaira(c.profit)}
                   </b>
@@ -510,14 +521,14 @@ export function InventoryClient({
               <div>
                 <small>{c.costLabel}</small>
                 {c.cost == null ? (
-                  <span style={{ color: "var(--mute)" }}>—</span>
+                  <span style={{ color: 'var(--mute)' }}>—</span>
                 ) : (
                   <b>{formatNaira(c.cost)}</b>
                 )}
               </div>
               <div>
                 <small>State</small>
-                <b style={{ fontSize: 13 }}>{c.sold ? "Sold" : c.state}</b>
+                <b style={{ fontSize: 13 }}>{c.sold ? 'Sold' : c.state}</b>
               </div>
             </div>
             <div className="cfoot">
@@ -529,7 +540,7 @@ export function InventoryClient({
                 className="ab del"
                 type="button"
                 data-car-id={c.id}
-                style={{ flex: "0 0 46px" }}
+                style={{ flex: '0 0 46px' }}
                 onClick={() => openDelete(c)}
               >
                 <i className="fa-solid fa-trash-can" />
@@ -543,8 +554,8 @@ export function InventoryClient({
         <div id="emptyC">{list.length === 0 ? empty : null}</div>
       </div>
 
-      <p className="pgstatus" role="status" aria-live="polite">
-        Page {current} of {pageCount}
+      <p className="pgstatus" role="status" aria-live="polite" aria-atomic="true">
+        {list.length} cars. Page {current} of {pageCount}
       </p>
 
       {pageCount > 1 ? (
@@ -564,7 +575,7 @@ export function InventoryClient({
               className="pgb"
               type="button"
               aria-label={`Page ${n}`}
-              aria-current={n === current ? "page" : undefined}
+              aria-current={n === current ? 'page' : undefined}
               onClick={() => goPage(n)}
             >
               {n}
@@ -586,18 +597,13 @@ export function InventoryClient({
         ? createPortal(
             <>
               {/* delete confirmation — portaled to body so the DOM order matches the reference */}
-              <Dialog
-                open={del !== null}
-                onClose={() => setDel(null)}
-                id="ovl"
-                labelledBy="dlt"
-              >
+              <Dialog open={del !== null} onClose={() => setDel(null)} id="ovl" labelledBy="dlt">
                 <div className="mdl">
                   <h2 id="dlt">Delete this car?</h2>
                   <p id="dltw">
                     {del
                       ? `“${del.name} ${del.year}” (${del.ref}) will be removed. You can undo for a few seconds.`
-                      : ""}
+                      : ''}
                   </p>
                   <div className="mrow">
                     <button className="btn2" type="button" id="no" onClick={() => setDel(null)}>
@@ -614,11 +620,11 @@ export function InventoryClient({
                   window is open (`undoOn`); once it closes the car is a tombstone and is
                   dealt with from the "waiting to be cleared" list below the table. */}
               <div
-                className={`toast${toastMsg ? " show" : ""}`}
+                className={`toast${toastMsg ? ' show' : ''}`}
                 id="toast"
-                role={toastErr ? "alert" : "status"}
+                role={toastErr ? 'alert' : 'status'}
               >
-                <span id="tmsg">{toastMsg ?? ""}</span>
+                <span id="tmsg">{toastMsg ?? ''}</span>
                 <button type="button" id="undo" onClick={undo} hidden={!undoOn}>
                   Undo
                 </button>
@@ -638,7 +644,7 @@ export function InventoryClient({
                       <span
                         className="ubar"
                         onAnimationEnd={(e) => {
-                          if (e.animationName === "undodrain") closeOffer();
+                          if (e.animationName === 'undodrain') closeOffer();
                         }}
                       />
                     </span>
@@ -646,7 +652,7 @@ export function InventoryClient({
                 ) : null}
               </div>
             </>,
-            document.body,
+            document.body
           )
         : null}
     </>

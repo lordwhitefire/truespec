@@ -1,5 +1,5 @@
-import Link from "next/link";
-import "./office.css";
+import Link from 'next/link';
+import './office.css';
 
 /* The office's own not-found — design I28, words from the approved copy sheet.
  *

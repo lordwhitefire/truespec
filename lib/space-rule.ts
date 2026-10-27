@@ -7,16 +7,16 @@
  * a different case, a different type — is demo. That direction is deliberate: a
  * broken or absent grant must never open main.
  */
-export type Space = "main" | "demo";
+export type Space = 'main' | 'demo';
 
 /** The minimal shape of a signed-in Clerk user this rule needs. */
 export type SpaceUser = { publicMetadata?: unknown } | null | undefined;
 
 export function spaceFromMetadata(metadata: unknown): Space {
-  if (typeof metadata !== "object" || metadata === null) return "demo";
+  if (typeof metadata !== 'object' || metadata === null) return 'demo';
 
   const value = (metadata as Record<string, unknown>).truespec_space;
-  return value === "main" ? "main" : "demo";
+  return value === 'main' ? 'main' : 'demo';
 }
 
 /**
@@ -28,7 +28,7 @@ export function spaceFromMetadata(metadata: unknown): Space {
  */
 export function spaceFromUser(user: SpaceUser): Space {
   if (!user) {
-    throw new Error("No signed-in user; the office space cannot be resolved.");
+    throw new Error('No signed-in user; the office space cannot be resolved.');
   }
 
   return spaceFromMetadata(user.publicMetadata);

@@ -9,5 +9,5 @@
  * The demo deletion path is the daily reset (`app/api/demo/reset/route.ts`); main data is deleted
  * by the owner through the office. There is no replacement CLI that deletes by `is_demo`.
  */
-console.error("This command is retired. The demo reset is the only demo deletion path.");
+console.error('This command is retired. The demo reset is the only demo deletion path.');
 process.exit(1);

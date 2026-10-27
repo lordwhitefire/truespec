@@ -1,5 +1,5 @@
-import path from "node:path";
-import { securityHeaders } from "./lib/security-headers.ts";
+import path from 'node:path';
+import { securityHeaders } from './lib/security-headers.ts';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -15,13 +15,13 @@ const nextConfig = {
   // the browser-side check in `car-client.tsx` is what keeps the owner from ever
   // reaching that, and the server cap is the authority when it does.
   experimental: {
-    serverActions: { bodySizeLimit: "16mb" },
+    serverActions: { bodySizeLimit: '16mb' },
   },
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "cdn.sanity.io" },
-      { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: 'https', hostname: 'cdn.sanity.io' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'picsum.photos' },
     ],
   },
   // Register the "@/*" alias here as well as in tsconfig, so resolution does not
@@ -29,7 +29,7 @@ const nextConfig = {
   webpack(config) {
     config.resolve.alias = {
       ...(config.resolve.alias ?? {}),
-      "@": path.resolve(process.cwd()),
+      '@': path.resolve(process.cwd()),
     };
     return config;
   },
@@ -40,7 +40,7 @@ const nextConfig = {
     const headers = securityHeaders(false); // enforcing after clean exercise
     return [
       {
-        source: "/:path*",
+        source: '/:path*',
         headers: Object.entries(headers).map(([key, value]) => ({ key, value })),
       },
     ];

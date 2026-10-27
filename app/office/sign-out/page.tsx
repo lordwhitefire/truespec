@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import "../door.css";
-import { useEffect } from "react";
-import { useClerk } from "@clerk/nextjs";
-import { clearDrafts } from "@/lib/device-draft";
+import '../door.css';
+import { useEffect } from 'react';
+import { useClerk } from '@clerk/nextjs';
+import { clearDrafts } from '@/lib/device-draft';
 
 /**
  * The client half of sign-out.
@@ -23,7 +23,7 @@ export default function OfficeSignOutPage() {
     // (Task 38). This runs before the provider clears the session; the draft store itself is only
     // a convenience, so a storage failure does not block signing out.
     clearDrafts();
-    void signOut({ redirectUrl: "/office/sign-in" });
+    void signOut({ redirectUrl: '/office/sign-in' });
   }, [signOut]);
 
   return (

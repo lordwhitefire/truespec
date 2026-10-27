@@ -26,29 +26,34 @@ export function TapBadge({ count }: { count: number }) {
   return (
     <span
       aria-hidden="true"
-      style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <i className="fa-brands fa-whatsapp" />
       {n > 0 && (
         <span
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: -7,
             right: -9,
             minWidth: 16,
             height: 16,
-            padding: "0 4px",
+            padding: '0 4px',
             borderRadius: 8,
-            background: "var(--gold)",
-            color: "var(--gt)",
-            border: "2px solid var(--dk)",
+            background: 'var(--gold)',
+            color: 'var(--gt)',
+            border: '2px solid var(--dk)',
             fontSize: 10,
             fontWeight: 700,
-            lineHeight: "12px",
-            textAlign: "center",
+            lineHeight: '12px',
+            textAlign: 'center',
           }}
         >
-          {n > 99 ? "99+" : n}
+          {n > 99 ? '99+' : n}
         </span>
       )}
     </span>

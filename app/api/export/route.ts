@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { getOfficeSession } from "@/lib/session";
-import { buildExport } from "@/lib/export";
-import { buildZip } from "@/lib/zip";
+import { NextResponse } from 'next/server';
+import { getOfficeSession } from '@/lib/session';
+import { buildExport } from '@/lib/export';
+import { buildZip } from '@/lib/zip';
 
 /**
  * The export (truth 13 / AC 14): *one action → one ZIP*. Everything the system holds, as `master.json`
@@ -31,19 +31,19 @@ import { buildZip } from "@/lib/zip";
  */
 
 /** A ZIP is a ZIP to every browser; the filename says which day and what it is. */
-const EXPORT_CONTENT_TYPE = "application/zip";
+const EXPORT_CONTENT_TYPE = 'application/zip';
 
 function exportFilename(at: Date): string {
   return `truespec-export-${at.toISOString().slice(0, 10)}.zip`;
 }
 
 // A download, not a page: never prerendered, never cached, read at request time.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export async function GET(): Promise<Response> {
   const session = await getOfficeSession();
   if (!session) {
-    return new Response(null, { status: 401, headers: { "cache-control": "no-store" } });
+    return new Response(null, { status: 401, headers: { 'cache-control': 'no-store' } });
   }
 
   const now = new Date();
@@ -53,24 +53,24 @@ export async function GET(): Promise<Response> {
     const files = await buildExport(now);
     bytes = buildZip(
       files.map((file) => ({ name: file.name, data: file.body })),
-      now,
+      now
     );
   } catch {
     // The store could not be read in full. Saying so beats sending a partial archive: an export that
     // quietly omits a subject is the one failure the AC exists to catch.
-    return new Response("The export could not be built.\n", {
+    return new Response('The export could not be built.\n', {
       status: 500,
-      headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" },
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
     });
   }
 
   return new NextResponse(bytes as unknown as BodyInit, {
     status: 200,
     headers: {
-      "content-type": EXPORT_CONTENT_TYPE,
-      "content-disposition": `attachment; filename="${exportFilename(now)}"`,
-      "content-length": String(bytes.byteLength),
-      "cache-control": "no-store",
+      'content-type': EXPORT_CONTENT_TYPE,
+      'content-disposition': `attachment; filename="${exportFilename(now)}"`,
+      'content-length': String(bytes.byteLength),
+      'cache-control': 'no-store',
     },
   });
 }

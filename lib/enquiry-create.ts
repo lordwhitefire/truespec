@@ -26,7 +26,7 @@
 // one row" true — and writes its id as the new enquiry's `pdf_import_id`. It is one statement, so a
 // failure cannot leave a PDF row no enquiry points at, and a retry cannot make a second one.
 
-import type { EnquirySeed } from "./draft-save";
+import type { EnquirySeed } from './draft-save';
 
 export type EnquiryPdfLink = {
   /** The Sanity asset the draft came from. */

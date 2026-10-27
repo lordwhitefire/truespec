@@ -14,9 +14,9 @@
 // `state_label` until a state is chosen), and any `content_hash` (the change-check is the record's,
 // computed when a record exists). A draft is not a record; it is what a file said.
 
-import "server-only";
-import { randomUUID } from "node:crypto";
-import { storeQuery } from "./store-guard";
+import 'server-only';
+import { randomUUID } from 'node:crypto';
+import { storeQuery } from './store-guard';
 
 /**
  * One row of a batch, as the SQL takes it. Every draft's `id` is minted by the caller and travels
@@ -68,9 +68,9 @@ export type EnquiryDraftBatch = DraftBatchSource & { enquiries: readonly DraftTo
 
 /** Store a batch's rows as one kind. Returns how many rows were written (0 for an empty batch). */
 async function recordDrafts(
-  kind: "car" | "enquiry",
+  kind: 'car' | 'enquiry',
   batch: DraftBatchSource,
-  drafts: readonly DraftToStore[],
+  drafts: readonly DraftToStore[]
 ): Promise<number> {
   if (drafts.length === 0) return 0;
 
@@ -93,10 +93,10 @@ async function recordDrafts(
 
 /** Store the cars a filled car blank carried. */
 export function recordCarDrafts(batch: CarDraftBatch): Promise<number> {
-  return recordDrafts("car", batch, batch.cars);
+  return recordDrafts('car', batch, batch.cars);
 }
 
 /** Store the enquiries an enquiry sheet carried. */
 export function recordEnquiryDrafts(batch: EnquiryDraftBatch): Promise<number> {
-  return recordDrafts("enquiry", batch, batch.enquiries);
+  return recordDrafts('enquiry', batch, batch.enquiries);
 }

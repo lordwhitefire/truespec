@@ -27,18 +27,16 @@
  *   `+234 803 123 4567` → `2348031234567` → `+2348031234567`
  */
 
-export type NormalisedMobile =
-  | { ok: true; value: string }
-  | { ok: false; reason: string };
+export type NormalisedMobile = { ok: true; value: string } | { ok: false; reason: string };
 
 /** What a `wa.me` link carries: the digits of a stored number, with the sign and every
  * separator taken off. `wa.me/2348031234567` — one fixed shape, or the chat does not open. */
 export function waMeDigits(stored: string): string {
-  return stored.replace(/\D/g, "");
+  return stored.replace(/\D/g, '');
 }
 
 /** `+234` — the country code every accepted form is rewritten to. */
-const COUNTRY = "234";
+const COUNTRY = '234';
 
 /** The ten-digit national number of a Nigerian mobile begins 7, 8 or 9. */
 const MOBILE = /^[789]/;
@@ -48,19 +46,22 @@ const MOBILE = /^[789]/;
 const SEPARABLE = /^[0-9\s\-().]+$/;
 
 export function normaliseNigerianMobile(raw: string): NormalisedMobile {
-  const input = typeof raw === "string" ? raw.trim() : "";
-  if (input === "") return { ok: false, reason: "Enter a WhatsApp number." };
+  const input = typeof raw === 'string' ? raw.trim() : '';
+  if (input === '') return { ok: false, reason: 'Enter a WhatsApp number.' };
 
   if (/[a-z]/i.test(input)) {
-    return { ok: false, reason: "A WhatsApp number is digits only — that has letters in it." };
+    return { ok: false, reason: 'A WhatsApp number is digits only — that has letters in it.' };
   }
 
-  const hasPlus = input.startsWith("+");
+  const hasPlus = input.startsWith('+');
   const body = hasPlus ? input.slice(1) : input;
   if (!SEPARABLE.test(body)) {
-    return { ok: false, reason: "A WhatsApp number is digits only — that has other characters in it." };
+    return {
+      ok: false,
+      reason: 'A WhatsApp number is digits only — that has other characters in it.',
+    };
   }
-  const digits = body.replace(/\D/g, "");
+  const digits = body.replace(/\D/g, '');
 
   let national: string;
   if (hasPlus) {
@@ -69,22 +70,28 @@ export function normaliseNigerianMobile(raw: string): NormalisedMobile {
       return { ok: false, reason: "That number does not carry Nigeria's country code, +234." };
     }
     national = digits.slice(COUNTRY.length);
-  } else if (digits.startsWith("0")) {
+  } else if (digits.startsWith('0')) {
     national = digits.slice(1);
   } else if (digits.startsWith(COUNTRY)) {
     national = digits.slice(COUNTRY.length);
   } else {
-    return { ok: false, reason: "That is not a Nigerian number — write it as +234…, 234…, or 0…." };
+    return { ok: false, reason: 'That is not a Nigerian number — write it as +234…, 234…, or 0….' };
   }
 
   if (national.length < 10) {
-    return { ok: false, reason: "That number is incomplete — write it as +234…, 234…, or 0…." };
+    return { ok: false, reason: 'That number is incomplete — write it as +234…, 234…, or 0….' };
   }
   if (national.length > 10) {
-    return { ok: false, reason: "That number has too many digits — write it as +234…, 234…, or 0…." };
+    return {
+      ok: false,
+      reason: 'That number has too many digits — write it as +234…, 234…, or 0….',
+    };
   }
   if (!MOBILE.test(national)) {
-    return { ok: false, reason: "That is not a Nigerian mobile number — write it as +234…, 234…, or 0…." };
+    return {
+      ok: false,
+      reason: 'That is not a Nigerian mobile number — write it as +234…, 234…, or 0….',
+    };
   }
 
   return { ok: true, value: `+${COUNTRY}${national}` };

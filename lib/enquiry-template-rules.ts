@@ -19,16 +19,16 @@
 // Deliberately free of `server-only` and pdf-lib: the names and words are pure, and the reader
 // wants them without the PDF machinery.
 
-import { ENQUIRY_RECIPE } from "./change-check";
+import { ENQUIRY_RECIPE } from './change-check';
 
 /** What the download is called on disk. */
-export const ENQUIRY_TEMPLATE_FILENAME = "truespec-enquiry-template.pdf";
+export const ENQUIRY_TEMPLATE_FILENAME = 'truespec-enquiry-template.pdf';
 
 /** What it is served as. */
-export const ENQUIRY_TEMPLATE_CONTENT_TYPE = "application/pdf";
+export const ENQUIRY_TEMPLATE_CONTENT_TYPE = 'application/pdf';
 
 /** The heading drawn on every page. */
-export const ENQUIRY_TEMPLATE_TITLE = "TrueSpec — enquiry sheet";
+export const ENQUIRY_TEMPLATE_TITLE = 'TrueSpec — enquiry sheet';
 
 /** How many enquiries one blank may carry. One page is one customer. */
 export const ENQUIRY_TEMPLATE_MAX = 20;
@@ -40,15 +40,15 @@ export const ENQUIRY_TEMPLATE_DEFAULT = ENQUIRY_TEMPLATE_MAX;
  * The form field's name for each recipe field. `enquiry_state_id` is the only one that differs, and
  * only in name: the owner writes the state he knows, not a key the store minted.
  */
-const FORM_NAME: Readonly<Record<string, string>> = { enquiry_state_id: "state" };
+const FORM_NAME: Readonly<Record<string, string>> = { enquiry_state_id: 'state' };
 
 /** The words the owner reads beside each field. */
 const WORDS: Readonly<Record<string, string>> = {
-  name: "Name",
-  number: "Phone",
-  asked_for: "Asked for",
-  note: "Note",
-  enquiry_state_id: "State",
+  name: 'Name',
+  number: 'Phone',
+  asked_for: 'Asked for',
+  note: 'Note',
+  enquiry_state_id: 'State',
 };
 
 export type EnquiryTemplateField = {
@@ -70,11 +70,13 @@ function wordsFor(recipe: string): string {
  * The blank's fields, in the recipe's own order — one for each of the five editable details and not
  * one more. Built from the recipe, so it cannot be a sixth field's home by accident.
  */
-export const ENQUIRY_TEMPLATE_FIELDS: readonly EnquiryTemplateField[] = ENQUIRY_RECIPE.map((field) => ({
-  recipe: field.name,
-  form: FORM_NAME[field.name] ?? field.name,
-  words: wordsFor(field.name),
-}));
+export const ENQUIRY_TEMPLATE_FIELDS: readonly EnquiryTemplateField[] = ENQUIRY_RECIPE.map(
+  (field) => ({
+    recipe: field.name,
+    form: FORM_NAME[field.name] ?? field.name,
+    words: wordsFor(field.name),
+  })
+);
 
 /** The base name a field carries, or `undefined` for a recipe field the blank never asks for. */
 export function enquiryTemplateFormName(recipeName: string): string | undefined {
@@ -89,7 +91,7 @@ function assertPage(page: number): void {
 
 /** Two digits, so `enquiry_01_name` sorts and reads the way the page does. */
 function pageToken(page: number): string {
-  return String(page).padStart(2, "0");
+  return String(page).padStart(2, '0');
 }
 
 /**
@@ -119,7 +121,7 @@ export function enquiryFields(page: number): readonly EnquiryTemplateField[] {
  * carrying fields of its own is read as *not ours* rather than guessed at.
  */
 export function readEnquiryFieldName(
-  formName: string,
+  formName: string
 ): { page: number; recipe: string } | undefined {
   const match = /^enquiry_([0-9]{2})_(.+)$/.exec(formName);
   if (!match) return undefined;
@@ -151,10 +153,10 @@ export function isEnquiryFieldNameBeyondLimit(formName: string): boolean {
  * a whole number of pages inside the blank's limit is refused with a reason.
  */
 export function readEnquiryCount(
-  value: string | null | undefined,
+  value: string | null | undefined
 ): { ok: true; pages: number } | { ok: false; reason: string } {
-  const raw = (value ?? "").trim();
-  if (raw === "") return { ok: true, pages: ENQUIRY_TEMPLATE_DEFAULT };
+  const raw = (value ?? '').trim();
+  if (raw === '') return { ok: true, pages: ENQUIRY_TEMPLATE_DEFAULT };
   if (!/^[0-9]+$/.test(raw)) {
     return {
       ok: false,

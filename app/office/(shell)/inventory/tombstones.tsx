@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import { removeCarForever } from "../../actions/car";
+import { useState, useTransition } from 'react';
+import { removeCarForever } from '../../actions/car';
 
 // The cars waiting to be cleared — the office's own view of its tombstones (truth 6,
 // specs/inventory: "the tombstone is hidden from all reads and stays listed as waiting
@@ -35,15 +35,15 @@ export function Tombstones({ rows: initial }: { rows: TombstoneRow[] }) {
     startWrite(async () => {
       const res = await removeCarForever(id);
       if (!res.ok) {
-        setMsg(res.errors[0]?.message ?? "That car could not be removed.");
+        setMsg(res.errors[0]?.message ?? 'That car could not be removed.');
         return;
       }
       setRows((r) => r.filter((x) => x.id !== id));
-      const name = car?.name ?? "The car";
+      const name = car?.name ?? 'The car';
       setMsg(
         res.assetsFailed > 0
-          ? `${name} was removed. ${res.assetsFailed} of its image${res.assetsFailed === 1 ? "" : "s"} could not be cleared, and the daily job will clear it.`
-          : `${name} was removed for good, with its images.`,
+          ? `${name} was removed. ${res.assetsFailed} of its image${res.assetsFailed === 1 ? '' : 's'} could not be cleared, and the daily job will clear it.`
+          : `${name} was removed for good, with its images.`
       );
     });
   }

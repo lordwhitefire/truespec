@@ -27,9 +27,9 @@ import {
   quoteIdentifier,
   type BackupSequence,
   type BackupTable,
-} from "./backup-tables";
+} from './backup-tables';
 
-export const BACKUP_FORMAT = "truespec-backup";
+export const BACKUP_FORMAT = 'truespec-backup';
 export const BACKUP_VERSION = 1;
 
 export type BackupQuery = (text: string, params?: unknown[]) => Promise<{ rows: unknown[] }>;
@@ -48,10 +48,10 @@ export type BackupArchive = {
 export class BackupError extends Error {
   constructor(
     readonly step: string,
-    message: string,
+    message: string
   ) {
     super(message);
-    this.name = "BackupError";
+    this.name = 'BackupError';
   }
 }
 
@@ -61,27 +61,29 @@ export class BackupError extends Error {
  */
 export async function buildBackupArchive(
   query: BackupQuery,
-  now: Date = new Date(),
+  now: Date = new Date()
 ): Promise<BackupArchive> {
   const actual = await query(
     `SELECT table_name
        FROM information_schema.tables
       WHERE table_schema = 'public'
         AND table_type = 'BASE TABLE'
-      ORDER BY table_name`,
+      ORDER BY table_name`
   );
-  const actualNames = new Set((actual.rows as { table_name: string }[]).map((row) => row.table_name));
+  const actualNames = new Set(
+    (actual.rows as { table_name: string }[]).map((row) => row.table_name)
+  );
   const expectedNames = new Set<string>(BACKUP_TABLES);
 
   const missing = BACKUP_TABLES.filter((name) => !actualNames.has(name));
   const unknown = [...actualNames].filter((name) => !expectedNames.has(name)).sort();
   if (missing.length > 0 || unknown.length > 0) {
     const parts: string[] = [];
-    if (missing.length > 0) parts.push(`missing: ${missing.join(", ")}`);
-    if (unknown.length > 0) parts.push(`not in the fixed list: ${unknown.join(", ")}`);
+    if (missing.length > 0) parts.push(`missing: ${missing.join(', ')}`);
+    if (unknown.length > 0) parts.push(`not in the fixed list: ${unknown.join(', ')}`);
     throw new BackupError(
-      "table-list",
-      `the public tables and the backup's fixed list disagree — ${parts.join("; ")}`,
+      'table-list',
+      `the public tables and the backup's fixed list disagree — ${parts.join('; ')}`
     );
   }
 
@@ -96,7 +98,7 @@ export async function buildBackupArchive(
     const result = await query(`SELECT last_value, is_called FROM ${quoteIdentifier(name)}`);
     const row = result.rows[0] as { last_value: string | number; is_called: boolean } | undefined;
     if (!row) {
-      throw new BackupError("sequences", `the sequence ${name} could not be read`);
+      throw new BackupError('sequences', `the sequence ${name} could not be read`);
     }
     sequences[name] = {
       last_value: Number(row.last_value),

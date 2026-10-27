@@ -1,4 +1,4 @@
-import type { Section } from "./sections";
+import type { Section } from './sections';
 
 /**
  * The statements that edit the owner's car-state registry — and the line they will not cross.
@@ -38,7 +38,7 @@ export type RegistryState = {
   id: string;
   label: string;
   colour: string;
-  kind: "primary" | "secondary";
+  kind: 'primary' | 'secondary';
   /** A primary state's section (D15: a section and a primary state are one); a secondary has none. */
   section: Section | null;
   /** How many car rows carry this state. */

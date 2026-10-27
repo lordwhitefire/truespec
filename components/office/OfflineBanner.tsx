@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
-const LINE = "Offline, your draft is kept on this device.";
+const LINE = 'Offline, your draft is kept on this device.';
 const RECOVERY_LINE = "You're back online. Your draft is still here — press Save.";
-const BANNER_ID = "ts-office-offline";
-const OFFLINE_MARKER = "data-ts-office-offline";
-const RECOVERED_MARKER = "data-ts-office-recovered";
-const DRAFT_MARKER = "data-ts-office-draft";
-const PRESENCE_EVENT = "ts-office-draft-presence";
+const BANNER_ID = 'ts-office-offline';
+const OFFLINE_MARKER = 'data-ts-office-offline';
+const RECOVERED_MARKER = 'data-ts-office-recovered';
+const DRAFT_MARKER = 'data-ts-office-draft';
+const PRESENCE_EVENT = 'ts-office-draft-presence';
 const SHOW_AFTER_MS = 1200;
-const SAVE_CLASS = "ts-office-offline-save";
+const SAVE_CLASS = 'ts-office-offline-save';
 const SAVE_NAME = /^save\b/i;
 
 type SavedAttributes = {
@@ -54,38 +54,41 @@ export function OfflineBanner() {
 
   function isSaveButton(el: Element): el is HTMLButtonElement {
     if (!(el instanceof HTMLButtonElement)) return false;
-    const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
-    const label = el.getAttribute("aria-label") ?? "";
+    const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+    const label = el.getAttribute('aria-label') ?? '';
     return SAVE_NAME.test(text) || SAVE_NAME.test(label);
   }
 
   function addReason(el: Element) {
-    const current = el.getAttribute("aria-describedby");
-    const tokens = (current ?? "").split(/\s+/).filter(Boolean);
+    const current = el.getAttribute('aria-describedby');
+    const tokens = (current ?? '').split(/\s+/).filter(Boolean);
     if (tokens.includes(BANNER_ID)) return;
     tokens.push(BANNER_ID);
-    el.setAttribute("aria-describedby", tokens.join(" "));
+    el.setAttribute('aria-describedby', tokens.join(' '));
   }
 
   function removeReason(el: Element) {
-    const current = el.getAttribute("aria-describedby");
+    const current = el.getAttribute('aria-describedby');
     if (!current) return;
-    const tokens = current.split(/\s+/).filter(Boolean).filter((token) => token !== BANNER_ID);
-    if (tokens.length > 0) el.setAttribute("aria-describedby", tokens.join(" "));
-    else el.removeAttribute("aria-describedby");
+    const tokens = current
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((token) => token !== BANNER_ID);
+    if (tokens.length > 0) el.setAttribute('aria-describedby', tokens.join(' '));
+    else el.removeAttribute('aria-describedby');
   }
 
   function annotateSaves() {
-    for (const el of document.querySelectorAll("button")) {
+    for (const el of document.querySelectorAll('button')) {
       if (!isSaveButton(el)) continue;
       if (!savedSaves.current.has(el)) {
         savedSaves.current.set(el, {
-          tabIndex: el.getAttribute("tabindex"),
-          ariaDisabled: el.getAttribute("aria-disabled"),
+          tabIndex: el.getAttribute('tabindex'),
+          ariaDisabled: el.getAttribute('aria-disabled'),
         });
       }
-      if (el.getAttribute("aria-disabled") !== "true") el.setAttribute("aria-disabled", "true");
-      if (el.getAttribute("tabindex") !== "-1") el.setAttribute("tabindex", "-1");
+      if (el.getAttribute('aria-disabled') !== 'true') el.setAttribute('aria-disabled', 'true');
+      if (el.getAttribute('tabindex') !== '-1') el.setAttribute('tabindex', '-1');
       el.classList.add(SAVE_CLASS);
       addReason(el);
     }
@@ -95,14 +98,14 @@ export function OfflineBanner() {
     for (const [el, saved] of savedSaves.current) {
       if (!el.isConnected) continue;
       if (saved.tabIndex === null) {
-        if (el.hasAttribute("tabindex")) el.removeAttribute("tabindex");
-      } else if (el.getAttribute("tabindex") !== saved.tabIndex) {
-        el.setAttribute("tabindex", saved.tabIndex);
+        if (el.hasAttribute('tabindex')) el.removeAttribute('tabindex');
+      } else if (el.getAttribute('tabindex') !== saved.tabIndex) {
+        el.setAttribute('tabindex', saved.tabIndex);
       }
       if (saved.ariaDisabled === null) {
-        if (el.hasAttribute("aria-disabled")) el.removeAttribute("aria-disabled");
-      } else if (el.getAttribute("aria-disabled") !== saved.ariaDisabled) {
-        el.setAttribute("aria-disabled", saved.ariaDisabled);
+        if (el.hasAttribute('aria-disabled')) el.removeAttribute('aria-disabled');
+      } else if (el.getAttribute('aria-disabled') !== saved.ariaDisabled) {
+        el.setAttribute('aria-disabled', saved.ariaDisabled);
       }
       el.classList.remove(SAVE_CLASS);
       removeReason(el);
@@ -118,11 +121,11 @@ export function OfflineBanner() {
       setOnline(true);
     };
     const onOffline = () => setOnline(false);
-    window.addEventListener("online", onOnline);
-    window.addEventListener("offline", onOffline);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
     return () => {
-      window.removeEventListener("online", onOnline);
-      window.removeEventListener("offline", onOffline);
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
     };
   }, []);
 
@@ -179,15 +182,15 @@ export function OfflineBanner() {
     const root = document.documentElement;
     if (offline) annotateSaves();
     else restoreSaves();
-    if (offline) root.setAttribute(OFFLINE_MARKER, "");
+    if (offline) root.setAttribute(OFFLINE_MARKER, '');
     else root.removeAttribute(OFFLINE_MARKER);
-    if (recovered && !offline) root.setAttribute(RECOVERED_MARKER, "");
+    if (recovered && !offline) root.setAttribute(RECOVERED_MARKER, '');
     else root.removeAttribute(RECOVERED_MARKER);
     if (offline || recovered) {
       const height = lineRef.current?.offsetHeight ?? 38;
-      root.style.setProperty("--ts-office-offline-h", `${height}px`);
+      root.style.setProperty('--ts-office-offline-h', `${height}px`);
     } else {
-      root.style.removeProperty("--ts-office-offline-h");
+      root.style.removeProperty('--ts-office-offline-h');
     }
   }, [offline, recovered]);
 
@@ -208,7 +211,7 @@ export function OfflineBanner() {
     const onClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      const button = target.closest("button");
+      const button = target.closest('button');
       if (button && isSaveButton(button)) {
         event.preventDefault();
         event.stopPropagation();
@@ -217,16 +220,16 @@ export function OfflineBanner() {
     const onSubmit = (event: Event) => {
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
-      if ([...form.querySelectorAll("button")].some(isSaveButton)) {
+      if ([...form.querySelectorAll('button')].some(isSaveButton)) {
         event.preventDefault();
         event.stopPropagation();
       }
     };
-    document.addEventListener("click", onClick, true);
-    document.addEventListener("submit", onSubmit, true);
+    document.addEventListener('click', onClick, true);
+    document.addEventListener('submit', onSubmit, true);
     return () => {
-      document.removeEventListener("click", onClick, true);
-      document.removeEventListener("submit", onSubmit, true);
+      document.removeEventListener('click', onClick, true);
+      document.removeEventListener('submit', onSubmit, true);
     };
   }, [offline]);
 
@@ -235,7 +238,7 @@ export function OfflineBanner() {
       restoreSaves();
       document.documentElement.removeAttribute(OFFLINE_MARKER);
       document.documentElement.removeAttribute(RECOVERED_MARKER);
-      document.documentElement.style.removeProperty("--ts-office-offline-h");
+      document.documentElement.style.removeProperty('--ts-office-offline-h');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { markTapsSeenAction } from "@/app/office/actions/tap";
+import { useEffect, useRef } from 'react';
+import { markTapsSeenAction } from '@/app/office/actions/tap';
 
 /**
  * Marks the taps seen when the Taps tab is viewed (owner ruling, 2026-10-16): the badge's number

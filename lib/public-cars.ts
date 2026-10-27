@@ -1,9 +1,10 @@
-import "server-only";
-import { storeQueryMain } from "./store-guard";
-import { getConfig } from "./config";
-import { countStock, type StockCounts } from "./counts";
-import { PUBLIC_SECTIONS } from "./sections";
-import { isListed, toPublicCar, type PublicCar, type RawCarRow } from "./serialize";
+import 'server-only';
+import { cache } from 'react';
+import { storeQueryMain } from './store-guard';
+import { getConfig } from './config';
+import { countStock, type StockCounts } from './counts';
+import { PUBLIC_SECTIONS } from './sections';
+import { isListed, toPublicCar, type PublicCar, type RawCarRow } from './serialize';
 
 // The only public read path. Every showroom page, count and list goes through
 // the allow-list serializer here (specs/showroom, task 3.1/3.2).
@@ -45,17 +46,23 @@ export async function getPublicCar(ref: string): Promise<PublicCar | null> {
   return mapRows([row])[0];
 }
 
-export async function getPublicCarForView(ref: string): Promise<PublicCar | null> {
+/**
+ * The detail view may show a sold car so it can answer honestly, but a draft with no price or no
+ * photo is not a public car: it answers 404 (FN-001). `isListed` already rejects a sold row, so the
+ * sold flag is allowed through separately. Cached per request because metadata and the page both
+ * read the same ref.
+ */
+export const getPublicCarForView = cache(async (ref: string): Promise<PublicCar | null> => {
   const rows = (await storeQueryMain(`${SELECT_CARS} AND c.ref = $1`, [ref])) as RawCarRow[];
   const row = rows[0];
-  if (!row) return null;
+  if (!row || (!isListed(row) && !row.sold)) return null;
   return mapRows([row])[0];
-}
+});
 
 export async function getPublicCounts(): Promise<StockCounts> {
   const cars = await getPublicCars();
   return countStock(
-    cars.map((c) => ({ section: c.section, isNewArrival: c.isNewArrival, sold: c.sold === true })),
+    cars.map((c) => ({ section: c.section, isNewArrival: c.isNewArrival, sold: c.sold === true }))
   );
 }
 

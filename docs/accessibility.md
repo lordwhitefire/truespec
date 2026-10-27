@@ -17,14 +17,14 @@ This check is not only an automated scan. Each page is verified with:
 
 ## Pages tested
 
-| Page | WCAG 2.2 AA target | Keyboard pass | Screen-reader pass |
-|------|--------------------|---------------|--------------------|
-| Home (`/`) | AA | Pass | NOT RUN — separate session |
-| Inventory (`/inventory`) | AA | Pass | NOT RUN — separate session |
-| Car page (`/car/[ref]`) | AA | Pass | NOT RUN — separate session |
-| Privacy (`/privacy`) | AA | Pass | NOT RUN — separate session |
-| Terms (`/terms`) | AA | Pass | NOT RUN — separate session |
-| Office sign-in (`/office/sign-in`) | AA | Pass | NOT RUN — separate session |
+| Page                               | WCAG 2.2 AA target | Keyboard pass | Screen-reader pass         |
+| ---------------------------------- | ------------------ | ------------- | -------------------------- |
+| Home (`/`)                         | AA                 | Pass          | NOT RUN — separate session |
+| Inventory (`/inventory`)           | AA                 | Pass          | NOT RUN — separate session |
+| Car page (`/car/[ref]`)            | AA                 | Pass          | NOT RUN — separate session |
+| Privacy (`/privacy`)               | AA                 | Pass          | NOT RUN — separate session |
+| Terms (`/terms`)                   | AA                 | Pass          | NOT RUN — separate session |
+| Office sign-in (`/office/sign-in`) | AA                 | Pass          | NOT RUN — separate session |
 
 ## Heading order (no skipped levels)
 

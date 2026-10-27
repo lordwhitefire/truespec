@@ -6,13 +6,13 @@
  * public-car serializer into its bundle.
  */
 export function sizedPhotoUrl(url: string, width: number, height: number): string {
-  if (!url.startsWith("https://cdn.sanity.io/")) return url;
+  if (!url.startsWith('https://cdn.sanity.io/')) return url;
   const sized = new URL(url);
-  sized.searchParams.set("w", String(width));
-  sized.searchParams.set("h", String(height));
-  sized.searchParams.set("fit", "crop");
-  sized.searchParams.set("auto", "format");
-  sized.searchParams.set("q", "75");
+  sized.searchParams.set('w', String(width));
+  sized.searchParams.set('h', String(height));
+  sized.searchParams.set('fit', 'crop');
+  sized.searchParams.set('auto', 'format');
+  sized.searchParams.set('q', '75');
   return sized.toString();
 }
 
@@ -26,5 +26,5 @@ export function sizedPhotoUrl(url: string, width: number, height: number): strin
 export function carGallerySrcSet(url: string): string {
   return [640, 960, 1440]
     .map((width) => `${sizedPhotoUrl(url, width, Math.round(width * 0.6))} ${width}w`)
-    .join(", ");
+    .join(', ');
 }

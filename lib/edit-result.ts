@@ -1,4 +1,4 @@
-import type { FieldError } from "./car-input";
+import type { FieldError } from './car-input';
 
 /**
  * What an office write answers: it landed, or it names what was wrong.

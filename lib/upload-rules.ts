@@ -15,7 +15,7 @@ export const UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
 export const UPLOAD_MAX_MB = UPLOAD_MAX_BYTES / (1024 * 1024);
 
 /** Where held car files live in the asset store. */
-export const UPLOAD_FOLDER = "car-uploads";
+export const UPLOAD_FOLDER = 'car-uploads';
 
 /**
  * The name a held file carries in the asset store.
@@ -37,14 +37,14 @@ export function heldFilename(uuid: string): string {
  * claims to be. An empty one falls back to the template's own name rather than to a blank string.
  */
 export function sourceFilename(name: string | null | undefined): string {
-  const trimmed = (name ?? "").trim();
-  if (trimmed === "") return "car-template.pdf";
+  const trimmed = (name ?? '').trim();
+  if (trimmed === '') return 'car-template.pdf';
   return trimmed.slice(0, 200);
 }
 
 /** Whether the arriving file is within size to be read at all. */
 export function checkUploadSize(bytes: number): { ok: true } | { ok: false; reason: string } {
-  if (bytes === 0) return { ok: false, reason: "That file is empty." };
+  if (bytes === 0) return { ok: false, reason: 'That file is empty.' };
   if (bytes > UPLOAD_MAX_BYTES) {
     return { ok: false, reason: `That file is larger than ${UPLOAD_MAX_MB} MB.` };
   }

@@ -21,10 +21,11 @@
  * This module uses `Buffer`, so it is server-side in practice; importing it from a client component
  * would drag `Buffer` into the browser bundle. `lib/photo-rules.ts` is the half a client may hold.
  */
-import { checkPhotoSize, isPhotoType } from "./photo-rules";
+import { checkPhotoSize, isPhotoType } from './photo-rules';
 
 /** A refusal the owner can act on, or the bytes to store. */
-export type PhotoBytes = { ok: true; bytes: Buffer; stripped: boolean } | { ok: false; reason: string };
+export type PhotoBytes =
+  { ok: true; bytes: Buffer; stripped: boolean } | { ok: false; reason: string };
 
 /**
  * The write boundary: measure, then strip, then hand back the bytes to store.
@@ -36,13 +37,20 @@ export type PhotoBytes = { ok: true; bytes: Buffer; stripped: boolean } | { ok: 
  */
 export function preparePhoto(bytes: Buffer, type: string): PhotoBytes {
   if (!isPhotoType(type)) {
-    return { ok: false, reason: "That file is not a photo the office stores. Use a JPEG, a PNG or a WebP." };
+    return {
+      ok: false,
+      reason: 'That file is not a photo the office stores. Use a JPEG, a PNG or a WebP.',
+    };
   }
   const size = checkPhotoSize(bytes.length);
   if (!size.ok) return size;
 
   const stripped =
-    type === "image/jpeg" ? stripJpeg(bytes) : type === "image/png" ? stripPng(bytes) : stripWebp(bytes);
+    type === 'image/jpeg'
+      ? stripJpeg(bytes)
+      : type === 'image/png'
+        ? stripPng(bytes)
+        : stripWebp(bytes);
   if (!stripped.ok) return stripped;
   return { ok: true, bytes: stripped.bytes, stripped: stripped.stripped };
 }
@@ -63,18 +71,19 @@ const BAD = (what: string): { ok: false; reason: string } => ({
  * through untouched. That is what makes this a metadata strip and not a re-encode.
  */
 function stripJpeg(input: Buffer): SegmentWalk {
-  if (input.length < 4 || input[0] !== 0xff || input[1] !== 0xd8) return BAD("no JPEG start marker");
+  if (input.length < 4 || input[0] !== 0xff || input[1] !== 0xd8)
+    return BAD('no JPEG start marker');
   const out: Buffer[] = [input.subarray(0, 2)];
   let stripped = false;
   let i = 2;
 
   for (;;) {
-    if (i >= input.length) return BAD("the file ends before its image data");
-    if (input[i] !== 0xff) return BAD("a byte where a marker should be");
+    if (i >= input.length) return BAD('the file ends before its image data');
+    if (input[i] !== 0xff) return BAD('a byte where a marker should be');
 
     let j = i + 1;
     while (j < input.length && input[j] === 0xff) j++; // fill bytes are legal
-    if (j >= input.length) return BAD("the file ends inside a marker");
+    if (j >= input.length) return BAD('the file ends inside a marker');
     const marker = input[j];
 
     // Standalone markers: no payload.
@@ -88,9 +97,10 @@ function stripJpeg(input: Buffer): SegmentWalk {
       break;
     }
 
-    if (j + 2 >= input.length) return BAD("a segment length was cut off");
+    if (j + 2 >= input.length) return BAD('a segment length was cut off');
     const length = input.readUInt16BE(j + 1);
-    if (length < 2 || j + 1 + length > input.length) return BAD("a segment runs past the end of the file");
+    if (length < 2 || j + 1 + length > input.length)
+      return BAD('a segment runs past the end of the file');
     const payload = input.subarray(j + 3, j + 1 + length);
 
     if (marker === 0xe1 && isMetadataPayload(payload)) {
@@ -111,8 +121,8 @@ function stripJpeg(input: Buffer): SegmentWalk {
 
 /** An APP1 segment carries either Exif or XMP; both are dropped. */
 function isMetadataPayload(payload: Buffer): boolean {
-  const head = payload.subarray(0, 29).toString("latin1");
-  return head.startsWith("Exif\0\0") || head.startsWith("http://ns.adobe.com/xap/1.0/");
+  const head = payload.subarray(0, 29).toString('latin1');
+  return head.startsWith('Exif\0\0') || head.startsWith('http://ns.adobe.com/xap/1.0/');
 }
 
 /**
@@ -124,7 +134,7 @@ function isMetadataPayload(payload: Buffer): boolean {
  */
 function stripPng(input: Buffer): SegmentWalk {
   const SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  if (input.length < 8 || !input.subarray(0, 8).equals(SIGNATURE)) return BAD("no PNG signature");
+  if (input.length < 8 || !input.subarray(0, 8).equals(SIGNATURE)) return BAD('no PNG signature');
 
   const out: Buffer[] = [input.subarray(0, 8)];
   let stripped = false;
@@ -133,22 +143,22 @@ function stripPng(input: Buffer): SegmentWalk {
 
   while (i + 8 <= input.length) {
     const length = input.readUInt32BE(i);
-    const type = input.subarray(i + 4, i + 8).toString("latin1");
+    const type = input.subarray(i + 4, i + 8).toString('latin1');
     const end = i + 8 + length + 4;
-    if (end > input.length) return BAD("a chunk runs past the end of the file");
-    if (type === "eXIf") {
+    if (end > input.length) return BAD('a chunk runs past the end of the file');
+    if (type === 'eXIf') {
       stripped = true;
     } else {
       out.push(input.subarray(i, end));
     }
     i = end;
-    if (type === "IEND") {
+    if (type === 'IEND') {
       sawEnd = true;
       break;
     }
   }
 
-  if (!sawEnd) return BAD("no PNG end chunk");
+  if (!sawEnd) return BAD('no PNG end chunk');
   return { ok: true, bytes: Buffer.concat(out), stripped };
 }
 
@@ -163,21 +173,21 @@ function stripPng(input: Buffer): SegmentWalk {
 function stripWebp(input: Buffer): SegmentWalk {
   if (
     input.length < 12 ||
-    input.subarray(0, 4).toString("latin1") !== "RIFF" ||
-    input.subarray(8, 12).toString("latin1") !== "WEBP"
+    input.subarray(0, 4).toString('latin1') !== 'RIFF' ||
+    input.subarray(8, 12).toString('latin1') !== 'WEBP'
   ) {
-    return BAD("no WebP header");
+    return BAD('no WebP header');
   }
 
   const chunks: Buffer[] = [];
   let stripped = false;
   let i = 12;
   while (i + 8 <= input.length) {
-    const fourcc = input.subarray(i, i + 4).toString("latin1");
+    const fourcc = input.subarray(i, i + 4).toString('latin1');
     const length = input.readUInt32LE(i + 4);
     const end = i + 8 + length + (length % 2); // chunks are padded to an even length
-    if (end > input.length) return BAD("a chunk runs past the end of the file");
-    if (fourcc === "EXIF" || fourcc === "XMP ") {
+    if (end > input.length) return BAD('a chunk runs past the end of the file');
+    if (fourcc === 'EXIF' || fourcc === 'XMP ') {
       stripped = true;
     } else {
       chunks.push(input.subarray(i, end));
@@ -187,8 +197,8 @@ function stripWebp(input: Buffer): SegmentWalk {
 
   const body = Buffer.concat(chunks);
   const head = Buffer.alloc(12);
-  head.write("RIFF", 0, "latin1");
+  head.write('RIFF', 0, 'latin1');
   head.writeUInt32LE(body.length + 4, 4); // everything after this field, "WEBP" included
-  head.write("WEBP", 8, "latin1");
+  head.write('WEBP', 8, 'latin1');
   return { ok: true, bytes: Buffer.concat([head, body]), stripped };
 }

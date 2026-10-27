@@ -15,10 +15,10 @@
  * Font Awesome: local (no cdnjs request)
  */
 
-const CLERK_DOMAIN = "https://singular-sawfish-8907.clerk.accounts.dev";
-const SANITY_DOMAIN = "https://cdn.sanity.io";
-const CLERK_IMG_DOMAIN = "https://img.clerk.com";
-const UNSPLASH_DOMAIN = "https://images.unsplash.com";
+const CLERK_DOMAIN = 'https://singular-sawfish-8907.clerk.accounts.dev';
+const SANITY_DOMAIN = 'https://cdn.sanity.io';
+const CLERK_IMG_DOMAIN = 'https://img.clerk.com';
+const UNSPLASH_DOMAIN = 'https://images.unsplash.com';
 
 /**
  * Build the CSP directive body. Identical for report-only and enforcing; only the header name
@@ -44,7 +44,7 @@ export function cspDirective(): string {
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-  ].join("; ");
+  ].join('; ');
 }
 
 /**
@@ -54,17 +54,14 @@ export function cspDirective(): string {
  *   false sends Content-Security-Policy (enforcing phase).
  */
 export function securityHeaders(useReportOnly: boolean): Record<string, string> {
-  const cspName = useReportOnly
-    ? "Content-Security-Policy-Report-Only"
-    : "Content-Security-Policy";
+  const cspName = useReportOnly ? 'Content-Security-Policy-Report-Only' : 'Content-Security-Policy';
 
   return {
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy":
-      "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
-    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=(), usb=()',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     [cspName]: cspDirective(),
   };
 }

@@ -33,13 +33,13 @@ import {
   quoteIdentifier,
   type BackupSequence,
   type BackupTable,
-} from "./backup-tables";
+} from './backup-tables';
 import {
   BACKUP_FORMAT,
   BACKUP_VERSION,
   type BackupArchive,
   type BackupSequenceState,
-} from "./backup-archive";
+} from './backup-archive';
 
 export type RestoreRow = Record<string, unknown>;
 export type RestoreClient = {
@@ -49,10 +49,10 @@ export type RestoreClient = {
 export class RestoreError extends Error {
   constructor(
     readonly step: string,
-    message: string,
+    message: string
   ) {
     super(message);
-    this.name = "RestoreError";
+    this.name = 'RestoreError';
   }
 }
 
@@ -65,62 +65,69 @@ export function parseBackupArchive(raw: string): BackupArchive {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new RestoreError("parse", "the backup is not valid JSON");
+    throw new RestoreError('parse', 'the backup is not valid JSON');
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new RestoreError("parse", "the backup is not an archive object");
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    throw new RestoreError('parse', 'the backup is not an archive object');
   }
   const value = parsed as Record<string, unknown>;
   if (value.format !== BACKUP_FORMAT || value.version !== BACKUP_VERSION) {
     throw new RestoreError(
-      "parse",
-      `the backup is not a ${BACKUP_FORMAT} version ${BACKUP_VERSION} archive`,
+      'parse',
+      `the backup is not a ${BACKUP_FORMAT} version ${BACKUP_VERSION} archive`
     );
   }
-  if (typeof value.generated_at !== "string" || !Number.isFinite(Date.parse(value.generated_at))) {
-    throw new RestoreError("parse", "the backup's generated_at is not a date");
+  if (typeof value.generated_at !== 'string' || !Number.isFinite(Date.parse(value.generated_at))) {
+    throw new RestoreError('parse', "the backup's generated_at is not a date");
   }
-  if (typeof value.tables !== "object" || value.tables === null || Array.isArray(value.tables)) {
-    throw new RestoreError("parse", "the backup has no tables object");
+  if (typeof value.tables !== 'object' || value.tables === null || Array.isArray(value.tables)) {
+    throw new RestoreError('parse', 'the backup has no tables object');
   }
   const tables = value.tables as Record<string, unknown>;
   const missing = BACKUP_TABLES.filter((table) => !(table in tables));
   const extra = Object.keys(tables).filter(
-    (table) => !(BACKUP_TABLES as readonly string[]).includes(table),
+    (table) => !(BACKUP_TABLES as readonly string[]).includes(table)
   );
   if (missing.length > 0 || extra.length > 0) {
     const parts: string[] = [];
-    if (missing.length > 0) parts.push(`missing: ${missing.join(", ")}`);
-    if (extra.length > 0) parts.push(`unknown: ${extra.join(", ")}`);
-    throw new RestoreError("tables", `the backup's table set does not match this build — ${parts.join("; ")}`);
+    if (missing.length > 0) parts.push(`missing: ${missing.join(', ')}`);
+    if (extra.length > 0) parts.push(`unknown: ${extra.join(', ')}`);
+    throw new RestoreError(
+      'tables',
+      `the backup's table set does not match this build — ${parts.join('; ')}`
+    );
   }
   for (const table of BACKUP_TABLES) {
     if (!Array.isArray(tables[table])) {
-      throw new RestoreError("tables", `the backup's ${table} is not an array`);
+      throw new RestoreError('tables', `the backup's ${table} is not an array`);
     }
   }
 
-  if (typeof value.sequences !== "object" || value.sequences === null || Array.isArray(value.sequences)) {
-    throw new RestoreError("sequences", "the backup has no sequences object");
+  if (
+    typeof value.sequences !== 'object' ||
+    value.sequences === null ||
+    Array.isArray(value.sequences)
+  ) {
+    throw new RestoreError('sequences', 'the backup has no sequences object');
   }
   const sequences = value.sequences as Record<string, unknown>;
   const missingSequences = BACKUP_SEQUENCES.filter((name) => !(name in sequences));
   const extraSequences = Object.keys(sequences).filter(
-    (name) => !(BACKUP_SEQUENCES as readonly string[]).includes(name),
+    (name) => !(BACKUP_SEQUENCES as readonly string[]).includes(name)
   );
   if (missingSequences.length > 0 || extraSequences.length > 0) {
-    throw new RestoreError("sequences", "the backup's sequence set does not match this build");
+    throw new RestoreError('sequences', "the backup's sequence set does not match this build");
   }
   for (const name of BACKUP_SEQUENCES) {
     const state = sequences[name] as Record<string, unknown> | null;
     if (
-      typeof state !== "object" ||
+      typeof state !== 'object' ||
       state === null ||
-      typeof state.last_value !== "number" ||
+      typeof state.last_value !== 'number' ||
       !Number.isFinite(state.last_value) ||
-      typeof state.is_called !== "boolean"
+      typeof state.is_called !== 'boolean'
     ) {
-      throw new RestoreError("sequences", `the backup's ${name} state is not readable`);
+      throw new RestoreError('sequences', `the backup's ${name} state is not readable`);
     }
   }
 
@@ -139,15 +146,15 @@ export function connectionIdentity(connectionString: string): ConnectionIdentity
   try {
     url = new URL(connectionString);
   } catch {
-    throw new RestoreError("target", "a database connection string is not a URL");
+    throw new RestoreError('target', 'a database connection string is not a URL');
   }
   if (!/^postgres(ql)?:$/.test(url.protocol)) {
-    throw new RestoreError("target", "a database connection string is not PostgreSQL");
+    throw new RestoreError('target', 'a database connection string is not PostgreSQL');
   }
   return {
-    host: url.hostname.toLowerCase().replace(/-pooler(?=\.)/, ""),
-    port: url.port || "5432",
-    database: decodeURIComponent(url.pathname.replace(/^\//, "")),
+    host: url.hostname.toLowerCase().replace(/-pooler(?=\.)/, ''),
+    port: url.port || '5432',
+    database: decodeURIComponent(url.pathname.replace(/^\//, '')),
     user: decodeURIComponent(url.username),
   };
 }
@@ -172,21 +179,21 @@ export function isSameDatabase(a: string, b: string): boolean {
 export function truncateStatement(preserveTables: readonly BackupTable[] = []): string {
   const preserved = new Set(preserveTables);
   const tables = BACKUP_TABLES.filter((table) => !preserved.has(table));
-  if (tables.length === 0) return "";
-  const cascade = preserved.size === 0 ? " CASCADE" : "";
-  return `TRUNCATE TABLE ${tables.map(quoteIdentifier).join(", ")} RESTART IDENTITY${cascade}`;
+  if (tables.length === 0) return '';
+  const cascade = preserved.size === 0 ? ' CASCADE' : '';
+  return `TRUNCATE TABLE ${tables.map(quoteIdentifier).join(', ')} RESTART IDENTITY${cascade}`;
 }
 
 /** Read the target's column types; the restore needs `json`/`jsonb` and the exact column set. */
 export async function readColumnTypes(
-  client: RestoreClient,
+  client: RestoreClient
 ): Promise<Record<string, Record<string, string>>> {
   const result = await client.query(
     `SELECT table_name, column_name, data_type
        FROM information_schema.columns
       WHERE table_schema = 'public'
         AND table_name = ANY($1::text[])`,
-    [BACKUP_TABLES],
+    [BACKUP_TABLES]
   );
   const types: Record<string, Record<string, string>> = {};
   for (const row of result.rows) {
@@ -197,7 +204,7 @@ export async function readColumnTypes(
   }
   for (const table of BACKUP_TABLES) {
     if (!types[table] || Object.keys(types[table]).length === 0) {
-      throw new RestoreError("schema", `the target has no table ${table}`);
+      throw new RestoreError('schema', `the target has no table ${table}`);
     }
   }
   return types;
@@ -206,7 +213,7 @@ export async function readColumnTypes(
 function prepareValue(value: unknown, dataType: string): unknown {
   if (value === null || value === undefined) return null;
   // `pg` treats an array as a PostgreSQL array literal. A jsonb array must be JSON text instead.
-  if (dataType === "json" || dataType === "jsonb") return JSON.stringify(value);
+  if (dataType === 'json' || dataType === 'jsonb') return JSON.stringify(value);
   return value;
 }
 
@@ -223,7 +230,7 @@ export type InsertPlan = {
 export function buildInsertPlans(
   archive: BackupArchive,
   columnTypes: Record<string, Record<string, string>>,
-  preserveTables: readonly BackupTable[] = [],
+  preserveTables: readonly BackupTable[] = []
 ): InsertPlan[] {
   const preserved = new Set(preserveTables);
   const plans: InsertPlan[] = [];
@@ -235,7 +242,7 @@ export function buildInsertPlans(
       continue;
     }
     const actual = columnTypes[table];
-    if (!actual) throw new RestoreError("schema", `the target has no table ${table}`);
+    if (!actual) throw new RestoreError('schema', `the target has no table ${table}`);
     const columns = Object.keys(rows[0]);
     const archiveSet = new Set(columns);
     const targetSet = new Set(Object.keys(actual));
@@ -243,12 +250,12 @@ export function buildInsertPlans(
     const extra = Object.keys(actual).filter((column) => !archiveSet.has(column));
     if (missing.length > 0 || extra.length > 0) {
       throw new RestoreError(
-        "schema",
+        'schema',
         `the backup's ${table} columns do not match the target — ${
-          missing.length > 0 ? `not in target: ${missing.join(", ")}` : ""
-        }${missing.length > 0 && extra.length > 0 ? "; " : ""}${
-          extra.length > 0 ? `not in backup: ${extra.join(", ")}` : ""
-        }`,
+          missing.length > 0 ? `not in target: ${missing.join(', ')}` : ''
+        }${missing.length > 0 && extra.length > 0 ? '; ' : ''}${
+          extra.length > 0 ? `not in backup: ${extra.join(', ')}` : ''
+        }`
       );
     }
     const values = rows.map((row) => {
@@ -257,7 +264,10 @@ export function buildInsertPlans(
         rowColumns.length !== columns.length ||
         rowColumns.some((column) => !archiveSet.has(column))
       ) {
-        throw new RestoreError("rows", `the backup's ${table} rows do not all have the same columns`);
+        throw new RestoreError(
+          'rows',
+          `the backup's ${table} rows do not all have the same columns`
+        );
       }
       return columns.map((column) => prepareValue(row[column], actual[column]));
     });
@@ -279,27 +289,27 @@ export async function restoreArchive(
   client: RestoreClient,
   archive: BackupArchive,
   columnTypes: Record<string, Record<string, string>>,
-  options: RestoreOptions = {},
+  options: RestoreOptions = {}
 ): Promise<{ tables: Record<string, number>; sequences: Record<string, BackupSequenceState> }> {
   const preserveTables = options.preserveTables ?? [];
   const unknown = preserveTables.filter(
-    (table) => !(BACKUP_TABLES as readonly string[]).includes(table),
+    (table) => !(BACKUP_TABLES as readonly string[]).includes(table)
   );
   if (unknown.length > 0) {
-    throw new RestoreError("options", `unknown preserveTables: ${unknown.join(", ")}`);
+    throw new RestoreError('options', `unknown preserveTables: ${unknown.join(', ')}`);
   }
   const preserved = new Set(preserveTables);
   const plans = buildInsertPlans(archive, columnTypes, preserveTables);
 
-  await client.query("BEGIN");
+  await client.query('BEGIN');
   try {
     const truncate = truncateStatement(preserveTables);
     if (truncate) await client.query(truncate);
 
     for (const plan of plans) {
       if (plan.columns.length === 0) continue;
-      const columnList = plan.columns.map(quoteIdentifier).join(", ");
-      const placeholders = plan.columns.map((_, index) => `$${index + 1}`).join(", ");
+      const columnList = plan.columns.map(quoteIdentifier).join(', ');
+      const placeholders = plan.columns.map((_, index) => `$${index + 1}`).join(', ');
       const text = `INSERT INTO ${quoteIdentifier(plan.table)} (${columnList}) VALUES (${placeholders})`;
       for (const values of plan.values) {
         await client.query(text, values);
@@ -311,16 +321,14 @@ export async function restoreArchive(
     const counts: Record<string, number> = {};
     for (const table of BACKUP_TABLES) {
       if (preserved.has(table)) continue;
-      const result = await client.query(
-        `SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`,
-      );
+      const result = await client.query(`SELECT count(*)::int AS n FROM ${quoteIdentifier(table)}`);
       const expected = archive.tables[table].length;
       const actual = Number(result.rows[0]?.n);
       counts[table] = actual;
       if (actual !== expected) {
         throw new RestoreError(
-          "verify",
-          `the restored ${table} has ${actual} rows, but the backup has ${expected}`,
+          'verify',
+          `the restored ${table} has ${actual} rows, but the backup has ${expected}`
         );
       }
     }
@@ -334,23 +342,23 @@ export async function restoreArchive(
         state.is_called,
       ]);
       const check = await client.query(
-        `SELECT last_value, is_called FROM ${quoteIdentifier(name)}`,
+        `SELECT last_value, is_called FROM ${quoteIdentifier(name)}`
       );
       const actual = check.rows[0];
       if (
         Number(actual?.last_value) !== state.last_value ||
         Boolean(actual?.is_called) !== state.is_called
       ) {
-        throw new RestoreError("verify", `the restored sequence ${name} does not match the backup`);
+        throw new RestoreError('verify', `the restored sequence ${name} does not match the backup`);
       }
       sequences[name] = state;
     }
 
-    await client.query("COMMIT");
+    await client.query('COMMIT');
     return { tables: counts, sequences };
   } catch (error) {
     try {
-      await client.query("ROLLBACK");
+      await client.query('ROLLBACK');
     } catch {
       // The original failure is the one to report.
     }

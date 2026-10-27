@@ -28,7 +28,7 @@ export const STORE_MAX_DELAY_MS = 16000;
  * documented transient set. `57P01` is "terminating connection due to administrator command",
  * `08006` a connection failure, `08003` a connection that does not exist.
  */
-const TRANSIENT_SQLSTATES = ["57P01", "08006", "08003"] as const;
+const TRANSIENT_SQLSTATES = ['57P01', '08006', '08003'] as const;
 
 /**
  * The socket-level codes a failed `fetch` carries. The Neon serverless driver speaks HTTP, so a cold
@@ -36,38 +36,38 @@ const TRANSIENT_SQLSTATES = ["57P01", "08006", "08003"] as const;
  * `cause` (observed here 2026-10-14: `fetch failed` / `AggregateError { code: 'ETIMEDOUT' }`).
  */
 const TRANSIENT_NET_CODES = [
-  "ETIMEDOUT",
-  "ECONNRESET",
-  "ECONNREFUSED",
-  "ECONNABORTED",
-  "ENOTFOUND",
-  "EAI_AGAIN",
-  "EPIPE",
-  "UND_ERR_CONNECT_TIMEOUT",
-  "UND_ERR_SOCKET",
-  "UND_ERR_HEADERS_TIMEOUT",
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'ECONNABORTED',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  'EPIPE',
+  'UND_ERR_CONNECT_TIMEOUT',
+  'UND_ERR_SOCKET',
+  'UND_ERR_HEADERS_TIMEOUT',
 ] as const;
 
 /** The message fragments Neon documents as transient. Matched case-insensitively. */
 const TRANSIENT_MESSAGES = [
-  "fetch failed",
-  "connection terminated unexpectedly",
-  "terminating connection due to administrator command",
-  "client has encountered a connection error and is not queryable",
-  "network issue",
-  "early eof",
+  'fetch failed',
+  'connection terminated unexpectedly',
+  'terminating connection due to administrator command',
+  'client has encountered a connection error and is not queryable',
+  'network issue',
+  'early eof',
   "couldn't connect to compute node",
-  "connection closed",
+  'connection closed',
 ] as const;
 
 /** What an error carries, gathered from itself and (a few levels) through `cause` and `errors`. */
 type ErrorFacts = { codes: Set<string>; messages: string[] };
 
 function collect(error: unknown, into: ErrorFacts, depth: number): void {
-  if (depth > 3 || error === null || typeof error !== "object") return;
+  if (depth > 3 || error === null || typeof error !== 'object') return;
   const record = error as { code?: unknown; message?: unknown; cause?: unknown; errors?: unknown };
-  if (typeof record.code === "string") into.codes.add(record.code);
-  if (typeof record.message === "string") into.messages.push(record.message);
+  if (typeof record.code === 'string') into.codes.add(record.code);
+  if (typeof record.message === 'string') into.messages.push(record.message);
   if (record.cause !== undefined) collect(record.cause, into, depth + 1);
   // An `AggregateError` (what a failed fetch often is) gathers its parts under `errors`.
   if (Array.isArray(record.errors)) {
@@ -88,7 +88,7 @@ export function isTransientStoreError(error: unknown): boolean {
     if ((TRANSIENT_NET_CODES as readonly string[]).includes(code)) return true;
   }
 
-  const blob = facts.messages.join(" | ").toLowerCase();
+  const blob = facts.messages.join(' | ').toLowerCase();
   return TRANSIENT_MESSAGES.some((fragment) => blob.includes(fragment));
 }
 
@@ -118,7 +118,7 @@ export type RetryOptions = {
  */
 export async function runWithRetry<T>(
   operation: () => Promise<T>,
-  options: RetryOptions = {},
+  options: RetryOptions = {}
 ): Promise<T> {
   const attempts = options.attempts ?? STORE_ATTEMPTS;
   const delayMs = options.delayMs ?? retryDelayMs;
@@ -141,7 +141,6 @@ export async function runWithRetry<T>(
   // Unreachable while attempts > 1, but it keeps the return type honest.
   throw lastError;
 }
-
 
 /**
  * How long to wait after the given attempt failed, in ms: exponential backoff, capped, plus up to

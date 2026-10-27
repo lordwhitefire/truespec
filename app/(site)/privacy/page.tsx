@@ -1,22 +1,22 @@
-import Link from "next/link";
-import "./privacy.css";
-import "../../reference.css";
-import { pageMetadata, PRIVACY_LAST_UPDATED } from "@/lib/site";
-import { getSetting } from "@/lib/public-cars";
-import type { Metadata } from "next";
+import Link from 'next/link';
+import './privacy.css';
+import '../../reference.css';
+import { pageMetadata, PRIVACY_LAST_UPDATED } from '@/lib/site';
+import { getSetting } from '@/lib/public-cars';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = pageMetadata({
-  title: "Privacy notice",
+  title: 'Privacy notice',
   description:
-    "TrueSpec privacy notice: what we store, the WhatsApp contact channel, demo accounts, deletion, and no analytics.",
-  path: "/privacy",
+    'TrueSpec privacy notice: what we store, the WhatsApp contact channel, demo accounts, deletion, and no analytics.',
+  path: '/privacy',
 });
 
 export default async function PrivacyPage() {
   // The site layout above this page is force-dynamic, so the number is read per request: the notice
   // names only the number the owner actually saved.
-  const num = (await getSetting("whatsapp_number")) ?? "";
-  const digits = num.replace(/\D/g, "");
+  const num = (await getSetting('whatsapp_number')) ?? '';
+  const digits = num.replace(/\D/g, '');
 
   return (
     <>
@@ -39,12 +39,12 @@ export default async function PrivacyPage() {
           <p>
             This site collects almost nothing. The public showroom needs no account: you can browse
             without signing in, and there are no analytics. You can choose an optional demo account
-            to try the office. If you do, the email you sign up with is used for signing in only; the
-            demo&rsquo;s data and uploads reset daily, and the public showroom still shows the main
-            inventory, not the demo&rsquo;s. The one thing we keep for every visitor is the record of
-            a WhatsApp tap: which page, the car&rsquo;s code and the time, and nothing about you.
-            When you contact us, that happens on WhatsApp, on your phone, with a message you can read
-            before you send it.
+            to try the office. If you do, the email you sign up with is used for signing in only;
+            the demo&rsquo;s data and uploads reset daily, and the public showroom still shows the
+            main inventory, not the demo&rsquo;s. The one thing we keep for every visitor is the
+            record of a WhatsApp tap: which page, the car&rsquo;s code and the time, and nothing
+            about you. When you contact us, that happens on WhatsApp, on your phone, with a message
+            you can read before you send it.
           </p>
           <div className="chips">
             <span className="schip">
@@ -81,7 +81,7 @@ export default async function PrivacyPage() {
           <h2>What we store</h2>
           <ul className="ul">
             <li>
-              <b>Dark mode choice</b> — If you toggle dark/light, a tiny value called{" "}
+              <b>Dark mode choice</b> — If you toggle dark/light, a tiny value called{' '}
               <code>ts-theme</code> is saved in <code>localStorage</code> in your browser. It is not
               sent to our servers.
             </li>
@@ -97,9 +97,10 @@ export default async function PrivacyPage() {
               office for signing in.
             </li>
             <li>
-              <b>A WhatsApp tap</b> — When you tap a WhatsApp link on a car, we record three things so
-              the office knows that car was asked about: the page you tapped from, the car&rsquo;s code
-              and the time. Nothing about you: no name, no number, no message, no address.
+              <b>A WhatsApp tap</b> — When you tap a WhatsApp link on a car, we record three things
+              so the office knows that car was asked about: the page you tapped from, the
+              car&rsquo;s code and the time. Nothing about you: no name, no number, no message, no
+              address.
             </li>
           </ul>
         </section>
@@ -122,8 +123,8 @@ export default async function PrivacyPage() {
           <h2>Email</h2>
           <p>
             If you create a demo account or are invited to the main office, the email you sign up
-            with is used for signing in only. We do not send marketing email. This application has no
-            email channel of its own: it sends no enquiry, marketing or notification email.
+            with is used for signing in only. We do not send marketing email. This application has
+            no email channel of its own: it sends no enquiry, marketing or notification email.
           </p>
           <p>
             Our sign-in provider may send its own authentication messages as part of the sign-up you
@@ -157,7 +158,7 @@ export default async function PrivacyPage() {
         <section id="whatsapp">
           <h2>WhatsApp</h2>
           <p>
-            Enquiries go to{" "}
+            Enquiries go to{' '}
             {num ? (
               <>
                 WhatsApp directly (<b>{num}</b>)
@@ -165,11 +166,10 @@ export default async function PrivacyPage() {
             ) : (
               <>our WhatsApp directly</>
             )}
-            . When you tap "Chat on
-            WhatsApp", you leave this site and open WhatsApp. WhatsApp is a separate service with
-            its own privacy policy. Before you leave, this site records that the tap happened — the
-            page, the car&rsquo;s code (when there is one) and the time — and nothing else. We only see
-            what you choose to send us in that WhatsApp chat.
+            . When you tap "Chat on WhatsApp", you leave this site and open WhatsApp. WhatsApp is a
+            separate service with its own privacy policy. Before you leave, this site records that
+            the tap happened — the page, the car&rsquo;s code (when there is one) and the time — and
+            nothing else. We only see what you choose to send us in that WhatsApp chat.
           </p>
         </section>
 
@@ -178,13 +178,13 @@ export default async function PrivacyPage() {
           <p>
             We store no browsing data beyond that tap record — no name, no number, no message, no
             address. WhatsApp conversations are kept according to your WhatsApp settings and our
-            normal business retention for sales enquiries. We don&rsquo;t keep copies of full lists of
-            visitors.
+            normal business retention for sales enquiries. We don&rsquo;t keep copies of full lists
+            of visitors.
           </p>
           <p>
-            Demo data and uploads reset daily, around 03:00 UTC. The demo office&rsquo;s account record
-            is reset with the demo; the account itself is held by our sign-in provider. Main office
-            records are kept as normal business records. If you want an account removed, see{" "}
+            Demo data and uploads reset daily, around 03:00 UTC. The demo office&rsquo;s account
+            record is reset with the demo; the account itself is held by our sign-in provider. Main
+            office records are kept as normal business records. If you want an account removed, see{' '}
             <a href="#rights">Your rights</a>.
           </p>
         </section>
@@ -192,44 +192,44 @@ export default async function PrivacyPage() {
         <section id="rights">
           <h2>Your rights</h2>
           <p>
-            If you sent us an enquiry and would like it removed, message us on{" "}
+            If you sent us an enquiry and would like it removed, message us on{' '}
             {digits ? (
               <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
                 WhatsApp ({num})
               </a>
             ) : (
-              "WhatsApp"
-            )}{" "}
+              'WhatsApp'
+            )}{' '}
             with enough detail to identify it — for example the car&rsquo;s code, or the number you
             wrote from. We will remove the enquiry, and its imported sheet when no other enquiry or
             draft is using it. The tap record — the page, the car&rsquo;s code and the time, and
             nothing about you — stays.
           </p>
           <p>
-            If you created a demo account and want it removed, message us on{" "}
+            If you created a demo account and want it removed, message us on{' '}
             {digits ? (
               <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
                 WhatsApp
               </a>
             ) : (
-              "WhatsApp"
-            )}{" "}
-            with the email you used to sign up. We will remove the account. Demo data and uploads are
-            reset daily anyway. Depending on your jurisdiction, you may have other rights; we&rsquo;ll
-            try to help.
+              'WhatsApp'
+            )}{' '}
+            with the email you used to sign up. We will remove the account. Demo data and uploads
+            are reset daily anyway. Depending on your jurisdiction, you may have other rights;
+            we&rsquo;ll try to help.
           </p>
         </section>
 
         <section id="contact">
           <h2>Who to contact</h2>
           <p>
-            Questions about this notice: message us on{" "}
+            Questions about this notice: message us on{' '}
             {digits ? (
               <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
                 WhatsApp
               </a>
             ) : (
-              "WhatsApp"
+              'WhatsApp'
             )}
             .
           </p>

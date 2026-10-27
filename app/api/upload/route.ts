@@ -1,19 +1,15 @@
-import { randomUUID } from "node:crypto";
-import { NextResponse } from "next/server";
-import {
-  checkDemoAssetCap,
-  uploadLabelForSpace,
-  verifyUploadMark,
-} from "@/lib/demo-assets";
-import { recordCarDrafts, recordEnquiryDrafts, type DraftToStore } from "@/lib/draft";
-import { NOT_OUR_TEMPLATE, readCarFile } from "@/lib/draft-read";
-import { readEnquiryFile } from "@/lib/enquiry-read";
-import { isSameOrigin } from "@/lib/origin-rules";
-import { deleteAsset, listStoredAssets, uploadFile } from "@/lib/sanity";
-import { getOfficeSession } from "@/lib/session";
-import type { Space } from "@/lib/space-rule";
-import { TEMPLATE_CONTENT_TYPE } from "@/lib/template-rules";
-import { checkUploadSize, heldFilename, sourceFilename } from "@/lib/upload-rules";
+import { randomUUID } from 'node:crypto';
+import { NextResponse } from 'next/server';
+import { checkDemoAssetCap, uploadLabelForSpace, verifyUploadMark } from '@/lib/demo-assets';
+import { recordCarDrafts, recordEnquiryDrafts, type DraftToStore } from '@/lib/draft';
+import { NOT_OUR_TEMPLATE, readCarFile } from '@/lib/draft-read';
+import { readEnquiryFile } from '@/lib/enquiry-read';
+import { isSameOrigin } from '@/lib/origin-rules';
+import { deleteAsset, listStoredAssets, uploadFile } from '@/lib/sanity';
+import { getOfficeSession } from '@/lib/session';
+import type { Space } from '@/lib/space-rule';
+import { TEMPLATE_CONTENT_TYPE } from '@/lib/template-rules';
+import { checkUploadSize, heldFilename, sourceFilename } from '@/lib/upload-rules';
 
 /**
  * The file upload (Truth 9 / D16): a file comes back and becomes **drafts** — one per row it
@@ -52,29 +48,29 @@ import { checkUploadSize, heldFilename, sourceFilename } from "@/lib/upload-rule
  * The response never carries the held asset's id: the reference stays in the database, where the
  * office can reach the file through the server, and out of every payload (specs/media).
  */
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 function refused(status: number, reason: string): Response {
   return NextResponse.json({ ok: false, reason }, { status });
 }
 
 export async function POST(request: Request): Promise<Response> {
-  if (!isSameOrigin(request.headers.get("origin"), request.headers.get("host"))) {
-    return refused(403, "refused: the request did not come from this site");
+  if (!isSameOrigin(request.headers.get('origin'), request.headers.get('host'))) {
+    return refused(403, 'refused: the request did not come from this site');
   }
 
   const session = await getOfficeSession();
-  if (!session) return refused(401, "Not signed in.");
+  if (!session) return refused(401, 'Not signed in.');
 
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
-    return refused(422, "Send the filled template as a file.");
+    return refused(422, 'Send the filled template as a file.');
   }
 
-  const sent = form.get("file");
-  if (!(sent instanceof File)) return refused(422, "Send the filled template as a file.");
+  const sent = form.get('file');
+  if (!(sent instanceof File)) return refused(422, 'Send the filled template as a file.');
 
   const bytes = new Uint8Array(await sent.arrayBuffer());
 
@@ -83,10 +79,10 @@ export async function POST(request: Request): Promise<Response> {
 
   // The demo total cap is checked before the file is parsed or held. Main uploads do not list the
   // asset store; only a demo session pays for the sum.
-  if (session.space === "demo") {
+  if (session.space === 'demo') {
     const cap = await checkDemoAssetCap(bytes.byteLength, { listStoredAssets });
     if (!cap.ok) {
-      return refused(cap.code === "over-cap" ? 413 : 503, cap.reason);
+      return refused(cap.code === 'over-cap' ? 413 : 503, cap.reason);
     }
   }
 
@@ -96,11 +92,11 @@ export async function POST(request: Request): Promise<Response> {
       // Nothing was read, so nothing is waiting on the file — there is no draft whose source would
       // need holding. The refusals are the entire answer, and every row is named.
       return NextResponse.json(
-        { ok: false, reason: "No car could be read from that file.", refusals: car.refusals },
-        { status: 422 },
+        { ok: false, reason: 'No car could be read from that file.', refusals: car.refusals },
+        { status: 422 }
       );
     }
-    return await hold("car", car.cars, car.refusals, bytes, sent, session.space);
+    return await hold('car', car.cars, car.refusals, bytes, sent, session.space);
   }
 
   // "Not ours" is the one failure that means *try the other kind*: the file is a readable PDF, but
@@ -112,12 +108,12 @@ export async function POST(request: Request): Promise<Response> {
 
   if (enquiry.enquiries.length === 0) {
     return NextResponse.json(
-      { ok: false, reason: "No enquiry could be read from that file.", refusals: enquiry.refusals },
-      { status: 422 },
+      { ok: false, reason: 'No enquiry could be read from that file.', refusals: enquiry.refusals },
+      { status: 422 }
     );
   }
 
-  return await hold("enquiry", enquiry.enquiries, enquiry.refusals, bytes, sent, session.space);
+  return await hold('enquiry', enquiry.enquiries, enquiry.refusals, bytes, sent, session.space);
 }
 
 /**
@@ -130,12 +126,12 @@ export async function POST(request: Request): Promise<Response> {
  * upload fails. A main upload carries `truespec-main`, never the demo mark.
  */
 async function hold(
-  kind: "car" | "enquiry",
+  kind: 'car' | 'enquiry',
   drafts: readonly DraftToStore[],
   refusals: readonly unknown[],
   bytes: Uint8Array,
   sent: File,
-  space: Space,
+  space: Space
 ): Promise<Response> {
   const batchId = randomUUID();
   const requestedLabel = uploadLabelForSpace(space);
@@ -148,7 +144,7 @@ async function hold(
       label: requestedLabel,
     });
   } catch {
-    return refused(503, "The file could not be held. Try again.");
+    return refused(503, 'The file could not be held. Try again.');
   }
 
   const mark = await verifyUploadMark(held, requestedLabel, { deleteAsset });
@@ -161,10 +157,10 @@ async function hold(
       sourceFilename: sourceFilename(sent.name),
       sourceAssetId: assetId,
     };
-    if (kind === "car") await recordCarDrafts({ ...batch, cars: drafts });
+    if (kind === 'car') await recordCarDrafts({ ...batch, cars: drafts });
     else await recordEnquiryDrafts({ ...batch, enquiries: drafts });
   } catch {
-    return refused(503, "The file was held but its rows were not recorded. Try again.");
+    return refused(503, 'The file was held but its rows were not recorded. Try again.');
   }
 
   return NextResponse.json(
@@ -172,9 +168,9 @@ async function hold(
       ok: true,
       kind,
       batchId,
-      [kind === "car" ? "cars" : "enquiries"]: drafts.length,
+      [kind === 'car' ? 'cars' : 'enquiries']: drafts.length,
       refusals,
     },
-    { status: 201 },
+    { status: 201 }
   );
 }

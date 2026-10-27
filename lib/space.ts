@@ -1,7 +1,7 @@
-import "server-only";
-import { cache } from "react";
-import { currentUser } from "@clerk/nextjs/server";
-import { spaceFromUser, type Space } from "./space-rule";
+import 'server-only';
+import { cache } from 'react';
+import { currentUser } from '@clerk/nextjs/server';
+import { spaceFromUser, type Space } from './space-rule';
 
 /**
  * The request-only half of the space rule.
@@ -15,7 +15,7 @@ import { spaceFromUser, type Space } from "./space-rule";
  * `lib/store-guard.ts` must not import this module at the top level. The office door
  * loads it lazily, inside the request; the main doors never load it at all.
  */
-export { spaceFromMetadata, spaceFromUser, type Space } from "./space-rule";
+export { spaceFromMetadata, spaceFromUser, type Space } from './space-rule';
 
 async function resolveSpaceUncached(): Promise<Space> {
   return spaceFromUser(await currentUser());

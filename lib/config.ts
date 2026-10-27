@@ -4,7 +4,7 @@
 export class ConfigError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "ConfigError";
+    this.name = 'ConfigError';
   }
 }
 
@@ -14,7 +14,7 @@ export class ConfigError extends Error {
  * `DEMO_RESET_ENABLED` use this one rule.
  */
 export function demoSwitchOn(value: string | undefined): boolean {
-  return value === "1";
+  return value === '1';
 }
 
 export type AppConfig = {
@@ -34,15 +34,15 @@ export type AppConfig = {
 };
 
 const REQUIRED = [
-  "DATABASE_URL",
+  'DATABASE_URL',
   // Clerk's CLI writes the NEXT_PUBLIC_-prefixed name (Next must expose the
   // publishable key to the browser). Read the standard name it actually writes.
-  "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-  "CLERK_SECRET_KEY",
-  "SANITY_PROJECT_ID",
-  "SANITY_DATASET",
-  "SANITY_TOKEN",
-  "SESSION_SECRET",
+  'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+  'SANITY_PROJECT_ID',
+  'SANITY_DATASET',
+  'SANITY_TOKEN',
+  'SESSION_SECRET',
 ] as const;
 
 let cached: AppConfig | null = null;
@@ -53,9 +53,9 @@ export function getConfig(): AppConfig {
   const missing: string[] = [];
   const read = (name: (typeof REQUIRED)[number]): string => {
     const value = process.env[name];
-    if (value === undefined || value.trim() === "") {
+    if (value === undefined || value.trim() === '') {
       missing.push(name);
-      return "";
+      return '';
     }
     return value.trim();
   };
@@ -71,28 +71,28 @@ export function getConfig(): AppConfig {
 
   const wrong: string[] = [];
   if (values.DATABASE_URL && !/^postgres(ql)?:\/\//.test(values.DATABASE_URL)) {
-    wrong.push("DATABASE_URL (must be a postgresql:// connection string)");
+    wrong.push('DATABASE_URL (must be a postgresql:// connection string)');
   }
   if (
     values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-    !values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.startsWith("pk_")
+    !values.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.startsWith('pk_')
   ) {
-    wrong.push("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (must start with pk_)");
+    wrong.push('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (must start with pk_)');
   }
-  if (values.CLERK_SECRET_KEY && !values.CLERK_SECRET_KEY.startsWith("sk_")) {
-    wrong.push("CLERK_SECRET_KEY (must start with sk_)");
+  if (values.CLERK_SECRET_KEY && !values.CLERK_SECRET_KEY.startsWith('sk_')) {
+    wrong.push('CLERK_SECRET_KEY (must start with sk_)');
   }
   if (values.SESSION_SECRET && values.SESSION_SECRET.length < 16) {
-    wrong.push("SESSION_SECRET (must be at least 16 characters)");
+    wrong.push('SESSION_SECRET (must be at least 16 characters)');
   }
 
   if (missing.length > 0 || wrong.length > 0) {
     const parts: string[] = [];
-    if (missing.length > 0) parts.push(`missing: ${missing.join(", ")}`);
-    if (wrong.length > 0) parts.push(`invalid: ${wrong.join(", ")}`);
+    if (missing.length > 0) parts.push(`missing: ${missing.join(', ')}`);
+    if (wrong.length > 0) parts.push(`invalid: ${wrong.join(', ')}`);
     throw new ConfigError(
-      `TrueSpec configuration error — ${parts.join("; ")}. ` +
-        `Set the value in .env.local (see the README) and restart.`,
+      `TrueSpec configuration error — ${parts.join('; ')}. ` +
+        `Set the value in .env.local (see the README) and restart.`
     );
   }
 

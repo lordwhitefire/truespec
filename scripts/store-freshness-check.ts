@@ -19,24 +19,24 @@
 //   · a database response was written into the build's fetch cache (a read served from a cache
 //     instead of the store).
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 
-const MANIFEST = ".next/prerender-manifest.json";
-const FETCH_CACHE = ".next/cache/fetch-cache";
+const MANIFEST = '.next/prerender-manifest.json';
+const FETCH_CACHE = '.next/cache/fetch-cache';
 
 // Every route that reads the store — the public site (the layout alone reads it) and the office
 // pages that go through `lib/office.ts`. The office's activity, enquiries and login pages read
 // nothing and are expected to stay static; they are deliberately not in this list.
 const STORE_ROUTES = [
-  "/",
-  "/inventory",
-  "/privacy",
-  "/not-found",
-  "/office",
-  "/office/inventory",
-  "/office/car",
-  "/office/car/new",
-  "/office/settings",
+  '/',
+  '/inventory',
+  '/privacy',
+  '/not-found',
+  '/office',
+  '/office/inventory',
+  '/office/car',
+  '/office/car/new',
+  '/office/settings',
 ];
 
 /** A Neon SQL response is JSON carrying the column list and/or the row count. */
@@ -47,12 +47,12 @@ function looksLikeADatabaseResponse(body: string): boolean {
 function main(): void {
   if (!existsSync(MANIFEST)) {
     console.error(
-      "store-freshness: no production build found. Run this after `npm run build`, before dev.",
+      'store-freshness: no production build found. Run this after `npm run build`, before dev.'
     );
     process.exit(1);
   }
 
-  const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as {
+  const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8')) as {
     routes?: Record<string, unknown>;
     dynamicRoutes?: Record<string, unknown>;
   };
@@ -67,10 +67,10 @@ function main(): void {
   if (existsSync(FETCH_CACHE)) {
     for (const file of readdirSync(FETCH_CACHE)) {
       try {
-        const entry = JSON.parse(readFileSync(`${FETCH_CACHE}/${file}`, "utf8")) as {
+        const entry = JSON.parse(readFileSync(`${FETCH_CACHE}/${file}`, 'utf8')) as {
           data?: { body?: string };
         };
-        const body = Buffer.from(entry.data?.body ?? "", "base64").toString("utf8");
+        const body = Buffer.from(entry.data?.body ?? '', 'base64').toString('utf8');
         if (looksLikeADatabaseResponse(body)) cached.push(file);
       } catch {
         cached.push(file);
@@ -79,7 +79,7 @@ function main(): void {
   }
 
   if (baked.length > 0 || cached.length > 0) {
-    console.error("STORE FRESHNESS FAILED — the store is not what these pages would show.");
+    console.error('STORE FRESHNESS FAILED — the store is not what these pages would show.');
     for (const route of baked) {
       console.error(`  prerendered, but reads the store: ${route}`);
     }
@@ -91,7 +91,7 @@ function main(): void {
 
   console.log(
     `STORE FRESHNESS PASSED — none of ${STORE_ROUTES.length} store-reading route(s) was prerendered, ` +
-      `and no database response was cached.`,
+      `and no database response was cached.`
   );
 }
 

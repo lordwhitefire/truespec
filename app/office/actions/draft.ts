@@ -1,15 +1,15 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
-import { type FieldError } from "@/lib/car-input";
-import { imageUrl } from "@/lib/sanity";
-import { isAssetRef } from "@/lib/photo-rules";
-import { deleteDraft } from "@/lib/draft-store";
-import { draftFormFieldsFromForm } from "@/lib/draft-form";
-import { enquiryValuesFromForm } from "@/lib/enquiry-form";
-import { runSaveDraft, runSaveDraftAsDraft, type SaveDraftResult } from "@/lib/draft-save-run";
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { storeQueryRefusing, storeRefusal } from '@/lib/store-guard';
+import { type FieldError } from '@/lib/car-input';
+import { imageUrl } from '@/lib/sanity';
+import { isAssetRef } from '@/lib/photo-rules';
+import { deleteDraft } from '@/lib/draft-store';
+import { draftFormFieldsFromForm } from '@/lib/draft-form';
+import { enquiryValuesFromForm } from '@/lib/enquiry-form';
+import { runSaveDraft, runSaveDraftAsDraft, type SaveDraftResult } from '@/lib/draft-save-run';
 
 /**
  * Saving a draft, and deleting one — build step 7 (truth 9).
@@ -37,21 +37,22 @@ export type { SaveDraftResult };
 
 /** The draft form's two writes: keep it waiting, or make it the record. */
 export type SaveDraftFormResult =
-  | { ok: true; outcome: "draft" }
-  | { ok: true; outcome: "car"; ref: string }
-  | { ok: true; outcome: "enquiry"; ref: string }
+  | { ok: true; outcome: 'draft' }
+  | { ok: true; outcome: 'car'; ref: string }
+  | { ok: true; outcome: 'enquiry'; ref: string }
   | { ok: false; errors: FieldError[] };
 
 export type DeleteDraftResult = { ok: true } | { ok: false; errors: FieldError[] };
-export type DraftImageResult = { ok: true; assetId: string; url: string } | { ok: false; errors: FieldError[] };
+export type DraftImageResult =
+  { ok: true; assetId: string; url: string } | { ok: false; errors: FieldError[] };
 
 /** The office pages a draft write changes. */
 function revalidateDraftPaths(): void {
-  revalidatePath("/office/drafts");
-  revalidatePath("/office");
-  revalidatePath("/office/inventory");
-  revalidatePath("/office/enquiries");
-  revalidatePath("/office/activity");
+  revalidatePath('/office/drafts');
+  revalidatePath('/office');
+  revalidatePath('/office/inventory');
+  revalidatePath('/office/enquiries');
+  revalidatePath('/office/activity');
 }
 
 /**
@@ -65,10 +66,10 @@ function revalidateDraftPaths(): void {
 export async function saveDraft(form: FormData): Promise<SaveDraftResult> {
   const session = await requireOfficeSession();
 
-  const rawId = form.get("draftId");
-  const draftId = typeof rawId === "string" ? rawId : "";
-  const rawChosen = form.get("stateId");
-  const chosen = typeof rawChosen === "string" ? rawChosen.trim() : "";
+  const rawId = form.get('draftId');
+  const draftId = typeof rawId === 'string' ? rawId : '';
+  const rawChosen = form.get('stateId');
+  const chosen = typeof rawChosen === 'string' ? rawChosen.trim() : '';
 
   const result = await runSaveDraft(draftId, chosen, session.officeUserId);
   if (result.ok) revalidateDraftPaths();
@@ -87,41 +88,41 @@ export async function saveDraft(form: FormData): Promise<SaveDraftResult> {
 export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult> {
   const session = await requireOfficeSession();
 
-  const rawId = form.get("draftId");
-  const draftId = typeof rawId === "string" ? rawId : "";
-  const rawChosen = form.get("stateId");
-  const chosen = typeof rawChosen === "string" ? rawChosen.trim() : "";
-  const rawIntent = form.get("intent");
-  const intent = rawIntent === "draft" || rawIntent === "enquiry" ? rawIntent : "car";
+  const rawId = form.get('draftId');
+  const draftId = typeof rawId === 'string' ? rawId : '';
+  const rawChosen = form.get('stateId');
+  const chosen = typeof rawChosen === 'string' ? rawChosen.trim() : '';
+  const rawIntent = form.get('intent');
+  const intent = rawIntent === 'draft' || rawIntent === 'enquiry' ? rawIntent : 'car';
 
-  if (intent === "draft") {
+  if (intent === 'draft') {
     const captured = draftFormFieldsFromForm(form);
     if (!captured.ok) return captured;
     const result = await runSaveDraftAsDraft(draftId, captured.form, chosen);
     if (!result.ok) return result;
     revalidateDraftPaths();
-    return { ok: true, outcome: "draft" };
+    return { ok: true, outcome: 'draft' };
   }
 
-  if (intent === "enquiry") {
+  if (intent === 'enquiry') {
     const captured = enquiryValuesFromForm(form);
     if (!captured.ok) return captured;
     const result = await runSaveDraft(draftId, chosen, session.officeUserId, {
-      kind: "enquiry",
+      kind: 'enquiry',
       values: captured.values,
     });
     if (!result.ok) return result;
     revalidateDraftPaths();
-    return { ok: true, outcome: "enquiry", ref: result.ref ?? "" };
+    return { ok: true, outcome: 'enquiry', ref: result.ref ?? '' };
   }
 
   const result = await runSaveDraft(draftId, chosen, session.officeUserId, {
-    kind: "car",
+    kind: 'car',
     form,
   });
   if (!result.ok) return result;
   revalidateDraftPaths();
-  return { ok: true, outcome: "car", ref: result.ref ?? "" };
+  return { ok: true, outcome: 'car', ref: result.ref ?? '' };
 }
 
 /** Delete a draft the owner does not want. The held file is left where the owner's own cleanup finds
@@ -129,9 +130,12 @@ export async function saveDraftForm(form: FormData): Promise<SaveDraftFormResult
 export async function deleteDraftAction(form: FormData): Promise<DeleteDraftResult> {
   await requireOfficeSession();
 
-  const id = form.get("draftId");
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+  const id = form.get('draftId');
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
   // The record's own delete is a write like any other: a store that cannot be reached is refused
@@ -139,7 +143,7 @@ export async function deleteDraftAction(form: FormData): Promise<DeleteDraftResu
   try {
     await deleteDraft(id);
   } catch (error) {
-    return storeRefusal("draftId", "That draft could not be deleted", error);
+    return storeRefusal('draftId', 'That draft could not be deleted', error);
   }
   revalidateDraftPaths();
   return { ok: true };
@@ -159,17 +163,23 @@ export async function deleteDraftAction(form: FormData): Promise<DeleteDraftResu
 export async function addDraftImage(form: FormData): Promise<DraftImageResult> {
   await requireOfficeSession();
 
-  const id = form.get("draftId");
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+  const id = form.get('draftId');
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
-  const raw = form.get("assetId");
-  const assetId = typeof raw === "string" ? raw.trim() : "";
+  const raw = form.get('assetId');
+  const assetId = typeof raw === 'string' ? raw.trim() : '';
   // Truth 7: the column never holds a web address — a value that is not an asset id is refused, so a
   // stored "address" can never be written here.
   if (!isAssetRef(assetId)) {
-    return { ok: false, errors: [{ field: "photos", message: "One of those photos could not be read" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'photos', message: 'One of those photos could not be read' }],
+    };
   }
 
   const attempt = await storeQueryRefusing<{ id: string }[]>(
@@ -182,12 +192,15 @@ export async function addDraftImage(form: FormData): Promise<DraftImageResult> {
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
-    { field: "photos", action: "That photo could not be added" },
+    { field: 'photos', action: 'That photo could not be added' }
   );
   if (!attempt.ok) return attempt;
   const rows = attempt.rows;
   if (rows.length === 0) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
 
   revalidateDraftPaths();
@@ -202,15 +215,18 @@ export async function addDraftImage(form: FormData): Promise<DraftImageResult> {
 export async function removeDraftImage(form: FormData): Promise<DraftImageResult | { ok: true }> {
   await requireOfficeSession();
 
-  const id = form.get("draftId");
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+  const id = form.get('draftId');
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
-  const raw = form.get("assetId");
-  const assetId = typeof raw === "string" ? raw.trim() : "";
+  const raw = form.get('assetId');
+  const assetId = typeof raw === 'string' ? raw.trim() : '';
   if (!isAssetRef(assetId)) {
-    return { ok: false, errors: [{ field: "photos", message: "That photo could not be read" }] };
+    return { ok: false, errors: [{ field: 'photos', message: 'That photo could not be read' }] };
   }
 
   const attempt = await storeQueryRefusing<{ id: string }[]>(
@@ -219,12 +235,15 @@ export async function removeDraftImage(form: FormData): Promise<DraftImageResult
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
-    { field: "photos", action: "That photo could not be removed" },
+    { field: 'photos', action: 'That photo could not be removed' }
   );
   if (!attempt.ok) return attempt;
   const rows = attempt.rows;
   if (rows.length === 0) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
 
   revalidateDraftPaths();
@@ -240,18 +259,23 @@ export async function removeDraftImage(form: FormData): Promise<DraftImageResult
  * way to add a picture without going through the upload — so this cannot be used to smuggle a
  * reference in. Idempotent: making the cover of the cover leaves the list as it is.
  */
-export async function makeDraftCover(form: FormData): Promise<{ ok: true } | { ok: false; errors: FieldError[] }> {
+export async function makeDraftCover(
+  form: FormData
+): Promise<{ ok: true } | { ok: false; errors: FieldError[] }> {
   await requireOfficeSession();
 
-  const id = form.get("draftId");
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return { ok: false, errors: [{ field: "draftId", message: "This draft could not be identified" }] };
+  const id = form.get('draftId');
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'This draft could not be identified' }],
+    };
   }
 
-  const raw = form.get("assetId");
-  const assetId = typeof raw === "string" ? raw.trim() : "";
+  const raw = form.get('assetId');
+  const assetId = typeof raw === 'string' ? raw.trim() : '';
   if (!isAssetRef(assetId)) {
-    return { ok: false, errors: [{ field: "photos", message: "That photo could not be read" }] };
+    return { ok: false, errors: [{ field: 'photos', message: 'That photo could not be read' }] };
   }
 
   const attempt = await storeQueryRefusing<{ id: string }[]>(
@@ -264,12 +288,15 @@ export async function makeDraftCover(form: FormData): Promise<{ ok: true } | { o
       WHERE id = $1
       RETURNING id`,
     [id, assetId],
-    { field: "photos", action: "That could not be made the cover" },
+    { field: 'photos', action: 'That could not be made the cover' }
   );
   if (!attempt.ok) return attempt;
   const rows = attempt.rows;
   if (rows.length === 0) {
-    return { ok: false, errors: [{ field: "draftId", message: "That draft is no longer waiting" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'draftId', message: 'That draft is no longer waiting' }],
+    };
   }
 
   revalidateDraftPaths();

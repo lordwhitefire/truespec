@@ -14,9 +14,9 @@
 //   * refusals the reader found beside the one car still travel back, so a partly readable file is
 //     reported rather than quietly narrowed.
 
-import type { CarFormInput } from "./car-input";
-import type { CarFileRead, Refusal } from "./draft-read";
-import { carFormFromDraft } from "./draft-save";
+import type { CarFormInput } from './car-input';
+import type { CarFileRead, Refusal } from './draft-read';
+import { carFormFromDraft } from './draft-save';
 
 /** The state the caller found for the file's label, if it found one. */
 export type MatchedCarState = { id: string; label: string };
@@ -54,7 +54,7 @@ export function autofillAnswer(read: CarFileRead, matched: MatchedCarState | nul
   if (count === 0) {
     return {
       ok: false,
-      reason: "No car could be read from that file.",
+      reason: 'No car could be read from that file.',
       refusals: read.refusals,
     };
   }
@@ -64,16 +64,16 @@ export function autofillAnswer(read: CarFileRead, matched: MatchedCarState | nul
       ok: false,
       reason:
         `That file carries ${count} cars. Autofill takes one car; ` +
-        "use Create from file on Inventory for a batch.",
+        'use Create from file on Inventory for a batch.',
     };
   }
 
   const car = read.cars[0];
-  const fields = carFormFromDraft(car.values, matched?.id ?? "");
+  const fields = carFormFromDraft(car.values, matched?.id ?? '');
   return {
     ok: true,
     fields,
-    stateId: matched?.id ?? "",
+    stateId: matched?.id ?? '',
     stateLabel: car.stateLabel,
     stateFound: car.stateLabel === null ? true : matched !== null,
     refusals: read.refusals,

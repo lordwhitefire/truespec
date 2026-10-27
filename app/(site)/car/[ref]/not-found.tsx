@@ -1,6 +1,6 @@
-import "@/app/(site)/car/car.css";
-import { getSetting } from "@/lib/public-cars";
-import { NotFoundView } from "./car-parts";
+import '@/app/(site)/car/car.css';
+import { getSetting } from '@/lib/public-cars';
+import { NotFoundView } from './car-parts';
 
 // The boundary a dead car link lands in.
 //
@@ -11,6 +11,6 @@ import { NotFoundView } from "./car-parts";
 // WhatsApp number is read here because a not-found boundary receives no props (the page used to
 // read it and pass it into the inline view).
 export default async function CarNotFound() {
-  const num = (await getSetting("whatsapp_number")) ?? "";
+  const num = (await getSetting('whatsapp_number')) ?? '';
   return <NotFoundView num={num} />;
 }

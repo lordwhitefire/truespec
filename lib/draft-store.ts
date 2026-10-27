@@ -9,10 +9,10 @@
 // record carries (truth 9). Nothing else in the codebase resolves a state by name; before this, a
 // state was only ever chosen by id from a registry the office had already read.
 
-import "server-only";
-import { storeQuery } from "./store-guard";
+import 'server-only';
+import { storeQuery } from './store-guard';
 
-export type DraftKind = "car" | "enquiry";
+export type DraftKind = 'car' | 'enquiry';
 
 /** One waiting draft, as the review page and the save see it. */
 export type DraftRow = {
@@ -51,12 +51,12 @@ type RawDraft = {
 };
 
 const COLUMNS =
-  "id, kind, batch_id, source_filename, source_asset_id, values, form, image_asset_ids, state_label, is_demo, created_at";
+  'id, kind, batch_id, source_filename, source_asset_id, values, form, image_asset_ids, state_label, is_demo, created_at';
 
 function toDraft(row: RawDraft): DraftRow {
   return {
     id: row.id,
-    kind: row.kind === "enquiry" ? "enquiry" : "car",
+    kind: row.kind === 'enquiry' ? 'enquiry' : 'car',
     batchId: row.batch_id,
     sourceFilename: row.source_filename,
     sourceAssetId: row.source_asset_id,
@@ -79,7 +79,7 @@ function toDraft(row: RawDraft): DraftRow {
  */
 export async function getDrafts(): Promise<DraftRow[]> {
   const rows = await storeQuery<RawDraft[]>(
-    `SELECT ${COLUMNS} FROM draft ORDER BY created_at DESC, batch_id, id`,
+    `SELECT ${COLUMNS} FROM draft ORDER BY created_at DESC, batch_id, id`
   );
   return rows.map(toDraft);
 }
@@ -101,7 +101,7 @@ export async function getDraft(id: string): Promise<DraftRow | null> {
 export async function countEnquiryDraftsInBatch(batchId: string): Promise<number> {
   const rows = await storeQuery<{ n: number }[]>(
     `SELECT count(*)::int AS n FROM draft WHERE batch_id = $1 AND kind = 'enquiry'`,
-    [batchId],
+    [batchId]
   );
   return rows.length > 0 ? rows[0].n : 0;
 }
@@ -124,7 +124,7 @@ export type CarStateRow = {
 export async function carStateById(id: string): Promise<CarStateRow | null> {
   const rows = await storeQuery<CarStateRow[]>(
     `SELECT id, label, kind, section FROM car_state WHERE id = $1`,
-    [id],
+    [id]
   );
   return rows.length > 0 ? rows[0] : null;
 }
@@ -133,7 +133,7 @@ export async function carStateById(id: string): Promise<CarStateRow | null> {
 export async function carStateByLabel(label: string): Promise<CarStateRow | null> {
   const rows = await storeQuery<CarStateRow[]>(
     `SELECT id, label, kind, section FROM car_state WHERE label = $1`,
-    [label],
+    [label]
   );
   return rows.length > 0 ? rows[0] : null;
 }
@@ -151,28 +151,32 @@ export async function carStateByLabelCaseless(label: string): Promise<CarStateRo
       WHERE lower(label) = lower($1)
       ORDER BY label
       LIMIT 1`,
-    [label],
+    [label]
   );
   return rows.length > 0 ? rows[0] : null;
 }
 
 /** The enquiry state a draft's label names, or `null` — `enquiry_state` has no primary/secondary split. */
 export async function enquiryStateIdByLabel(label: string): Promise<string | null> {
-  const rows = await storeQuery<{ id: string }[]>(
-    `SELECT id FROM enquiry_state WHERE label = $1`,
-    [label],
-  );
+  const rows = await storeQuery<{ id: string }[]>(`SELECT id FROM enquiry_state WHERE label = $1`, [
+    label,
+  ]);
   return rows.length > 0 ? rows[0].id : null;
 }
 
 /** Whether an enquiry state still exists by the id the form chose. */
 export async function enquiryStateExists(id: string): Promise<boolean> {
-  const rows = await storeQuery<{ id: string }[]>(`SELECT id FROM enquiry_state WHERE id = $1`, [id]);
+  const rows = await storeQuery<{ id: string }[]>(`SELECT id FROM enquiry_state WHERE id = $1`, [
+    id,
+  ]);
   return rows.length > 0;
 }
 
 /** The name an enquiry state carries, by id — what a draft's `state_label` stores. */
 export async function enquiryStateLabelById(id: string): Promise<string | null> {
-  const rows = await storeQuery<{ label: string }[]>(`SELECT label FROM enquiry_state WHERE id = $1`, [id]);
+  const rows = await storeQuery<{ label: string }[]>(
+    `SELECT label FROM enquiry_state WHERE id = $1`,
+    [id]
+  );
   return rows.length > 0 ? rows[0].label : null;
 }

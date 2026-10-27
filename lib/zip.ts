@@ -27,7 +27,7 @@
  * file, deflate is larger than the thing it compresses — which is what every archive tool does.
  */
 
-import { crc32, deflateRawSync } from "node:zlib";
+import { crc32, deflateRawSync } from 'node:zlib';
 
 export type ZipEntry = {
   /** The path inside the archive. The export's entries are flat — no directories to create. */
@@ -59,7 +59,7 @@ function dosDateTime(at: Date): { time: number; date: number } {
   const time =
     (clamp(at.getUTCHours(), 0, 23) << 11) |
     (clamp(at.getUTCMinutes(), 0, 59) << 5) |
-    clamp(Math.floor(at.getUTCSeconds()), 0, 29) >> 1;
+    (clamp(Math.floor(at.getUTCSeconds()), 0, 29) >> 1);
   const date =
     ((clamp(at.getUTCFullYear(), 1980, 2107) - 1980) << 9) |
     (clamp(at.getUTCMonth() + 1, 1, 12) << 5) |
@@ -95,7 +95,7 @@ export function buildZip(entries: readonly ZipEntry[], now: Date): Uint8Array {
 
   for (const entry of entries) {
     const nameBytes = UTF8.encode(entry.name);
-    const raw = typeof entry.data === "string" ? UTF8.encode(entry.data) : entry.data;
+    const raw = typeof entry.data === 'string' ? UTF8.encode(entry.data) : entry.data;
 
     // The CRC is over the bytes as they will be *read*, never as they are stored.
     const crc = crc32(raw) >>> 0;

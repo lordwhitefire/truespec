@@ -1,17 +1,25 @@
-import { formatNaira } from "@/lib/money";
-import type { PublicCar } from "@/lib/serialize";
-import { Photo } from "@/components/Photo";
-import { carHref, carState, carTitle, mileageLabel } from "./car-view";
+import { formatNaira } from '@/lib/money';
+import type { PublicCar } from '@/lib/serialize';
+import { Photo } from '@/components/Photo';
+import { carHref, carState, carTitle, mileageLabel } from './car-view';
 
 // The reference inventory card (card(c, dk) in truespec.html).
-export function ReferenceCard({ car, dark = false }: { car: PublicCar; dark?: boolean }) {
+export function ReferenceCard({
+  car,
+  dark = false,
+  sized = { width: 700, height: 326 },
+}: {
+  car: PublicCar;
+  dark?: boolean;
+  sized?: { width: number; height: number };
+}) {
   const st = carState(car);
-  const onOrder = car.section === "on order";
+  const onOrder = car.section === 'on order';
   const photo = car.photos[0];
   return (
     <a className="card" href={carHref(car)}>
       <div className="ph">
-        <Photo src={photo} alt={carTitle(car)} loading="lazy" />
+        <Photo src={photo} alt={carTitle(car)} loading="lazy" sized={sized} />
         {st ? (
           <div className="rb">
             <span className={st.rb || undefined}>{st.t}</span>
@@ -51,7 +59,7 @@ export function ReferenceCard({ car, dark = false }: { car: PublicCar; dark?: bo
           <>
             <span className="chip oo">
               <i className="fa-solid fa-ship" />
-              {car.arrivalNote || "Arriving soon"}
+              {car.arrivalNote || 'Arriving soon'}
             </span>
             {car.exteriorColor ? (
               <span>

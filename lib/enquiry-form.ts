@@ -8,12 +8,12 @@
 // Pure: a `DraftRow` in, the form's strings out; a posted form in, the trimmed values out. No store,
 // no session, no clock.
 
-import type { FieldError } from "./car-input";
-import type { DraftRow } from "./draft-store";
+import type { FieldError } from './car-input';
+import type { DraftRow } from './draft-store';
 
 function asText(value: unknown): string {
-  if (Array.isArray(value)) return value.length > 0 ? String(value[0]) : "";
-  return value === undefined || value === null ? "" : String(value);
+  if (Array.isArray(value)) return value.length > 0 ? String(value[0]) : '';
+  return value === undefined || value === null ? '' : String(value);
 }
 
 /** An enquiry state as the form's select needs it. */
@@ -44,10 +44,12 @@ export type EnquiryFormData = {
 export function enquiryFormDataFromDraft(
   draft: DraftRow,
   states: readonly EnquiryFormState[],
-  waiting: string,
+  waiting: string
 ): EnquiryFormData {
   const stateId =
-    draft.stateLabel === null ? null : (states.find((state) => state.label === draft.stateLabel)?.id ?? null);
+    draft.stateLabel === null
+      ? null
+      : (states.find((state) => state.label === draft.stateLabel)?.id ?? null);
 
   return {
     draftId: draft.id,
@@ -71,8 +73,7 @@ export type EnquiryValues = {
 };
 
 export type EnquiryValuesResult =
-  | { ok: true; values: EnquiryValues }
-  | { ok: false; errors: FieldError[] };
+  { ok: true; values: EnquiryValues } | { ok: false; errors: FieldError[] };
 
 // A draft is a form, not a file store. These bounds are generous enough for a real enquiry and small
 // enough that a public action cannot be used to park arbitrary text in the draft row.
@@ -85,9 +86,9 @@ const LIMITS: Record<keyof EnquiryValues, number> = {
 
 const LABELS: Record<keyof EnquiryValues, string> = {
   name: "The customer's name",
-  number: "The phone number",
-  asked_for: "What they asked for",
-  note: "The note",
+  number: 'The phone number',
+  asked_for: 'What they asked for',
+  note: 'The note',
 };
 
 /**
@@ -103,7 +104,7 @@ export function enquiryValuesFromForm(form: FormData): EnquiryValuesResult {
 
   for (const field of Object.keys(LIMITS) as (keyof EnquiryValues)[]) {
     const raw = form.get(field);
-    const value = typeof raw === "string" ? raw.trim() : "";
+    const value = typeof raw === 'string' ? raw.trim() : '';
     if (value.length > LIMITS[field]) {
       errors.push({ field, message: `${LABELS[field]} is too long to keep` });
     }

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 /**
  * The showroom's offline line (truth 36, Task 34).
@@ -19,8 +19,8 @@ import { useEffect, useRef, useState } from "react";
  * action (`aria-describedby`), not a tooltip.
  */
 
-const OFFLINE_LINE = "You are offline. Reload to see the site.";
-const NOTICE_ID = "ts-offline-notice";
+const OFFLINE_LINE = 'You are offline. Reload to see the site.';
+const NOTICE_ID = 'ts-offline-notice';
 /** Slow to appear: a blip must not flash the line. The browser's `online` event withdraws at once. */
 const SHOW_DELAY_MS = 1200;
 
@@ -37,16 +37,16 @@ type SavedState = {
  * gate's Continue is marked explicitly because it is a button, not a link.
  */
 function needsNetwork(el: Element): boolean {
-  if (el.matches("[data-ts-network]")) return true;
+  if (el.matches('[data-ts-network]')) return true;
   if (!(el instanceof HTMLAnchorElement)) return false;
 
-  const raw = el.getAttribute("href");
+  const raw = el.getAttribute('href');
   if (!raw) return false;
   if (
-    raw.startsWith("#") ||
-    raw.startsWith("mailto:") ||
-    raw.startsWith("tel:") ||
-    raw.startsWith("javascript:")
+    raw.startsWith('#') ||
+    raw.startsWith('mailto:') ||
+    raw.startsWith('tel:') ||
+    raw.startsWith('javascript:')
   ) {
     return false;
   }
@@ -62,7 +62,8 @@ function needsNetwork(el: Element): boolean {
 
   // Only a hash on the page already loaded is free. A same-URL navigation (the logo on the home
   // page) still sits on the server and needs the network.
-  const samePage = url.pathname === window.location.pathname && url.search === window.location.search;
+  const samePage =
+    url.pathname === window.location.pathname && url.search === window.location.search;
   return !(samePage && url.hash);
 }
 
@@ -81,11 +82,11 @@ export function OfflineNotice() {
       setFailed(false);
     };
     const goOffline = () => setOnline(false);
-    window.addEventListener("online", goOnline);
-    window.addEventListener("offline", goOffline);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
     return () => {
-      window.removeEventListener("online", goOnline);
-      window.removeEventListener("offline", goOffline);
+      window.removeEventListener('online', goOnline);
+      window.removeEventListener('offline', goOffline);
     };
   }, []);
 
@@ -93,7 +94,7 @@ export function OfflineNotice() {
   // it rethrows unchanged, so nothing about the fetch's behaviour is altered.
   useEffect(() => {
     const original = window.fetch;
-    if (typeof original !== "function") return;
+    if (typeof original !== 'function') return;
     const wrapped = (async (...args: Parameters<typeof fetch>) => {
       try {
         const response = await original(...args);
@@ -128,9 +129,9 @@ export function OfflineNotice() {
   // Let the sticky line and the sticky nav share the top of the page.
   useEffect(() => {
     const root = document.documentElement;
-    if (offline) root.setAttribute("data-ts-offline", "");
-    else root.removeAttribute("data-ts-offline");
-    return () => root.removeAttribute("data-ts-offline");
+    if (offline) root.setAttribute('data-ts-offline', '');
+    else root.removeAttribute('data-ts-offline');
+    return () => root.removeAttribute('data-ts-offline');
   }, [offline]);
 
   // Disable what needs the network, with the line as the reason. The annotations are removed when
@@ -143,25 +144,25 @@ export function OfflineNotice() {
     const saved = new Map<HTMLElement, SavedState>();
 
     function annotate() {
-      const candidates = document.querySelectorAll<HTMLElement>("a[href], [data-ts-network]");
+      const candidates = document.querySelectorAll<HTMLElement>('a[href], [data-ts-network]');
       for (const el of candidates) {
         if (marked.has(el) || !needsNetwork(el)) continue;
         saved.set(el, {
-          tabIndex: el.getAttribute("tabindex"),
-          ariaDisabled: el.getAttribute("aria-disabled"),
-          describedBy: el.getAttribute("aria-describedby"),
+          tabIndex: el.getAttribute('tabindex'),
+          ariaDisabled: el.getAttribute('aria-disabled'),
+          describedBy: el.getAttribute('aria-describedby'),
           disabled: el instanceof HTMLButtonElement ? el.disabled : null,
         });
-        el.setAttribute("aria-disabled", "true");
-        el.setAttribute("tabindex", "-1");
-        const describedBy = el.getAttribute("aria-describedby");
+        el.setAttribute('aria-disabled', 'true');
+        el.setAttribute('tabindex', '-1');
+        const describedBy = el.getAttribute('aria-describedby');
         el.setAttribute(
-          "aria-describedby",
-          describedBy ? `${describedBy} ${NOTICE_ID}` : NOTICE_ID,
+          'aria-describedby',
+          describedBy ? `${describedBy} ${NOTICE_ID}` : NOTICE_ID
         );
         if (el instanceof HTMLButtonElement) el.disabled = true;
-        el.classList.add("ts-offline-action");
-        el.setAttribute("data-ts-offline", "");
+        el.classList.add('ts-offline-action');
+        el.setAttribute('data-ts-offline', '');
         marked.add(el);
       }
     }
@@ -170,14 +171,14 @@ export function OfflineNotice() {
       for (const el of marked) {
         const previous = saved.get(el);
         if (!previous) continue;
-        el.classList.remove("ts-offline-action");
-        el.removeAttribute("data-ts-offline");
-        if (previous.tabIndex === null) el.removeAttribute("tabindex");
-        else el.setAttribute("tabindex", previous.tabIndex);
-        if (previous.ariaDisabled === null) el.removeAttribute("aria-disabled");
-        else el.setAttribute("aria-disabled", previous.ariaDisabled);
-        if (previous.describedBy === null) el.removeAttribute("aria-describedby");
-        else el.setAttribute("aria-describedby", previous.describedBy);
+        el.classList.remove('ts-offline-action');
+        el.removeAttribute('data-ts-offline');
+        if (previous.tabIndex === null) el.removeAttribute('tabindex');
+        else el.setAttribute('tabindex', previous.tabIndex);
+        if (previous.ariaDisabled === null) el.removeAttribute('aria-disabled');
+        else el.setAttribute('aria-disabled', previous.ariaDisabled);
+        if (previous.describedBy === null) el.removeAttribute('aria-describedby');
+        else el.setAttribute('aria-describedby', previous.describedBy);
         if (el instanceof HTMLButtonElement && previous.disabled !== null) {
           el.disabled = previous.disabled;
         }
@@ -190,7 +191,7 @@ export function OfflineNotice() {
 
     // A gate already open is a network surface; close it so the line (the reason) is what the
     // person sees, rather than a greyed Continue behind a modal.
-    const gate = document.querySelector<HTMLDialogElement>("dialog.wagn[open]");
+    const gate = document.querySelector<HTMLDialogElement>('dialog.wagn[open]');
     if (gate) gate.close();
 
     // The showroom also builds controls after mount (client-side behaviour markup); catch those.
@@ -209,16 +210,16 @@ export function OfflineNotice() {
     function block(event: MouseEvent) {
       if (!offlineRef.current) return;
       const target = event.target instanceof Element ? event.target : null;
-      const action = target?.closest<HTMLElement>("a[href], [data-ts-network]");
+      const action = target?.closest<HTMLElement>('a[href], [data-ts-network]');
       if (!action || !needsNetwork(action)) return;
       event.preventDefault();
       event.stopPropagation();
     }
-    document.addEventListener("click", block, true);
-    document.addEventListener("auxclick", block, true);
+    document.addEventListener('click', block, true);
+    document.addEventListener('auxclick', block, true);
     return () => {
-      document.removeEventListener("click", block, true);
-      document.removeEventListener("auxclick", block, true);
+      document.removeEventListener('click', block, true);
+      document.removeEventListener('auxclick', block, true);
     };
   }, []);
 

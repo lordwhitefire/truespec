@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /* Car form client — a faithful React port of the reference office-car.html
    runtime (edit mode is the ambient). No source is "copied" as the standard;
@@ -7,9 +7,17 @@
    The product decides edit vs add by route, so the reference's `.demo` mode
    switcher is dropped (plan §9 Q2). */
 
-import { useEffect, useMemo, useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
-import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ChangeEvent,
+  type FormEvent,
+} from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import {
   createCar,
   deleteCar,
@@ -17,16 +25,16 @@ import {
   updateCar,
   type CreateCarResult,
   type UpdateCarResult,
-} from "../../actions/car";
-import { Dialog } from "@/components/office/Dialog";
-import { uploadCarPhoto } from "../../actions/photo";
+} from '../../actions/car';
+import { Dialog } from '@/components/office/Dialog';
+import { uploadCarPhoto } from '../../actions/photo';
 import {
   addDraftImage,
   makeDraftCover,
   removeDraftImage,
   saveDraftForm,
   type SaveDraftFormResult,
-} from "../../actions/draft";
+} from '../../actions/draft';
 import {
   costLabelFor,
   formatNaira,
@@ -36,11 +44,11 @@ import {
   totalCostKobo,
   SIX_COST_KINDS,
   type CostLineInput,
-} from "@/lib/money";
-import type { Section } from "@/lib/sections";
-import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
-import type { CarFormInput } from "@/lib/car-input";
-import type { AutofillAnswer } from "@/lib/autofill";
+} from '@/lib/money';
+import type { Section } from '@/lib/sections';
+import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from '@/lib/photo-rules';
+import type { CarFormInput } from '@/lib/car-input';
+import type { AutofillAnswer } from '@/lib/autofill';
 import {
   captureFormData,
   carDraftKey,
@@ -50,8 +58,8 @@ import {
   writeDraft,
   type DeviceCarDraft,
   type DraftFields,
-} from "@/lib/device-draft";
-import { Photo } from "@/components/Photo";
+} from '@/lib/device-draft';
+import { Photo } from '@/components/Photo';
 
 type AutofillSuccess = Extract<AutofillAnswer, { ok: true }>;
 type AutofillRefusal = { page?: number; row?: number; reason: string };
@@ -59,9 +67,8 @@ type AutofillRefusal = { page?: number; row?: number; reason: string };
 function refusalPlace(refusal: AutofillRefusal): string {
   if (refusal.page !== undefined) return `Page ${refusal.page}: `;
   if (refusal.row !== undefined) return `Row ${refusal.row}: `;
-  return "";
+  return '';
 }
-
 
 export type CarCosts = {
   purchase: string;
@@ -83,12 +90,12 @@ export type CarPhoto = { assetId: string; url: string };
 
 // A form tells the shell's banner that a draft is present. The marker is read on recovery; the
 // event takes a recovery line down at once when the draft is saved, discarded, or the form leaves.
-const DRAFT_PRESENT_ATTR = "data-ts-office-draft";
-const DRAFT_PRESENCE_EVENT = "ts-office-draft-presence";
+const DRAFT_PRESENT_ATTR = 'data-ts-office-draft';
+const DRAFT_PRESENCE_EVENT = 'ts-office-draft-presence';
 
 function announceDraftPresence(present: boolean) {
   const root = document.documentElement;
-  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, "");
+  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, '');
   else root.removeAttribute(DRAFT_PRESENT_ATTR);
   window.dispatchEvent(new CustomEvent(DRAFT_PRESENCE_EVENT, { detail: { present } }));
 }
@@ -112,19 +119,21 @@ function sameDraftFields(a: DraftFields, b: DraftFields): boolean {
 }
 
 function isCarDraft(value: unknown): value is DeviceCarDraft {
-  if (typeof value !== "object" || value === null) return false;
+  if (typeof value !== 'object' || value === null) return false;
   const draft = value as DeviceCarDraft;
   if (draft.v !== 1) return false;
-  if (typeof draft.base !== "object" || draft.base === null || Array.isArray(draft.base)) return false;
-  if (typeof draft.data !== "object" || draft.data === null || Array.isArray(draft.data)) return false;
+  if (typeof draft.base !== 'object' || draft.base === null || Array.isArray(draft.base))
+    return false;
+  if (typeof draft.data !== 'object' || draft.data === null || Array.isArray(draft.data))
+    return false;
   return (
     Array.isArray(draft.photos) &&
     draft.photos.every(
       (photo) =>
-        typeof photo === "object" &&
+        typeof photo === 'object' &&
         photo !== null &&
-        typeof (photo as CarPhoto).assetId === "string" &&
-        typeof (photo as CarPhoto).url === "string",
+        typeof (photo as CarPhoto).assetId === 'string' &&
+        typeof (photo as CarPhoto).url === 'string'
     )
   );
 }
@@ -136,35 +145,35 @@ function isCarDraft(value: unknown): value is DeviceCarDraft {
  */
 function applyCarDraftFields(form: HTMLFormElement, data: DraftFields) {
   const fields = form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(
-    "input, textarea, select",
+    'input, textarea, select'
   );
   for (const field of fields) {
     const name = field.name;
     if (
       !name ||
-      name === "photo" ||
-      name === "photos" ||
-      name === "stateId" ||
-      name === "carId" ||
-      name === "submissionId"
+      name === 'photo' ||
+      name === 'photos' ||
+      name === 'stateId' ||
+      name === 'carId' ||
+      name === 'submissionId'
     ) {
       continue;
     }
     const value = data[name];
     if (value === undefined) continue;
     if (field instanceof HTMLInputElement) {
-      if (field.type === "file") continue;
-      if (field.type === "checkbox") {
+      if (field.type === 'file') continue;
+      if (field.type === 'checkbox') {
         field.checked = Array.isArray(value) ? value.includes(field.value) : value === field.value;
         continue;
       }
-      if (field.type === "radio") {
+      if (field.type === 'radio') {
         field.checked = value === field.value;
         continue;
       }
-      field.value = Array.isArray(value) ? (value[0] ?? "") : value;
+      field.value = Array.isArray(value) ? (value[0] ?? '') : value;
     } else {
-      field.value = Array.isArray(value) ? (value[0] ?? "") : value;
+      field.value = Array.isArray(value) ? (value[0] ?? '') : value;
     }
   }
 }
@@ -211,7 +220,13 @@ export type CarFormData = {
   photos: CarPhoto[];
 };
 
-export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
+export type OfficeState = {
+  id: string;
+  label: string;
+  section: Section;
+  isNewArrival: boolean;
+  kind?: string;
+};
 
 /** A secondary state — office-only tracking, carrying no section (D15). */
 export type OfficeSecondaryState = { id: string; label: string };
@@ -221,36 +236,40 @@ export type OfficeSecondaryState = { id: string; label: string };
 // or stored in the browser.
 
 const BLANK_COSTS: CarCosts = {
-  purchase: "",
-  ship: "",
-  clear: "",
-  truckus: "",
-  truckng: "",
-  tank: "",
+  purchase: '',
+  ship: '',
+  clear: '',
+  truckus: '',
+  truckng: '',
+  tank: '',
 };
 
 // The six cost fields, in the order of the one money module's six kinds
 // (`SIX_COST_KINDS`) — a field's stored kind is its position, so no second kind
 // list exists here. Every amount is naira (R-MON-3); nothing is converted.
-const COST_FIELDS = ["purchase", "ship", "clear", "truckus", "truckng", "tank"] as const;
+const COST_FIELDS = ['purchase', 'ship', 'clear', 'truckus', 'truckng', 'tank'] as const;
 type CostField = (typeof COST_FIELDS)[number];
 const KIND_BY_FIELD: Record<CostField, (typeof SIX_COST_KINDS)[number]> = {
-  purchase: "purchase_price",
-  ship: "shipping",
-  clear: "clearing",
-  truckus: "trucking_usa",
-  truckng: "trucking_ng",
-  tank: "full_tank",
+  purchase: 'purchase_price',
+  ship: 'shipping',
+  clear: 'clearing',
+  truckus: 'trucking_usa',
+  truckng: 'trucking_ng',
+  tank: 'full_tank',
 };
 
-type CostErrors = Partial<Record<CostField | "price" | "wasPrice", string>>;
+type CostErrors = Partial<Record<CostField | 'price' | 'wasPrice', string>>;
 
 // The live panel — every figure from `lib/money.ts` (naira only; no rate, no
 // dollar). A malformed amount shows its message at its own field and is not
 // counted (R-MON-10); a car with incomplete costs shows no profit (R-MON-8);
 // the cost figure is named by the car's state (R-MON-7). No arithmetic here.
 function compute(priceStr: string, wasStr: string, c: CarCosts, section: Section) {
-  const readings = COST_FIELDS.map((field) => ({ field, raw: c[field], parsed: parseCostAmount(c[field]) }));
+  const readings = COST_FIELDS.map((field) => ({
+    field,
+    raw: c[field],
+    parsed: parseCostAmount(c[field]),
+  }));
 
   const costLines: CostLineInput[] = readings.map((r) => ({
     kind: KIND_BY_FIELD[r.field],
@@ -259,7 +278,7 @@ function compute(priceStr: string, wasStr: string, c: CarCosts, section: Section
 
   const errors: CostErrors = {};
   for (const r of readings) {
-    if (r.raw.trim() !== "" && !r.parsed.ok) errors[r.field] = r.parsed.error;
+    if (r.raw.trim() !== '' && !r.parsed.ok) errors[r.field] = r.parsed.error;
   }
 
   const entered = costLines.filter((l) => l.amountMinor !== null).length;
@@ -269,45 +288,45 @@ function compute(priceStr: string, wasStr: string, c: CarCosts, section: Section
   const showInc = entered !== 6;
 
   const priceParsed = parseCostAmount(priceStr);
-  const priceKobo = priceStr.trim() === "" ? null : priceParsed.ok ? priceParsed.amountMinor : null;
-  if (priceStr.trim() !== "" && !priceParsed.ok) errors.price = priceParsed.error;
+  const priceKobo = priceStr.trim() === '' ? null : priceParsed.ok ? priceParsed.amountMinor : null;
+  if (priceStr.trim() !== '' && !priceParsed.ok) errors.price = priceParsed.error;
 
   // The "was" price is a second amount, judged by the same one predicate at its own
   // field (R-MON-10) — blank is fine, and means no crossed-out price.
-  if (wasStr.trim() !== "") {
+  if (wasStr.trim() !== '') {
     const wasParsed = parseCostAmount(wasStr);
     if (!wasParsed.ok) errors.wasPrice = wasParsed.error;
   }
 
-  const costTxt = entered > 0 ? formatNaira(totalKobo) : "—";
-  const priceTxt = priceKobo != null ? formatNaira(priceKobo) : "—";
+  const costTxt = entered > 0 ? formatNaira(totalKobo) : '—';
+  const priceTxt = priceKobo != null ? formatNaira(priceKobo) : '—';
   const costLabel = costLabelFor(section, false);
 
-  let profitTxt = "—";
-  let profitCls = "num";
+  let profitTxt = '—';
+  let profitCls = 'num';
   let psub =
     priceKobo == null
-      ? "Enter a doorstep price to see profit."
+      ? 'Enter a doorstep price to see profit.'
       : entered === 0
-        ? "Type the costs — this updates as you type."
-        : "Profit shows once all six costs are in.";
+        ? 'Type the costs — this updates as you type.'
+        : 'Profit shows once all six costs are in.';
   if (priceKobo != null && complete) {
     const p = profitKobo({ totalCostKobo: totalKobo, priceKobo, salePriceKobo: null }).kobo ?? 0;
-    profitTxt = formatNaira(p) + (p < 0 ? " loss" : "");
-    profitCls = "num " + (p < 0 ? "loss" : "ok");
+    profitTxt = formatNaira(p) + (p < 0 ? ' loss' : '');
+    profitCls = 'num ' + (p < 0 ? 'loss' : 'ok');
     psub =
       p < 0
-        ? "This price loses money. Raise the price or rethink the buy."
+        ? 'This price loses money. Raise the price or rethink the buy.'
         : `Price − cost. ≈ ${((p / priceKobo) * 100).toFixed(1)}% of the price.`;
   }
 
-  const mCost = complete ? formatNaira(totalKobo) : "—";
-  let mProfit = "—";
-  let mProfitCls = "";
+  const mCost = complete ? formatNaira(totalKobo) : '—';
+  let mProfit = '—';
+  let mProfitCls = '';
   if (priceKobo != null && complete) {
     const p = profitKobo({ totalCostKobo: totalKobo, priceKobo, salePriceKobo: null }).kobo ?? 0;
     mProfit = formatNaira(p);
-    mProfitCls = p < 0 ? "loss" : "ok";
+    mProfitCls = p < 0 ? 'loss' : 'ok';
   }
 
   return {
@@ -366,7 +385,7 @@ function CostInput({
       </div>
       {hint ? <span className="hint">{hint}</span> : null}
       {error ? (
-        <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+        <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
           {error}
         </span>
       ) : null}
@@ -382,7 +401,7 @@ export function CarForm({
   submissionId,
   isDemo,
 }: {
-  mode: "edit" | "add" | "draft";
+  mode: 'edit' | 'add' | 'draft';
   data: CarFormData;
   /** The four fixed primary states, from the registry — the car's one mandatory state. */
   primaries: OfficeState[];
@@ -393,8 +412,8 @@ export function CarForm({
   /** A demo car has no buyer-page preview: the link would open main, not the demo inventory. */
   isDemo: boolean;
 }) {
-  const isEdit = mode === "edit";
-  const isDraft = mode === "draft";
+  const isEdit = mode === 'edit';
+  const isDraft = mode === 'draft';
   // Both edit and draft show values already read (from the car, or from the draft); add starts blank.
   const filled = isEdit || isDraft;
   // The PDF reader belongs to the manual forms: the Add form and a draft edit. A saved car's Edit is
@@ -405,15 +424,14 @@ export function CarForm({
   // keeps the car's own section — the label is never guessed from an unmapped state.
   const sectionByLabel = useMemo(
     () => Object.fromEntries(primaries.map((s) => [s.label, s.section])) as Record<string, Section>,
-    [primaries],
+    [primaries]
   );
   const sectionFor = (label: string) => sectionByLabel[label] ?? data.section;
-  const sectionForId = (id: string) =>
-    primaries.find((s) => s.id === id)?.section ?? data.section;
+  const sectionForId = (id: string) => primaries.find((s) => s.id === id)?.section ?? data.section;
 
   // Sold is a primary state like the other three (D15); what it adds is the sale, which
   // is why the state's two questions are asked here rather than in the picker itself.
-  const soldPrimaryId = primaries.find((s) => s.section === "sold")?.id;
+  const soldPrimaryId = primaries.find((s) => s.section === 'sold')?.id;
   // The date field's default while the owner is choosing Sold. It is only ever read in
   // the interactive path — a car that is already sold carries its own date — so it cannot
   // disagree between the server render and the browser.
@@ -421,11 +439,11 @@ export function CarForm({
 
   const [panel, setPanel] = useState(() =>
     compute(
-      filled ? data.price : "",
-      filled ? data.wasPrice ?? "" : "",
+      filled ? data.price : '',
+      filled ? (data.wasPrice ?? '') : '',
       filled ? data.costs : BLANK_COSTS,
-      sectionFor(filled ? data.state : "Available"),
-    ),
+      sectionFor(filled ? data.state : 'Available')
+    )
   );
   // The car's photos, in stored order — position 0 is the cover buyers see first (truth 7). Photos
   // are uploaded the moment they are chosen (bytes first, row later), so this already holds
@@ -450,18 +468,18 @@ export function CarForm({
   // The car's one primary state, held by id (the store's key). Add mode starts on the
   // state the blank form names; edit mode on the car's own.
   const [curStateId, setCurStateId] = useState(
-    () => primaries.find((s) => s.label === data.state)?.id ?? primaries[0]?.id ?? "",
+    () => primaries.find((s) => s.label === data.state)?.id ?? primaries[0]?.id ?? ''
   );
   // Whether the state being held is Sold — which is what puts the sale facts on the form
   // (truth 5: the state comes first and the sale action follows from it).
-  const isSoldPicked = sectionForId(curStateId) === "sold";
+  const isSoldPicked = sectionForId(curStateId) === 'sold';
   const [delOpen, setDelOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastShow, setToastShow] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [result, setResult] = useState<CreateCarResult | UpdateCarResult | null>(null);
   const [draftResult, setDraftResult] = useState<SaveDraftFormResult | null>(null);
-  const [pendingIntent, setPendingIntent] = useState<"draft" | "car" | null>(null);
+  const [pendingIntent, setPendingIntent] = useState<'draft' | 'car' | null>(null);
   const [saving, startSaving] = useTransition();
   const tmr = useRef<number | null>(null);
   const formErrRef = useRef<HTMLDivElement | null>(null);
@@ -503,7 +521,7 @@ export function CarForm({
   }, [curStateId]);
 
   useEffect(() => {
-    const signature = photos.map((p) => p.assetId).join("\u0000");
+    const signature = photos.map((p) => p.assetId).join('\u0000');
     if (draftPhotosSeen.current === null) {
       draftPhotosSeen.current = signature;
       return;
@@ -518,9 +536,9 @@ export function CarForm({
   // covers a client-side departure as well.
   useEffect(() => {
     const flush = () => draftWriter.flush();
-    window.addEventListener("pagehide", flush);
+    window.addEventListener('pagehide', flush);
     return () => {
-      window.removeEventListener("pagehide", flush);
+      window.removeEventListener('pagehide', flush);
       draftWriter.flush();
     };
   }, [draftWriter]);
@@ -535,7 +553,7 @@ export function CarForm({
     const base = draftBase.current;
     if (!form || !base) return;
     const data = captureFormData(new FormData(form));
-    const carId = typeof data.carId === "string" ? data.carId : null;
+    const carId = typeof data.carId === 'string' ? data.carId : null;
     const draft: DeviceCarDraft = {
       v: 1,
       base,
@@ -556,11 +574,11 @@ export function CarForm({
     const form = formRef.current;
     if (!form) return false;
     for (const [name, value] of Object.entries(fields)) {
-      if (name === "stateId" || typeof value !== "string" || value.trim() === "") continue;
+      if (name === 'stateId' || typeof value !== 'string' || value.trim() === '') continue;
       const element = form.elements.namedItem(name);
       if (
         (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
-        element.value.trim() !== ""
+        element.value.trim() !== ''
       ) {
         return true;
       }
@@ -573,7 +591,7 @@ export function CarForm({
   function applyAutofill(answer: AutofillSuccess): void {
     const form = formRef.current;
     if (!form) {
-      setAutofillError("The form is not ready. Try again.");
+      setAutofillError('The form is not ready. Try again.');
       return;
     }
 
@@ -581,9 +599,9 @@ export function CarForm({
       form,
       Object.fromEntries(
         Object.entries(answer.fields).filter(
-          (entry): entry is [string, string] => typeof entry[1] === "string",
-        ),
-      ),
+          (entry): entry is [string, string] => typeof entry[1] === 'string'
+        )
+      )
     );
     if (answer.stateId) setCurStateId(answer.stateId);
 
@@ -596,11 +614,11 @@ export function CarForm({
 
     if (answer.stateLabel === null) {
       setAutofillNotice(
-        "Filled from the PDF. The PDF named no state, so the form's state was left as it was.",
+        "Filled from the PDF. The PDF named no state, so the form's state was left as it was."
       );
     } else if (!answer.stateFound) {
       setAutofillNotice(
-        `Filled from the PDF. The PDF names "${answer.stateLabel}", which is not a current state; the form's state was left as it was.`,
+        `Filled from the PDF. The PDF names "${answer.stateLabel}", which is not a current state; the form's state was left as it was.`
       );
     } else {
       setAutofillNotice(`Filled from the PDF. State: ${answer.stateLabel}.`);
@@ -613,7 +631,7 @@ export function CarForm({
   async function onAutofillFile(event: ChangeEvent<HTMLInputElement>): Promise<void> {
     const file = event.currentTarget.files?.[0] ?? null;
     // Cleared so choosing the same file a second time still reads it.
-    event.currentTarget.value = "";
+    event.currentTarget.value = '';
     if (!file) return;
 
     setAutofillError(null);
@@ -622,11 +640,11 @@ export function CarForm({
     setAutofilling(true);
     try {
       const fd = new FormData();
-      fd.append("file", file, file.name);
-      const response = await fetch("/api/autofill", { method: "POST", body: fd });
+      fd.append('file', file, file.name);
+      const response = await fetch('/api/autofill', { method: 'POST', body: fd });
       const answer = (await response.json().catch(() => null)) as AutofillAnswer | null;
       if (!answer) {
-        setAutofillError("That file could not be read. Try again.");
+        setAutofillError('That file could not be read. Try again.');
         return;
       }
       if (!answer.ok) {
@@ -641,7 +659,7 @@ export function CarForm({
       }
       applyAutofill(answer);
     } catch {
-      setAutofillError("That file could not be read. Try again.");
+      setAutofillError('That file could not be read. Try again.');
     } finally {
       setAutofilling(false);
     }
@@ -669,37 +687,36 @@ export function CarForm({
   // Motion preference, read in the browser: under reduced motion the bar does not run — the
   // same measure stays on screen as a static "8 s" label (Task 11), and the timer is the clock.
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
     const sync = () => setReduced(mq.matches);
     sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
   }, []);
 
   useEffect(
     () => () => {
       if (tmr.current) window.clearTimeout(tmr.current);
     },
-    [],
+    []
   );
 
   const recalc = (stateId: string = curStateId) => {
-    const g = (id: string) =>
-      (document.getElementById(id) as HTMLInputElement | null)?.value ?? "";
+    const g = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value ?? '';
     setPanel(
       compute(
-        g("f-price"),
-        g("f-was"),
+        g('f-price'),
+        g('f-was'),
         {
-          purchase: g("c-purchase"),
-          ship: g("c-ship"),
-          clear: g("c-clear"),
-          truckus: g("c-truckus"),
-          truckng: g("c-truckng"),
-          tank: g("c-tank"),
+          purchase: g('c-purchase'),
+          ship: g('c-ship'),
+          clear: g('c-clear'),
+          truckus: g('c-truckus'),
+          truckng: g('c-truckng'),
+          tank: g('c-tank'),
         },
-        sectionForId(stateId),
-      ),
+        sectionForId(stateId)
+      )
     );
   };
 
@@ -725,12 +742,16 @@ export function CarForm({
       return;
     }
     const draft = readDraft<DeviceCarDraft | null>(carDraftKey(data.carId), null);
-    if (!isCarDraft(draft) || !sameDraftFields(draft.base, base) || sameDraftFields(draft.data, base)) {
+    if (
+      !isCarDraft(draft) ||
+      !sameDraftFields(draft.base, base) ||
+      sameDraftFields(draft.data, base)
+    ) {
       announceDraftPresence(false);
       return;
     }
 
-    const draftStateId = typeof draft.data.stateId === "string" ? draft.data.stateId : null;
+    const draftStateId = typeof draft.data.stateId === 'string' ? draft.data.stateId : null;
     const restoredState =
       draftStateId && primaries.some((candidate) => candidate.id === draftStateId)
         ? draftStateId
@@ -738,7 +759,7 @@ export function CarForm({
     setCurStateId(restoredState);
     draftStateSeen.current = restoredState;
     setPhotos(draft.photos);
-    draftPhotosSeen.current = draft.photos.map((photo) => photo.assetId).join("\u0000");
+    draftPhotosSeen.current = draft.photos.map((photo) => photo.assetId).join('\u0000');
     applyCarDraftFields(form, draft.data);
     recalc(restoredState);
     draftPresent.current = true;
@@ -768,10 +789,10 @@ export function CarForm({
   // form-level answer) goes to the form's error block instead.
   function focusServerRefusal(errors: readonly { field: string }[]) {
     const names = new Set(errors.map((e) => e.field));
-    const first = Array.from(document.querySelectorAll<HTMLElement>("[name]")).find((el) => {
-      if (!names.has(el.getAttribute("name") ?? "")) return false;
-      if (el instanceof HTMLInputElement && el.type === "hidden") return false;
-      return el.getClientRects().length > 0 && !el.hasAttribute("disabled");
+    const first = Array.from(document.querySelectorAll<HTMLElement>('[name]')).find((el) => {
+      if (!names.has(el.getAttribute('name') ?? '')) return false;
+      if (el instanceof HTMLInputElement && el.type === 'hidden') return false;
+      return el.getClientRects().length > 0 && !el.hasAttribute('disabled');
     });
     (first ?? formErrRef.current)?.focus();
   }
@@ -813,7 +834,7 @@ export function CarForm({
 
   function expireOffer() {
     closeOffer();
-    router.push("/office/inventory");
+    router.push('/office/inventory');
   }
 
   function showOffer(html: string) {
@@ -836,10 +857,10 @@ export function CarForm({
       // window's end lands on the inventory, which is fetched fresh.
       const res = await deleteCar(id, { revalidate: false });
       if (!res.ok) {
-        showToast(res.errors[0]?.message ?? "That car could not be deleted.");
+        showToast(res.errors[0]?.message ?? 'That car could not be deleted.');
         return;
       }
-      const label = `${data.brand} ${data.model} ${data.year}`.replace(/\s+/g, " ").trim();
+      const label = `${data.brand} ${data.model} ${data.year}`.replace(/\s+/g, ' ').trim();
       undoRef.current = { id, label };
       setUndoOn(true);
       showOffer(`${label} deleted.`);
@@ -853,7 +874,7 @@ export function CarForm({
     showToast(`${car.label} restored.`);
     startDelete(async () => {
       const res = await undoDeleteCar(car.id);
-      if (!res.ok) showToast(res.errors[0]?.message ?? "That car could not be restored.");
+      if (!res.ok) showToast(res.errors[0]?.message ?? 'That car could not be restored.');
     });
   }
 
@@ -866,12 +887,12 @@ export function CarForm({
     // In draft mode the clicked button decides which of the two writes runs: "Save as draft" keeps
     // the row waiting and allows an incomplete form; "Save car" is judged like any car save.
     const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const intent: "draft" | "car" = isDraft && submitter?.value === "draft" ? "draft" : "car";
+    const intent: 'draft' | 'car' = isDraft && submitter?.value === 'draft' ? 'draft' : 'car';
 
-    if ((!isDraft || intent === "car") && hasFieldErrors) {
+    if ((!isDraft || intent === 'car') && hasFieldErrors) {
       // The panel already marks the fields it judges; the first one on the form takes the caret.
       const first = Array.from(
-        document.querySelectorAll<HTMLElement>('[aria-invalid="true"]'),
+        document.querySelectorAll<HTMLElement>('[aria-invalid="true"]')
       ).find((el) => el.getClientRects().length > 0);
       (first ?? formErrRef.current)?.focus();
       return;
@@ -880,11 +901,11 @@ export function CarForm({
     // The file input is not part of what is saved. Each photo was uploaded the moment it was
     // chosen, and a save posts only the references (the hidden `photos` fields); dropping the file
     // keeps a save from carrying the image bytes across a second time.
-    fd.delete("photo");
+    fd.delete('photo');
 
     if (isDraft) {
-      fd.set("intent", intent);
-      if (data.draftId) fd.set("draftId", data.draftId);
+      fd.set('intent', intent);
+      if (data.draftId) fd.set('draftId', data.draftId);
       setDraftResult(null);
       setPendingIntent(intent);
       startSaving(async () => {
@@ -892,11 +913,11 @@ export function CarForm({
           const res = await saveDraftForm(fd);
           setDraftResult(res);
           if (!res.ok) return;
-          if (res.outcome === "draft") {
-            showToast("Draft saved. It is still waiting — nothing was created.");
+          if (res.outcome === 'draft') {
+            showToast('Draft saved. It is still waiting — nothing was created.');
             return;
           }
-          if (res.outcome !== "car") return;
+          if (res.outcome !== 'car') return;
           showToast(`Saved <b>${res.ref}</b>. The showroom updates immediately.`);
           router.push(`/office/car/${encodeURIComponent(res.ref)}`);
         } finally {
@@ -919,7 +940,7 @@ export function CarForm({
       // never stand in for a failure (DR25).
       if (res.ok) {
         clearCarDraft();
-        if (mode === "add") {
+        if (mode === 'add') {
           // Add mode's proof is the destination: the new car's own page, whose address is its ref.
           router.push(`/office/car/${encodeURIComponent(res.ref)}`);
           return;
@@ -927,7 +948,7 @@ export function CarForm({
         showToast(
           res.changed
             ? `Saved <b>${res.ref}</b>. The showroom updates immediately.`
-            : "Nothing changed.",
+            : 'Nothing changed.'
         );
       }
     });
@@ -951,7 +972,7 @@ export function CarForm({
       ? result
       : null;
 
-  const draftId = data.draftId ?? "";
+  const draftId = data.draftId ?? '';
 
   // Photos on a draft are the draft's own row (P4): an edit that is never saved still keeps the
   // pictures, exactly as the drafts screen already does. Bytes go first (`uploadCarPhoto`), then the
@@ -969,18 +990,18 @@ export function CarForm({
       return;
     }
     if (!draftId) {
-      setUploadError("This draft could not be identified.");
+      setUploadError('This draft could not be identified.');
       return;
     }
     setUploadError(null);
     setPhotoBusy(true);
     try {
       const fd = new FormData();
-      fd.set("draftId", draftId);
-      fd.set("assetId", photo.assetId);
+      fd.set('draftId', draftId);
+      fd.set('assetId', photo.assetId);
       const res = await makeDraftCover(fd);
       if (!res.ok) {
-        setUploadError(res.errors[0]?.message ?? "That could not be made the cover.");
+        setUploadError(res.errors[0]?.message ?? 'That could not be made the cover.');
         return;
       }
       setPhotos((prev) => {
@@ -989,7 +1010,7 @@ export function CarForm({
         return [one, ...prev.filter((p) => p.assetId !== photo.assetId)];
       });
     } catch {
-      setUploadError("The store could not be reached — try that again.");
+      setUploadError('The store could not be reached — try that again.');
     } finally {
       setPhotoBusy(false);
     }
@@ -1003,23 +1024,23 @@ export function CarForm({
       return;
     }
     if (!draftId) {
-      setUploadError("This draft could not be identified.");
+      setUploadError('This draft could not be identified.');
       return;
     }
     setUploadError(null);
     setPhotoBusy(true);
     try {
       const fd = new FormData();
-      fd.set("draftId", draftId);
-      fd.set("assetId", photo.assetId);
+      fd.set('draftId', draftId);
+      fd.set('assetId', photo.assetId);
       const res = await removeDraftImage(fd);
       if (!res.ok) {
-        setUploadError(res.errors[0]?.message ?? "That photo could not be removed.");
+        setUploadError(res.errors[0]?.message ?? 'That photo could not be removed.');
         return;
       }
       setPhotos((prev) => prev.filter((p) => p.assetId !== photo.assetId));
     } catch {
-      setUploadError("The store could not be reached — try that again.");
+      setUploadError('The store could not be reached — try that again.');
     } finally {
       setPhotoBusy(false);
     }
@@ -1046,30 +1067,30 @@ export function CarForm({
           continue;
         }
         const fd = new FormData();
-        fd.append("photo", file, file.name);
+        fd.append('photo', file, file.name);
         const res = await uploadCarPhoto(fd);
         if (!res.ok) {
-          setUploadError(res.errors[0]?.message ?? "That photo could not be added.");
+          setUploadError(res.errors[0]?.message ?? 'That photo could not be added.');
           continue;
         }
         if (isDraft) {
           if (!draftId) {
-            setUploadError("This draft could not be identified.");
+            setUploadError('This draft could not be identified.');
             continue;
           }
           const add = new FormData();
-          add.set("draftId", draftId);
-          add.set("assetId", res.assetId);
+          add.set('draftId', draftId);
+          add.set('assetId', res.assetId);
           const written = await addDraftImage(add);
           if (!written.ok) {
-            setUploadError(written.errors[0]?.message ?? "That photo could not be added.");
+            setUploadError(written.errors[0]?.message ?? 'That photo could not be added.');
             continue;
           }
         }
         setPhotos((prev) =>
           prev.some((p) => p.assetId === res.assetId)
             ? prev
-            : [...prev, { assetId: res.assetId, url: res.url }],
+            : [...prev, { assetId: res.assetId, url: res.url }]
         );
       }
     } finally {
@@ -1077,12 +1098,12 @@ export function CarForm({
     }
   };
 
-  const h1 = isDraft ? "Edit car draft" : isEdit ? "Edit car" : "Add a car";
+  const h1 = isDraft ? 'Edit car draft' : isEdit ? 'Edit car' : 'Add a car';
   const hsub = isDraft
-    ? `From ${data.draftSource || "the uploaded file"} · waiting ${data.added}. Every field can be edited; nothing is a record until you save the car.`
+    ? `From ${data.draftSource || 'the uploaded file'} · waiting ${data.added}. Every field can be edited; nothing is a record until you save the car.`
     : isEdit
       ? `${data.brand} ${data.model} ${data.trim} ${data.year} · ${data.ref} · added ${data.added} · last updated by Umar, ${data.upd}`
-      : "Fill what you know — save puts it in the showroom immediately.";
+      : 'Fill what you know — save puts it in the showroom immediately.';
 
   return (
     <>
@@ -1103,8 +1124,8 @@ export function CarForm({
                 disabled={autofilling || saving}
                 onClick={() => autofillRef.current?.click()}
               >
-                <i className="fa-solid fa-file-import" />{" "}
-                {autofilling ? "Reading…" : "Autofill from PDF"}
+                <i className="fa-solid fa-file-import" />{' '}
+                {autofilling ? 'Reading…' : 'Autofill from PDF'}
               </button>
               <input
                 ref={autofillRef}
@@ -1127,7 +1148,7 @@ export function CarForm({
               // marking sold is choosing it and filling in the sale. The save is what
               // commits, so nothing is recorded by opening this button.
               setCurStateId(soldPrimaryId);
-              showToast("Sold chosen — enter the sale price and the date, then save.");
+              showToast('Sold chosen — enter the sale price and the date, then save.');
             }}
           >
             <i className="fa-solid fa-flag-checkered" /> Mark as sold
@@ -1159,7 +1180,7 @@ export function CarForm({
                   name="brand"
                   type="text"
                   placeholder="Toyota"
-                  defaultValue={filled ? data.brand : ""}
+                  defaultValue={filled ? data.brand : ''}
                 />
               </div>
               <div className="f">
@@ -1170,7 +1191,7 @@ export function CarForm({
                   name="model"
                   type="text"
                   placeholder="Sienna"
-                  defaultValue={filled ? data.model : ""}
+                  defaultValue={filled ? data.model : ''}
                 />
               </div>
               <div className="f">
@@ -1181,7 +1202,7 @@ export function CarForm({
                   name="trim"
                   type="text"
                   placeholder="LE"
-                  defaultValue={filled ? data.trim : ""}
+                  defaultValue={filled ? data.trim : ''}
                 />
               </div>
               <div className="f">
@@ -1192,7 +1213,7 @@ export function CarForm({
                   name="year"
                   type="number"
                   placeholder="2020"
-                  defaultValue={filled ? data.year : ""}
+                  defaultValue={filled ? data.year : ''}
                 />
               </div>
               <div className="f">
@@ -1203,11 +1224,9 @@ export function CarForm({
                   name="mileage"
                   type="text"
                   placeholder="52,614"
-                  defaultValue={filled ? data.mileage : ""}
+                  defaultValue={filled ? data.mileage : ''}
                 />
-                <span className="hint">
-                  Shown exactly as the car reads — kilometres.
-                </span>
+                <span className="hint">Shown exactly as the car reads — kilometres.</span>
               </div>
               <div className="f">
                 <label htmlFor="f-price">Doorstep price (₦)</label>
@@ -1220,17 +1239,16 @@ export function CarForm({
                     type="text"
                     inputMode="decimal"
                     placeholder="33,900,000"
-                    defaultValue={filled ? data.price : ""}
+                    defaultValue={filled ? data.price : ''}
                     onInput={() => recalc()}
                     aria-invalid={panel.errors.price ? true : undefined}
                   />
                 </div>
                 <span className="hint">
-                  The one price a buyer sees. Shipping, clearing and delivery are
-                  already inside it.
+                  The one price a buyer sees. Shipping, clearing and delivery are already inside it.
                 </span>
                 {panel.errors.price ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
                     {panel.errors.price}
                   </span>
                 ) : null}
@@ -1246,17 +1264,16 @@ export function CarForm({
                     type="text"
                     inputMode="decimal"
                     placeholder="36,500,000"
-                    defaultValue={filled ? data.wasPrice ?? "" : ""}
+                    defaultValue={filled ? (data.wasPrice ?? '') : ''}
                     onInput={() => recalc()}
                     aria-invalid={panel.errors.wasPrice ? true : undefined}
                   />
                 </div>
                 <span className="hint">
-                  Shown crossed out beside the price. Leave blank for no &quot;was&quot;
-                  price.
+                  Shown crossed out beside the price. Leave blank for no &quot;was&quot; price.
                 </span>
                 {panel.errors.wasPrice ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
                     {panel.errors.wasPrice}
                   </span>
                 ) : null}
@@ -1269,7 +1286,7 @@ export function CarForm({
                   name="exteriorColor"
                   type="text"
                   placeholder="Silver"
-                  defaultValue={filled ? data.ext : ""}
+                  defaultValue={filled ? data.ext : ''}
                 />
               </div>
               <div className="f">
@@ -1280,7 +1297,7 @@ export function CarForm({
                   name="interiorColor"
                   type="text"
                   placeholder="Grey"
-                  defaultValue={filled ? data.int : ""}
+                  defaultValue={filled ? data.int : ''}
                 />
               </div>
               <div className="f full">
@@ -1289,12 +1306,11 @@ export function CarForm({
                   className="in"
                   id="f-feat"
                   name="features"
-                  placeholder={"Reverse camera\nPower sliding doors\nTri-zone AC"}
-                  defaultValue={filled ? data.feat : ""}
+                  placeholder={'Reverse camera\nPower sliding doors\nTri-zone AC'}
+                  defaultValue={filled ? data.feat : ''}
                 ></textarea>
                 <span className="hint">
-                  Written the way a seller types. These go straight to the buyer&apos;s
-                  page.
+                  Written the way a seller types. These go straight to the buyer&apos;s page.
                 </span>
               </div>
               <div className="f full">
@@ -1304,7 +1320,7 @@ export function CarForm({
                   id="f-public-note"
                   name="note"
                   placeholder="One owner, full service history, ready to drive."
-                  defaultValue={filled ? data.note : ""}
+                  defaultValue={filled ? data.note : ''}
                 ></textarea>
                 <span className="hint">
                   Shown on the car&apos;s page. The private note below stays office-only.
@@ -1338,16 +1354,16 @@ export function CarForm({
                   const files = e.target.files;
                   if (files) void addFiles(files);
                   // Cleared so that choosing the same file a second time still uploads it.
-                  e.target.value = "";
+                  e.target.value = '';
                 }}
               />
               <i className="fa-solid fa-cloud-arrow-up" />
               {uploading
-                ? "Uploading…"
+                ? 'Uploading…'
                 : `Drop photos here or click to browse — first photo is the cover buyers see first. Up to ${megabytes(PHOTO_MAX_BYTES)} each.`}
             </label>
             {uploadError ? (
-              <span className="hint" style={{ color: "var(--bad)" }} role="alert">
+              <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
                 {uploadError}
               </span>
             ) : null}
@@ -1392,14 +1408,14 @@ export function CarForm({
 
           <section className="sec">
             <h2>
-              <span className="n">3</span>Costs{" "}
+              <span className="n">3</span>Costs{' '}
               <span
                 style={{
                   fontWeight: 400,
-                  textTransform: "none",
+                  textTransform: 'none',
                   letterSpacing: 0,
-                  color: "var(--mute)",
-                  fontSize: "12px",
+                  color: 'var(--mute)',
+                  fontSize: '12px',
                 }}
               >
                 — never leaves the office
@@ -1410,7 +1426,7 @@ export function CarForm({
                 field="purchase"
                 label="Purchase price"
                 placeholder="26,500,000"
-                value={filled ? data.costs.purchase : ""}
+                value={filled ? data.costs.purchase : ''}
                 error={panel.errors.purchase}
                 onInput={() => recalc()}
               />
@@ -1418,7 +1434,7 @@ export function CarForm({
                 field="ship"
                 label="Shipping"
                 placeholder="3,200,000"
-                value={filled ? data.costs.ship : ""}
+                value={filled ? data.costs.ship : ''}
                 error={panel.errors.ship}
                 onInput={() => recalc()}
               />
@@ -1426,7 +1442,7 @@ export function CarForm({
                 field="clear"
                 label="Clearing"
                 placeholder="1,850,000"
-                value={filled ? data.costs.clear : ""}
+                value={filled ? data.costs.clear : ''}
                 error={panel.errors.clear}
                 onInput={() => recalc()}
               />
@@ -1434,7 +1450,7 @@ export function CarForm({
                 field="truckus"
                 label="Trucking within USA"
                 placeholder="470,000"
-                value={filled ? data.costs.truckus : ""}
+                value={filled ? data.costs.truckus : ''}
                 error={panel.errors.truckus}
                 onInput={() => recalc()}
               />
@@ -1442,7 +1458,7 @@ export function CarForm({
                 field="truckng"
                 label="Trucking in Nigeria"
                 placeholder="525,000"
-                value={filled ? data.costs.truckng : ""}
+                value={filled ? data.costs.truckng : ''}
                 error={panel.errors.truckng}
                 onInput={() => recalc()}
               />
@@ -1450,7 +1466,7 @@ export function CarForm({
                 field="tank"
                 label="Full tank"
                 placeholder="110,000"
-                value={filled ? data.costs.tank : ""}
+                value={filled ? data.costs.tank : ''}
                 error={panel.errors.tank}
                 hint="Default from Settings — change per car if needed."
                 onInput={() => recalc()}
@@ -1466,13 +1482,13 @@ export function CarForm({
               <div>
                 <label
                   style={{
-                    fontSize: "11.5px",
+                    fontSize: '11.5px',
                     fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: ".05em",
-                    color: "var(--mute)",
-                    display: "block",
-                    marginBottom: "8px",
+                    textTransform: 'uppercase',
+                    letterSpacing: '.05em',
+                    color: 'var(--mute)',
+                    display: 'block',
+                    marginBottom: '8px',
                   }}
                 >
                   Where this car is
@@ -1480,30 +1496,30 @@ export function CarForm({
                 {/* A sold car says so, names the state it sold from, and offers to go
                     back there. The button moves the pick below — un-marking is the same
                     one write as any other state change, so saving is what commits it. */}
-                {isEdit && data.section === "sold" ? (
+                {isEdit && data.section === 'sold' ? (
                   <div
                     className="hint"
                     style={{
                       marginBottom: 12,
-                      padding: "10px 12px",
-                      border: "1px solid var(--line)",
+                      padding: '10px 12px',
+                      border: '1px solid var(--line)',
                       borderRadius: 8,
                     }}
                   >
-                    <b style={{ color: "var(--mute)" }}>This car is sold.</b> Un-marking
-                    reverses the sale and puts the car back in{" "}
-                    <b>{data.priorStateLabel ?? "its previous state"}</b>, keeping its
-                    tracking states.
+                    <b style={{ color: 'var(--mute)' }}>This car is sold.</b> Un-marking reverses
+                    the sale and puts the car back in{' '}
+                    <b>{data.priorStateLabel ?? 'its previous state'}</b>, keeping its tracking
+                    states.
                     {data.priorStateId ? (
                       <>
-                        {" "}
+                        {' '}
                         <button
                           type="button"
                           className="btn2"
                           id="unmarkSold"
                           onClick={() => {
                             setCurStateId(data.priorStateId as string);
-                            showToast("The sale will be reversed — save to apply.");
+                            showToast('The sale will be reversed — save to apply.');
                           }}
                         >
                           Move it back
@@ -1516,11 +1532,11 @@ export function CarForm({
                   {/* Add mode offers the three a car can arrive in: a car cannot start
                       Sold, because un-marking returns a car to the state it held before
                       it sold and a car that never held one has nothing to return to. */}
-                  {(isEdit ? primaries : primaries.filter((s) => s.section !== "sold")).map((s) => (
+                  {(isEdit ? primaries : primaries.filter((s) => s.section !== 'sold')).map((s) => (
                     <button
                       key={s.id}
                       type="button"
-                      className={"stb" + (curStateId === s.id ? " on" : "")}
+                      className={'stb' + (curStateId === s.id ? ' on' : '')}
                       data-st={s.id}
                       onClick={() => setCurStateId(s.id)}
                     >
@@ -1537,21 +1553,21 @@ export function CarForm({
                 ) : null}
                 {/* Add mode: the key of this form session. It is the car's key, so a retry or a
                     double click converges on one row; a reload mints a new form session. */}
-                {mode === "add" && submissionId ? (
+                {mode === 'add' && submissionId ? (
                   <input type="hidden" name="submissionId" value={submissionId} />
                 ) : null}
                 {/* Draft mode: the row the two draft buttons write to — never a record id. */}
                 {isDraft && data.draftId ? (
                   <input type="hidden" name="draftId" value={data.draftId} />
                 ) : null}
-                {errFor("stateId") ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                    {errFor("stateId")}
+                {errFor('stateId') ? (
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                    {errFor('stateId')}
                   </span>
                 ) : null}
                 <p className="hint" style={{ marginTop: 10 }}>
-                  The showroom follows automatically. Buyers only ever see the three
-                  section names — never these labels.
+                  The showroom follows automatically. Buyers only ever see the three section names —
+                  never these labels.
                 </p>
                 {/* The sale (truth 5). Sold is a primary state, and setting it is what
                     performs the sale — so the two money facts appear with it and only
@@ -1560,13 +1576,13 @@ export function CarForm({
                   <div style={{ marginTop: 14 }}>
                     <label
                       style={{
-                        fontSize: "11.5px",
+                        fontSize: '11.5px',
                         fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: ".05em",
-                        color: "var(--mute)",
-                        display: "block",
-                        marginBottom: "8px",
+                        textTransform: 'uppercase',
+                        letterSpacing: '.05em',
+                        color: 'var(--mute)',
+                        display: 'block',
+                        marginBottom: '8px',
                       }}
                     >
                       The sale — required
@@ -1581,11 +1597,11 @@ export function CarForm({
                           type="text"
                           inputMode="numeric"
                           placeholder="28,000,000"
-                          defaultValue={data.salePrice ?? ""}
+                          defaultValue={data.salePrice ?? ''}
                         />
-                        {errFor("salePrice") ? (
-                          <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                            {errFor("salePrice")}
+                        {errFor('salePrice') ? (
+                          <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                            {errFor('salePrice')}
                           </span>
                         ) : null}
                       </div>
@@ -1598,29 +1614,29 @@ export function CarForm({
                           type="date"
                           defaultValue={data.saleDate ?? today}
                         />
-                        {errFor("saleDate") ? (
-                          <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                            {errFor("saleDate")}
+                        {errFor('saleDate') ? (
+                          <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                            {errFor('saleDate')}
                           </span>
                         ) : null}
                       </div>
                     </div>
                     <p className="hint" style={{ marginTop: 8 }}>
-                      Real profit replaces projected, the car leaves the showroom, and it
-                      stops counting as stock.
+                      Real profit replaces projected, the car leaves the showroom, and it stops
+                      counting as stock.
                     </p>
                   </div>
                 ) : null}
                 <div style={{ marginTop: 14 }}>
                   <label
                     style={{
-                      fontSize: "11.5px",
+                      fontSize: '11.5px',
                       fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: ".05em",
-                      color: "var(--mute)",
-                      display: "block",
-                      marginBottom: "8px",
+                      textTransform: 'uppercase',
+                      letterSpacing: '.05em',
+                      color: 'var(--mute)',
+                      display: 'block',
+                      marginBottom: '8px',
                     }}
                   >
                     Tracking states — optional, office only
@@ -1644,29 +1660,25 @@ export function CarForm({
                       ))}
                     </div>
                   )}
-                  {errFor("secondaryStateIds") ? (
-                    <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                      {errFor("secondaryStateIds")}
+                  {errFor('secondaryStateIds') ? (
+                    <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                      {errFor('secondaryStateIds')}
                     </span>
                   ) : null}
                   <p className="hint" style={{ marginTop: 8 }}>
-                    Stages this car passes through — none or several. They never show to
-                    buyers and never change a count.
+                    Stages this car passes through — none or several. They never show to buyers and
+                    never change a count.
                   </p>
                 </div>
               </div>
-              <div style={{ display: "grid", gap: 14, alignContent: "start" }}>
+              <div style={{ display: 'grid', gap: 14, alignContent: 'start' }}>
                 <label className="ck">
-                  <input
-                    type="checkbox"
-                    id="f-new"
-                    defaultChecked={filled ? data.isNew : false}
-                  />
+                  <input type="checkbox" id="f-new" defaultChecked={filled ? data.isNew : false} />
                   <span>
                     <b style={{ fontWeight: 600 }}>New arrival</b>
                     <small>
-                      Also shows under &quot;Landed this year&quot; in the showroom,
-                      as well as Available.
+                      Also shows under &quot;Landed this year&quot; in the showroom, as well as
+                      Available.
                     </small>
                   </span>
                 </label>
@@ -1678,11 +1690,11 @@ export function CarForm({
                     name="arrivalNote"
                     type="text"
                     placeholder="Expected arrival: November"
-                    defaultValue={filled ? data.arr : ""}
+                    defaultValue={filled ? data.arr : ''}
                   />
                   <span className="hint">
-                    Shown to buyers on On-order cars. The one field they&apos;d
-                    otherwise have to ask about.
+                    Shown to buyers on On-order cars. The one field they&apos;d otherwise have to
+                    ask about.
                   </span>
                 </div>
               </div>
@@ -1700,11 +1712,9 @@ export function CarForm({
                 id="f-note"
                 name="privateNote"
                 placeholder="Duty paid, immaculate. Ready for viewing."
-                defaultValue={filled ? data.privateNote ?? "" : ""}
+                defaultValue={filled ? (data.privateNote ?? '') : ''}
               ></textarea>
-              <span className="hint">
-                Office-only — never sent to the showroom.
-              </span>
+              <span className="hint">Office-only — never sent to the showroom.</span>
             </div>
           </section>
 
@@ -1716,19 +1726,19 @@ export function CarForm({
               role="alert"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--bad)",
+                border: '1px solid var(--bad)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--bad)",
+                padding: '10px 12px',
+                color: 'var(--bad)',
                 fontSize: 13,
               }}
             >
               <b>Autofill could not fill the form.</b>
-              <p style={{ margin: "6px 0 0" }}>{autofillError}</p>
+              <p style={{ margin: '6px 0 0' }}>{autofillError}</p>
               {autofillRefusals.length > 0 ? (
-                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
                   {autofillRefusals.map((refusal, index) => (
-                    <li key={`${refusal.page ?? refusal.row ?? "file"}-${index}`}>
+                    <li key={`${refusal.page ?? refusal.row ?? 'file'}-${index}`}>
                       {refusalPlace(refusal)}
                       {refusal.reason}
                     </li>
@@ -1742,18 +1752,18 @@ export function CarForm({
               role="status"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--ok)",
+                border: '1px solid var(--ok)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--ok)",
+                padding: '10px 12px',
+                color: 'var(--ok)',
                 fontSize: 13,
               }}
             >
               {autofillNotice}
               {autofillRefusals.length > 0 ? (
-                <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
                   {autofillRefusals.map((refusal, index) => (
-                    <li key={`${refusal.page ?? refusal.row ?? "file"}-${index}`}>
+                    <li key={`${refusal.page ?? refusal.row ?? 'file'}-${index}`}>
                       {refusalPlace(refusal)}
                       {refusal.reason}
                     </li>
@@ -1773,8 +1783,8 @@ export function CarForm({
                   value="draft"
                   disabled={saving}
                 >
-                  <i className="fa-solid fa-floppy-disk" />{" "}
-                  {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
+                  <i className="fa-solid fa-floppy-disk" />{' '}
+                  {pendingIntent === 'draft' ? 'Saving…' : 'Save as draft'}
                 </button>
                 <button
                   className="btn"
@@ -1784,30 +1794,30 @@ export function CarForm({
                   value="car"
                   disabled={saving}
                 >
-                  <i className="fa-solid fa-check" />{" "}
-                  {pendingIntent === "car" ? "Saving…" : "Save car"}
+                  <i className="fa-solid fa-check" />{' '}
+                  {pendingIntent === 'car' ? 'Saving…' : 'Save car'}
                 </button>
                 <a className="btn gh" href="/office/drafts">
                   Cancel
                 </a>
                 <span className="hint2">
                   {failure
-                    ? "Some fields need attention — see the messages beside them."
-                    : "Save as draft keeps it waiting; Save car puts it in the showroom."}
+                    ? 'Some fields need attention — see the messages beside them.'
+                    : 'Save as draft keeps it waiting; Save car puts it in the showroom.'}
                 </span>
               </>
             ) : (
               <>
                 <button className="btn" id="save" type="submit" disabled={saving}>
-                  <i className="fa-solid fa-check" /> {saving ? "Saving…" : "Save car"}
+                  <i className="fa-solid fa-check" /> {saving ? 'Saving…' : 'Save car'}
                 </button>
                 <a className="btn gh" href="/office/inventory" onClick={clearCarDraft}>
                   Cancel
                 </a>
                 <span className="hint2">
                   {result && !result.ok
-                    ? "Some fields need attention — see the messages beside them."
-                    : "Saving puts the car in the showroom immediately."}
+                    ? 'Some fields need attention — see the messages beside them.'
+                    : 'Saving puts the car in the showroom immediately.'}
                 </span>
               </>
             )}
@@ -1820,15 +1830,15 @@ export function CarForm({
               role="alert"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--bad)",
+                border: '1px solid var(--bad)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--bad)",
+                padding: '10px 12px',
+                color: 'var(--bad)',
                 fontSize: 13,
               }}
             >
               <b>Could not save.</b>
-              <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
                 {failure.errors.map((e) => (
                   <li key={e.field}>{e.message}</li>
                 ))}
@@ -1836,15 +1846,15 @@ export function CarForm({
             </div>
           ) : null}
           {isDraft ? (
-            draftResult?.ok && draftResult.outcome === "draft" ? (
+            draftResult?.ok && draftResult.outcome === 'draft' ? (
               <div
                 role="status"
                 style={{
                   marginTop: 12,
-                  border: "1px solid var(--ok)",
+                  border: '1px solid var(--ok)',
                   borderRadius: 10,
-                  padding: "10px 12px",
-                  color: "var(--ok)",
+                  padding: '10px 12px',
+                  color: 'var(--ok)',
                   fontSize: 13,
                 }}
               >
@@ -1856,10 +1866,10 @@ export function CarForm({
               role="status"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--ok)",
+                border: '1px solid var(--ok)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--ok)",
+                padding: '10px 12px',
+                color: 'var(--ok)',
                 fontSize: 13,
               }}
             >
@@ -1894,12 +1904,12 @@ export function CarForm({
               <div
                 className="incw"
                 id="p-inc"
-                style={panel.showInc ? undefined : { display: "none" }}
+                style={panel.showInc ? undefined : { display: 'none' }}
               >
                 <i className="fa-solid fa-triangle-exclamation" />
                 <span>
-                  <b id="p-count">{panel.count}</b> Projected profit excludes this car
-                  until all six are in. Money tied up counts whatever is entered.
+                  <b id="p-count">{panel.count}</b> Projected profit excludes this car until all six
+                  are in. Money tied up counts whatever is entered.
                 </span>
               </div>
             </div>
@@ -1920,9 +1930,9 @@ export function CarForm({
             </div>
             <div className="pb buyer">
               <p>
-                Only <b>the doorstep price</b>, the car&apos;s facts and its photos.
-                Costs, profit, private states and these notes are never sent to the
-                browser — it&apos;s a server rule, not a setting.
+                Only <b>the doorstep price</b>, the car&apos;s facts and its photos. Costs, profit,
+                private states and these notes are never sent to the browser — it&apos;s a server
+                rule, not a setting.
               </p>
               {isDemo ? null : (
                 <p style={{ marginTop: 10 }}>
@@ -1931,12 +1941,12 @@ export function CarForm({
                     target="_blank"
                     rel="noreferrer"
                     style={{
-                      color: "var(--gold)",
-                      textDecoration: "underline",
-                      textUnderlineOffset: "2px",
+                      color: 'var(--gold)',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px',
                     }}
                   >
-                    Preview the buyer page{" "}
+                    Preview the buyer page{' '}
                     <i
                       className="fa-solid fa-arrow-up-right-from-square"
                       style={{ fontSize: 10 }}
@@ -1957,7 +1967,7 @@ export function CarForm({
                 <small>{panel.costLabel}</small>
                 <b id="m-cost">{panel.mCost}</b>
               </div>
-              <div style={{ textAlign: "right" }}>
+              <div style={{ textAlign: 'right' }}>
                 <small>Profit</small>
                 <b id="m-profit" className={panel.mProfitCls}>
                   {panel.mProfit}
@@ -1974,15 +1984,11 @@ export function CarForm({
               <div className="mdl">
                 <h2 id="car-del-title">Delete this car?</h2>
                 <p>
-                  You can undo for a few seconds after. Deleting removes it from the
-                  showroom and the office lists.
+                  You can undo for a few seconds after. Deleting removes it from the showroom and
+                  the office lists.
                 </p>
                 <div className="mrow">
-                  <button
-                    className="btn2"
-                    type="button"
-                    onClick={() => setDelOpen(false)}
-                  >
+                  <button className="btn2" type="button" onClick={() => setDelOpen(false)}>
                     Keep it
                   </button>
                   <button
@@ -2012,9 +2018,8 @@ export function CarForm({
               <div className="mdl">
                 <h2 id="car-autofill-replace-title">Replace what is in the form?</h2>
                 <p>
-                  This form already has text. Autofill will replace the car&apos;s fourteen
-                  fields and the state. Costs, photos, the sale and tracking states stay as
-                  they are.
+                  This form already has text. Autofill will replace the car&apos;s fourteen fields
+                  and the state. Costs, photos, the sale and tracking states stay as they are.
                 </p>
                 <div className="mrow">
                   <button
@@ -2041,27 +2046,20 @@ export function CarForm({
               </div>
             </Dialog>
 
-            <div
-              className={"toast" + (toastShow ? " show" : "")}
-              id="toast"
-              role="status"
-            >
-              <span
-                id="tmsg"
-                dangerouslySetInnerHTML={{ __html: toastMsg ?? "" }}
-              />
+            <div className={'toast' + (toastShow ? ' show' : '')} id="toast" role="status">
+              <span id="tmsg" dangerouslySetInnerHTML={{ __html: toastMsg ?? '' }} />
               <button
                 type="button"
                 id="tundo"
                 hidden={!undoOn}
                 onClick={undoDelete}
                 style={{
-                  background: "none",
+                  background: 'none',
                   border: 0,
-                  color: "var(--gold)",
+                  color: 'var(--gold)',
                   fontWeight: 700,
-                  fontSize: "13.5px",
-                  textTransform: "uppercase",
+                  fontSize: '13.5px',
+                  textTransform: 'uppercase',
                 }}
               >
                 Undo
@@ -2080,7 +2078,7 @@ export function CarForm({
                     <span
                       className="ubar"
                       onAnimationEnd={(e) => {
-                        if (e.animationName === "undodrain") expireOffer();
+                        if (e.animationName === 'undodrain') expireOffer();
                       }}
                     />
                   </span>
@@ -2088,7 +2086,7 @@ export function CarForm({
               ) : null}
             </div>
           </>,
-          document.body,
+          document.body
         )}
     </>
   );

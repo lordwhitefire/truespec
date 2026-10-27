@@ -10,30 +10,30 @@
  * one transaction without deferring every foreign key. (A dump can read them in any order.)
  */
 export const BACKUP_TABLES = [
-  "office_user",
-  "car_state",
-  "enquiry_state",
-  "setting",
-  "schema_migrations",
-  "car",
-  "car_secondary_state",
-  "car_photo",
-  "cost_line",
-  "sale",
-  "enquiry_pdf",
-  "enquiry",
-  "draft",
-  "activity_event",
-  "session",
-  "auth_attempt",
-  "tap",
-  "tap_seen",
+  'office_user',
+  'car_state',
+  'enquiry_state',
+  'setting',
+  'schema_migrations',
+  'car',
+  'car_secondary_state',
+  'car_photo',
+  'cost_line',
+  'sale',
+  'enquiry_pdf',
+  'enquiry',
+  'draft',
+  'activity_event',
+  'session',
+  'auth_attempt',
+  'tap',
+  'tap_seen',
 ] as const;
 
 export type BackupTable = (typeof BACKUP_TABLES)[number];
 
 /** The sequences whose next value must survive a restore. */
-export const BACKUP_SEQUENCES = ["ts_ref_seq", "enquiry_ref_seq"] as const;
+export const BACKUP_SEQUENCES = ['ts_ref_seq', 'enquiry_ref_seq'] as const;
 export type BackupSequence = (typeof BACKUP_SEQUENCES)[number];
 
 /** Quote a known identifier for SQL. The list above is the only source of these names. */

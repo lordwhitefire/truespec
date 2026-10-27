@@ -1,21 +1,21 @@
-import "./inventory.css";
-import Link from "next/link";
+import './inventory.css';
+import Link from 'next/link';
 import {
   getOfficeCarViews,
   getOfficeStates,
   getOfficeCounts,
   getTombstonedCars,
   type OfficeCarView,
-} from "@/lib/office";
+} from '@/lib/office';
 
 // The cars come from the store, so this page renders per request — never from a build-time
 // snapshot of it.
-export const dynamic = "force-dynamic";
-import { costLabelFor, isCostComplete, profitKobo, totalCostKobo } from "@/lib/money";
-import { requireOfficeSession } from "@/lib/session";
-import { CreateFromFile } from "@/components/office/CreateFromFile";
-import { InventoryClient, type InventoryRow } from "./inventory-client";
-import { Tombstones, type TombstoneRow } from "./tombstones";
+export const dynamic = 'force-dynamic';
+import { costLabelFor, isCostComplete, profitKobo, totalCostKobo } from '@/lib/money';
+import { requireOfficeSession } from '@/lib/session';
+import { CreateFromFile } from '@/components/office/CreateFromFile';
+import { InventoryClient, type InventoryRow } from './inventory-client';
+import { Tombstones, type TombstoneRow } from './tombstones';
 
 // Inventory — built to the reference runtime model (office-inventory.html).
 // The table/cards/chips/filter/sort/delete/undo all live in the client
@@ -26,7 +26,7 @@ import { Tombstones, type TombstoneRow } from "./tombstones";
 // profit from `lib/money.ts`, and the counts from `lib/counts.ts`. The page
 // holds no state vocabulary, no section list and no kobo arithmetic.
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // "2026-09-29T00:00:00.000Z" → "29 Sep 2026" (as the reference shows it).
 // The Postgres driver hands timestamp columns back as JS Date objects, so
@@ -45,14 +45,14 @@ function toRow(c: OfficeCarView): InventoryRow {
   return {
     id: c.id,
     ref: c.ref,
-    name: [c.brand, c.model, c.trim].filter(Boolean).join(" "),
+    name: [c.brand, c.model, c.trim].filter(Boolean).join(' '),
     year: c.year,
     state: c.state, // the owner's private state label — office-only
     section: c.section, // the one section identity, from lib/sections.ts
     sold,
     costLabel: costLabelFor(c.section, sold),
-    mileage: `${(c.mileage ?? 0).toLocaleString("en-US")} km`,
-    price: (sold ? sale ?? door : door) ?? 0,
+    mileage: `${(c.mileage ?? 0).toLocaleString('en-US')} km`,
+    price: (sold ? (sale ?? door) : door) ?? 0,
     cost,
     profit:
       cost === null
@@ -91,7 +91,9 @@ export default async function InventoryPage() {
           <h1 id="inv-h" tabIndex={-1}>
             Inventory
           </h1>
-          <p className="sub2">Every car, what it cost, and what it made. Only visible here — never in the showroom.</p>
+          <p className="sub2">
+            Every car, what it cost, and what it made. Only visible here — never in the showroom.
+          </p>
         </div>
         <div className="hbtns">
           {/* The blank, where the upload will happen (task.md §Q2). A plain link: the response is
@@ -101,7 +103,7 @@ export default async function InventoryPage() {
             Car template
           </a>
           {/* The other half of the blank: fill it in, then send it back here. Its rows become
-              **drafts**, not cars — nothing enters inventory until the owner saves them at Drafts. */}
+           **drafts**, not cars — nothing enters inventory until the owner saves them at Drafts. */}
           <CreateFromFile hint="Fill the car template, then send it back — its rows become drafts." />
           <Link className="btn" href="/office/car/new">
             <i className="fa-solid fa-plus" />
@@ -116,7 +118,8 @@ export default async function InventoryPage() {
 
       <p className="note">
         <i className="fa-solid fa-lock" />
-        Cost and profit appear only in the office. The public site is handed an explicit list of fields — costs are never included, even by accident.
+        Cost and profit appear only in the office. The public site is handed an explicit list of
+        fields — costs are never included, even by accident.
       </p>
     </>
   );

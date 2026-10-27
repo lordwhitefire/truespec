@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { MoreSheet } from "./MoreSheet";
-import { NavLabel } from "./NavLabel";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { MoreSheet } from './MoreSheet';
+import { NavLabel } from './NavLabel';
 
 // Mobile bottom bar (≤820px). Four destinations plus the More cell: Drafts, Activity log and
 // Settings are reached through the sheet, in the sidebar's order and words (Task 20). The
@@ -12,14 +12,14 @@ import { NavLabel } from "./NavLabel";
 // only while the sheet is open). "Add" opens the add form; `match` keeps it lit on a per-car edit
 // page too.
 const items: { href: string; label: string; icon: string; match?: string }[] = [
-  { href: "/office", label: "Home", icon: "fa-chart-pie" },
-  { href: "/office/inventory", label: "Stock", icon: "fa-car-side" },
-  { href: "/office/car/new", match: "/office/car", label: "Add", icon: "fa-plus" },
-  { href: "/office/enquiries", label: "Chats", icon: "fa-comments" },
+  { href: '/office', label: 'Home', icon: 'fa-chart-pie' },
+  { href: '/office/inventory', label: 'Stock', icon: 'fa-car-side' },
+  { href: '/office/car/new', match: '/office/car', label: 'Add', icon: 'fa-plus' },
+  { href: '/office/enquiries', label: 'Chats', icon: 'fa-comments' },
 ];
 
 // The More sheet's destinations — the one place the list lives; `MoreSheet.tsx` renders it.
-const morePaths = ["/office/drafts", "/office/activity", "/office/settings"];
+const morePaths = ['/office/drafts', '/office/activity', '/office/settings'];
 
 export function OfficeBottomNav() {
   const pathname = usePathname();
@@ -30,15 +30,16 @@ export function OfficeBottomNav() {
       <nav className="bnav" aria-label="Office (mobile)">
         {items.map((it) => {
           const on =
-            it.href === "/office"
-              ? pathname === "/office"
+            it.href === '/office'
+              ? pathname === '/office'
               : pathname.startsWith(it.match ?? it.href);
           return (
             <Link
               key={it.href}
               href={it.href}
-              className={on ? "on" : undefined}
+              className={on ? 'on' : undefined}
               aria-label={it.label}
+              aria-current={on ? 'page' : undefined}
             >
               <i className={`fa-solid ${it.icon}`} />
               <NavLabel>{it.label}</NavLabel>
@@ -47,10 +48,12 @@ export function OfficeBottomNav() {
         })}
         <button
           type="button"
-          className={moreOpen || onMore ? "on" : undefined}
+          className={moreOpen || onMore ? 'on' : undefined}
           aria-expanded={moreOpen}
           aria-haspopup="dialog"
           aria-controls="more-sheet"
+          aria-current={onMore ? 'true' : undefined}
+          aria-label={onMore ? 'More, current section' : undefined}
           onClick={() => setMoreOpen(true)}
         >
           {/* "More things", not Settings — a gear here read as the settings destination. */}

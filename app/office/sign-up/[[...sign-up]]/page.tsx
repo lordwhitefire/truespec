@@ -1,15 +1,15 @@
-import type { Metadata } from "next";
-import "../../door.css";
-import { SignUp } from "@clerk/nextjs";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { demoSwitchOn } from "@/lib/config";
+import type { Metadata } from 'next';
+import '../../door.css';
+import { SignUp } from '@clerk/nextjs';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { demoSwitchOn } from '@/lib/config';
 
 // The flag and the provider's own sign-up state are read per request.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Try the demo office | TrueSpec Automotive",
+  title: 'Try the demo office | TrueSpec Automotive',
 };
 
 /**
@@ -22,14 +22,14 @@ export const metadata: Metadata = {
  * UTC, uploads deleted with the demo, and the public showroom always showing main's inventory.
  */
 export default function OfficeSignUpPage() {
-  if (!demoSwitchOn(process.env.DEMO_SIGNUP_ENABLED)) redirect("/office/sign-in");
+  if (!demoSwitchOn(process.env.DEMO_SIGNUP_ENABLED)) redirect('/office/sign-in');
 
   return (
     <main className="office-door">
       <h1 className="office-door-title">Try the demo office</h1>
       <p className="office-door-strapline">
-        This is a demo account. Its data resets daily, around 03:00 UTC. Uploads are deleted with the
-        demo.
+        This is a demo account. Its data resets daily, around 03:00 UTC. Uploads are deleted with
+        the demo.
       </p>
       <p className="office-door-sub">
         The public showroom shows the main inventory, not the demo inventory.

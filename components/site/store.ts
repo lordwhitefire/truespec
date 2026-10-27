@@ -3,7 +3,7 @@
 export const store = {
   get<T>(k: string, d: T): T {
     try {
-      const v = localStorage.getItem("ts-" + k);
+      const v = localStorage.getItem('ts-' + k);
       return v == null ? d : (JSON.parse(v) as T);
     } catch {
       return d;
@@ -11,14 +11,14 @@ export const store = {
   },
   set(k: string, v: unknown) {
     try {
-      localStorage.setItem("ts-" + k, JSON.stringify(v));
+      localStorage.setItem('ts-' + k, JSON.stringify(v));
     } catch {
       /* ignored */
     }
   },
   sget<T>(k: string, d: T): T {
     try {
-      const v = sessionStorage.getItem("ts-" + k);
+      const v = sessionStorage.getItem('ts-' + k);
       return v == null ? d : (JSON.parse(v) as T);
     } catch {
       return d;
@@ -26,7 +26,7 @@ export const store = {
   },
   sset(k: string, v: unknown) {
     try {
-      sessionStorage.setItem("ts-" + k, JSON.stringify(v));
+      sessionStorage.setItem('ts-' + k, JSON.stringify(v));
     } catch {
       /* ignored */
     }

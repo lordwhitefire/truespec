@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { STORE_STATE_CSS } from "./store-state-styles";
+import { STORE_STATE_CSS } from './store-state-styles';
 
 /**
  * The retryable state (design D18; truth 16) — what a page shows when the store could not be reached

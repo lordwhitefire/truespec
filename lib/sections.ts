@@ -13,26 +13,26 @@
 // This module is the only place the section set is named, typed, resolved and
 // validated. No screen keeps a section map of its own (see the TASK-002 model).
 
-export type Section = "available" | "on order" | "landed" | "sold";
+export type Section = 'available' | 'on order' | 'landed' | 'sold';
 
 // R-SEC-1 — the section vocabulary is the four fixed primary states, and nothing
 // derived from any owner state list.
-export const SECTIONS = ["available", "on order", "landed", "sold"] as const;
+export const SECTIONS = ['available', 'on order', 'landed', 'sold'] as const;
 
 // R-SEC-1 — the three the showroom presents. Sold is a section but is never shown,
 // so no public screen may iterate `SECTIONS`; it iterates this.
-export const PUBLIC_SECTIONS: readonly Section[] = ["available", "on order", "landed"];
+export const PUBLIC_SECTIONS: readonly Section[] = ['available', 'on order', 'landed'];
 
 // R-SEC-1 — the display names, from the one place.
 export const SECTION_LABEL: Record<Section, string> = {
-  available: "Available",
-  "on order": "On Order",
-  landed: "Landed",
-  sold: "Sold",
+  available: 'Available',
+  'on order': 'On Order',
+  landed: 'Landed',
+  sold: 'Sold',
 };
 
 export function isSection(value: unknown): value is Section {
-  return typeof value === "string" && (SECTIONS as readonly string[]).includes(value);
+  return typeof value === 'string' && (SECTIONS as readonly string[]).includes(value);
 }
 
 export function sectionLabel(section: Section): string {
@@ -45,10 +45,10 @@ export function sectionLabel(section: Section): string {
 // `sectionOfToken` accepts both the short form and the section's own name, and returns
 // `null` for anything that is not a section.
 export const SECTION_TOKEN: Record<Section, string> = {
-  available: "a",
-  "on order": "o",
-  landed: "l",
-  sold: "s",
+  available: 'a',
+  'on order': 'o',
+  landed: 'l',
+  sold: 's',
 };
 
 export function tokenOf(section: Section): string {
@@ -68,16 +68,16 @@ export function sectionOfToken(value: string): Section | null {
 // taking the first.
 export function sectionOfState(
   state: string,
-  configuredSection?: string | readonly string[] | null,
+  configuredSection?: string | readonly string[] | null
 ): Section {
-  if (typeof state !== "string" || state.trim() === "") {
-    throw new Error("sectionOfState: a state must be a non-empty string");
+  if (typeof state !== 'string' || state.trim() === '') {
+    throw new Error('sectionOfState: a state must be a non-empty string');
   }
 
   const configured: readonly string[] =
     configuredSection == null
       ? []
-      : typeof configuredSection === "string"
+      : typeof configuredSection === 'string'
         ? [configuredSection]
         : configuredSection;
 
@@ -97,7 +97,7 @@ export function sectionOfState(
 
 // R-SEC-3 — Landed is presented inside Available (a landed car is still buyable).
 // This is the section-inclusion relation; the counting rule (R-CNT-1) is separate.
-export const AVAILABLE_PRESENTATION: readonly Section[] = ["available", "landed"];
+export const AVAILABLE_PRESENTATION: readonly Section[] = ['available', 'landed'];
 
 export function inAvailablePresentation(section: Section): boolean {
   return AVAILABLE_PRESENTATION.includes(section);
@@ -109,16 +109,13 @@ export function inAvailablePresentation(section: Section): boolean {
 // presented nowhere public — the showroom never shows Sold. The owner's state label
 // is never an input. (The new-arrival flag is meaningful on a car that has landed;
 // the flag on an on-order car is unstated by the specs — raised, not decided here.)
-export function presentedSections(car: {
-  section: Section;
-  isNewArrival?: boolean;
-}): Section[] {
-  if (car.section === "sold") return [];
+export function presentedSections(car: { section: Section; isNewArrival?: boolean }): Section[] {
+  if (car.section === 'sold') return [];
   const presented = new Set<Section>([car.section]);
-  if (car.section === "available" || car.section === "landed") presented.add("available");
-  if (car.section === "landed") presented.add("landed");
-  if (car.isNewArrival && (car.section === "available" || car.section === "landed")) {
-    presented.add("landed");
+  if (car.section === 'available' || car.section === 'landed') presented.add('available');
+  if (car.section === 'landed') presented.add('landed');
+  if (car.isNewArrival && (car.section === 'available' || car.section === 'landed')) {
+    presented.add('landed');
   }
   return SECTIONS.filter((section) => presented.has(section));
 }

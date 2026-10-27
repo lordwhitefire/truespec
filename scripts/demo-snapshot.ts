@@ -11,13 +11,13 @@
  * The output is the summary only: counts, the generated time, the asset id/filename and any failed
  * cleanup ids. It never prints a row, the key, a connection string or a person.
  */
-import { config as loadEnv } from "dotenv";
+import { config as loadEnv } from 'dotenv';
 
-import { runDemoSnapshot } from "../lib/demo-snapshot";
-import { deleteAsset, listFileAssets, uploadFile } from "../lib/sanity";
-import { storeQueryMain } from "../lib/store-guard";
+import { runDemoSnapshot } from '../lib/demo-snapshot';
+import { deleteAsset, listFileAssets, uploadFile } from '../lib/sanity';
+import { storeQueryMain } from '../lib/store-guard';
 
-loadEnv({ path: ".env.local", quiet: true });
+loadEnv({ path: '.env.local', quiet: true });
 
 async function main(): Promise<void> {
   const summary = await runDemoSnapshot({
@@ -40,6 +40,6 @@ async function main(): Promise<void> {
 main().catch((error) => {
   // The orchestration returns a safe summary for every expected failure. This is the last-resort
   // guard for a bug: keep it to the error type, never a message that could carry a connection string.
-  console.error(`snapshot failed: ${error instanceof Error ? error.name : "unknown error"}`);
+  console.error(`snapshot failed: ${error instanceof Error ? error.name : 'unknown error'}`);
   process.exitCode = 1;
 });

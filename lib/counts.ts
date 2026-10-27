@@ -9,7 +9,7 @@
 // vocabulary of its own. Under D15 a Sold car is the section `sold`; it also carries
 // the `sold` flag from its sale record, and either marks it sold (they coincide).
 
-import type { Section } from "./sections";
+import type { Section } from './sections';
 
 export type Countable = {
   section: Section;
@@ -33,18 +33,18 @@ export function countStock(cars: readonly Countable[]): StockCounts {
   let sold = 0;
 
   for (const car of cars) {
-    if (car.sold || car.section === "sold") {
+    if (car.sold || car.section === 'sold') {
       sold += 1;
       continue;
     }
     switch (car.section) {
-      case "available":
+      case 'available':
         available += 1;
         break;
-      case "on order":
+      case 'on order':
         onOrder += 1;
         break;
-      case "landed":
+      case 'landed':
         landed += 1;
         if (car.isNewArrival) {
           // Landed this year: also buyable, counted once here (R-CNT-1).

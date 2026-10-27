@@ -15,7 +15,7 @@
  * reference code (no randomness, no clock: the same car is the same colours forever).
  */
 
-import { photoGradient } from "@/lib/photo-gradient";
+import { photoGradient } from '@/lib/photo-gradient';
 
 /** The box element itself — fills the slot it is rendered into, announces nothing. */
 export function PhotoBox({ refCode }: { refCode: string }) {

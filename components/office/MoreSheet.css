@@ -7,22 +7,99 @@
    bottom-nav look is repeated for the cell itself, now a real control (button) rather than a
    link. Where a page sheet also carries these rules, the values are the same. */
 
-.ovl{position:fixed;inset:0;z-index:60;background:rgba(10,11,13,.62);display:grid;place-items:center;padding:20px}
-dialog.ovl{width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0}
-dialog.ovl:not([open]){display:none}
-dialog.ovl::backdrop{background:transparent}
+.ovl {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(10, 11, 13, 0.62);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+dialog.ovl {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+}
+dialog.ovl:not([open]) {
+  display: none;
+}
+dialog.ovl::backdrop {
+  background: transparent;
+}
 
 /* The More cell: the bottom-nav anchor look, for a button. */
-.bnav button{display:grid;place-items:center;gap:3px;padding:7px 2px;border-radius:8px;font-size:10px;font-weight:600;color:#8a9096;text-align:center;background:none;border:0;font-family:inherit;cursor:pointer}
-.bnav button i{font-size:16px}
-.bnav button.on{color:var(--gold);background:rgba(200,162,74,.12)}
+.bnav button {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  padding: 7px 2px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #8a9096;
+  text-align: center;
+  background: none;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+.bnav button i {
+  font-size: 16px;
+}
+.bnav button.on {
+  color: var(--gold);
+  background: rgba(200, 162, 74, 0.12);
+  font-weight: 700;
+}
 
 /* The sheet itself. Destinations only — the sidebar's order and the sidebar's words. */
-.msheet{background:var(--bg);color:var(--ink);width:100%;max-width:340px;border-radius:12px;padding:10px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
-.msheet h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:8px 12px 6px}
-.msheet nav{display:grid}
-.msheet a{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:8px;color:var(--ink);font-weight:600;font-size:14px;text-decoration:none}
-.msheet a i{width:18px;text-align:center;color:var(--mute);font-size:15px}
-.msheet a:hover{background:var(--lt)}
-.msheet a.on{color:var(--gold);background:rgba(200,162,74,.12)}
-.msheet a.on i{color:var(--gold)}
+.msheet {
+  background: var(--bg);
+  color: var(--ink);
+  width: 100%;
+  max-width: 340px;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+.msheet h2 {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute);
+  padding: 8px 12px 6px;
+}
+.msheet nav {
+  display: grid;
+}
+.msheet a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 12px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+.msheet a i {
+  width: 18px;
+  text-align: center;
+  color: var(--mute);
+  font-size: 15px;
+}
+.msheet a:hover {
+  background: var(--lt);
+}
+.msheet a.on {
+  color: var(--gold);
+  background: rgba(200, 162, 74, 0.12);
+}
+.msheet a.on i {
+  color: var(--gold);
+}

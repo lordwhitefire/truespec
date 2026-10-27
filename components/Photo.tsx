@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
+import { useEffect, useRef, useState, type ImgHTMLAttributes } from 'react';
 
-import { sizedPhotoUrl } from "@/lib/photo-url";
-import { PhotoBox } from "./PhotoBox";
+import { sizedPhotoUrl } from '@/lib/photo-url';
+import { PhotoBox } from './PhotoBox';
 
 /**
  * The one image the showroom and the office draw (truth 7).
@@ -33,7 +33,7 @@ import { PhotoBox } from "./PhotoBox";
 
 /** The drawn stand-in: an inline SVG, so it renders with no request and cannot 404. */
 export const PHOTO_PLACEHOLDER =
-  "data:image/svg+xml;charset=utf-8," +
+  'data:image/svg+xml;charset=utf-8,' +
   encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">` +
       `<rect width="400" height="300" fill="#eef0f2"/>` +
@@ -43,7 +43,7 @@ export const PHOTO_PLACEHOLDER =
       `<circle cx="152" cy="197" r="17"/>` +
       `<circle cx="248" cy="197" r="17"/>` +
       `</g>` +
-      `</svg>`,
+      `</svg>`
   );
 
 export type PhotoProps = ImgHTMLAttributes<HTMLImageElement> & {
@@ -78,11 +78,7 @@ export function Photo({ src, alt, boxRef, sized, onError, srcSet, ...rest }: Pho
     if (im && im.complete && im.naturalWidth === 0) setFailed(true);
   }, []);
 
-  const addressed = src
-    ? sized
-      ? sizedPhotoUrl(src, sized.width, sized.height)
-      : src
-    : undefined;
+  const addressed = src ? (sized ? sizedPhotoUrl(src, sized.width, sized.height) : src) : undefined;
   const boxed = !addressed || failed;
   const shown = boxed ? (boxRef ? undefined : PHOTO_PLACEHOLDER) : addressed;
   const dimensions = sized ? { width: sized.width, height: sized.height } : {};
@@ -99,7 +95,7 @@ export function Photo({ src, alt, boxRef, sized, onError, srcSet, ...rest }: Pho
         ref={el}
         src={shown}
         // The boxed slot inside a drawn box is decorative — the car's name is already beside it (E2).
-        alt={boxed && boxRef ? "" : alt}
+        alt={boxed && boxRef ? '' : alt}
         // Once shown, the placeholder is sticky: swapping back to a source that is already known to
         // fail would only flicker the broken icon again.
         onError={(event) => {

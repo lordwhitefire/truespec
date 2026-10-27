@@ -1,25 +1,25 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { countStock } from "@/lib/counts";
-import { presentedSections } from "@/lib/sections";
-import type { PublicCar } from "@/lib/serialize";
-import { ReferenceCard } from "./ReferenceCard";
-import { speak } from "./speak";
-import { store } from "./store";
-import { waClass, waOffProps } from "@/components/whatsapp";
+import { useEffect, useState } from 'react';
+import { countStock } from '@/lib/counts';
+import { presentedSections } from '@/lib/sections';
+import type { PublicCar } from '@/lib/serialize';
+import { ReferenceCard } from './ReferenceCard';
+import { speak } from './speak';
+import { store } from './store';
+import { waClass, waOffProps } from '@/components/whatsapp';
 
 const newMsg = (n: number) =>
-  `Here ${n === 1 ? "is the car" : "are the " + n + " cars"} that arrived since your last visit.`;
+  `Here ${n === 1 ? 'is the car' : 'are the ' + n + ' cars'} that arrived since your last visit.`;
 
-type TabId = "a" | "o" | "l";
+type TabId = 'a' | 'o' | 'l';
 const TABS: { id: TabId; label: string }[] = [
-  { id: "a", label: "Available" },
-  { id: "o", label: "On order" },
-  { id: "l", label: "Landed this year" },
+  { id: 'a', label: 'Available' },
+  { id: 'o', label: 'On order' },
+  { id: 'l', label: 'Landed this year' },
 ];
 
-type View = { type: "tab"; key: TabId } | { type: "new"; cars: PublicCar[] };
+type View = { type: 'tab'; key: TabId } | { type: 'new'; cars: PublicCar[] };
 
 // The home grid is 4-up at 1440 (3-up ≤1100, 2-up ≤820, 1-up ≤560): 12 is three full
 // rows, and it divides by 3, 2 and 1 as well. The paging rule is the same one /inventory
@@ -33,22 +33,22 @@ const PAGE_SIZE = 12;
 //   Landed       -> landed cars          "Landed N cars"
 // "Show all" stays a link to /inventory.
 export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: string }) {
-  const [view, setView] = useState<View>({ type: "tab", key: "a" });
+  const [view, setView] = useState<View>({ type: 'tab', key: 'a' });
   const [page, setPage] = useState(1);
-  const digits = number.replace(/\D/g, "");
+  const digits = number.replace(/\D/g, '');
   const wa = digits ? `https://wa.me/${digits}` : null;
 
   // Counts come from the one counting rule (R-CNT-1…5), never local arithmetic.
   const counts = countStock(cars);
 
   const list =
-    view.type === "new"
+    view.type === 'new'
       ? view.cars
-      : view.key === "a"
-        ? cars.filter((c) => presentedSections(c).includes("available"))
-        : view.key === "o"
-          ? cars.filter((c) => c.section === "on order")
-          : cars.filter((c) => c.section === "landed");
+      : view.key === 'a'
+        ? cars.filter((c) => presentedSections(c).includes('available'))
+        : view.key === 'o'
+          ? cars.filter((c) => c.section === 'on order')
+          : cars.filter((c) => c.section === 'landed');
 
   const pageCount = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
   const current = Math.min(Math.max(page, 1), pageCount);
@@ -56,27 +56,27 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
 
   useEffect(() => {
     const onNew = () => {
-      const known = store.get<string[] | null>("known", null);
+      const known = store.get<string[] | null>('known', null);
       setPage(1);
-      setView({ type: "new", cars: known ? cars.filter((c) => !known.includes(c.ref)) : [] });
+      setView({ type: 'new', cars: known ? cars.filter((c) => !known.includes(c.ref)) : [] });
     };
-    window.addEventListener("ts-show-new", onNew);
-    return () => window.removeEventListener("ts-show-new", onNew);
+    window.addEventListener('ts-show-new', onNew);
+    return () => window.removeEventListener('ts-show-new', onNew);
   }, [cars]);
 
   useEffect(() => {
-    if (view.type === "new") speak(newMsg(view.cars.length));
+    if (view.type === 'new') speak(newMsg(view.cars.length));
   }, [view]);
 
-  const activeTab = view.type === "tab" ? view.key : null;
+  const activeTab = view.type === 'tab' ? view.key : null;
 
   const goPage = (n: number) => {
     const next = Math.min(Math.max(n, 1), pageCount);
     setPage(next);
     speak(`Page <b>${next}</b> of ${pageCount}`);
-    const heading = document.getElementById("hinv-h");
+    const heading = document.getElementById('hinv-h');
     heading?.focus({ preventScroll: true });
-    heading?.scrollIntoView({ block: "start" });
+    heading?.scrollIntoView({ block: 'start' });
   };
 
   return (
@@ -90,24 +90,24 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
             <div className="cnt">
               <i className="fa-solid fa-car-side" />
               <span id="cnt">
-                {view.type === "new" ? (
+                {view.type === 'new' ? (
                   <>
                     New since your last visit <b>{list.length} cars</b>
                   </>
-                ) : activeTab === "a" ? (
+                ) : activeTab === 'a' ? (
                   <>
                     Available <b>{counts.available} cars</b>
                     {counts.newArrivals > 0 ? (
                       <>
-                        {" "}
+                        {' '}
                         · of which <b>{counts.newArrivals} new arrivals</b>
                       </>
                     ) : null}
                   </>
                 ) : (
                   <>
-                    {activeTab === "o" ? "On order" : "Landed"}{" "}
-                    <b>{activeTab === "o" ? counts.onOrder : counts.landed} cars</b>
+                    {activeTab === 'o' ? 'On order' : 'Landed'}{' '}
+                    <b>{activeTab === 'o' ? counts.onOrder : counts.landed} cars</b>
                   </>
                 )}
               </span>
@@ -119,11 +119,11 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
                 key={t.id}
                 type="button"
                 role="tab"
-                className={activeTab === t.id ? "tab on" : "tab"}
+                className={activeTab === t.id ? 'tab on' : 'tab'}
                 aria-selected={activeTab === t.id}
                 onClick={() => {
                   setPage(1);
-                  setView({ type: "tab", key: t.id });
+                  setView({ type: 'tab', key: t.id });
                 }}
               >
                 {t.label}
@@ -142,9 +142,12 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
             ) : (
               <div className="empty">
                 <i className="fa-solid fa-magnifying-glass" />
-                <p>Nothing here yet — tell me the car you&rsquo;re after and I&rsquo;ll source it in the USA.</p>
+                <p>
+                  Nothing here yet — tell me the car you&rsquo;re after and I&rsquo;ll source it in
+                  the USA.
+                </p>
                 <a
-                  className={waClass("btn", !wa)}
+                  className={waClass('btn', !wa)}
                   target="_blank"
                   rel="noopener noreferrer"
                   href={wa ?? undefined}
@@ -173,7 +176,7 @@ export function HomeInventory({ cars, number }: { cars: PublicCar[]; number: str
                   type="button"
                   className="pgb"
                   aria-label={`Page ${n}`}
-                  aria-current={n === current ? "page" : undefined}
+                  aria-current={n === current ? 'page' : undefined}
                   onClick={() => goPage(n)}
                 >
                   {n}

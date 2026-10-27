@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   addEnquiryState,
@@ -6,9 +6,9 @@ import {
   removeEnquiryState,
   renameEnquiryState,
   reorderEnquiryStates,
-} from "@/app/office/actions/enquiry";
-import type { EnquiryRegistryState } from "@/lib/enquiry-state";
-import { RegistryEditor } from "./registry-editor";
+} from '@/app/office/actions/enquiry';
+import type { EnquiryRegistryState } from '@/lib/enquiry-state';
+import { RegistryEditor } from './registry-editor';
 
 /* The enquiry-state editor, bound to its registry and its five writes (truth 10, truth 15).
 

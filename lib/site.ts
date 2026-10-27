@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 
 /**
  * The one source for the public site's identity.
@@ -7,14 +7,14 @@ import type { Metadata } from "next";
  * Keeping the origin in one place is what stops a canonical URL or a social card from drifting to a
  * preview host or a relative path.
  */
-export const SITE_ORIGIN = "https://truespec-k4y6.vercel.app";
-export const SITE_NAME = "TrueSpec Automotive";
-export const SITE_TITLE = "TrueSpec — cars you can trust";
+export const SITE_ORIGIN = 'https://truespec-k4y6.vercel.app';
+export const SITE_NAME = 'TrueSpec Automotive';
+export const SITE_TITLE = 'TrueSpec — cars you can trust';
 export const SITE_DESCRIPTION =
-  "A Nigerian vehicle-import showroom: browse, judge a car completely, chat on WhatsApp.";
+  'A Nigerian vehicle-import showroom: browse, judge a car completely, chat on WhatsApp.';
 
 /** The generated default card at `app/opengraph-image.tsx`. */
-export const DEFAULT_OG_IMAGE = "/opengraph-image";
+export const DEFAULT_OG_IMAGE = '/opengraph-image';
 export const DEFAULT_OG_IMAGE_WIDTH = 1200;
 export const DEFAULT_OG_IMAGE_HEIGHT = 630;
 
@@ -25,12 +25,12 @@ export const SITE_URL = new URL(SITE_ORIGIN);
  * Last-updated and reviewed date for public legal pages. Moves with the owner's approval date —
  * privacy's own record is updated by Task 14; terms records its own.
  */
-export const TERMS_LAST_UPDATED = "27 October 2026";
+export const TERMS_LAST_UPDATED = '27 October 2026';
 
 /**
  * Last-updated and reviewed date for the privacy notice. Moves when the privacy page changes.
  */
-export const PRIVACY_LAST_UPDATED = "27 October 2026";
+export const PRIVACY_LAST_UPDATED = '27 October 2026';
 
 /**
  * Turn a route path or an already-absolute image URL into an absolute URL on the canonical origin.
@@ -38,7 +38,7 @@ export const PRIVACY_LAST_UPDATED = "27 October 2026";
  */
 export function absoluteUrl(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
-  const normalized = path.startsWith("/") ? path : `/${path}`;
+  const normalized = path.startsWith('/') ? path : `/${path}`;
   return new URL(normalized, SITE_ORIGIN).toString();
 }
 
@@ -59,7 +59,7 @@ export type PageMetadataInput = {
   /** An absolute image URL (e.g. a Sanity cover) or a root-relative path. Defaults to the site card. */
   image?: string;
   imageAlt?: string;
-  type?: "website" | "article";
+  type?: 'website' | 'article';
   noIndex?: boolean;
   /** Use the title exactly as given; for the home page, which already carries the brand. */
   absoluteTitle?: boolean;
@@ -85,8 +85,8 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
       description,
       url: canonical,
       siteName: SITE_NAME,
-      locale: "en_NG",
-      type: input.type ?? "website",
+      locale: 'en_NG',
+      type: input.type ?? 'website',
       images: [
         {
           url: image,
@@ -97,7 +97,7 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
       ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title,
       description,
       images: [image],

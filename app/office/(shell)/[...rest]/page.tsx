@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
-import { requireOfficeSession } from "@/lib/session";
+import { notFound } from 'next/navigation';
+import { requireOfficeSession } from '@/lib/session';
 
 /* Every `/office/…` address that matches no real screen: a mistyped address, a stale link.
  *

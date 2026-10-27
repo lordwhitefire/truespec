@@ -1,16 +1,22 @@
-import "./enquiries.css";
-import Link from "next/link";
-import { getAllOfficeTaps, getEnquiries, getEnquiryStateRegistry, type OfficeEnquiry, type OfficeTap } from "@/lib/office";
-import { type EnquiryRegistryState } from "@/lib/enquiry-state";
-import { longDay, shortAge } from "@/lib/office-time";
-import { requireOfficeSession } from "@/lib/session";
-import { CreateFromFile } from "@/components/office/CreateFromFile";
-import { MarkTapsSeen } from "@/components/office/MarkTapsSeen";
-import { Enquiries } from "./enquiries-client";
+import './enquiries.css';
+import Link from 'next/link';
+import {
+  getAllOfficeTaps,
+  getEnquiries,
+  getEnquiryStateRegistry,
+  type OfficeEnquiry,
+  type OfficeTap,
+} from '@/lib/office';
+import { type EnquiryRegistryState } from '@/lib/enquiry-state';
+import { longDay, shortAge } from '@/lib/office-time';
+import { requireOfficeSession } from '@/lib/session';
+import { CreateFromFile } from '@/components/office/CreateFromFile';
+import { MarkTapsSeen } from '@/components/office/MarkTapsSeen';
+import { Enquiries } from './enquiries-client';
 
 // The board is the store's rows, so this page renders per request — never from a build-time
 // snapshot of it.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Enquiries — one page, two panels, chosen by `?tab` (Designer ruling 5).
 
@@ -31,7 +37,7 @@ export default async function EnquiriesPage({
 }) {
   await requireOfficeSession();
   const { tab } = await searchParams;
-  const showTaps = tab === "taps";
+  const showTaps = tab === 'taps';
   const now = new Date();
 
   // Only the panel being shown is read: the taps tab does not need the board, and the board does not
@@ -46,8 +52,8 @@ export default async function EnquiriesPage({
         <div>
           <h1>Enquiries</h1>
           <p className="sub2">
-            The site only records that a WhatsApp tap happened, and on which car. You
-            bring the names and numbers back here by importing the enquiry sheet.
+            The site only records that a WhatsApp tap happened, and on which car. You bring the
+            names and numbers back here by importing the enquiry sheet.
           </p>
         </div>
         {/* Where the sheet comes in (task.md §Q2). Its rows become **drafts**, not enquiries —
@@ -67,15 +73,15 @@ export default async function EnquiriesPage({
       <nav className="etabs" aria-label="Enquiries sections">
         <Link
           href="/office/enquiries"
-          className={"etab" + (showTaps ? "" : " on")}
-          aria-current={showTaps ? undefined : "page"}
+          className={'etab' + (showTaps ? '' : ' on')}
+          aria-current={showTaps ? undefined : 'page'}
         >
           Enquiries
         </Link>
         <Link
           href="/office/enquiries?tab=taps"
-          className={"etab" + (showTaps ? " on" : "")}
-          aria-current={showTaps ? "page" : undefined}
+          className={'etab' + (showTaps ? ' on' : '')}
+          aria-current={showTaps ? 'page' : undefined}
         >
           Taps
         </Link>
@@ -93,7 +99,11 @@ export default async function EnquiriesPage({
         />
       ) : (
         <Enquiries
-          states={states.map((state) => ({ id: state.id, label: state.label, colour: state.colour }))}
+          states={states.map((state) => ({
+            id: state.id,
+            label: state.label,
+            colour: state.colour,
+          }))}
           enquiries={enquiries.map((e) => ({
             id: e.id,
             ref: e.ref,
@@ -160,7 +170,7 @@ function TapsPanel({ taps }: { taps: TapRow[] }) {
               </>
             ) : (
               <>
-                Tap on{" "}
+                Tap on{' '}
                 <Link href={`/office/car/${t.carRef}`} title={`Open ${t.carRef}`}>
                   {t.car}
                 </Link>

@@ -14,8 +14,8 @@
  * order is the safety property: deleting first would let the next request recreate the row from a
  * still-live provider session.
  */
-import type { Space } from "./space-rule";
-import { expiryFrom, isSessionValid, shouldRefreshLastSeen } from "./session-rules";
+import type { Space } from './space-rule';
+import { expiryFrom, isSessionValid, shouldRefreshLastSeen } from './session-rules';
 
 /** A live office session — our row, its one owner, and the space it lives in. */
 export type OfficeSession = {
@@ -43,9 +43,7 @@ export type OfficeSession = {
  * cookie before it meets the door, or Clerk's own sign-in would bounce it straight back inside.
  */
 export type OfficeSessionState =
-  | { status: "active"; session: OfficeSession }
-  | { status: "none" }
-  | { status: "ended" };
+  { status: 'active'; session: OfficeSession } | { status: 'none' } | { status: 'ended' };
 
 export type SessionRow = {
   session_row_id: string;
@@ -61,7 +59,7 @@ export type SessionRow = {
 export type SessionQuery = <T = unknown>(
   text: string,
   params?: unknown[],
-  options?: { space: Space },
+  options?: { space: Space }
 ) => Promise<T>;
 
 export type SessionDeps = {
@@ -93,14 +91,10 @@ function toSession(row: SessionRow, space: Space): OfficeSession {
 export async function endSessionWith(
   clerkSessionId: string,
   space: Space,
-  deps: Pick<SessionDeps, "revokeSession" | "query">,
+  deps: Pick<SessionDeps, 'revokeSession' | 'query'>
 ): Promise<void> {
   await deps.revokeSession(clerkSessionId);
-  await deps.query(
-    `DELETE FROM session WHERE clerk_session_id = $1`,
-    [clerkSessionId],
-    { space },
-  );
+  await deps.query(`DELETE FROM session WHERE clerk_session_id = $1`, [clerkSessionId], { space });
 }
 
 /**
@@ -111,11 +105,9 @@ export async function endSessionWith(
  * provider session that exists only in the other space is invisible here; the selected space's
  * lazy upsert creates its own row.
  */
-export async function checkOfficeSessionWith(
-  deps: SessionDeps,
-): Promise<OfficeSessionState> {
+export async function checkOfficeSessionWith(deps: SessionDeps): Promise<OfficeSessionState> {
   const { userId, sessionId } = await deps.readAuth();
-  if (!userId || !sessionId) return { status: "none" };
+  if (!userId || !sessionId) return { status: 'none' };
 
   const now = deps.now();
   const space = await deps.resolveSpace();
@@ -132,7 +124,7 @@ export async function checkOfficeSessionWith(
        JOIN office_user u ON u.id = s.user_id
       WHERE s.clerk_session_id = $1`,
     [sessionId],
-    { space },
+    { space }
   );
 
   const existing = rows[0];
@@ -149,24 +141,24 @@ export async function checkOfficeSessionWith(
         // until a later attempt reaches the provider or the 7-day cap passes — the session never
         // silently revives.
       }
-      return { status: "ended" };
+      return { status: 'ended' };
     }
 
     if (shouldRefreshLastSeen(session.lastSeenAt, now)) {
       await deps.query(
         `UPDATE session SET last_seen_at = $2 WHERE id = $1`,
         [session.sessionRowId, now.toISOString()],
-        { space },
+        { space }
       );
       session.lastSeenAt = now;
     }
 
-    return { status: "active", session };
+    return { status: 'active', session };
   }
 
   // First office request carrying this provider session in this space: create our row (D17).
   const email = await deps.readEmail();
-  if (!email) return { status: "none" };
+  if (!email) return { status: 'none' };
 
   // The one owner row is matched by email (there is no provider-user column).
   const owners = await deps.query<{ id: string }[]>(
@@ -175,24 +167,24 @@ export async function checkOfficeSessionWith(
      ON CONFLICT (email) DO UPDATE SET updated_at = $2
      RETURNING id`,
     [email, now.toISOString()],
-    { space },
+    { space }
   );
   const officeUserId = owners[0]?.id;
-  if (!officeUserId) return { status: "none" };
+  if (!officeUserId) return { status: 'none' };
 
   // One clock for the whole row, so the store can judge the two limits from the dates alone and
   // get the same answer the app does (TASK-003 testing.md).
-  const created = await deps.query<Omit<SessionRow, "email">[]>(
+  const created = await deps.query<Omit<SessionRow, 'email'>[]>(
     `INSERT INTO session (user_id, clerk_session_id, created_at, last_seen_at, expires_at)
      VALUES ($1, $2, $3, $3, $4)
      ON CONFLICT (clerk_session_id) DO UPDATE SET last_seen_at = $3
      RETURNING id AS session_row_id, user_id AS office_user_id,
                clerk_session_id, created_at, last_seen_at, expires_at`,
     [officeUserId, sessionId, now.toISOString(), expiryFrom(now).toISOString()],
-    { space },
+    { space }
   );
 
   const createdRow = created[0];
-  if (!createdRow) return { status: "none" };
-  return { status: "active", session: toSession({ ...createdRow, email }, space) };
+  if (!createdRow) return { status: 'none' };
+  return { status: 'active', session: toSession({ ...createdRow, email }, space) };
 }

@@ -6,7 +6,7 @@
   --gt: #1a1405;
   --wa: #25d366;
   --dk: #212529;
-  --ease: cubic-bezier(.2,.7,.2,1);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --ink: #23272b;
   --mute: #5c636b;
   --body2: #4a5057;
@@ -52,8 +52,8 @@
   --w-tablet: 820px;
   --w-laptop: 1100px;
   --touch: 44px;
-  --font-head: Oswald, sans-serif;
-  --font-body: Inter, sans-serif;
+  --font-head: var(--font-oswald, Oswald), sans-serif;
+  --font-body: var(--font-inter, Inter), sans-serif;
 
   /* Shadows (ui-plan §4). */
   --shadow-card: 0 18px 34px rgba(0, 0, 0, 0.14);
@@ -69,7 +69,7 @@
   --danger: #b3261e;
 }
 
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   --ink: #e8eaed;
   --mute: #9aa0a6;
   --body2: #b9bdc2;
@@ -206,7 +206,10 @@ h3 {
   display: grid;
   place-items: center;
   flex: none;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
 }
 
 .thm:hover {
@@ -301,7 +304,9 @@ h3 {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .card:hover {
@@ -417,7 +422,7 @@ h3 {
   cursor: pointer;
 }
 
-.tab[aria-selected="true"] {
+.tab[aria-selected='true'] {
   color: var(--ink);
   border-bottom-color: var(--gold);
 }
@@ -505,7 +510,7 @@ h3 {
   opacity: 0.6;
 }
 
-.gallery .thumbs img[data-active="true"] {
+.gallery .thumbs img[data-active='true'] {
   opacity: 1;
   outline: 2px solid var(--gold);
 }
@@ -656,4 +661,18 @@ h3 {
 
 .wagn-cancel:hover {
   background: var(--surface-2);
+}
+
+/* Visually hidden, still read by assistive technology. Used for the page-level h1 where the
+   approved design has no visible heading of its own. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

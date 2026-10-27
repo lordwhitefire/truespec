@@ -1,7 +1,7 @@
-import { CAR_RECIPE } from "./change-check";
-import { parseCostAmount, SIX_COST_KINDS, type CostKind } from "./money";
-import type { SaleInput } from "./sale";
-import { FEATURE_SEPARATOR, readingFor } from "./template-rules";
+import { CAR_RECIPE } from './change-check';
+import { parseCostAmount, SIX_COST_KINDS, type CostKind } from './money';
+import type { SaleInput } from './sale';
+import { FEATURE_SEPARATOR, readingFor } from './template-rules';
 
 /**
  * The car form's one reader.
@@ -85,27 +85,28 @@ export type CarInputValue = {
 };
 
 export type FieldError = { field: string; message: string };
-export type CarInputResult = { ok: true; value: CarInputValue } | { ok: false; errors: FieldError[] };
+export type CarInputResult =
+  { ok: true; value: CarInputValue } | { ok: false; errors: FieldError[] };
 
-const blank = (s: string | undefined): boolean => s === undefined || s.trim() === "";
+const blank = (s: string | undefined): boolean => s === undefined || s.trim() === '';
 const text = (s: string | undefined): string | null => {
-  const t = (s ?? "").trim();
-  return t === "" ? null : t;
+  const t = (s ?? '').trim();
+  return t === '' ? null : t;
 };
 
 /** A whole, non-negative integer, or null when the text is not one. */
 function wholeNumber(raw: string | undefined): number | null {
-  const t = (raw ?? "").trim().replace(/[,\s]/g, "");
+  const t = (raw ?? '').trim().replace(/[,\s]/g, '');
   if (!/^\d+$/.test(t)) return null;
   return Number(t);
 }
 
 /** Split a typed feature list into trimmed, non-empty lines. */
 function featureList(raw: string | undefined): string[] {
-  return (raw ?? "")
-    .split("\n")
+  return (raw ?? '')
+    .split('\n')
     .map((line) => line.trim())
-    .filter((line) => line !== "");
+    .filter((line) => line !== '');
 }
 
 /**
@@ -128,27 +129,30 @@ function isoDay(raw: string): string | null {
  * @param input the form's strings
  * @param now   the year "this year" means, for the year bound; injected so the rule is testable
  */
-export function readCarInput(input: CarFormInput, now: number = new Date().getFullYear()): CarInputResult {
+export function readCarInput(
+  input: CarFormInput,
+  now: number = new Date().getFullYear()
+): CarInputResult {
   const errors: FieldError[] = [];
 
   // --- required text fields ---
-  const brand = (input.brand ?? "").trim();
-  if (brand === "") errors.push({ field: "brand", message: "Enter the make" });
-  const model = (input.model ?? "").trim();
-  if (model === "") errors.push({ field: "model", message: "Enter the model" });
+  const brand = (input.brand ?? '').trim();
+  if (brand === '') errors.push({ field: 'brand', message: 'Enter the make' });
+  const model = (input.model ?? '').trim();
+  if (model === '') errors.push({ field: 'model', message: 'Enter the model' });
 
   // --- year ---
   const year = wholeNumber(input.year);
   if (blank(input.year) || year === null) {
-    errors.push({ field: "year", message: "Enter the year" });
+    errors.push({ field: 'year', message: 'Enter the year' });
   } else if (year < 1900 || year > now + 1) {
-    errors.push({ field: "year", message: `Enter a year between 1900 and ${now + 1}` });
+    errors.push({ field: 'year', message: `Enter a year between 1900 and ${now + 1}` });
   }
 
   // --- mileage (km) ---
   const mileage = wholeNumber(input.mileage);
   if (blank(input.mileage) || mileage === null) {
-    errors.push({ field: "mileage", message: "Enter the mileage in km" });
+    errors.push({ field: 'mileage', message: 'Enter the mileage in km' });
   }
 
   // --- amounts: each is naira, and a malformed one is refused at its own field ---
@@ -156,14 +160,14 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
   if (!blank(input.wasPrice)) {
     const parsed = parseCostAmount(input.wasPrice as string);
     if (parsed.ok) wasPriceKobo = parsed.amountMinor;
-    else errors.push({ field: "wasPrice", message: parsed.error });
+    else errors.push({ field: 'wasPrice', message: parsed.error });
   }
 
   let priceKobo: number | null = null;
   if (!blank(input.price)) {
     const parsed = parseCostAmount(input.price as string);
     if (parsed.ok) priceKobo = parsed.amountMinor;
-    else errors.push({ field: "price", message: parsed.error });
+    else errors.push({ field: 'price', message: parsed.error });
   }
 
   const costs: CarCostLine[] = [];
@@ -176,8 +180,8 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
   }
 
   // --- the car's one primary state ---
-  const stateId = (input.stateId ?? "").trim();
-  if (stateId === "") errors.push({ field: "stateId", message: "Choose the car's state" });
+  const stateId = (input.stateId ?? '').trim();
+  if (stateId === '') errors.push({ field: 'stateId', message: "Choose the car's state" });
 
   // --- the sale (truth 5) ---
   // The two money facts travel together: a price with no date, or a date with no price,
@@ -191,18 +195,18 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
   if (gavePrice) {
     const parsed = parseCostAmount(input.salePrice as string);
     if (parsed.ok) salePriceKobo = parsed.amountMinor;
-    else errors.push({ field: "salePrice", message: parsed.error });
+    else errors.push({ field: 'salePrice', message: parsed.error });
   } else if (gaveDate) {
-    errors.push({ field: "salePrice", message: "Enter the sale price" });
+    errors.push({ field: 'salePrice', message: 'Enter the sale price' });
   }
 
   let soldAt: string | null = null;
   if (gaveDate) {
     const day = isoDay((input.saleDate as string).trim());
     if (day !== null) soldAt = `${day}T12:00:00.000Z`;
-    else errors.push({ field: "saleDate", message: "Enter the date the car sold" });
+    else errors.push({ field: 'saleDate', message: 'Enter the date the car sold' });
   } else if (gavePrice) {
-    errors.push({ field: "saleDate", message: "Enter the date the car sold" });
+    errors.push({ field: 'saleDate', message: 'Enter the date the car sold' });
   }
 
   if (errors.length > 0) return { ok: false, errors };
@@ -229,7 +233,9 @@ export function readCarInput(input: CarFormInput, now: number = new Date().getFu
         state_id: stateId,
       },
       costs,
-      secondaryStateIds: Array.from(new Set(input.secondaryStateIds ?? [])).filter((id) => id.trim() !== ""),
+      secondaryStateIds: Array.from(new Set(input.secondaryStateIds ?? [])).filter(
+        (id) => id.trim() !== ''
+      ),
       sale: salePriceKobo !== null && soldAt !== null ? { salePriceKobo, soldAt } : null,
     },
   };
@@ -260,7 +266,7 @@ function blankFeatureList(raw: string): string[] {
   return raw
     .split(FEATURE_SEPARATOR)
     .map((item) => item.trim())
-    .filter((item) => item !== "");
+    .filter((item) => item !== '');
 }
 
 /**
@@ -284,27 +290,27 @@ export function readCarFields(raw: CarFieldStrings): ReadCarFieldsResult {
 
   for (const field of CAR_RECIPE) {
     // The state is not a recipe value at upload: there is no key to read, only a name to keep.
-    if (field.name === "state_id") continue;
+    if (field.name === 'state_id') continue;
 
     const carried = raw[field.name];
     if (blank(carried)) continue;
 
     switch (readingFor(field.name, field.kind)) {
-      case "text":
+      case 'text':
         values[field.name] = text(carried);
         break;
-      case "list":
+      case 'list':
         values[field.name] = blankFeatureList(carried as string);
         break;
-      case "money": {
+      case 'money': {
         const parsed = parseCostAmount(carried as string);
         if (parsed.ok) values[field.name] = parsed.amountMinor;
         else errors.push({ field: field.name, message: parsed.error });
         break;
       }
-      case "whole": {
+      case 'whole': {
         const whole = wholeNumber(carried);
-        if (whole === null) errors.push({ field: field.name, message: "Enter a whole number" });
+        if (whole === null) errors.push({ field: field.name, message: 'Enter a whole number' });
         else values[field.name] = whole;
         break;
       }

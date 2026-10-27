@@ -1,14 +1,14 @@
-import "./settings.css";
-import { getCarStateRegistry, getEnquiryStateRegistry } from "@/lib/office";
-import { readNotices, readSettings } from "@/lib/settings";
-import { buildNotices } from "@/lib/notices";
-import { listWaitingToBeCleared } from "@/lib/cleanup";
-import { requireOfficeSession } from "@/lib/session";
-import { Settings } from "./settings-client";
+import './settings.css';
+import { getCarStateRegistry, getEnquiryStateRegistry } from '@/lib/office';
+import { readNotices, readSettings } from '@/lib/settings';
+import { buildNotices } from '@/lib/notices';
+import { listWaitingToBeCleared } from '@/lib/cleanup';
+import { requireOfficeSession } from '@/lib/session';
+import { Settings } from './settings-client';
 
 // The registries and the three settings come from the store, so this page renders per request —
 // never from a build-time snapshot of them.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Settings — the four site-wide cards plus the two state editors, swapped in place
    by the left sub-menu (ui-plan Q58). Both editors are the owner's registries: read
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const session = await requireOfficeSession();
-  const isDemo = session.space === "demo";
+  const isDemo = session.space === 'demo';
 
   // The three editable settings and both state registries are space-aware. The operational notices
   // and the cleanup report are main's alone: a demo session gets `readSettings` and the registries,

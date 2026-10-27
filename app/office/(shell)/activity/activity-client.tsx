@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Fragment, useState } from "react";
+import { Fragment, useState } from 'react';
 import {
   CATEGORIES,
   categoryLabel,
@@ -9,7 +9,7 @@ import {
   operator,
   wordOf,
   type ActivityEntry,
-} from "@/lib/activity-feed";
+} from '@/lib/activity-feed';
 
 /* Activity log — the store's own record, filtered on the screen.
 
@@ -22,14 +22,14 @@ import {
    makes the log worth trusting. */
 
 export function Activity({ entries }: { entries: ActivityEntry[] }) {
-  const [fType, setFType] = useState<string>("all");
-  const [q, setQ] = useState("");
+  const [fType, setFType] = useState<string>('all');
+  const [q, setQ] = useState('');
 
   const show = entries.filter(
     (e) =>
-      (fType === "all" || categoryOf(e.kind) === fType) &&
+      (fType === 'all' || categoryOf(e.kind) === fType) &&
       (!q ||
-        `${e.kind} ${wordOf(e.kind)} ${e.subject} ${(e.actor ?? "").toLowerCase()}`.includes(q)),
+        `${e.kind} ${wordOf(e.kind)} ${e.subject} ${(e.actor ?? '').toLowerCase()}`.includes(q))
   );
 
   // The days, newest first, in the order the store gave them — no table of days to drift from it.
@@ -40,8 +40,8 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
       <div className="hrow">
         <h1>Activity log</h1>
         <p className="sub2">
-          Every change made to a car, newest first. Entries can&apos;t be edited or
-          removed — that&apos;s what makes the log worth trusting.
+          Every change made to a car, newest first. Entries can&apos;t be edited or removed —
+          that&apos;s what makes the log worth trusting.
         </p>
       </div>
 
@@ -65,7 +65,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
           <button
             key={tp.k}
             type="button"
-            className={fType === tp.k ? "on" : undefined}
+            className={fType === tp.k ? 'on' : undefined}
             data-tp={tp.k}
             onClick={() => setFType(tp.k)}
           >
@@ -93,8 +93,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
             <i className="fa-solid fa-list-check" />
             {entries.length === 0 ? (
               <p>
-                Nothing has been done to a car yet. Add one, or change one, and it will
-                appear here.
+                Nothing has been done to a car yet. Add one, or change one, and it will appear here.
               </p>
             ) : (
               <p>Nothing matches. Clear the search or pick another type.</p>
@@ -105,8 +104,8 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
                 type="button"
                 id="clearf"
                 onClick={() => {
-                  setFType("all");
-                  setQ("");
+                  setFType('all');
+                  setQ('');
                 }}
               >
                 Clear filters
@@ -138,8 +137,8 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
                         {who.initial}
                       </span>
                       <p>
-                        {wordOf(e.kind)}{" "}
-                        {e.kind.startsWith("car.") ? (
+                        {wordOf(e.kind)}{' '}
+                        {e.kind.startsWith('car.') ? (
                           <a
                             className="ref"
                             href={`/office/car/${e.subject}`}
@@ -150,7 +149,7 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
                         ) : (
                           e.subject
                         )}
-                        <span className={`tag ${categoryOf(e.kind) || "other"}`}>
+                        <span className={`tag ${categoryOf(e.kind) || 'other'}`}>
                           {categoryLabel(e.kind)}
                         </span>
                         <time>{e.clock}</time>
@@ -167,9 +166,8 @@ export function Activity({ entries }: { entries: ActivityEntry[] }) {
 
       <p className="note">
         <i className="fa-solid fa-lock" />
-        WhatsApp taps are <b>visitor</b> events and live in Enquiries and on the
-        Dashboard — this log records what <b>you</b> did in the office. Both
-        together are the full story.
+        WhatsApp taps are <b>visitor</b> events and live in Enquiries and on the Dashboard — this
+        log records what <b>you</b> did in the office. Both together are the full story.
       </p>
     </>
   );

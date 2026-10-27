@@ -13,17 +13,17 @@
 //
 // Pure: values in, the save's own input out. No store, no session, no clock.
 
-import type { CarFormInput, CarInputResult, FieldError } from "./car-input";
-import { readCarInput } from "./car-input";
+import type { CarFormInput, CarInputResult, FieldError } from './car-input';
+import { readCarInput } from './car-input';
 
 /** A value the draft carries, as the form wants it: trimmed text, or `""` when it carried none. */
 function asText(value: unknown): string {
-  return value === undefined || value === null ? "" : String(value);
+  return value === undefined || value === null ? '' : String(value);
 }
 
 /** A number the draft carries, as the form wants it (its digits), or `""`. */
 function asDigits(value: unknown): string {
-  return typeof value === "number" ? String(value) : asText(value);
+  return typeof value === 'number' ? String(value) : asText(value);
 }
 
 /**
@@ -32,12 +32,12 @@ function asDigits(value: unknown): string {
  * not be used here.
  */
 function asNaira(value: unknown): string {
-  return typeof value === "number" ? (value / 100).toFixed(2) : asText(value);
+  return typeof value === 'number' ? (value / 100).toFixed(2) : asText(value);
 }
 
 /** The feature list the form takes: one feature per line. */
 function asLines(value: unknown): string {
-  return Array.isArray(value) ? value.map((line) => String(line)).join("\n") : asText(value);
+  return Array.isArray(value) ? value.map((line) => String(line)).join('\n') : asText(value);
 }
 
 /**
@@ -79,7 +79,8 @@ export type EnquirySeed = {
   note: string | null;
 };
 
-export type EnquirySeedResult = { ok: true; seed: EnquirySeed } | { ok: false; errors: FieldError[] };
+export type EnquirySeedResult =
+  { ok: true; seed: EnquirySeed } | { ok: false; errors: FieldError[] };
 
 /**
  * Judge an enquiry draft. The enquiry's own rule, written once: the three the store will not take
@@ -89,16 +90,16 @@ export function readEnquirySeed(values: Record<string, unknown>): EnquirySeedRes
   const errors: FieldError[] = [];
 
   const name = asText(values.name).trim();
-  if (name === "") errors.push({ field: "name", message: "Enter the customer's name" });
+  if (name === '') errors.push({ field: 'name', message: "Enter the customer's name" });
 
   const number = asText(values.number).trim();
-  if (number === "") errors.push({ field: "number", message: "Enter the phone number" });
+  if (number === '') errors.push({ field: 'number', message: 'Enter the phone number' });
 
   const askedFor = asText(values.asked_for).trim();
-  if (askedFor === "") errors.push({ field: "asked_for", message: "Enter what they asked for" });
+  if (askedFor === '') errors.push({ field: 'asked_for', message: 'Enter what they asked for' });
 
   if (errors.length > 0) return { ok: false, errors };
 
   const note = asText(values.note).trim();
-  return { ok: true, seed: { name, number, asked_for: askedFor, note: note === "" ? null : note } };
+  return { ok: true, seed: { name, number, asked_for: askedFor, note: note === '' ? null : note } };
 }

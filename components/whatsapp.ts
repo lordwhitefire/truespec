@@ -1,4 +1,4 @@
-import type { PublicCar } from "@/lib/serialize";
+import type { PublicCar } from '@/lib/serialize';
 
 /**
  * D16 — with no number saved the chat affordances stay on the screen and are visibly off. The
@@ -6,8 +6,8 @@ import type { PublicCar } from "@/lib/serialize";
  * accessible description), because a control that only looks dead is still a control that
  * explains nothing.
  */
-export const WA_OFF_TEXT = "No number saved";
-export const WA_OFF_REASON = "No WhatsApp number is saved yet.";
+export const WA_OFF_TEXT = 'No number saved';
+export const WA_OFF_REASON = 'No WhatsApp number is saved yet.';
 
 /** A base class plus the off state's class, in one place so the name cannot drift. */
 export function waClass(base: string, off: boolean): string {
@@ -22,8 +22,8 @@ export function waClass(base: string, off: boolean): string {
 export function waOffProps(off: boolean) {
   return off
     ? {
-        role: "link" as const,
-        "aria-disabled": true as const,
+        role: 'link' as const,
+        'aria-disabled': true as const,
         tabIndex: -1,
         title: WA_OFF_REASON,
       }
@@ -40,12 +40,12 @@ export function waOffProps(off: boolean) {
  * absent number means before it renders.
  */
 export function waLink(number: string | null | undefined, text: string): string | null {
-  const digits = (number ?? "").replace(/\D/g, "");
+  const digits = (number ?? '').replace(/\D/g, '');
   if (!digits) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
 }
 
 export function carWaLink(number: string | null | undefined, car: PublicCar): string | null {
-  const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(" ");
+  const name = [car.year, car.brand, car.model, car.trim].filter(Boolean).join(' ');
   return waLink(number, `Hello TrueSpec, I'm interested in the ${name} (${car.ref}).`);
 }

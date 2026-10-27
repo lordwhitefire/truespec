@@ -26,21 +26,21 @@
 // `--conditions=react-server` lets this plain server-side script import lib/db.ts;
 // that module's `server-only` guard is meant for the client bundle, not a script.
 
-import { readFileSync } from "node:fs";
-import { config as loadEnv } from "dotenv";
+import { readFileSync } from 'node:fs';
+import { config as loadEnv } from 'dotenv';
 
-import { mainDb } from "../lib/db";
-import { countStock } from "../lib/counts";
-import { costLabelFor, formatNaira, isCostComplete, profitKobo, totalCostKobo } from "../lib/money";
-import { reachLine, stillBuildingLine, stockOverview, type OverviewCar } from "../lib/overview";
-import { sectionOfState, type Section } from "../lib/sections";
+import { mainDb } from '../lib/db';
+import { countStock } from '../lib/counts';
+import { costLabelFor, formatNaira, isCostComplete, profitKobo, totalCostKobo } from '../lib/money';
+import { reachLine, stillBuildingLine, stockOverview, type OverviewCar } from '../lib/overview';
+import { sectionOfState, type Section } from '../lib/sections';
 
-loadEnv({ path: ".env.local" });
+loadEnv({ path: '.env.local' });
 
 // The host must match the host the owner signed in on (cookies are host-scoped): the signed-in
 // Chrome tabs are on 127.0.0.1:3210, not localhost.
-const BASE = process.env.LEAK_BASE_URL ?? "http://127.0.0.1:3210";
-const HISTORICAL = "developer-workspace/scripts/office-data/ref-dashboard.txt";
+const BASE = process.env.LEAK_BASE_URL ?? 'http://127.0.0.1:3210';
+const HISTORICAL = 'developer-workspace/scripts/office-data/ref-dashboard.txt';
 
 // --- the rendered office ----------------------------------------------------
 //
@@ -51,13 +51,13 @@ const HISTORICAL = "developer-workspace/scripts/office-data/ref-dashboard.txt";
 // reads the signed-in tab and detaches. It is imported by path so this script keeps no
 // compile-time dependency on playwright; `BASE` must match the host the owner signed in on
 // (cookies are host-scoped).
-const OFFICE_HARNESS = "../developer-workspace/scripts/task-004/_office-browser.mjs";
+const OFFICE_HARNESS = '../developer-workspace/scripts/task-004/_office-browser.mjs';
 
 async function readOffice(paths: string[]): Promise<Record<string, string>> {
   const mod = (await import(OFFICE_HARNESS)) as {
     readOfficePages: (
       paths: string[],
-      opts?: { base?: string },
+      opts?: { base?: string }
     ) => Promise<{ html: Record<string, string> }>;
   };
   const { html } = await mod.readOfficePages(paths, { base: BASE });
@@ -67,17 +67,18 @@ async function readOffice(paths: string[]): Promise<Record<string, string>> {
 // Tags out, entities in: the office's own words, with the markup removed.
 function textOf(h: string): string {
   return h
-    .replace(/<script[\s\S]*?<\/script>/g, " ")
-    .replace(/<style[\s\S]*?<\/style>/g, " ")
-    .replace(/<[^>]+>/g, " ")
+    .replace(/<script[\s\S]*?<\/script>/g, ' ')
+    .replace(/<style[\s\S]*?<\/style>/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;/g, " ")
-    .replace(/\s+/g, " ")
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
-const digits = (s: string | undefined | null) => (s == null ? null : Number(s.replace(/[^\d]/g, "")));
+const digits = (s: string | undefined | null) =>
+  s == null ? null : Number(s.replace(/[^\d]/g, ''));
 
 // --- the store, read directly ----------------------------------------------
 
@@ -130,8 +131,8 @@ async function storeCars(): Promise<StoreCar[]> {
 
   return rows.map((r) => ({
     ref: r.ref,
-    name: [r.brand, r.model, r.trim].filter(Boolean).join(" "),
-    officeLabel: [r.year, r.model, r.trim].filter(Boolean).join(" "),
+    name: [r.brand, r.model, r.trim].filter(Boolean).join(' '),
+    officeLabel: [r.year, r.model, r.trim].filter(Boolean).join(' '),
     year: r.year,
     state: r.state,
     // The one section rule, from the registry's own mapping (never the state label).
@@ -161,26 +162,32 @@ const toOverview = (c: StoreCar): OverviewCar => ({
 
 const failures: string[] = [];
 
-function check(label: string, rule: string, office: string | null, note = "") {
+function check(label: string, rule: string, office: string | null, note = '') {
   const same = office !== null && rule === office;
   if (!same) failures.push(label);
   console.log(
-    `  ${same ? "✓" : "✗"} ${label.padEnd(24)} rule ${rule.padStart(18)}   ` +
-      `office ${(office ?? "?").padStart(18)}${note ? `   ${note}` : ""}`,
+    `  ${same ? '✓' : '✗'} ${label.padEnd(24)} rule ${rule.padStart(18)}   ` +
+      `office ${(office ?? '?').padStart(18)}${note ? `   ${note}` : ''}`
   );
 }
 
-const checkNumber = (label: string, rule: number, office: number | null, note = "") =>
+const checkNumber = (label: string, rule: number, office: number | null, note = '') =>
   check(label, String(rule), office === null ? null : String(office), note);
 
 // --- per-car rows out of the office's inventory table -----------------------
 
-type RenderedRow = { ref: string; state: string; price: string | null; cost: string | null; profit: string | null };
+type RenderedRow = {
+  ref: string;
+  state: string;
+  price: string | null;
+  cost: string | null;
+  profit: string | null;
+};
 
 function renderedRows(invHtml: string): RenderedRow[] {
-  const body = /<tbody[\s\S]*?<\/tbody>/.exec(invHtml)?.[0] ?? "";
+  const body = /<tbody[\s\S]*?<\/tbody>/.exec(invHtml)?.[0] ?? '';
   const out: RenderedRow[] = [];
-  for (const tr of body.split("</tr>")) {
+  for (const tr of body.split('</tr>')) {
     if (!tr.includes('class="carx"')) continue;
     const refNo = /<small>TS-(\d{4})/.exec(tr)?.[1];
     const state = /<span class="st [a-z]+"><i><\/i>([^<]+)<\/span>/.exec(tr)?.[1];
@@ -190,11 +197,17 @@ function renderedRows(invHtml: string): RenderedRow[] {
     // Price, cost, profit; the last `class="r"` cell is the row's actions.
     const amount = (cell: string | undefined) => {
       if (cell === undefined) return null;
-      if (cell.includes("Costs incomplete")) return "incomplete";
+      if (cell.includes('Costs incomplete')) return 'incomplete';
       const m = /₦([\d,]+)/.exec(cell);
       return m ? `₦${m[1]}` : null;
     };
-    out.push({ ref, state, price: amount(cells[0]), cost: amount(cells[1]), profit: amount(cells[2]) });
+    out.push({
+      ref,
+      state,
+      price: amount(cells[0]),
+      cost: amount(cells[1]),
+      profit: amount(cells[2]),
+    });
   }
   return out;
 }
@@ -206,7 +219,7 @@ function renderedCostLabels(invHtml: string): Map<string, string> {
     const window = invHtml.slice(m.index, m.index + 1500);
     const smalls = [...window.matchAll(/<small>([^<]+)<\/small>/g)].map((x) => x[1]);
     const costLabel = smalls.find(
-      (l) => l === "Landed cost" || l === "Estimated total cost" || l === "Total cost",
+      (l) => l === 'Landed cost' || l === 'Estimated total cost' || l === 'Total cost'
     );
     if (costLabel) labels.set(`TS-${m[1]}`, costLabel);
   }
@@ -216,77 +229,105 @@ function renderedCostLabels(invHtml: string): Map<string, string> {
 // --- run --------------------------------------------------------------------
 
 async function main() {
-  const office = await readOffice(["/office", "/office/inventory"]);
-  const [dashHtml, invHtml, cars] = [office["/office"], office["/office/inventory"], await storeCars()];
+  const office = await readOffice(['/office', '/office/inventory']);
+  const [dashHtml, invHtml, cars] = [
+    office['/office'],
+    office['/office/inventory'],
+    await storeCars(),
+  ];
 
   const dash = textOf(dashHtml);
   const overviewCars = cars.map(toOverview);
   const counts = countStock(overviewCars);
   const overview = stockOverview(overviewCars);
 
-  console.log("TASK-003 reconciliation — the office against the one car table");
-  console.log("=".repeat(78));
+  console.log('TASK-003 reconciliation — the office against the one car table');
+  console.log('='.repeat(78));
   console.log(`store: ${cars.length} cars · rendered from ${BASE}`);
   console.log();
 
   // --- the dashboard's figures ----------------------------------------------
-  console.log("DASHBOARD  (R-CNT, R-MON-8/9, R-SLD — lib/counts.ts + lib/overview.ts)");
-  checkNumber("cars in stock", overview.moneyTiedUp.counted, digits(/Across (\d[\d,]*) cars in stock/.exec(dash)?.[1]));
-  checkNumber("available", counts.available, digits(/(\d[\d,]*) available of which/.exec(dash)?.[1]));
-  checkNumber("of which new arrival", counts.newArrivals, digits(/(\d[\d,]*) new arrival/.exec(dash)?.[1]));
-  checkNumber("on order", counts.onOrder, digits(/(\d[\d,]*) on order/.exec(dash)?.[1]));
+  console.log('DASHBOARD  (R-CNT, R-MON-8/9, R-SLD — lib/counts.ts + lib/overview.ts)');
+  checkNumber(
+    'cars in stock',
+    overview.moneyTiedUp.counted,
+    digits(/Across (\d[\d,]*) cars in stock/.exec(dash)?.[1])
+  );
+  checkNumber(
+    'available',
+    counts.available,
+    digits(/(\d[\d,]*) available of which/.exec(dash)?.[1])
+  );
+  checkNumber(
+    'of which new arrival',
+    counts.newArrivals,
+    digits(/(\d[\d,]*) new arrival/.exec(dash)?.[1])
+  );
+  checkNumber('on order', counts.onOrder, digits(/(\d[\d,]*) on order/.exec(dash)?.[1]));
   check(
-    "money tied up",
+    'money tied up',
     formatNaira(overview.moneyTiedUp.kobo),
     (() => {
       const m = /Money tied up\s*₦\s*([\d,]+)/.exec(dash)?.[1];
       return m ? `₦${m}` : null;
     })(),
-    `(${overview.moneyTiedUp.counted} cars in stock)`,
+    `(${overview.moneyTiedUp.counted} cars in stock)`
   );
   check(
-    "projected profit",
+    'projected profit',
     formatNaira(overview.projectedProfit.kobo),
     (() => {
       const m = /Projected profit\s*₦\s*([\d,]+)/.exec(dash)?.[1];
       return m ? `₦${m}` : null;
     })(),
-    `(${reachLine(overview.projectedProfit)}${stillBuildingLine(overview.projectedProfit) ? "; " + stillBuildingLine(overview.projectedProfit) : ""})`,
+    `(${reachLine(overview.projectedProfit)}${stillBuildingLine(overview.projectedProfit) ? '; ' + stillBuildingLine(overview.projectedProfit) : ''})`
   );
-  checkNumber("  profit reach", overview.projectedProfit.counted, digits(/From (\d[\d,]*) of/.exec(dash)?.[1]));
-  checkNumber("  profit of", overview.projectedProfit.of, digits(/of (\d[\d,]*) cars\./.exec(dash)?.[1]));
-  checkNumber("  still building", overview.projectedProfit.stillBuilding, digits(/(\d[\d,]*) excluded: costs incomplete/.exec(dash)?.[1]));
+  checkNumber(
+    '  profit reach',
+    overview.projectedProfit.counted,
+    digits(/From (\d[\d,]*) of/.exec(dash)?.[1])
+  );
+  checkNumber(
+    '  profit of',
+    overview.projectedProfit.of,
+    digits(/of (\d[\d,]*) cars\./.exec(dash)?.[1])
+  );
+  checkNumber(
+    '  still building',
+    overview.projectedProfit.stillBuilding,
+    digits(/(\d[\d,]*) excluded: costs incomplete/.exec(dash)?.[1])
+  );
   check(
-    "real profit (sold)",
+    'real profit (sold)',
     formatNaira(overview.realProfit.kobo),
     (() => {
       const m = /Real profit \(sold\)\s*₦\s*([\d,]+)/.exec(dash)?.[1];
       return m ? `₦${m}` : null;
-    })(),
+    })()
   );
   const soldCar = cars.find((c) => c.sold) ?? null;
   check(
-    "sold sale price",
-    soldCar?.salePriceKobo == null ? "—" : formatNaira(soldCar.salePriceKobo),
+    'sold sale price',
+    soldCar?.salePriceKobo == null ? '—' : formatNaira(soldCar.salePriceKobo),
     (() => {
       const m = /sale price\s*₦\s*([\d,]+)/.exec(dash)?.[1];
       return m ? `₦${m}` : null;
-    })(),
+    })()
   );
   check(
-    "sold car named",
-    soldCar ? soldCar.officeLabel : "—",
+    'sold car named',
+    soldCar ? soldCar.officeLabel : '—',
     (() => {
       const m = /1 car sold\s*—\s*([^,]+?)\s*,/.exec(dash)?.[1];
-      return m ? m.replace(/\s+/g, " ").trim() : null;
-    })(),
+      return m ? m.replace(/\s+/g, ' ').trim() : null;
+    })()
   );
   console.log();
 
   // --- every car in the inventory table -------------------------------------
-  console.log("INVENTORY — every car, price / cost / profit  (lib/money.ts)");
+  console.log('INVENTORY — every car, price / cost / profit  (lib/money.ts)');
   const rows = renderedRows(invHtml);
-  checkNumber("rows rendered", cars.length, rows.length);
+  checkNumber('rows rendered', cars.length, rows.length);
   const byRef = new Map(rows.map((r) => [r.ref, r]));
   let priceChecked = 0;
   let costChecked = 0;
@@ -307,12 +348,12 @@ async function main() {
           salePriceKobo: c.sold ? c.salePriceKobo : null,
         })
       : null;
-    const priceWant = c.priceKobo == null ? "—" : formatNaira(c.priceKobo);
-    const costWant = complete ? formatNaira(cost) : "incomplete";
-    const profitWant = profit && profit.kobo !== null ? formatNaira(profit.kobo) : "incomplete";
+    const priceWant = c.priceKobo == null ? '—' : formatNaira(c.priceKobo);
+    const costWant = complete ? formatNaira(cost) : 'incomplete';
+    const profitWant = profit && profit.kobo !== null ? formatNaira(profit.kobo) : 'incomplete';
     // R-SLD — "Sold is a flag, not a state": a sold car is presented as Sold,
     // whatever its state label is.
-    const stateWant = c.sold ? "Sold" : c.state;
+    const stateWant = c.sold ? 'Sold' : c.state;
 
     const bad: string[] = [];
     if (r.price !== priceWant) bad.push(`price ${r.price} ≠ ${priceWant}`);
@@ -321,60 +362,74 @@ async function main() {
     if (r.state !== stateWant) bad.push(`state ${r.state} ≠ ${stateWant}`);
     if (bad.length) {
       failures.push(`row ${c.ref}`);
-      console.log(`  ✗ ${c.ref.padEnd(24)} ${bad.join("; ")}`);
+      console.log(`  ✗ ${c.ref.padEnd(24)} ${bad.join('; ')}`);
     }
     if (r.price === priceWant) priceChecked += 1;
     if (r.cost === costWant) costChecked += 1;
-    if (costWant === "incomplete") incompleteChecked += 1;
+    if (costWant === 'incomplete') incompleteChecked += 1;
   }
   console.log(
     `  ✓ ${priceChecked} price(s), ${costChecked} cost/profit figure(s) agree` +
-      (incompleteChecked ? `, ${incompleteChecked} car(s) honestly shown "Costs incomplete"` : ""),
+      (incompleteChecked ? `, ${incompleteChecked} car(s) honestly shown "Costs incomplete"` : '')
   );
   console.log();
 
   // --- the cost's name per car (R-MON-7) ------------------------------------
-  console.log("COST NAME BY CAR  (R-MON-7 — never \"Landed cost\" before landing)");
+  console.log('COST NAME BY CAR  (R-MON-7 — never "Landed cost" before landing)');
   const renderedLabels = renderedCostLabels(invHtml);
-  checkNumber("labels rendered", cars.length, renderedLabels.size);
+  checkNumber('labels rendered', cars.length, renderedLabels.size);
   let labelOk = 0;
   const wrongLabels: string[] = [];
   for (const c of cars) {
     const want = costLabelFor(c.section, c.sold);
     const got = renderedLabels.get(c.ref) ?? null;
     if (got === want) labelOk += 1;
-    else wrongLabels.push(`${c.ref}: ${got ?? "none"} ≠ ${want}`);
+    else wrongLabels.push(`${c.ref}: ${got ?? 'none'} ≠ ${want}`);
   }
   checkNumber("labels the rule's name", cars.length, labelOk);
-  for (const w of wrongLabels) failures.push(`label ${w.split(":")[0]}`);
+  for (const w of wrongLabels) failures.push(`label ${w.split(':')[0]}`);
   for (const w of wrongLabels) console.log(`  ✗ ${w}`);
   console.log();
 
   // --- the frozen TASK-002 witness (context only, never compared) -----------
   try {
-    const hist = textOf(readFileSync(HISTORICAL, "utf8"));
+    const hist = textOf(readFileSync(HISTORICAL, 'utf8'));
     const tied = /MONEY TIED UP\s*₦([\d,]+)/.exec(hist)?.[1];
     const stock = /Across (\d+) cars in stock/.exec(hist)?.[1];
-    console.log("FROZEN TASK-002 WITNESS (the old office over `office_car` — historical, not compared)");
-    console.log(`  it showed money tied up ₦${tied ?? "?"} across ${stock ?? "?"} cars in stock, from a different dataset.`);
-    console.log("  TASK-002's reconciliation is recorded in openspec/tasks/TASK-002/; this run replaces the live check.");
+    console.log(
+      'FROZEN TASK-002 WITNESS (the old office over `office_car` — historical, not compared)'
+    );
+    console.log(
+      `  it showed money tied up ₦${tied ?? '?'} across ${stock ?? '?'} cars in stock, from a different dataset.`
+    );
+    console.log(
+      "  TASK-002's reconciliation is recorded in openspec/tasks/TASK-002/; this run replaces the live check."
+    );
     console.log();
   } catch {
-    console.log("FROZEN TASK-002 WITNESS: not found (nothing compared against it).\n");
+    console.log('FROZEN TASK-002 WITNESS: not found (nothing compared against it).\n');
   }
 
   // --- verdict ---------------------------------------------------------------
   if (failures.length) {
-    console.log(`FAIL — the office and the shared tables disagree: ${[...new Set(failures)].join(", ")}`);
-    console.log("      (this is a defect: the office must show the shared rule's output, not its own arithmetic)");
+    console.log(
+      `FAIL — the office and the shared tables disagree: ${[...new Set(failures)].join(', ')}`
+    );
+    console.log(
+      "      (this is a defect: the office must show the shared rule's output, not its own arithmetic)"
+    );
     process.exit(1);
   }
-  console.log("VERDICT: every figure the office shows is the shared rule's output over the one car table.");
-  console.log("         Counts, money tied up, projected and real profit, the sold car, every car's price,");
+  console.log(
+    "VERDICT: every figure the office shows is the shared rule's output over the one car table."
+  );
+  console.log(
+    "         Counts, money tied up, projected and real profit, the sold car, every car's price,"
+  );
   console.log("         cost and profit, and the cost's name by state — all reproduced.");
 }
 
 main().catch((err) => {
-  console.error("reconcile error:", err instanceof Error ? err.message : err);
+  console.error('reconcile error:', err instanceof Error ? err.message : err);
   process.exit(1);
 });

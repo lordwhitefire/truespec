@@ -12,12 +12,12 @@
  */
 
 function isDigit(ch: string): boolean {
-  return ch >= "0" && ch <= "9";
+  return ch >= '0' && ch <= '9';
 }
 
 /** A value made only of digits — the shape a number takes once stringified. */
 export function isAllDigits(value: string): boolean {
-  if (value === "") return false;
+  if (value === '') return false;
   for (const ch of value) {
     if (!isDigit(ch)) return false;
   }
@@ -32,14 +32,14 @@ export function isAllDigits(value: string): boolean {
  * - anything else: present wherever it appears verbatim.
  */
 export function mentionsValue(body: string, value: string): boolean {
-  if (value === "") return false;
+  if (value === '') return false;
   if (!isAllDigits(value)) return body.includes(value);
 
-  for (let from = 0; ; ) {
+  for (let from = 0; ;) {
     const at = body.indexOf(value, from);
     if (at === -1) return false;
-    const before = at === 0 ? "" : body[at - 1];
-    const after = at + value.length >= body.length ? "" : body[at + value.length];
+    const before = at === 0 ? '' : body[at - 1];
+    const after = at + value.length >= body.length ? '' : body[at + value.length];
     if (!isDigit(before) && !isDigit(after)) return true;
     from = at + 1;
   }

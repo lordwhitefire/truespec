@@ -1,22 +1,32 @@
-import { HeroSlider } from "@/components/site/HeroSlider";
-import { FeaturedSlider } from "@/components/site/FeaturedSlider";
-import { HomeInventory } from "@/components/site/HomeInventory";
-import { HomeBehaviors } from "@/components/site/HomeBehaviors";
-import { waClass, waLink, waOffProps } from "@/components/whatsapp";
-import { getPublicCars, getSetting } from "@/lib/public-cars";
+import { HeroSlider } from '@/components/site/HeroSlider';
+import { FeaturedSlider } from '@/components/site/FeaturedSlider';
+import { HomeInventory } from '@/components/site/HomeInventory';
+import { HomeBehaviors } from '@/components/site/HomeBehaviors';
+import { waClass, waLink, waOffProps } from '@/components/whatsapp';
+import { getPublicCars, getSetting } from '@/lib/public-cars';
+import { SITE_DESCRIPTION, SITE_TITLE, pageMetadata } from '@/lib/site';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
+
+export const metadata = pageMetadata({
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  path: '/',
+  absoluteTitle: true,
+  imageAlt: 'TrueSpec Automotive — cars you can trust',
+});
 
 export default async function HomePage() {
-  const [cars, number] = await Promise.all([getPublicCars(), getSetting("whatsapp_number")]);
-  const num = number ?? "";
+  const [cars, number] = await Promise.all([getPublicCars(), getSetting('whatsapp_number')]);
+  const num = number ?? '';
 
-  const available = cars.filter((c) => c.section === "available");
+  const available = cars.filter((c) => c.section === 'available');
   const heroCars = [...available].sort((a, b) => b.priceKobo - a.priceKobo).slice(0, 3);
-  const wa = waLink(num, "Hello TrueSpec, I have a question.");
+  const wa = waLink(num, 'Hello TrueSpec, I have a question.');
 
   return (
     <>
+      <h1 className="sr-only">{SITE_TITLE}</h1>
       <div className="sv">
         <HeroSlider cars={heroCars} />
 
@@ -28,7 +38,10 @@ export default async function HomePage() {
             </div>
             <div>
               <h2 className="askt">What are you after?</h2>
-              <p className="asks">Umar here — I own the place. One tap and I&rsquo;ll shorten the list for you, or skip it.</p>
+              <p className="asks">
+                Umar here — I own the place. One tap and I&rsquo;ll shorten the list for you, or
+                skip it.
+              </p>
               <div className="aska">
                 <button type="button" data-a="suv">
                   A family SUV
@@ -56,8 +69,8 @@ export default async function HomePage() {
               <div>
                 <h3>Are you looking for a car?</h3>
                 <p>
-                  Our cars are delivered fully cleared with all requirements completed. We deliver your car wherever you are
-                  in Nigeria.
+                  Our cars are delivered fully cleared with all requirements completed. We deliver
+                  your car wherever you are in Nigeria.
                 </p>
               </div>
             </div>
@@ -66,8 +79,8 @@ export default async function HomePage() {
               <div>
                 <h3>Want a car you cannot see here?</h3>
                 <p>
-                  Tell us the make, model and year. We source it in the USA, ship it and clear it for you. Send us a message
-                  to start.
+                  Tell us the make, model and year. We source it in the USA, ship it and clear it
+                  for you. Send us a message to start.
                 </p>
               </div>
             </div>
@@ -113,7 +126,7 @@ export default async function HomePage() {
             </div>
             <div className="more">
               <a
-                className={waClass("btn", !wa)}
+                className={waClass('btn', !wa)}
                 target="_blank"
                 rel="noopener noreferrer"
                 href={wa ?? undefined}
@@ -135,9 +148,9 @@ export default async function HomePage() {
                 done right
               </h2>
               <p>
-                TrueSpec Automotive brings quality vehicles from the USA to Nigeria. Every car you see here is either in stock,
-                on its way, or landed this year. Choose a car, message us on WhatsApp and we handle the shipping and clearing
-                until it reaches your door.
+                TrueSpec Automotive brings quality vehicles from the USA to Nigeria. Every car you
+                see here is either in stock, on its way, or landed this year. Choose a car, message
+                us on WhatsApp and we handle the shipping and clearing until it reaches your door.
               </p>
             </div>
           </div>

@@ -14,7 +14,7 @@
 export const STORE_STATE_CSS = `
 .ts-store-state{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:2rem;
   background:#0b0b0c;color:#f4f4f5;text-align:center;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  font-family:var(--font-body),system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 html[data-theme="light"] .ts-store-state{background:#ffffff;color:#18181b}
 .ts-store-state__panel{display:grid;justify-items:center;gap:.75rem;max-width:24rem}
 .ts-store-state__title{margin:0;font-size:1.05rem;font-weight:600}

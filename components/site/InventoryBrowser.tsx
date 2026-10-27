@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   useCallback,
@@ -10,24 +10,30 @@ import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
   type SetStateAction,
-} from "react";
-import { Photo } from "@/components/Photo";
-import { waClass, waLink, waOffProps } from "@/components/whatsapp";
-import { formatNaira } from "@/lib/money";
-import { countStock } from "@/lib/counts";
-import { PUBLIC_SECTIONS, presentedSections, sectionLabel, tokenOf, type Section } from "@/lib/sections";
-import type { PublicCar } from "@/lib/serialize";
-import { ReferenceCard } from "./ReferenceCard";
-import { carHref, carState, carTitle } from "./car-view";
-import { speak } from "./speak";
-import { store } from "./store";
+} from 'react';
+import { Photo } from '@/components/Photo';
+import { waClass, waLink, waOffProps } from '@/components/whatsapp';
+import { formatNaira } from '@/lib/money';
+import { countStock } from '@/lib/counts';
+import {
+  PUBLIC_SECTIONS,
+  presentedSections,
+  sectionLabel,
+  tokenOf,
+  type Section,
+} from '@/lib/sections';
+import type { PublicCar } from '@/lib/serialize';
+import { ReferenceCard } from './ReferenceCard';
+import { carHref, carState, carTitle } from './car-view';
+import { speak } from './speak';
+import { store } from './store';
 
 // The inventory screen (reference inventory.html), adapted to the public car
 // fields: the reference filters Body type / Brand; we have no body, so the
 // sidebar is Status / Make / Year / Colour / Price (RECON-001 testing 3.1).
 
-type Sort = "new" | "low" | "high" | "year";
-type View = "grid" | "list";
+type Sort = 'new' | 'low' | 'high' | 'year';
+type View = 'grid' | 'list';
 
 // One page holds nine cars (owner, 2026-10-19): three rows of three on desktop.
 const PAGE_SIZE = 9;
@@ -44,8 +50,8 @@ export type InventoryInitial = {
   page: number;
 };
 
-const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Benin City"];
-const WHEN = ["20 min ago", "45 min ago", "1 hr ago", "this morning"];
+const CITIES = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu', 'Benin City'];
+const WHEN = ['20 min ago', '45 min ago', '1 hr ago', 'this morning'];
 
 const naira = (kobo: number) => formatNaira(kobo);
 
@@ -62,8 +68,8 @@ export function InventoryBrowser({
   const [make, setMake] = useState<Set<string>>(() => new Set(initial.make));
   const [year, setYear] = useState<Set<number>>(() => new Set(initial.year));
   const [color, setColor] = useState<Set<string>>(() => new Set(initial.color));
-  const [minText, setMinText] = useState(initial.min == null ? "" : String(initial.min));
-  const [maxText, setMaxText] = useState(initial.max == null ? "" : String(initial.max));
+  const [minText, setMinText] = useState(initial.min == null ? '' : String(initial.min));
+  const [maxText, setMaxText] = useState(initial.max == null ? '' : String(initial.max));
   const [sort, setSort] = useState<Sort>(initial.sort);
   const [view, setView] = useState<View>(initial.view);
   const [page, setPage] = useState(initial.page);
@@ -71,31 +77,33 @@ export function InventoryBrowser({
   const [modal, setModal] = useState<{ title: string; body: ReactNode } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const waSource = waLink(number, "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: ");
+  const waSource = waLink(
+    number,
+    "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: "
+  );
 
   // ---- categories (bar totals, like the reference countWhere) -------------
   const makes = useMemo(
     () => [...new Set(cars.map((c) => c.brand).filter((b): b is string => !!b))].sort(),
-    [cars],
+    [cars]
   );
   const years = useMemo(
     () =>
       [...new Set(cars.map((c) => c.year).filter((y): y is number => y != null))].sort(
-        (a, b) => b - a,
+        (a, b) => b - a
       ),
-    [cars],
+    [cars]
   );
   const colors = useMemo(
-    () =>
-      [...new Set(cars.map((c) => c.exteriorColor).filter((c): c is string => !!c))].sort(),
-    [cars],
+    () => [...new Set(cars.map((c) => c.exteriorColor).filter((c): c is string => !!c))].sort(),
+    [cars]
   );
   const statusCounts = useMemo(() => {
     const counts = countStock(cars);
     return new Map<Section, number>([
-      ["available", counts.available],
-      ["on order", counts.onOrder],
-      ["landed", counts.landed],
+      ['available', counts.available],
+      ['on order', counts.onOrder],
+      ['landed', counts.landed],
     ]);
   }, [cars]);
 
@@ -111,11 +119,12 @@ export function InventoryBrowser({
         (!year.size || (c.year != null && year.has(c.year))) &&
         (!color.size || (c.exteriorColor != null && color.has(c.exteriorColor))) &&
         (min == null || c.priceKobo >= min * 100) &&
-        (max == null || c.priceKobo <= max * 100),
+        (max == null || c.priceKobo <= max * 100)
     );
-    if (sort === "low") l = [...l].sort((a, b) => a.priceKobo - b.priceKobo);
-    else if (sort === "high") l = [...l].sort((a, b) => b.priceKobo - a.priceKobo);
-    else if (sort === "year") l = [...l].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.priceKobo - a.priceKobo);
+    if (sort === 'low') l = [...l].sort((a, b) => a.priceKobo - b.priceKobo);
+    else if (sort === 'high') l = [...l].sort((a, b) => b.priceKobo - a.priceKobo);
+    else if (sort === 'year')
+      l = [...l].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.priceKobo - a.priceKobo);
     return l;
   }, [cars, status, make, year, color, min, max, sort]);
 
@@ -127,27 +136,23 @@ export function InventoryBrowser({
   // ---- deep links (reference syncURL) -------------------------------------
   useEffect(() => {
     const p = new URLSearchParams();
-    if (status.size) p.set("status", [...status].map(tokenOf).sort().join(","));
-    if (make.size) p.set("make", [...make].join(","));
-    if (year.size) p.set("year", [...year].join(","));
-    if (color.size) p.set("color", [...color].join(","));
-    if (min != null) p.set("min", String(min));
-    if (max != null) p.set("max", String(max));
-    if (sort !== "new") p.set("sort", sort);
-    if (view === "list") p.set("view", "list");
-    if (current > 1) p.set("page", String(current));
+    if (status.size) p.set('status', [...status].map(tokenOf).sort().join(','));
+    if (make.size) p.set('make', [...make].join(','));
+    if (year.size) p.set('year', [...year].join(','));
+    if (color.size) p.set('color', [...color].join(','));
+    if (min != null) p.set('min', String(min));
+    if (max != null) p.set('max', String(max));
+    if (sort !== 'new') p.set('sort', sort);
+    if (view === 'list') p.set('view', 'list');
+    if (current > 1) p.set('page', String(current));
     const q = p.toString();
-    window.history.replaceState(null, "", window.location.pathname + (q ? `?${q}` : ""));
+    window.history.replaceState(null, '', window.location.pathname + (q ? `?${q}` : ''));
   }, [status, make, year, color, min, max, sort, view, current]);
 
   // Umar's answer carries the fact that changed, not the pitch (DR8). At zero that is the bare
   // result; the sourcing promise lives on the page, in the empty block below — not in the region.
   const announce = useCallback((n: number) => {
-    speak(
-      n
-        ? `<b>${n} car${n === 1 ? "" : "s"} match</b> — every price is the full doorstep price.`
-        : "No cars match those filters.",
-    );
+    speak(n ? `<b>${n} car${n === 1 ? '' : 's'} match</b>.` : 'No cars match those filters.');
   }, []);
 
   const clearAll = () => {
@@ -155,22 +160,24 @@ export function InventoryBrowser({
     setMake(new Set());
     setYear(new Set());
     setColor(new Set());
-    setMinText("");
-    setMaxText("");
+    setMinText('');
+    setMaxText('');
     setPage(1);
-    speak(`Showing everything — <b>${cars.length} cars</b>, every price door-to-door.`);
+    // The filter effect announces the cleared count. Speaking here too would be overwritten by
+    // that effect a moment later, so the live region would never hear the confirmation.
   };
 
-  // Umar answers every filter change (the reference calls speakResult on change).
+  // Umar answers every filter change (the reference calls speakResult on change). Typing a price
+  // changes the count on every digit; a short settle keeps the live region from reading each one.
   const firstRun = useRef(true);
   useEffect(() => {
     if (firstRun.current) {
       firstRun.current = false;
       return;
     }
-    announce(list.length);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, make, year, color, minText, maxText]);
+    const timer = window.setTimeout(() => announce(list.length), 400);
+    return () => window.clearTimeout(timer);
+  }, [status, make, year, color, minText, maxText, announce]);
 
   // ---- toast + modal (shared session budget with the other pages) ---------
   const toastTimer = useRef<number | undefined>(undefined);
@@ -181,13 +188,13 @@ export function InventoryBrowser({
   }, []);
   useEffect(() => () => window.clearTimeout(toastTimer.current), [showToast]);
 
-  const covering = useRef(store.sget("covering", 0));
+  const covering = useRef(store.sget('covering', 0));
   const openModal = useCallback((title: string, body: ReactNode) => {
     if (covering.current >= 2) return false;
     covering.current += 1;
-    store.sset("covering", covering.current);
+    store.sset('covering', covering.current);
     setModal({ title, body });
-    document.body.classList.add("lock");
+    document.body.classList.add('lock');
     return true;
   }, []);
   // The modal is the platform's dialog (Task 13). It is mounted by `modal`, so it is shown once it
@@ -197,7 +204,7 @@ export function InventoryBrowser({
     const dialog = dialogRef.current;
     if (dialog?.open) dialog.close();
     setModal(null);
-    document.body.classList.remove("lock");
+    document.body.classList.remove('lock');
   }, []);
 
   useEffect(() => {
@@ -213,14 +220,15 @@ export function InventoryBrowser({
       if (shown || Date.now() - t0 < 7000) return;
       shown = true;
       openModal(
-        "Before you go",
+        'Before you go',
         <>
           <p className="mp">
-            Tell me the car you&apos;re after and I&apos;ll find it — shipped, cleared and delivered, one price.
+            Tell me the car you&apos;re after and I&apos;ll find it — shipped, cleared and
+            delivered, one price.
           </p>
           <div className="mbtns">
             <a
-              className={waClass("wab", !waSource)}
+              className={waClass('wab', !waSource)}
               target="_blank"
               rel="noopener noreferrer"
               href={waSource ?? undefined}
@@ -233,7 +241,7 @@ export function InventoryBrowser({
               I&apos;ll keep looking
             </button>
           </div>
-        </>,
+        </>
       );
     };
     const onMouseOut = (e: MouseEvent) => {
@@ -254,34 +262,34 @@ export function InventoryBrowser({
       const dt = b.t - a.t;
       if (dt > 0 && (b.y - a.y) / dt < -0.9 && b.y < 140 && window.scrollY < 80) tryFarewell();
     };
-    document.addEventListener("mouseout", onMouseOut);
-    document.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: true });
-    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener('mouseout', onMouseOut);
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
-      document.removeEventListener("mouseout", onMouseOut);
-      document.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
+      document.removeEventListener('mouseout', onMouseOut);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
     };
   }, [openModal, closeModal, waSource]);
 
   // social-proof toast — once per session across all pages
   useEffect(() => {
-    if (store.sget("toast", false)) return;
+    if (store.sget('toast', false)) return;
     let retry: number | undefined;
     const fire = () => {
-      if (document.body.classList.contains("lock")) {
+      if (document.body.classList.contains('lock')) {
         retry = window.setTimeout(fire, 12000);
         return;
       }
-      store.sset("toast", true);
-      const pool = cars.filter((c) => c.section === "available");
+      store.sset('toast', true);
+      const pool = cars.filter((c) => c.section === 'available');
       if (!pool.length) return;
       const car = pool[Math.floor(Math.random() * pool.length)];
       showToast(
         `Someone from ${CITIES[Math.floor(Math.random() * CITIES.length)]} asked about the ${carTitle(car)} — ${WHEN[Math.floor(Math.random() * WHEN.length)]}`,
-        7000,
+        7000
       );
     };
     const timer = window.setTimeout(fire, 9000);
@@ -299,18 +307,18 @@ export function InventoryBrowser({
         navigator.share({ title, url }).catch(() => {});
       } else if (navigator.clipboard) {
         navigator.clipboard.writeText(url).then(
-          () => showToast("Link copied", 2400),
-          () => showToast("Copy the link from the address bar", 2400),
+          () => showToast('Link copied', 2400),
+          () => showToast('Copy the link from the address bar', 2400)
         );
       } else {
-        showToast("Copy the link from the address bar", 2400);
+        showToast('Copy the link from the address bar', 2400);
       }
     },
-    [showToast],
+    [showToast]
   );
 
   const onRowClick = (e: ReactMouseEvent<HTMLElement>) => {
-    const b = (e.target as HTMLElement).closest("[data-share]") as HTMLElement | null;
+    const b = (e.target as HTMLElement).closest('[data-share]') as HTMLElement | null;
     if (!b) return;
     const car = cars.find((x) => x.ref === b.dataset.share);
     if (car) share(car);
@@ -330,9 +338,9 @@ export function InventoryBrowser({
     const next = Math.min(Math.max(n, 1), pageCount);
     setPage(next);
     speak(`Page <b>${next}</b> of ${pageCount}`);
-    const heading = document.getElementById("ttl");
+    const heading = document.getElementById('ttl');
     heading?.focus({ preventScroll: true });
-    heading?.scrollIntoView({ block: "start" });
+    heading?.scrollIntoView({ block: 'start' });
   };
 
   const all = list.length === cars.length;
@@ -343,9 +351,9 @@ export function InventoryBrowser({
         <div className="band">
           <div className="w">
             <div className="hd">
-              <h2>
+              <h1>
                 TrueSpec <em>Inventory</em>
-              </h2>
+              </h1>
               <div className="cnt">
                 <i className="fa-solid fa-car-side" />
                 <span id="cnt">
@@ -377,7 +385,7 @@ export function InventoryBrowser({
                 <i className="fa-solid fa-sliders" />
                 Search options
               </button>
-              <div className={`sb${sidebarOpen ? " open" : ""}`} id="sb">
+              <div className={`sb${sidebarOpen ? ' open' : ''}`} id="sb">
                 <div className="sbh">
                   <i className="fa-solid fa-sliders" />
                   Refine search
@@ -507,7 +515,7 @@ export function InventoryBrowser({
                     </>
                   ) : (
                     <>
-                      <em>{list.length}</em> matching car{list.length === 1 ? "" : "s"}
+                      <em>{list.length}</em> matching car{list.length === 1 ? '' : 's'}
                     </>
                   )}
                 </h2>
@@ -532,8 +540,8 @@ export function InventoryBrowser({
                     className="vb"
                     id="vg"
                     aria-label="Grid view"
-                    aria-pressed={view === "grid"}
-                    onClick={() => setView("grid")}
+                    aria-pressed={view === 'grid'}
+                    onClick={() => setView('grid')}
                   >
                     <i className="fa-solid fa-table-cells-large" />
                   </button>
@@ -542,8 +550,8 @@ export function InventoryBrowser({
                     className="vb"
                     id="vl"
                     aria-label="List view"
-                    aria-pressed={view === "list"}
-                    onClick={() => setView("list")}
+                    aria-pressed={view === 'list'}
+                    onClick={() => setView('list')}
                   >
                     <i className="fa-solid fa-list" />
                   </button>
@@ -556,7 +564,7 @@ export function InventoryBrowser({
                     <i className="fa-solid fa-magnifying-glass" />
                     <p>{SAY_EMPTY}</p>
                     <a
-                      className={waClass("btn", !waSource)}
+                      className={waClass('btn', !waSource)}
                       target="_blank"
                       rel="noopener noreferrer"
                       href={waSource ?? undefined}
@@ -566,10 +574,8 @@ export function InventoryBrowser({
                       {SAY_EMPTY_BTN}
                     </a>
                   </div>
-                ) : view === "list" ? (
-                  shown.map((c) => (
-                    <InventoryRow key={c.ref} car={c} />
-                  ))
+                ) : view === 'list' ? (
+                  shown.map((c) => <InventoryRow key={c.ref} car={c} />)
                 ) : (
                   <div className="grid">
                     {shown.map((c) => (
@@ -595,7 +601,7 @@ export function InventoryBrowser({
                       type="button"
                       className="pgb"
                       aria-label={`Page ${n}`}
-                      aria-current={n === current ? "page" : undefined}
+                      aria-current={n === current ? 'page' : undefined}
                       onClick={() => goPage(n)}
                     >
                       {n}
@@ -656,8 +662,9 @@ export function InventoryBrowser({
   );
 }
 
-const SAY_EMPTY = "No cars match those filters. Tell me what you're after and I'll source it in the USA.";
-const SAY_EMPTY_BTN = "Message me on WhatsApp";
+const SAY_EMPTY =
+  "No cars match those filters. Tell me what you're after and I'll source it in the USA.";
+const SAY_EMPTY_BTN = 'Message me on WhatsApp';
 
 function parsePrice(v: string): number | null {
   const n = parseInt(v, 10);
@@ -666,23 +673,23 @@ function parsePrice(v: string): number | null {
 
 // The reference row() always shows the section as a chip (available included).
 function sectionChip(car: PublicCar): { t: string; cls: string; dot: string } {
-  if (car.section === "on order") return { t: "On order", cls: "oo", dot: "var(--oo)" };
-  if (car.section === "landed") return { t: "Landed", cls: "ld", dot: "var(--ld)" };
-  return { t: "Available", cls: "", dot: "var(--gold)" };
+  if (car.section === 'on order') return { t: 'On order', cls: 'oo', dot: 'var(--oo)' };
+  if (car.section === 'landed') return { t: 'Landed', cls: 'ld', dot: 'var(--ld)' };
+  return { t: 'Available', cls: '', dot: 'var(--gold)' };
 }
 
 // The reference row(): an image left, facts + a share button right.
 function InventoryRow({ car }: { car: PublicCar }) {
   const st = carState(car);
   const sc = sectionChip(car);
-  const onOrder = car.section === "on order";
+  const onOrder = car.section === 'on order';
   const photo = car.photos[0];
   const title = carTitle(car);
   return (
     <article className="lc">
-      <a className="lph" href={carHref(car)} aria-label={title}>
+      <a className="lph" href={carHref(car)} aria-label={title} tabIndex={-1} aria-hidden="true">
         <div className="ph">
-          <Photo src={photo} alt={title} loading="lazy" />
+          <Photo src={photo} alt={title} loading="lazy" sized={{ width: 516, height: 330 }} />
           {st ? (
             <div className="rb">
               <span className={st.rb || undefined}>{st.t}</span>
@@ -699,7 +706,10 @@ function InventoryRow({ car }: { car: PublicCar }) {
           </h3>
           <span
             className="pt"
-            style={{ clipPath: "polygon(12px 0,100% 0,100% 100%,0 100%)", padding: "6px 14px 6px 24px" }}
+            style={{
+              clipPath: 'polygon(12px 0,100% 0,100% 100%,0 100%)',
+              padding: '6px 14px 6px 24px',
+            }}
           >
             {car.wasPriceKobo !== null ? <s>{naira(car.wasPriceKobo)}</s> : null}
             {naira(car.priceKobo)}
@@ -712,7 +722,7 @@ function InventoryRow({ car }: { car: PublicCar }) {
                 <i className="fa-solid fa-road" />
                 Mileage
               </small>
-              <b>{car.mileageKm.toLocaleString("en-US")} km</b>
+              <b>{car.mileageKm.toLocaleString('en-US')} km</b>
             </div>
           ) : null}
           {car.exteriorColor ? (
@@ -728,7 +738,7 @@ function InventoryRow({ car }: { car: PublicCar }) {
         <div className="lf">
           {car.wasPriceKobo !== null ? (
             <span className="chip deal">
-              <i className="dot" style={{ background: "var(--gold)" }} />
+              <i className="dot" style={{ background: 'var(--gold)' }} />
               Special
             </span>
           ) : null}
@@ -739,10 +749,10 @@ function InventoryRow({ car }: { car: PublicCar }) {
           {onOrder ? (
             <span className="chip oo">
               <i className="fa-solid fa-ship" />
-              {car.arrivalNote || "Arriving soon"}
+              {car.arrivalNote || 'Arriving soon'}
             </span>
           ) : null}
-          <button type="button" className="sh" data-share={car.ref}>
+          <button type="button" className="sh" data-share={car.ref} aria-label={`Share ${title}`}>
             <i className="fa-solid fa-share-nodes" />
             Share
           </button>
@@ -751,5 +761,3 @@ function InventoryRow({ car }: { car: PublicCar }) {
     </article>
   );
 }
-
-

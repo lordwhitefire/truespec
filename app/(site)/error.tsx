@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Retryable } from "@/components/retryable";
+import { Retryable } from '@/components/retryable';
 
 // A page under the showroom shell failed its own read. This boundary sits *inside* the shell, so
 // the header and footer stay and the retry appears where the person is. It cannot catch a throw

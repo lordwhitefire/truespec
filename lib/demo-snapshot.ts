@@ -31,21 +31,21 @@ import {
   buildBackupArchive,
   type BackupArchive,
   type BackupQuery,
-} from "./backup-archive";
-import { encryptBackup } from "./backup-crypto";
-import { isSameDatabase, RestoreError } from "./backup-restore";
-import { ConfigError } from "./config";
+} from './backup-archive';
+import { encryptBackup } from './backup-crypto';
+import { isSameDatabase, RestoreError } from './backup-restore';
+import { ConfigError } from './config';
 
-export const DEMO_SEED_FILENAME = "demo-seed.json.gz.enc";
-export const DEMO_SEED_LABEL = "truespec-demo-seed";
+export const DEMO_SEED_FILENAME = 'demo-seed.json.gz.enc';
+export const DEMO_SEED_LABEL = 'truespec-demo-seed';
 
 export class SnapshotError extends Error {
   constructor(
     readonly step: string,
-    message: string,
+    message: string
   ) {
     super(message);
-    this.name = "SnapshotError";
+    this.name = 'SnapshotError';
   }
 }
 
@@ -76,7 +76,7 @@ export type SnapshotDeps = {
   buildArchive?: (query: BackupQuery, now: Date) => Promise<BackupArchive>;
   uploadFile: (
     bytes: Buffer,
-    options: { filename: string; contentType: string; label: string },
+    options: { filename: string; contentType: string; label: string }
   ) => Promise<SnapshotUpload>;
   listFileAssets: () => Promise<SnapshotAsset[]>;
   deleteAsset: (assetId: string) => Promise<{ deleted: boolean; reason?: string }>;
@@ -108,7 +108,7 @@ function safeMessage(error: unknown): string {
   ) {
     return error.message;
   }
-  return "the step failed";
+  return 'the step failed';
 }
 
 export async function runDemoSnapshot(deps: SnapshotDeps): Promise<SnapshotSummary> {
@@ -128,53 +128,53 @@ export async function runDemoSnapshot(deps: SnapshotDeps): Promise<SnapshotSumma
     failed: [],
     durationMs: 0,
   };
-  let step = "configuration";
+  let step = 'configuration';
 
   try {
     if (!deps.key) {
-      throw new SnapshotError("configuration", "BACKUP_ENCRYPTION_KEY is not set");
+      throw new SnapshotError('configuration', 'BACKUP_ENCRYPTION_KEY is not set');
     }
     if (!deps.mainUrl) {
-      throw new SnapshotError("configuration", "DATABASE_URL is not set");
+      throw new SnapshotError('configuration', 'DATABASE_URL is not set');
     }
     if (deps.demoUrl) {
       let same: boolean;
       try {
         same = isSameDatabase(deps.demoUrl, deps.mainUrl);
       } catch {
-        throw new SnapshotError("target", "DEMO_DATABASE_URL is not a valid PostgreSQL URL");
+        throw new SnapshotError('target', 'DEMO_DATABASE_URL is not a valid PostgreSQL URL');
       }
       if (same) {
-        throw new SnapshotError("target", "refusing: DEMO_DATABASE_URL names the main database");
+        throw new SnapshotError('target', 'refusing: DEMO_DATABASE_URL names the main database');
       }
     }
 
-    step = "list-before";
+    step = 'list-before';
     const before = await deps.listFileAssets();
     const beforeSeeds = before.filter((asset) => asset.label === DEMO_SEED_LABEL);
     summary.seedAssetsBefore = beforeSeeds.length;
 
-    step = "archive";
+    step = 'archive';
     const build = deps.buildArchive ?? buildBackupArchive;
     const archive = await build(deps.query, now);
     summary.rows = archiveRowCount(archive);
     summary.tables = Object.keys(archive.tables).length;
     summary.generatedAt = archive.generated_at;
 
-    step = "encrypt";
+    step = 'encrypt';
     const bytes = encryptBackup(JSON.stringify(archive), deps.key);
     summary.bytes = bytes.length;
 
-    step = "upload";
+    step = 'upload';
     const uploaded = await deps.uploadFile(bytes, {
       filename: DEMO_SEED_FILENAME,
-      contentType: "application/octet-stream",
+      contentType: 'application/octet-stream',
       label: DEMO_SEED_LABEL,
     });
     summary.assetId = uploaded.assetId;
 
     if (uploaded.label !== DEMO_SEED_LABEL) {
-      step = "verify-upload";
+      step = 'verify-upload';
       let removed = false;
       try {
         removed = (await deps.deleteAsset(uploaded.assetId)).deleted;
@@ -182,14 +182,14 @@ export async function runDemoSnapshot(deps: SnapshotDeps): Promise<SnapshotSumma
         removed = false;
       }
       throw new SnapshotError(
-        "verify-upload",
+        'verify-upload',
         removed
-          ? "the seed upload did not carry the seed label; the new asset was removed"
-          : "the seed upload did not carry the seed label; the new asset could not be removed",
+          ? 'the seed upload did not carry the seed label; the new asset was removed'
+          : 'the seed upload did not carry the seed label; the new asset could not be removed'
       );
     }
 
-    step = "cleanup";
+    step = 'cleanup';
     const older = beforeSeeds.filter((asset) => asset.assetId !== uploaded.assetId);
     for (const asset of older) {
       try {
@@ -199,25 +199,25 @@ export async function runDemoSnapshot(deps: SnapshotDeps): Promise<SnapshotSumma
         } else {
           summary.failed.push({
             assetId: asset.assetId,
-            reason: result.reason ?? "the asset store refused the delete",
+            reason: result.reason ?? 'the asset store refused the delete',
           });
         }
       } catch {
         summary.failed.push({
           assetId: asset.assetId,
-          reason: "the asset store refused the delete",
+          reason: 'the asset store refused the delete',
         });
       }
     }
 
-    step = "verify";
+    step = 'verify';
     const after = await deps.listFileAssets();
     const afterSeeds = after.filter((asset) => asset.label === DEMO_SEED_LABEL);
     summary.seedAssetsAfter = afterSeeds.length;
     if (afterSeeds.length !== 1 || afterSeeds[0]?.assetId !== uploaded.assetId) {
       throw new SnapshotError(
-        "verify",
-        `the store holds ${afterSeeds.length} seed asset(s), not exactly the new one`,
+        'verify',
+        `the store holds ${afterSeeds.length} seed asset(s), not exactly the new one`
       );
     }
 

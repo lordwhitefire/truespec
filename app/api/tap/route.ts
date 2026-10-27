@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { isSameOrigin } from "@/lib/origin-rules";
-import { readTap } from "@/lib/tap-rules";
-import { recordTap } from "@/lib/tap";
+import { NextResponse } from 'next/server';
+import { isSameOrigin } from '@/lib/origin-rules';
+import { readTap } from '@/lib/tap-rules';
+import { recordTap } from '@/lib/tap';
 
 /**
  * The buyer's tap (truth 8). The only write on this site that a visitor performs, and the only one
@@ -26,10 +26,10 @@ import { recordTap } from "@/lib/tap";
  * a stranger learns only that it was refused.
  */
 export async function POST(request: Request): Promise<Response> {
-  if (!isSameOrigin(request.headers.get("origin"), request.headers.get("host"))) {
+  if (!isSameOrigin(request.headers.get('origin'), request.headers.get('host'))) {
     return NextResponse.json(
-      { ok: false, reason: "refused: the request did not come from this site" },
-      { status: 403 },
+      { ok: false, reason: 'refused: the request did not come from this site' },
+      { status: 403 }
     );
   }
 
@@ -48,7 +48,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     await recordTap(parsed.value);
   } catch {
-    return NextResponse.json({ ok: false, reason: "the tap was not recorded" }, { status: 503 });
+    return NextResponse.json({ ok: false, reason: 'the tap was not recorded' }, { status: 503 });
   }
 
   return new NextResponse(null, { status: 204 });

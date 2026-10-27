@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
-import { requireOfficeSession } from "@/lib/session";
+import { redirect } from 'next/navigation';
+import { requireOfficeSession } from '@/lib/session';
 
 // The car comes from the store, so the route resolves per request.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* The edit view is per car (owner ruling 2026-10-15): a car is edited at
    `/office/car/<ref>` — the address every inventory row links to — and a new car is
@@ -12,5 +12,5 @@ export const dynamic = "force-dynamic";
    the car the owner actually opened.) */
 export default async function CarPage() {
   await requireOfficeSession();
-  redirect("/office/inventory");
+  redirect('/office/inventory');
 }

@@ -1,9 +1,9 @@
-import "server-only";
+import 'server-only';
 
-import { storeQuery, storeQueryMain, storeQueryRefusing } from "./store-guard";
-import { normaliseNigerianMobile } from "./phone";
-import { parseCostAmount } from "./money";
-import type { NoticeInput, StoredNumber } from "./notices";
+import { storeQuery, storeQueryMain, storeQueryRefusing } from './store-guard';
+import { normaliseNigerianMobile } from './phone';
+import { parseCostAmount } from './money';
+import type { NoticeInput, StoredNumber } from './notices';
 
 /**
  * The settings that exist, and the only door to the `setting` table (truth 12; `specs/office-settings`).
@@ -31,7 +31,7 @@ import type { NoticeInput, StoredNumber } from "./notices";
  */
 
 /** The three keys the store holds — the only keys this module will ever write. */
-export const SETTING_KEYS = ["whatsapp_number", "tagline", "full_tank_default"] as const;
+export const SETTING_KEYS = ['whatsapp_number', 'tagline', 'full_tank_default'] as const;
 export type SettingKey = (typeof SETTING_KEYS)[number];
 
 /**
@@ -52,18 +52,18 @@ export type SettingKey = (typeof SETTING_KEYS)[number];
  * not a number reads as `"unreadable"` (see `lib/notices.ts`), never as absent and never as zero.
  */
 export const NOTICE_KEYS = [
-  "last_backup_at",
-  "storage_used_bytes",
-  "storage_warning_bytes",
-  "database_used_bytes",
-  "database_warning_bytes",
+  'last_backup_at',
+  'storage_used_bytes',
+  'storage_warning_bytes',
+  'database_used_bytes',
+  'database_warning_bytes',
 ] as const;
 
 /** The screen's name for a setting, and the key it is stored under. */
 const KEY_FOR_FIELD = {
-  whatsapp: "whatsapp_number",
-  tagline: "tagline",
-  tank: "full_tank_default",
+  whatsapp: 'whatsapp_number',
+  tagline: 'tagline',
+  tank: 'full_tank_default',
 } as const;
 export type SettingField = keyof typeof KEY_FOR_FIELD;
 
@@ -80,19 +80,23 @@ export type OfficeSettings = Record<SettingField, SettingValue>;
 export async function readSettings(): Promise<OfficeSettings> {
   const rows = await storeQuery<{ key: string; value: string; updated_at: Date | string }[]>(
     `SELECT key, value, updated_at FROM setting WHERE key = ANY($1::text[])`,
-    [SETTING_KEYS],
+    [SETTING_KEYS]
   );
   const byKey = new Map(rows.map((row) => [row.key, row]));
 
   const read = (key: SettingKey): SettingValue => {
     const row = byKey.get(key);
     return {
-      value: row?.value ?? "",
+      value: row?.value ?? '',
       updatedAt: row ? new Date(row.updated_at).toISOString() : null,
     };
   };
 
-  return { whatsapp: read("whatsapp_number"), tagline: read("tagline"), tank: read("full_tank_default") };
+  return {
+    whatsapp: read('whatsapp_number'),
+    tagline: read('tagline'),
+    tank: read('full_tank_default'),
+  };
 }
 
 /**
@@ -106,56 +110,58 @@ export async function readNotices(): Promise<NoticeInput> {
   // storage figures, and a demo write must never move them.
   const rows = await storeQueryMain<{ key: string; value: string }[]>(
     `SELECT key, value FROM setting WHERE key = ANY($1::text[])`,
-    [NOTICE_KEYS],
+    [NOTICE_KEYS]
   );
   const byKey = new Map(rows.map((row) => [row.key, row.value]));
 
   const number = (key: (typeof NOTICE_KEYS)[number]): StoredNumber => {
     const raw = byKey.get(key);
     if (raw === undefined) return null;
-    if (raw.trim() === "") return "unreadable";
+    if (raw.trim() === '') return 'unreadable';
     const n = Number(raw);
-    return Number.isFinite(n) ? n : "unreadable";
+    return Number.isFinite(n) ? n : 'unreadable';
   };
 
-  const rawBackup = byKey.get("last_backup_at");
+  const rawBackup = byKey.get('last_backup_at');
   // A row that is present but unreadable is passed through as written, so `lib/notices.ts` can say
   // "could not be read" rather than "no backup recorded yet" — the two are different facts.
   const lastBackupAt = rawBackup === undefined ? null : rawBackup;
 
   return {
     lastBackupAt,
-    storageUsedBytes: number("storage_used_bytes"),
-    storageWarningBytes: number("storage_warning_bytes"),
-    databaseUsedBytes: number("database_used_bytes"),
-    databaseWarningBytes: number("database_warning_bytes"),
+    storageUsedBytes: number('storage_used_bytes'),
+    storageWarningBytes: number('storage_warning_bytes'),
+    databaseUsedBytes: number('database_used_bytes'),
+    databaseWarningBytes: number('database_warning_bytes'),
   };
 }
 
 export type SaveSettingResult =
-  | { ok: true; value: string; changed: boolean }
-  | { ok: false; error: string };
+  { ok: true; value: string; changed: boolean } | { ok: false; error: string };
 
 /**
  * The rule for one setting: what may be stored, and what the field says when it may not. Pure — it
  * reads nothing — so the reason a save was refused is decided before any connection is opened.
  */
-function readSettingValue(key: SettingKey, raw: string): { ok: true; value: string } | { ok: false; error: string } {
-  const input = typeof raw === "string" ? raw : "";
+function readSettingValue(
+  key: SettingKey,
+  raw: string
+): { ok: true; value: string } | { ok: false; error: string } {
+  const input = typeof raw === 'string' ? raw : '';
 
   switch (key) {
-    case "whatsapp_number": {
+    case 'whatsapp_number': {
       const number = normaliseNigerianMobile(input);
       return number.ok ? { ok: true, value: number.value } : { ok: false, error: number.reason };
     }
-    case "tagline": {
+    case 'tagline': {
       const tagline = input.trim();
       if (tagline.length > TAGLINE_MAX) {
         return { ok: false, error: `A tagline is at most ${TAGLINE_MAX} characters.` };
       }
       return { ok: true, value: tagline };
     }
-    case "full_tank_default": {
+    case 'full_tank_default': {
       const amount = parseCostAmount(input);
       return amount.ok ? { ok: true, value: input.trim() } : { ok: false, error: amount.error };
     }
@@ -169,7 +175,7 @@ function readSettingValue(key: SettingKey, raw: string): { ok: true; value: stri
  */
 export async function saveSetting(field: SettingField, raw: string): Promise<SaveSettingResult> {
   const key = KEY_FOR_FIELD[field];
-  if (!key) return { ok: false, error: "That setting is not one of the three." };
+  if (!key) return { ok: false, error: 'That setting is not one of the three.' };
 
   const read = readSettingValue(key, raw);
   if (!read.ok) return read;
@@ -202,7 +208,7 @@ export async function saveSetting(field: SettingField, raw: string): Promise<Sav
      SELECT value, false AS changed FROM setting
       WHERE key = $1 AND NOT EXISTS (SELECT 1 FROM upsert)`,
     [key, read.value],
-    { field: "value", action: "That setting could not be saved" },
+    { field: 'value', action: 'That setting could not be saved' }
   );
 
   // A store that could not be reached is a refusal here too (D32, DR25): the previous value stays
@@ -215,7 +221,7 @@ export async function saveSetting(field: SettingField, raw: string): Promise<Sav
   if (!row) {
     // Unreachable by construction — every arm above answers the stored row — but a store that
     // answers nothing is a refusal here, never a crash and never a claimed save.
-    return { ok: false, error: "That setting could not be saved" };
+    return { ok: false, error: 'That setting could not be saved' };
   }
 
   return { ok: true, value: row.value, changed: row.changed };

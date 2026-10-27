@@ -31,7 +31,7 @@ export function clampPage(page: number, pageCount: number): number {
 export function pageSlice<T>(
   rows: readonly T[],
   page: number,
-  pageSize: InventoryPageSize,
+  pageSize: InventoryPageSize
 ): { page: number; pageCount: number; rows: T[] } {
   const pageCount = pageCountFor(rows.length, pageSize);
   const current = clampPage(page, pageCount);

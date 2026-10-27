@@ -13,16 +13,16 @@
  * pure apart from the injected asset-store functions, so the selection, the cap, the verification
  * and the failure reporting are testable without Sanity.
  */
-import type { Space } from "./space-rule";
-import type { StoredAsset } from "./sanity";
+import type { Space } from './space-rule';
+import type { StoredAsset } from './sanity';
 
-export const DEMO_UPLOAD_LABEL = "truespec-demo";
+export const DEMO_UPLOAD_LABEL = 'truespec-demo';
 
 /** Main uploads carry their own exact label; they never carry the demo mark. */
-export const MAIN_UPLOAD_LABEL = "truespec-main";
+export const MAIN_UPLOAD_LABEL = 'truespec-main';
 
 /** The optional demo total cap; absent means 2 GiB. */
-export const DEMO_ASSET_CAP_ENV = "DEMO_ASSET_CAP_BYTES";
+export const DEMO_ASSET_CAP_ENV = 'DEMO_ASSET_CAP_BYTES';
 export const DEMO_ASSET_CAP_BYTES_DEFAULT = 2 * 1024 * 1024 * 1024;
 
 /**
@@ -30,7 +30,7 @@ export const DEMO_ASSET_CAP_BYTES_DEFAULT = 2 * 1024 * 1024 * 1024;
  * the session's space and call this. A main upload can never acquire `truespec-demo`.
  */
 export function uploadLabelForSpace(space: Space): string {
-  return space === "demo" ? DEMO_UPLOAD_LABEL : MAIN_UPLOAD_LABEL;
+  return space === 'demo' ? DEMO_UPLOAD_LABEL : MAIN_UPLOAD_LABEL;
 }
 
 export type AssetDeleteResult = {
@@ -60,10 +60,7 @@ export type DemoCleanupSummary = {
  * and a readable creation time. The seed, main assets, backups, unmarked assets and uploads made
  * after the reset started are never candidates.
  */
-export function selectDemoAssets(
-  assets: readonly StoredAsset[],
-  startedAt: Date,
-): StoredAsset[] {
+export function selectDemoAssets(assets: readonly StoredAsset[], startedAt: Date): StoredAsset[] {
   const cutoff = startedAt.getTime();
   return assets.filter((asset) => {
     if (asset.label !== DEMO_UPLOAD_LABEL) return false;
@@ -75,7 +72,7 @@ export function selectDemoAssets(
 
 export type DemoAssetCapResult =
   | { ok: true; usedBytes: number; capBytes: number }
-  | { ok: false; code: "over-cap" | "unreadable" | "config"; reason: string };
+  | { ok: false; code: 'over-cap' | 'unreadable' | 'config'; reason: string };
 
 /**
  * Read the optional cap. An absent or blank value is the 2 GiB default; anything that is not a
@@ -83,22 +80,22 @@ export type DemoAssetCapResult =
  * is never echoed into a person-facing message.
  */
 export function readDemoAssetCap(
-  env: Record<string, string | undefined> = process.env,
+  env: Record<string, string | undefined> = process.env
 ): { ok: true; bytes: number } | { ok: false; reason: string } {
   const raw = env[DEMO_ASSET_CAP_ENV];
-  if (raw === undefined || raw.trim() === "") {
+  if (raw === undefined || raw.trim() === '') {
     return { ok: true, bytes: DEMO_ASSET_CAP_BYTES_DEFAULT };
   }
 
   const trimmed = raw.trim();
   if (!/^\d+$/.test(trimmed)) {
-    return { ok: false, reason: "The demo storage cap is not a whole number of bytes." };
+    return { ok: false, reason: 'The demo storage cap is not a whole number of bytes.' };
   }
   const bytes = Number(trimmed);
   if (!Number.isSafeInteger(bytes) || bytes <= 0) {
     return {
       ok: false,
-      reason: "The demo storage cap is not a positive whole number of bytes.",
+      reason: 'The demo storage cap is not a positive whole number of bytes.',
     };
   }
   return { ok: true, bytes };
@@ -121,19 +118,19 @@ export async function checkDemoAssetCap(
   deps: {
     listStoredAssets: () => Promise<StoredAsset[]>;
     env?: Record<string, string | undefined>;
-  },
+  }
 ): Promise<DemoAssetCapResult> {
   if (!Number.isFinite(incomingBytes) || incomingBytes < 0) {
     return {
       ok: false,
-      code: "unreadable",
-      reason: "The upload size could not be read, so it was refused.",
+      code: 'unreadable',
+      reason: 'The upload size could not be read, so it was refused.',
     };
   }
 
   const cap = readDemoAssetCap(deps.env);
   if (!cap.ok) {
-    return { ok: false, code: "config", reason: cap.reason };
+    return { ok: false, code: 'config', reason: cap.reason };
   }
 
   let assets: StoredAsset[];
@@ -142,8 +139,8 @@ export async function checkDemoAssetCap(
   } catch {
     return {
       ok: false,
-      code: "unreadable",
-      reason: "The demo storage could not be checked, so the upload was refused. Try again.",
+      code: 'unreadable',
+      reason: 'The demo storage could not be checked, so the upload was refused. Try again.',
     };
   }
 
@@ -153,8 +150,8 @@ export async function checkDemoAssetCap(
     if (asset.size === null || !Number.isFinite(asset.size) || asset.size < 0) {
       return {
         ok: false,
-        code: "unreadable",
-        reason: "The demo storage could not be measured, so the upload was refused. Try again.",
+        code: 'unreadable',
+        reason: 'The demo storage could not be measured, so the upload was refused. Try again.',
       };
     }
     usedBytes += asset.size;
@@ -164,16 +161,16 @@ export async function checkDemoAssetCap(
   if (!Number.isSafeInteger(total)) {
     return {
       ok: false,
-      code: "unreadable",
-      reason: "The demo storage could not be measured, so the upload was refused. Try again.",
+      code: 'unreadable',
+      reason: 'The demo storage could not be measured, so the upload was refused. Try again.',
     };
   }
   if (total > cap.bytes) {
     return {
       ok: false,
-      code: "over-cap",
+      code: 'over-cap',
       reason: `The demo storage is full (${formatBytes(usedBytes)} of ${formatBytes(
-        cap.bytes,
+        cap.bytes
       )} used). Delete a demo upload or wait for the daily reset.`,
     };
   }
@@ -181,9 +178,7 @@ export async function checkDemoAssetCap(
   return { ok: true, usedBytes, capBytes: cap.bytes };
 }
 
-export type UploadMarkResult =
-  | { ok: true }
-  | { ok: false; deleted: boolean; reason: string };
+export type UploadMarkResult = { ok: true } | { ok: false; deleted: boolean; reason: string };
 
 /**
  * A demo upload that came back without its requested label would survive the reset and be invisible
@@ -193,7 +188,7 @@ export type UploadMarkResult =
 export async function verifyUploadMark(
   asset: { assetId: string; label: string | null },
   requestedLabel: string,
-  deps: { deleteAsset: (assetId: string) => Promise<AssetDeleteResult> },
+  deps: { deleteAsset: (assetId: string) => Promise<AssetDeleteResult> }
 ): Promise<UploadMarkResult> {
   if (asset.label === requestedLabel) return { ok: true };
 
@@ -208,14 +203,12 @@ export async function verifyUploadMark(
     ok: false,
     deleted,
     reason: deleted
-      ? "The upload could not be marked for this space, so it was removed. Try again."
-      : "The upload could not be marked for this space, and the unmarked copy could not be removed.",
+      ? 'The upload could not be marked for this space, so it was removed. Try again.'
+      : 'The upload could not be marked for this space, and the unmarked copy could not be removed.',
   };
 }
 
-export async function cleanupDemoAssets(
-  deps: DemoCleanupDeps,
-): Promise<DemoCleanupSummary> {
+export async function cleanupDemoAssets(deps: DemoCleanupDeps): Promise<DemoCleanupSummary> {
   let assets: StoredAsset[];
   try {
     assets = await deps.listStoredAssets();
@@ -224,7 +217,7 @@ export async function cleanupDemoAssets(
       candidates: 0,
       deleted: 0,
       failed: 0,
-      error: "the asset store could not be listed",
+      error: 'the asset store could not be listed',
       failures: [],
     };
   }
@@ -241,13 +234,13 @@ export async function cleanupDemoAssets(
       } else {
         failures.push({
           assetId: asset.assetId,
-          reason: result.reason ?? "the asset store refused the delete",
+          reason: result.reason ?? 'the asset store refused the delete',
         });
       }
     } catch {
       failures.push({
         assetId: asset.assetId,
-        reason: "the asset store refused the delete",
+        reason: 'the asset store refused the delete',
       });
     }
   }

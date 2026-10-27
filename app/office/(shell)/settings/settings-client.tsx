@@ -1,24 +1,19 @@
-"use client";
+'use client';
 
-import {
-  type KeyboardEvent as ReactKeyboardEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { createPortal } from "react-dom";
-import Link from "next/link";
-import { CarStateEditor } from "./car-state-editor";
-import { CleanupCard } from "./cleanup-card";
-import { EnquiryStateEditor } from "./enquiry-state-editor";
-import type { RegistryState } from "@/lib/car-state";
-import type { EnquiryRegistryState } from "@/lib/enquiry-state";
-import type { OfficeSettings } from "@/lib/settings";
-import type { Notice } from "@/lib/notices";
-import type { WaitingToBeCleared } from "@/lib/cleanup";
-import { normaliseNigerianMobile, waMeDigits } from "@/lib/phone";
-import { clock, longDay } from "@/lib/office-time";
-import { saveFullTankDefault, saveTagline, saveWhatsapp } from "@/app/office/actions/setting";
+import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import Link from 'next/link';
+import { CarStateEditor } from './car-state-editor';
+import { CleanupCard } from './cleanup-card';
+import { EnquiryStateEditor } from './enquiry-state-editor';
+import type { RegistryState } from '@/lib/car-state';
+import type { EnquiryRegistryState } from '@/lib/enquiry-state';
+import type { OfficeSettings } from '@/lib/settings';
+import type { Notice } from '@/lib/notices';
+import type { WaitingToBeCleared } from '@/lib/cleanup';
+import { normaliseNigerianMobile, waMeDigits } from '@/lib/phone';
+import { clock, longDay } from '@/lib/office-time';
+import { saveFullTankDefault, saveTagline, saveWhatsapp } from '@/app/office/actions/setting';
 import {
   createDraftWriter,
   readDraft,
@@ -27,7 +22,7 @@ import {
   writeDraft,
   type DeviceSettingDraft,
   type DeviceSettingField,
-} from "@/lib/device-draft";
+} from '@/lib/device-draft';
 
 /* Settings — a faithful port of office-settings.html.
    The two state editors are the owner's real registries. The three settings are real too
@@ -53,29 +48,29 @@ import {
 /* The Settings sub-menu (ui-plan Q58). One route, panels swapped in place —
    no new routes, the URL never changes. */
 const TABS = [
-  { k: "general", label: "General", icon: "fa-sliders" },
-  { k: "car", label: "Car states", icon: "fa-car-side" },
-  { k: "customer", label: "Customer states", icon: "fa-users" },
-  { k: "account", label: "Account", icon: "fa-user-gear" },
+  { k: 'general', label: 'General', icon: 'fa-sliders' },
+  { k: 'car', label: 'Car states', icon: 'fa-car-side' },
+  { k: 'customer', label: 'Customer states', icon: 'fa-users' },
+  { k: 'account', label: 'Account', icon: 'fa-user-gear' },
 ] as const;
-type TabKey = (typeof TABS)[number]["k"];
+type TabKey = (typeof TABS)[number]['k'];
 
 // See car-client: the shell's banner uses the marker on recovery and the event to take a recovery
 // line down when a draft is saved, discarded, or the form leaves.
-const DRAFT_PRESENT_ATTR = "data-ts-office-draft";
-const DRAFT_PRESENCE_EVENT = "ts-office-draft-presence";
+const DRAFT_PRESENT_ATTR = 'data-ts-office-draft';
+const DRAFT_PRESENCE_EVENT = 'ts-office-draft-presence';
 
 function announceDraftPresence(present: boolean) {
   const root = document.documentElement;
-  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, "");
+  if (present) root.setAttribute(DRAFT_PRESENT_ATTR, '');
   else root.removeAttribute(DRAFT_PRESENT_ATTR);
   window.dispatchEvent(new CustomEvent(DRAFT_PRESENCE_EVENT, { detail: { present } }));
 }
 
 function isSettingDraft(value: unknown): value is DeviceSettingDraft {
-  if (typeof value !== "object" || value === null) return false;
+  if (typeof value !== 'object' || value === null) return false;
   const draft = value as DeviceSettingDraft;
-  return draft.v === 1 && typeof draft.base === "string" && typeof draft.value === "string";
+  return draft.v === 1 && typeof draft.base === 'string' && typeof draft.value === 'string';
 }
 
 export function Settings({
@@ -98,7 +93,7 @@ export function Settings({
   const [waErr, setWaErr] = useState<string | null>(null); // the store's own refusal, if any
   const [waSaved, setWaSaved] = useState(false); // clears the "good" outline after save
   const [waBusy, setWaBusy] = useState(false);
-  const [pvLink, setPvLink] = useState("wa.me/" + waMeDigits(settings.whatsapp.value));
+  const [pvLink, setPvLink] = useState('wa.me/' + waMeDigits(settings.whatsapp.value));
 
   const [tag, setTag] = useState(settings.tagline.value);
   const [tagSnap, setTagSnap] = useState(settings.tagline.value);
@@ -111,17 +106,16 @@ export function Settings({
   const [tankErr, setTankErr] = useState<string | null>(null);
   const [tankBusy, setTankBusy] = useState(false);
 
-  const [tab, setTab] = useState<TabKey>("general");
+  const [tab, setTab] = useState<TabKey>('general');
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   function onTabKey(e: ReactKeyboardEvent<HTMLButtonElement>, k: TabKey) {
     const i = TABS.findIndex((t) => t.k === k);
     let n = -1;
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") n = (i + 1) % TABS.length;
-    else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
-      n = (i - 1 + TABS.length) % TABS.length;
-    else if (e.key === "Home") n = 0;
-    else if (e.key === "End") n = TABS.length - 1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') n = (i + 1) % TABS.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') n = (i - 1 + TABS.length) % TABS.length;
+    else if (e.key === 'Home') n = 0;
+    else if (e.key === 'End') n = TABS.length - 1;
     if (n < 0) return;
     e.preventDefault();
     const nk = TABS[n].k;
@@ -142,9 +136,9 @@ export function Settings({
 
   useEffect(() => {
     const flush = () => draftWriter.flush();
-    window.addEventListener("pagehide", flush);
+    window.addEventListener('pagehide', flush);
     return () => {
-      window.removeEventListener("pagehide", flush);
+      window.removeEventListener('pagehide', flush);
       draftWriter.flush();
     };
   }, [draftWriter]);
@@ -162,7 +156,7 @@ export function Settings({
     draftRestored.current = true;
     const restored: DeviceSettingField[] = [];
 
-    const waDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("whatsapp"), null);
+    const waDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey('whatsapp'), null);
     if (
       isSettingDraft(waDraft) &&
       waDraft.base === settings.whatsapp.value &&
@@ -172,11 +166,11 @@ export function Settings({
       setWaSaved(false);
       setWaErr(null);
       const read = normaliseNigerianMobile(waDraft.value);
-      if (read.ok) setPvLink("wa.me/" + waMeDigits(read.value));
-      restored.push("whatsapp");
+      if (read.ok) setPvLink('wa.me/' + waMeDigits(read.value));
+      restored.push('whatsapp');
     }
 
-    const tagDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("tagline"), null);
+    const tagDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey('tagline'), null);
     if (
       isSettingDraft(tagDraft) &&
       tagDraft.base === settings.tagline.value &&
@@ -185,10 +179,10 @@ export function Settings({
       setTag(tagDraft.value);
       setTagN(String(tagDraft.value.length));
       setTagErr(null);
-      restored.push("tagline");
+      restored.push('tagline');
     }
 
-    const tankDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey("tank"), null);
+    const tankDraft = readDraft<DeviceSettingDraft | null>(settingDraftKey('tank'), null);
     if (
       isSettingDraft(tankDraft) &&
       tankDraft.base === settings.tank.value &&
@@ -196,7 +190,7 @@ export function Settings({
     ) {
       setTank(tankDraft.value);
       setTankErr(null);
-      restored.push("tank");
+      restored.push('tank');
     }
 
     for (const field of restored) draftPresent.current.add(field);
@@ -238,14 +232,14 @@ export function Settings({
   /* ---------- 1. WhatsApp: validation + dead-button preview ---------- */
   const waTrim = wa.trim();
   const waRead = normaliseNigerianMobile(wa);
-  const waEmpty = waTrim === "";
+  const waEmpty = waTrim === '';
   const waOk = waRead.ok;
   // The empty state is this screen's own words (it is about the showroom's buttons, not the number);
   // every other refusal is the one rule's, so the field and the store cannot disagree.
   const waMsg = waEmpty
-    ? "No number set — every chat button on the site is dead until one is saved."
+    ? 'No number set — every chat button on the site is dead until one is saved.'
     : waRead.ok
-      ? ""
+      ? ''
       : waRead.reason;
   const waShown = waErr ?? waMsg;
   const waBad = !waEmpty && !waOk;
@@ -256,9 +250,9 @@ export function Settings({
     setWa(v);
     setWaSaved(false);
     setWaErr(null);
-    keepSetting("whatsapp", waSnap, v);
+    keepSetting('whatsapp', waSnap, v);
     const read = normaliseNigerianMobile(v);
-    if (read.ok) setPvLink("wa.me/" + waMeDigits(read.value));
+    if (read.ok) setPvLink('wa.me/' + waMeDigits(read.value));
   }
 
   async function saveWa() {
@@ -276,15 +270,15 @@ export function Settings({
       setWaSnap(result.value);
       setWaErr(null);
       setWaSaved(true);
-      setPvLink("wa.me/" + waMeDigits(result.value));
-      clearSettingDraft("whatsapp");
+      setPvLink('wa.me/' + waMeDigits(result.value));
+      clearSettingDraft('whatsapp');
       // The words follow the store's own answer (DR23): a save that wrote nothing because the
       // number was already exactly this one says so, and never claims a save. A refusal never
       // reaches this line — it returns above.
       showToast(
         result.changed
-          ? "WhatsApp number saved. Every chat button on the site now uses it."
-          : "Nothing changed.",
+          ? 'WhatsApp number saved. Every chat button on the site now uses it.'
+          : 'Nothing changed.'
       );
     } finally {
       setWaBusy(false);
@@ -307,8 +301,10 @@ export function Settings({
       setTagSnap(result.value);
       setTagN(String(result.value.length));
       setTagErr(null);
-      clearSettingDraft("tagline");
-      showToast(result.changed ? "Tagline saved. The home page updates immediately." : "Nothing changed.");
+      clearSettingDraft('tagline');
+      showToast(
+        result.changed ? 'Tagline saved. The home page updates immediately.' : 'Nothing changed.'
+      );
     } finally {
       setTagBusy(false);
     }
@@ -329,9 +325,11 @@ export function Settings({
       setTank(result.value);
       setTankSnap(result.value);
       setTankErr(null);
-      clearSettingDraft("tank");
+      clearSettingDraft('tank');
       showToast(
-        result.changed ? "Default saved. Full tank is pre-filled on every new car." : "Nothing changed.",
+        result.changed
+          ? 'Default saved. Full tank is pre-filled on every new car.'
+          : 'Nothing changed.'
       );
     } finally {
       setTankBusy(false);
@@ -343,8 +341,8 @@ export function Settings({
       <div className="hrow">
         <h1>Settings</h1>
         <p className="sub2">
-          The few things the whole site runs on. Change them here and the showroom
-          follows — immediately, everywhere.
+          The few things the whole site runs on. Change them here and the showroom follows —
+          immediately, everywhere.
         </p>
       </div>
 
@@ -359,7 +357,7 @@ export function Settings({
               aria-selected={tab === t.k}
               aria-controls={`panel-${t.k}`}
               tabIndex={tab === t.k ? 0 : -1}
-              className={`subnav-it${tab === t.k ? " on" : ""}`}
+              className={`subnav-it${tab === t.k ? ' on' : ''}`}
               ref={(el) => {
                 tabRefs.current[t.k] = el;
               }}
@@ -374,339 +372,364 @@ export function Settings({
 
         <div className="setmain">
           <div className="cards" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === "general" && (
-          <>
-        {/* ============ 1. WHATSAPP NUMBER ============ */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-brands fa-whatsapp" />
-            <h2>WhatsApp number</h2>
-          </div>
-          <p className="cd">
-            Every chat button on the site opens this number. A wrong number here is a
-            dead button for every buyer.
-          </p>
-          <div className="f">
-            <label htmlFor="wa">Number, with country code</label>
-            <input
-              className={`in${waBad ? " bad" : ""}${waGood ? " good" : ""}`}
-              id="wa"
-              type="tel"
-              value={wa}
-              autoComplete="off"
-              inputMode="tel"
-              onChange={(e) => onWaInput(e.target.value)}
-            />
-            <p className={`err${waBad || waErr ? " on" : ""}`} id="waErr">
-              <i className="fa-solid fa-circle-exclamation" />
-              <span id="waErrT">{waShown}</span>
-            </p>
-            <p className={`okmsg${waOk ? " on" : ""}`} id="waOk">
-              <i className="fa-solid fa-circle-check" />
-              Valid — buttons will open a chat with this number.
-            </p>
-          </div>
-          <div className="own">
-            <i className="fa-solid fa-user-shield" />
-            <span>
-              <b>Owner:</b> the demonstration ships with a placeholder number. Save your
-              real one here and every chat button on the site follows it.
-            </span>
-          </div>
-          <div className="prev" aria-label="Showroom preview">
-            <div className="ptit">
-              <i className="fa-solid fa-eye" />
-              What buyers see — live preview
-            </div>
-            <div className="pbody">
-              <div className="mchip">
-                <i className="fa-brands fa-whatsapp" />
-                <div>
-                  <small>WhatsApp</small>
-                  <b id="pvNum">{waTrim || "—"}</b>
-                </div>
-              </div>
-              <span className={`wab${waOk ? "" : " dead"}`} id="pvBtn">
-                <i className="fa-brands fa-whatsapp" />
-                Chat on WhatsApp
-              </span>
-              <span className={`deadnote${waOk ? "" : " on"}`} id="pvDead">
-                <i className="fa-solid fa-triangle-exclamation" />
-                With the number as it is now, this button does nothing for buyers.
-              </span>
-              <span className={`oknote${waOk ? " on" : ""}`} id="pvLive">
-                <i className="fa-solid fa-circle-check" />
-                Button live — opens{" "}
-                <span
-                  id="pvLink"
-                  style={{ textDecoration: "underline", textUnderlineOffset: 2 }}
-                >
-                  {pvLink}
-                </span>
-              </span>
-            </div>
-          </div>
-          <div className="srow2">
-            <button className="btn" id="waSave" type="button" disabled={!waDirty || waBusy} onClick={saveWa}>
-              Save number
-            </button>
-            <span className="dirty" id="waDirty" hidden={!waDirty}>
-              <i className="fa-solid fa-pencil" />
-              Unsaved change
-            </span>
-          </div>
-          {settings.whatsapp.updatedAt && (
-            <p className="audit">
-              <i className="fa-regular fa-clock" />
-              Updated {longDay(settings.whatsapp.updatedAt)}, {clock(settings.whatsapp.updatedAt)}
-            </p>
-          )}
-        </section>
-
-        {/* ============ 2. TAGLINE ============ */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-solid fa-quote-left" />
-            <h2>Tagline</h2>
-          </div>
-          <p className="cd">The one line under the brand on the home page. Say what you do, plainly.</p>
-          <div className="f">
-            <label htmlFor="tag">Tagline</label>
-            <input
-              className="in"
-              id="tag"
-              type="text"
-              maxLength={80}
-              value={tag}
-              onChange={(e) => {
-                setTag(e.target.value);
-                setTagN(String(e.target.value.length));
-                keepSetting("tagline", tagSnap, e.target.value);
-              }}
-            />
-            <p className="cnt">
-              <span id="tagN">{tagN}</span>/80
-            </p>
-            {tagErr && (
-              <p className="err on">
-                <i className="fa-solid fa-circle-exclamation" />
-                <span>{tagErr}</span>
-              </p>
-            )}
-          </div>
-          <div className="prev" aria-label="Tagline preview">
-            <div className="ptit">
-              <i className="fa-solid fa-eye" />
-              Home page preview
-            </div>
-            <div className="pbody" style={{ alignItems: "center" }}>
-              <div className="tprev">
-                <span className="lg">
-                  <i className="fa-solid fa-gauge-high" />
-                  TrueSpec
-                </span>
-                <br />
-                <span id="pvTag">{tag || "…"}</span>
-              </div>
-            </div>
-          </div>
-          <div className="srow2">
-            <button className="btn" id="tagSave" type="button" disabled={!tagDirty || tagBusy} onClick={saveTag}>
-              Save tagline
-            </button>
-            <span className="dirty" id="tagDirty" hidden={!tagDirty}>
-              <i className="fa-solid fa-pencil" />
-              Unsaved change
-            </span>
-          </div>
-          {settings.tagline.updatedAt && (
-            <p className="audit">
-              <i className="fa-regular fa-clock" />
-              Updated {longDay(settings.tagline.updatedAt)}, {clock(settings.tagline.updatedAt)}
-            </p>
-          )}
-        </section>
-
-        {/* ============ 3. COST DEFAULT ============ */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-solid fa-naira-sign" />
-            <h2>Cost default</h2>
-          </div>
-          <p className="cd">
-            Pre-filled when typing a car&apos;s costs. Every amount is in naira — there is
-            no currency conversion.
-          </p>
-          <div className="r2">
-            <div className="f">
-              <label htmlFor="tank">Full tank</label>
-              <div className="cur">
-                <span>₦</span>
-                <input
-                  className="in"
-                  id="tank"
-                  type="number"
-                  min={0}
-                  step={5000}
-                  value={tank}
-                  onChange={(e) => {
-                    setTank(e.target.value);
-                    keepSetting("tank", tankSnap, e.target.value);
-                  }}
-                />
-              </div>
-              <p className="hint">Default prefilled on every new car — change per car if needed.</p>
-              {tankErr && (
-                <p className="err on">
-                  <i className="fa-solid fa-circle-exclamation" />
-                  <span>{tankErr}</span>
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="srow2">
-            <button className="btn" id="tankSave" type="button" disabled={!tankDirty || tankBusy} onClick={saveTank}>
-              Save default
-            </button>
-            <span className="dirty" id="tankDirty" hidden={!tankDirty}>
-              <i className="fa-solid fa-pencil" />
-              Unsaved change
-            </span>
-          </div>
-          {settings.tank.updatedAt && (
-            <p className="audit">
-              <i className="fa-regular fa-clock" />
-              Updated {longDay(settings.tank.updatedAt)}, {clock(settings.tank.updatedAt)}
-            </p>
-          )}
-        </section>
-          </>
-        )}
-
-        {tab === "car" && (
-          <section className="card">
-            <div className="ch">
-              <i className="fa-solid fa-car-side" />
-              <h2>Car states</h2>
-            </div>
-            <p className="cd">
-              The four top states are fixed: the showroom groups by them, and it shows the first
-              three, never Sold. Below them are your own states, in your own order.
-            </p>
-            <CarStateEditor states={registry} />
-          </section>
-        )}
-
-        {tab === "customer" && (
-          <section className="card">
-            <div className="ch">
-              <i className="fa-solid fa-users" />
-              <h2>Customer states</h2>
-            </div>
-            <p className="cd">
-              The states an enquiry can be given, and the colour each carries on the board. All of
-              them are yours — nothing here is fixed, and any enquiry can be given any state at any
-              time.
-            </p>
-            <EnquiryStateEditor states={enquiryRegistry} />
-          </section>
-        )}
-
-        {tab === "account" && (
-          <>
-        {/* ============ 4. PASSWORD (delegated) ============ */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-solid fa-key" />
-            <h2>Password</h2>
-          </div>
-          <p className="cd">
-            One account, so one password. It is the identity provider&apos;s, not the office&apos;s —
-            nothing on this screen stores it, sees it, or changes it. Changing it signs you out
-            anywhere else it was open.
-          </p>
-          <div className="srow2">
-            <Link className="btn" id="pChange" href="/office/account">
-              Change password
-            </Link>
-          </div>
-          <p className="hint" style={{ marginTop: 12 }}>
-            <i className="fa-regular fa-circle-question" /> Forgot it? Recovery is an
-            identity-provider operation — it happens at the sign-in screen, not in the office.
-          </p>
-        </section>
-
-        {/* ============ 5. SYSTEM (operational notices) ============ */}
-        {notices !== undefined ? (
-          <section className="card">
-            <div className="ch">
-              <i className="fa-solid fa-heart-pulse" />
-              <h2>System</h2>
-            </div>
-            <p className="cd">
-              Read from what the system records about itself. The office displays these; it never
-              estimates them.
-            </p>
-            <div className="notices">
-              {notices.map((n) => (
-                <div className={`notice ${n.level}`} key={n.kind} data-kind={n.kind}>
-                  <i
-                    className={`fa-solid ${
-                      n.level === "warn" ? "fa-triangle-exclamation" : "fa-circle-info"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <b>{n.title}</b>
-                    <span>{n.body}</span>
+            {tab === 'general' && (
+              <>
+                {/* ============ 1. WHATSAPP NUMBER ============ */}
+                <section className="card">
+                  <div className="ch">
+                    <i className="fa-brands fa-whatsapp" />
+                    <h2>WhatsApp number</h2>
                   </div>
+                  <p className="cd">
+                    Every chat button on the site opens this number. A wrong number here is a dead
+                    button for every buyer.
+                  </p>
+                  <div className="f">
+                    <label htmlFor="wa">Number, with country code</label>
+                    <input
+                      className={`in${waBad ? ' bad' : ''}${waGood ? ' good' : ''}`}
+                      id="wa"
+                      type="tel"
+                      value={wa}
+                      autoComplete="off"
+                      inputMode="tel"
+                      onChange={(e) => onWaInput(e.target.value)}
+                    />
+                    <p className={`err${waBad || waErr ? ' on' : ''}`} id="waErr">
+                      <i className="fa-solid fa-circle-exclamation" />
+                      <span id="waErrT">{waShown}</span>
+                    </p>
+                    <p className={`okmsg${waOk ? ' on' : ''}`} id="waOk">
+                      <i className="fa-solid fa-circle-check" />
+                      Valid — buttons will open a chat with this number.
+                    </p>
+                  </div>
+                  <div className="own">
+                    <i className="fa-solid fa-user-shield" />
+                    <span>
+                      <b>Owner:</b> the demonstration ships with a placeholder number. Save your
+                      real one here and every chat button on the site follows it.
+                    </span>
+                  </div>
+                  <div className="prev" aria-label="Showroom preview">
+                    <div className="ptit">
+                      <i className="fa-solid fa-eye" />
+                      What buyers see — live preview
+                    </div>
+                    <div className="pbody">
+                      <div className="mchip">
+                        <i className="fa-brands fa-whatsapp" />
+                        <div>
+                          <small>WhatsApp</small>
+                          <b id="pvNum">{waTrim || '—'}</b>
+                        </div>
+                      </div>
+                      <span className={`wab${waOk ? '' : ' dead'}`} id="pvBtn">
+                        <i className="fa-brands fa-whatsapp" />
+                        Chat on WhatsApp
+                      </span>
+                      <span className={`deadnote${waOk ? '' : ' on'}`} id="pvDead">
+                        <i className="fa-solid fa-triangle-exclamation" />
+                        With the number as it is now, this button does nothing for buyers.
+                      </span>
+                      <span className={`oknote${waOk ? ' on' : ''}`} id="pvLive">
+                        <i className="fa-solid fa-circle-check" />
+                        Button live — opens{' '}
+                        <span
+                          id="pvLink"
+                          style={{ textDecoration: 'underline', textUnderlineOffset: 2 }}
+                        >
+                          {pvLink}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="srow2">
+                    <button
+                      className="btn"
+                      id="waSave"
+                      type="button"
+                      disabled={!waDirty || waBusy}
+                      onClick={saveWa}
+                    >
+                      Save number
+                    </button>
+                    <span className="dirty" id="waDirty" hidden={!waDirty}>
+                      <i className="fa-solid fa-pencil" />
+                      Unsaved change
+                    </span>
+                  </div>
+                  {settings.whatsapp.updatedAt && (
+                    <p className="audit">
+                      <i className="fa-regular fa-clock" />
+                      Updated {longDay(settings.whatsapp.updatedAt)},{' '}
+                      {clock(settings.whatsapp.updatedAt)}
+                    </p>
+                  )}
+                </section>
+
+                {/* ============ 2. TAGLINE ============ */}
+                <section className="card">
+                  <div className="ch">
+                    <i className="fa-solid fa-quote-left" />
+                    <h2>Tagline</h2>
+                  </div>
+                  <p className="cd">
+                    The one line under the brand on the home page. Say what you do, plainly.
+                  </p>
+                  <div className="f">
+                    <label htmlFor="tag">Tagline</label>
+                    <input
+                      className="in"
+                      id="tag"
+                      type="text"
+                      maxLength={80}
+                      value={tag}
+                      onChange={(e) => {
+                        setTag(e.target.value);
+                        setTagN(String(e.target.value.length));
+                        keepSetting('tagline', tagSnap, e.target.value);
+                      }}
+                    />
+                    <p className="cnt">
+                      <span id="tagN">{tagN}</span>/80
+                    </p>
+                    {tagErr && (
+                      <p className="err on">
+                        <i className="fa-solid fa-circle-exclamation" />
+                        <span>{tagErr}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="prev" aria-label="Tagline preview">
+                    <div className="ptit">
+                      <i className="fa-solid fa-eye" />
+                      Home page preview
+                    </div>
+                    <div className="pbody" style={{ alignItems: 'center' }}>
+                      <div className="tprev">
+                        <span className="lg">
+                          <i className="fa-solid fa-gauge-high" />
+                          TrueSpec
+                        </span>
+                        <br />
+                        <span id="pvTag">{tag || '…'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="srow2">
+                    <button
+                      className="btn"
+                      id="tagSave"
+                      type="button"
+                      disabled={!tagDirty || tagBusy}
+                      onClick={saveTag}
+                    >
+                      Save tagline
+                    </button>
+                    <span className="dirty" id="tagDirty" hidden={!tagDirty}>
+                      <i className="fa-solid fa-pencil" />
+                      Unsaved change
+                    </span>
+                  </div>
+                  {settings.tagline.updatedAt && (
+                    <p className="audit">
+                      <i className="fa-regular fa-clock" />
+                      Updated {longDay(settings.tagline.updatedAt)},{' '}
+                      {clock(settings.tagline.updatedAt)}
+                    </p>
+                  )}
+                </section>
+
+                {/* ============ 3. COST DEFAULT ============ */}
+                <section className="card">
+                  <div className="ch">
+                    <i className="fa-solid fa-naira-sign" />
+                    <h2>Cost default</h2>
+                  </div>
+                  <p className="cd">
+                    Pre-filled when typing a car&apos;s costs. Every amount is in naira — there is
+                    no currency conversion.
+                  </p>
+                  <div className="r2">
+                    <div className="f">
+                      <label htmlFor="tank">Full tank</label>
+                      <div className="cur">
+                        <span>₦</span>
+                        <input
+                          className="in"
+                          id="tank"
+                          type="number"
+                          min={0}
+                          step={5000}
+                          value={tank}
+                          onChange={(e) => {
+                            setTank(e.target.value);
+                            keepSetting('tank', tankSnap, e.target.value);
+                          }}
+                        />
+                      </div>
+                      <p className="hint">
+                        Default prefilled on every new car — change per car if needed.
+                      </p>
+                      {tankErr && (
+                        <p className="err on">
+                          <i className="fa-solid fa-circle-exclamation" />
+                          <span>{tankErr}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="srow2">
+                    <button
+                      className="btn"
+                      id="tankSave"
+                      type="button"
+                      disabled={!tankDirty || tankBusy}
+                      onClick={saveTank}
+                    >
+                      Save default
+                    </button>
+                    <span className="dirty" id="tankDirty" hidden={!tankDirty}>
+                      <i className="fa-solid fa-pencil" />
+                      Unsaved change
+                    </span>
+                  </div>
+                  {settings.tank.updatedAt && (
+                    <p className="audit">
+                      <i className="fa-regular fa-clock" />
+                      Updated {longDay(settings.tank.updatedAt)}, {clock(settings.tank.updatedAt)}
+                    </p>
+                  )}
+                </section>
+              </>
+            )}
+
+            {tab === 'car' && (
+              <section className="card">
+                <div className="ch">
+                  <i className="fa-solid fa-car-side" />
+                  <h2>Car states</h2>
                 </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
+                <p className="cd">
+                  The four top states are fixed: the showroom groups by them, and it shows the first
+                  three, never Sold. Below them are your own states, in your own order.
+                </p>
+                <CarStateEditor states={registry} />
+              </section>
+            )}
 
-        {/* ============ 6. WAITING TO BE CLEARED (report only) ============ */}
-        {cleanup !== undefined ? <CleanupCard data={cleanup} /> : null}
+            {tab === 'customer' && (
+              <section className="card">
+                <div className="ch">
+                  <i className="fa-solid fa-users" />
+                  <h2>Customer states</h2>
+                </div>
+                <p className="cd">
+                  The states an enquiry can be given, and the colour each carries on the board. All
+                  of them are yours — nothing here is fixed, and any enquiry can be given any state
+                  at any time.
+                </p>
+                <EnquiryStateEditor states={enquiryRegistry} />
+              </section>
+            )}
 
-        {/* ============ 7. EXPORT (one action → one ZIP) ============ */}
-        {/* A plain anchor, never `Link`: Link prefetches when it scrolls into view, which would
+            {tab === 'account' && (
+              <>
+                {/* ============ 4. PASSWORD (delegated) ============ */}
+                <section className="card">
+                  <div className="ch">
+                    <i className="fa-solid fa-key" />
+                    <h2>Password</h2>
+                  </div>
+                  <p className="cd">
+                    One account, so one password. It is the identity provider&apos;s, not the
+                    office&apos;s — nothing on this screen stores it, sees it, or changes it.
+                    Changing it signs you out anywhere else it was open.
+                  </p>
+                  <div className="srow2">
+                    <Link className="btn" id="pChange" href="/office/account">
+                      Change password
+                    </Link>
+                  </div>
+                  <p className="hint" style={{ marginTop: 12 }}>
+                    <i className="fa-regular fa-circle-question" /> Forgot it? Recovery is an
+                    identity-provider operation — it happens at the sign-in screen, not in the
+                    office.
+                  </p>
+                </section>
+
+                {/* ============ 5. SYSTEM (operational notices) ============ */}
+                {notices !== undefined ? (
+                  <section className="card">
+                    <div className="ch">
+                      <i className="fa-solid fa-heart-pulse" />
+                      <h2>System</h2>
+                    </div>
+                    <p className="cd">
+                      Read from what the system records about itself. The office displays these; it
+                      never estimates them.
+                    </p>
+                    <div className="notices">
+                      {notices.map((n) => (
+                        <div className={`notice ${n.level}`} key={n.kind} data-kind={n.kind}>
+                          <i
+                            className={`fa-solid ${
+                              n.level === 'warn' ? 'fa-triangle-exclamation' : 'fa-circle-info'
+                            }`}
+                            aria-hidden="true"
+                          />
+                          <div>
+                            <b>{n.title}</b>
+                            <span>{n.body}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+
+                {/* ============ 6. WAITING TO BE CLEARED (report only) ============ */}
+                {cleanup !== undefined ? <CleanupCard data={cleanup} /> : null}
+
+                {/* ============ 7. EXPORT (one action → one ZIP) ============ */}
+                {/* A plain anchor, never `Link`: Link prefetches when it scrolls into view, which would
             build a whole archive the owner never asked for. The download is the office's own GET
             — it needs a session like every other read here, and answers with no body at all
             without one. */}
-        <section className="card">
-          <div className="ch">
-            <i className="fa-solid fa-box-archive" />
-            <h2>Export</h2>
-          </div>
-          <p className="cd">
-            Take everything with you, in one press: every car with its costs and photos, every
-            enquiry, tap, activity row and setting. It arrives as one ZIP — a nested
-            master.json, one CSV per subject, and a README naming what is inside and when it was
-            made. Nothing is sent anywhere; the file comes straight to your downloads.
-          </p>
-          <div className="srow2">
-            <a className="btn" id="exportBtn" href="/api/export" download>
-              Download the export
-            </a>
-          </div>
-          <p className="hint" style={{ marginTop: 12 }}>
-            <i className="fa-regular fa-circle-question" /> It belongs to the office: opened from
-            outside, with no session, it returns nothing.
-          </p>
-        </section>
-          </>
-        )}
+                <section className="card">
+                  <div className="ch">
+                    <i className="fa-solid fa-box-archive" />
+                    <h2>Export</h2>
+                  </div>
+                  <p className="cd">
+                    Take everything with you, in one press: every car with its costs and photos,
+                    every enquiry, tap, activity row and setting. It arrives as one ZIP — a nested
+                    master.json, one CSV per subject, and a README naming what is inside and when it
+                    was made. Nothing is sent anywhere; the file comes straight to your downloads.
+                  </p>
+                  <div className="srow2">
+                    <a className="btn" id="exportBtn" href="/api/export" download>
+                      Download the export
+                    </a>
+                  </div>
+                  <p className="hint" style={{ marginTop: 12 }}>
+                    <i className="fa-regular fa-circle-question" /> It belongs to the office: opened
+                    from outside, with no session, it returns nothing.
+                  </p>
+                </section>
+              </>
+            )}
           </div>
         </div>
       </div>
 
       {mounted
         ? createPortal(
-            <div className={`toast${toast ? " show" : ""}`} id="toast" role="status">
-              <span id="tmsg">{toast ?? ""}</span>
+            <div className={`toast${toast ? ' show' : ''}`} id="toast" role="status">
+              <span id="tmsg">{toast ?? ''}</span>
             </div>,
-            document.body,
+            document.body
           )
         : null}
     </>

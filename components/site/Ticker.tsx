@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 // The reference nav ticker (truespec.html startTicker): one line at a time,
 // out-left / in-right every 3.8s. Reduced motion shows the first line only.
-const ICONS = ["fa-ship", "fa-clock", "fa-arrow-trend-down", "fa-circle-check"];
+const ICONS = ['fa-ship', 'fa-clock', 'fa-arrow-trend-down', 'fa-circle-check'];
 
 export function Ticker({ lines }: { lines: string[] }) {
   const [i, setI] = useState(0);
@@ -12,7 +12,7 @@ export function Ticker({ lines }: { lines: string[] }) {
 
   useEffect(() => {
     if (lines.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = setInterval(() => {
       setOut(true);
       window.setTimeout(() => {
@@ -26,7 +26,7 @@ export function Ticker({ lines }: { lines: string[] }) {
   return (
     <div className="tick" id="tick" aria-live="off">
       {lines.map((text, k) => (
-        <span key={k} className={k === i ? (out ? "out" : "on") : ""}>
+        <span key={k} className={k === i ? (out ? 'out' : 'on') : ''}>
           <i className={`fa-solid ${ICONS[k % 4]}`} />
           {text}
         </span>

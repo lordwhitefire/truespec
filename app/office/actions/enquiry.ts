@@ -1,13 +1,13 @@
-"use server";
+'use server';
 
-import { randomUUID } from "node:crypto";
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { storeQuery, storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
-import { deleteAsset } from "@/lib/sanity";
-import type { EditResult } from "@/lib/edit-result";
-import { CHANGE_CHECK_VERSION, enquiryChangeCheck } from "@/lib/change-check";
-import { enquiryDeleteStatement } from "@/lib/enquiry-delete";
+import { randomUUID } from 'node:crypto';
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { storeQuery, storeQueryRefusing, storeRefusal } from '@/lib/store-guard';
+import { deleteAsset } from '@/lib/sanity';
+import type { EditResult } from '@/lib/edit-result';
+import { CHANGE_CHECK_VERSION, enquiryChangeCheck } from '@/lib/change-check';
+import { enquiryDeleteStatement } from '@/lib/enquiry-delete';
 import {
   enquiryStateAddStatement,
   enquiryStateHoldersStatement,
@@ -15,12 +15,12 @@ import {
   enquiryStateRemoveStatement,
   enquiryStateRenameStatement,
   enquiryStateReorderStatement,
-} from "@/lib/enquiry-state";
-import { enquiryEditableStatement, enquirySetStateStatement } from "@/lib/enquiry-set-state";
-import { enquiryUpdateStatement } from "@/lib/enquiry-update";
-import { enquiryValuesFromForm } from "@/lib/enquiry-form";
-import { readEnquirySeed } from "@/lib/draft-save";
-import { enquiryStateExists } from "@/lib/draft-store";
+} from '@/lib/enquiry-state';
+import { enquiryEditableStatement, enquirySetStateStatement } from '@/lib/enquiry-set-state';
+import { enquiryUpdateStatement } from '@/lib/enquiry-update';
+import { enquiryValuesFromForm } from '@/lib/enquiry-form';
+import { readEnquirySeed } from '@/lib/draft-save';
+import { enquiryStateExists } from '@/lib/draft-store';
 
 /**
  * The enquiry writes — the registry of states, and the one change the owner makes to an enquiry.
@@ -60,21 +60,25 @@ const fail = (field: string, message: string): Refusal => ({
 
 /** A state's name: collapsed to single spaces, non-empty, within the cap. */
 function readLabel(raw: FormDataEntryValue | null): { ok: true; label: string } | Refusal {
-  const value = typeof raw === "string" ? raw.replace(/\s+/g, " ").trim() : "";
-  if (value === "") return fail("label", "Give the state a name");
-  if (value.length > NAME_MAX) return fail("label", `Keep the name to ${NAME_MAX} characters`);
+  const value = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim() : '';
+  if (value === '') return fail('label', 'Give the state a name');
+  if (value.length > NAME_MAX) return fail('label', `Keep the name to ${NAME_MAX} characters`);
   return { ok: true, label: value };
 }
 
 /** A state's colour: the six-digit hex the store's own `enquiry_state_colour_hex` check accepts. */
 function readColour(raw: FormDataEntryValue | null): { ok: true; colour: string } | Refusal {
-  const value = typeof raw === "string" ? raw.trim() : "";
-  if (!HEX.test(value)) return fail("colour", "Pick a colour for the state");
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (!HEX.test(value)) return fail('colour', 'Pick a colour for the state');
   return { ok: true, colour: value };
 }
 
-function readUuid(raw: FormDataEntryValue | null, field: string, message: string): { ok: true; id: string } | Refusal {
-  const value = typeof raw === "string" ? raw.trim() : "";
+function readUuid(
+  raw: FormDataEntryValue | null,
+  field: string,
+  message: string
+): { ok: true; id: string } | Refusal {
+  const value = typeof raw === 'string' ? raw.trim() : '';
   if (!UUID.test(value)) return fail(field, message);
   return { ok: true, id: value };
 }
@@ -83,27 +87,27 @@ function readUuid(raw: FormDataEntryValue | null, field: string, message: string
 function refusal(error: unknown): { code?: string; constraint?: string } {
   const e = error as { code?: unknown; constraint?: unknown } | null;
   return {
-    code: typeof e?.code === "string" ? e.code : undefined,
-    constraint: typeof e?.constraint === "string" ? e.constraint : undefined,
+    code: typeof e?.code === 'string' ? e.code : undefined,
+    constraint: typeof e?.constraint === 'string' ? e.constraint : undefined,
   };
 }
 
-const DUPLICATE_NAME = "Another enquiry state already has that name";
+const DUPLICATE_NAME = 'Another enquiry state already has that name';
 
 /** The office pages an enquiry write changes. Public pages never read the owner's states. */
 function revalidateEnquiryPaths(): void {
-  revalidatePath("/office/enquiries");
-  revalidatePath("/office/activity");
-  revalidatePath("/office/settings");
-  revalidatePath("/office");
+  revalidatePath('/office/enquiries');
+  revalidatePath('/office/activity');
+  revalidatePath('/office/settings');
+  revalidatePath('/office');
 }
 
 export async function addEnquiryState(form: FormData): Promise<EditResult> {
   await requireOfficeSession();
 
-  const label = readLabel(form.get("label"));
+  const label = readLabel(form.get('label'));
   if (!label.ok) return label;
-  const colour = readColour(form.get("colour"));
+  const colour = readColour(form.get('colour'));
   if (!colour.ok) return colour;
 
   const { text, params } = enquiryStateAddStatement({
@@ -115,9 +119,9 @@ export async function addEnquiryState(form: FormData): Promise<EditResult> {
   try {
     await storeQuery(text, params);
   } catch (error) {
-    if (refusal(error).code === "23505") return fail("label", DUPLICATE_NAME);
+    if (refusal(error).code === '23505') return fail('label', DUPLICATE_NAME);
     // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
-    return storeRefusal("label", "That state could not be added", error);
+    return storeRefusal('label', 'That state could not be added', error);
   }
 
   revalidateEnquiryPaths();
@@ -127,9 +131,9 @@ export async function addEnquiryState(form: FormData): Promise<EditResult> {
 export async function renameEnquiryState(form: FormData): Promise<EditResult> {
   await requireOfficeSession();
 
-  const id = readUuid(form.get("id"), "id", "That state could not be identified");
+  const id = readUuid(form.get('id'), 'id', 'That state could not be identified');
   if (!id.ok) return id;
-  const label = readLabel(form.get("label"));
+  const label = readLabel(form.get('label'));
   if (!label.ok) return label;
 
   const { text, params } = enquiryStateRenameStatement({ id: id.id, label: label.label });
@@ -137,8 +141,8 @@ export async function renameEnquiryState(form: FormData): Promise<EditResult> {
   try {
     await storeQuery(text, params);
   } catch (error) {
-    if (refusal(error).code === "23505") return fail("label", DUPLICATE_NAME);
-    return storeRefusal("label", "That state could not be renamed", error);
+    if (refusal(error).code === '23505') return fail('label', DUPLICATE_NAME);
+    return storeRefusal('label', 'That state could not be renamed', error);
   }
 
   revalidateEnquiryPaths();
@@ -148,15 +152,15 @@ export async function renameEnquiryState(form: FormData): Promise<EditResult> {
 export async function recolourEnquiryState(form: FormData): Promise<EditResult> {
   await requireOfficeSession();
 
-  const id = readUuid(form.get("id"), "id", "That state could not be identified");
+  const id = readUuid(form.get('id'), 'id', 'That state could not be identified');
   if (!id.ok) return id;
-  const colour = readColour(form.get("colour"));
+  const colour = readColour(form.get('colour'));
   if (!colour.ok) return colour;
 
   const { text, params } = enquiryStateRecolourStatement({ id: id.id, colour: colour.colour });
   const attempt = await storeQueryRefusing(text, params, {
-    field: "colour",
-    action: "That colour could not be saved",
+    field: 'colour',
+    action: 'That colour could not be saved',
   });
   if (!attempt.ok) return attempt;
 
@@ -167,14 +171,19 @@ export async function recolourEnquiryState(form: FormData): Promise<EditResult> 
 export async function reorderEnquiryStates(ids: string[]): Promise<EditResult> {
   await requireOfficeSession();
 
-  if (!Array.isArray(ids) || ids.length === 0 || ids.length > ORDER_MAX || !ids.every((id) => UUID.test(id))) {
-    return fail("order", "That order could not be read");
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    ids.length > ORDER_MAX ||
+    !ids.every((id) => UUID.test(id))
+  ) {
+    return fail('order', 'That order could not be read');
   }
 
   const { text, params } = enquiryStateReorderStatement({ ids });
   const attempt = await storeQueryRefusing(text, params, {
-    field: "order",
-    action: "That order could not be saved",
+    field: 'order',
+    action: 'That order could not be saved',
   });
   if (!attempt.ok) return attempt;
 
@@ -185,8 +194,8 @@ export async function reorderEnquiryStates(ids: string[]): Promise<EditResult> {
 export async function removeEnquiryState(id: string): Promise<EditResult> {
   await requireOfficeSession();
 
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return fail("id", "That state could not be identified");
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return fail('id', 'That state could not be identified');
   }
 
   try {
@@ -194,27 +203,27 @@ export async function removeEnquiryState(id: string): Promise<EditResult> {
     const rows = await storeQuery<{ label: string }[]>(text, params);
     // A state that is not there is not a change: the delete has already happened, so a repeat
     // reports the same thing it would the first time (D18).
-    if (!rows[0]) return fail("id", "That state is no longer in the office");
+    if (!rows[0]) return fail('id', 'That state is no longer in the office');
   } catch (error) {
     const { code } = refusal(error);
     // The store's own refusal (truth 10). Postgres reports an `ON DELETE RESTRICT` foreign key as
     // 23001 (restrict_violation) and a `NO ACTION` one as 23503 (foreign_key_violation); both are
     // the same refusal and both are caught here.
-    if (code === "23001" || code === "23503") {
+    if (code === '23001' || code === '23503') {
       const { text, params } = enquiryStateHoldersStatement({ id });
       const held = await storeQuery<{ holders: string | number }[]>(text, params);
       const holders = Number(held[0]?.holders ?? 0);
       return fail(
-        "id",
+        'id',
         holders > 0
-          ? `${holders} ${holders === 1 ? "enquiry is" : "enquiries are"} still in this state — move ${
-              holders === 1 ? "it" : "them"
+          ? `${holders} ${holders === 1 ? 'enquiry is' : 'enquiries are'} still in this state — move ${
+              holders === 1 ? 'it' : 'them'
             } out first`
-          : "An enquiry is still in this state, so the store won't delete it",
+          : "An enquiry is still in this state, so the store won't delete it"
       );
     }
     // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
-    return storeRefusal("id", "That state could not be removed", error);
+    return storeRefusal('id', 'That state could not be removed', error);
   }
 
   revalidateEnquiryPaths();
@@ -231,9 +240,9 @@ export async function removeEnquiryState(id: string): Promise<EditResult> {
 export async function setEnquiryState(form: FormData): Promise<EditResult> {
   const session = await requireOfficeSession();
 
-  const id = readUuid(form.get("id"), "id", "That enquiry could not be identified");
+  const id = readUuid(form.get('id'), 'id', 'That enquiry could not be identified');
   if (!id.ok) return id;
-  const stateId = readUuid(form.get("stateId"), "stateId", "That state could not be identified");
+  const stateId = readUuid(form.get('stateId'), 'stateId', 'That state could not be identified');
   if (!stateId.ok) return stateId;
 
   const { text, params } = enquiryEditableStatement({ id: id.id });
@@ -248,7 +257,7 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
   >(text, params);
 
   const row = rows[0];
-  if (!row) return fail("id", "That enquiry is no longer in the office");
+  if (!row) return fail('id', 'That enquiry is no longer in the office');
 
   const contentHash = enquiryChangeCheck({
     name: row.name,
@@ -269,9 +278,9 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
     await storeQuery(set.text, set.params);
   } catch (error) {
     const { code } = refusal(error);
-    if (code === "23503") return fail("stateId", "That state is no longer in the office");
+    if (code === '23503') return fail('stateId', 'That state is no longer in the office');
     // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
-    return storeRefusal("stateId", "That enquiry could not be given that state", error);
+    return storeRefusal('stateId', 'That enquiry could not be given that state', error);
   }
 
   revalidateEnquiryPaths();
@@ -280,8 +289,7 @@ export async function setEnquiryState(form: FormData): Promise<EditResult> {
 
 /** What the saved-enquiry edit reports: whether it really moved the row, and the code it names. */
 export type UpdateEnquiryResult =
-  | { ok: true; changed: boolean; ref: string }
-  | Extract<EditResult, { ok: false }>;
+  { ok: true; changed: boolean; ref: string } | Extract<EditResult, { ok: false }>;
 
 /**
  * Edit a saved enquiry's five details (owner ruling 2026-10-20, #4).
@@ -296,14 +304,14 @@ export type UpdateEnquiryResult =
 export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult> {
   const session = await requireOfficeSession();
 
-  const id = readUuid(form.get("id"), "id", "That enquiry could not be identified");
+  const id = readUuid(form.get('id'), 'id', 'That enquiry could not be identified');
   if (!id.ok) return id;
 
-  const rawState = form.get("stateId");
-  const chosen = typeof rawState === "string" ? rawState.trim() : "";
+  const rawState = form.get('stateId');
+  const chosen = typeof rawState === 'string' ? rawState.trim() : '';
   let stateId: string | null = null;
-  if (chosen !== "") {
-    if (!UUID.test(chosen)) return fail("stateId", "That state could not be identified");
+  if (chosen !== '') {
+    if (!UUID.test(chosen)) return fail('stateId', 'That state could not be identified');
     stateId = chosen;
   }
 
@@ -316,10 +324,10 @@ export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult
   // so the action and the change-check cannot disagree about what an enquiry is.
   const stored = enquiryEditableStatement({ id: id.id });
   const rows = await storeQuery<Record<string, unknown>[]>(stored.text, stored.params);
-  if (rows.length === 0) return fail("id", "That enquiry is no longer in the office");
+  if (rows.length === 0) return fail('id', 'That enquiry is no longer in the office');
 
   if (stateId !== null && !(await enquiryStateExists(stateId))) {
-    return fail("stateId", "That state is no longer in the office");
+    return fail('stateId', 'That state is no longer in the office');
   }
 
   const contentHash = enquiryChangeCheck({
@@ -341,18 +349,18 @@ export async function updateEnquiry(form: FormData): Promise<UpdateEnquiryResult
     });
     const written = await storeQuery<{ changed: boolean; id: string | null; ref: string | null }[]>(
       text,
-      params,
+      params
     );
     const row = written[0];
-    if (!row?.id || !row.ref) return fail("id", "That enquiry is no longer in the office");
+    if (!row?.id || !row.ref) return fail('id', 'That enquiry is no longer in the office');
 
     revalidateEnquiryPaths();
     return { ok: true, changed: row.changed, ref: row.ref };
   } catch (error) {
     const { code } = refusal(error);
-    if (code === "23503") return fail("stateId", "That state is no longer in the office");
+    if (code === '23503') return fail('stateId', 'That state is no longer in the office');
     // Anything else the store raised is a failed write, not a reason to lose the screen (D32).
-    return storeRefusal("id", "That enquiry could not be saved", error);
+    return storeRefusal('id', 'That enquiry could not be saved', error);
   }
 }
 
@@ -362,7 +370,7 @@ export type DeleteEnquiryResult =
       ok: true;
       ref: string;
       /** `none` — no sheet; `kept` — still used; `deleted` — litter, bytes gone; `failed` — bytes left. */
-      pdf: "none" | "kept" | "deleted" | "failed";
+      pdf: 'none' | 'kept' | 'deleted' | 'failed';
       reason?: string;
     }
   | Refusal;
@@ -381,38 +389,38 @@ export type DeleteEnquiryResult =
 export async function deleteEnquiry(id: string): Promise<DeleteEnquiryResult> {
   const session = await requireOfficeSession();
 
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return fail("id", "That enquiry could not be identified");
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return fail('id', 'That enquiry could not be identified');
   }
 
   const { text, params } = enquiryDeleteStatement({ id, actorId: session.officeUserId });
   const attempt = await storeQueryRefusing<
     { ref: string | null; pdf_import_id: string | null; asset_id: string | null }[]
   >(text, params, {
-    field: "id",
-    action: "That enquiry could not be deleted",
+    field: 'id',
+    action: 'That enquiry could not be deleted',
   });
   if (!attempt.ok) return attempt;
 
   const row = attempt.rows[0];
   // A repeat finds no row: the delete has already happened, so it reports the same thing it would
   // the first time (D18). The statement wrote no second event.
-  if (!row?.ref) return fail("id", "That enquiry is no longer in the office");
+  if (!row?.ref) return fail('id', 'That enquiry is no longer in the office');
 
-  let pdf: "none" | "kept" | "deleted" | "failed" = "none";
+  let pdf: 'none' | 'kept' | 'deleted' | 'failed' = 'none';
   let reason: string | undefined;
   if (row.pdf_import_id !== null) {
     if (row.asset_id !== null) {
       const removed = await deleteAsset(row.asset_id);
       if (removed.deleted) {
-        pdf = "deleted";
+        pdf = 'deleted';
       } else {
-        pdf = "failed";
+        pdf = 'failed';
         reason = removed.reason;
       }
     } else {
       // Another enquiry or a waiting draft still uses the file. Leaving the bytes is the rule.
-      pdf = "kept";
+      pdf = 'kept';
     }
   }
 

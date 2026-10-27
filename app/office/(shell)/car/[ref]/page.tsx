@@ -1,14 +1,14 @@
-import "../car.css";
-import { notFound } from "next/navigation";
-import { getOfficeCarForEdit, getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
-import { requireOfficeSession } from "@/lib/session";
-import { imageUrl } from "@/lib/sanity";
-import { isAssetRef } from "@/lib/photo-rules";
-import { CarForm, type CarCosts, type CarFormData } from "../car-client";
+import '../car.css';
+import { notFound } from 'next/navigation';
+import { getOfficeCarForEdit, getOfficeSecondaryStates, getOfficeStates } from '@/lib/office';
+import { requireOfficeSession } from '@/lib/session';
+import { imageUrl } from '@/lib/sanity';
+import { isAssetRef } from '@/lib/photo-rules';
+import { CarForm, type CarCosts, type CarFormData } from '../car-client';
 
 // The car comes from the store, so this page renders per request — never from a
 // build-time snapshot of it.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* The edit view is per car (owner ruling 2026-10-15): `/office/car/TS-1008` edits that
    car, which is the one every inventory row links to. `/office/car/new` is add mode;
@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
    car's id rides along as a hidden field, so the Server Action updates the row the
    owner actually opened. */
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // The Postgres driver hands timestamps back as JS Date objects, so accept both shapes
 // and read UTC fields only (as the inventory page does).
@@ -34,8 +34,8 @@ function addedOn(v: string | Date): string {
 }
 function updatedAt(v: string | Date): string {
   const d = asDate(v);
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const mm = String(d.getUTCMinutes()).padStart(2, '0');
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${hh}:${mm}`;
 }
 
@@ -43,17 +43,17 @@ function updatedAt(v: string | Date): string {
 // `KIND_BY_FIELD`; it lives here (server side) because the read carries stored kinds
 // and the form speaks fields. The six cost kinds are `lib/money.ts`'s own set.
 const FIELD_BY_KIND: Record<string, keyof CarCosts> = {
-  purchase_price: "purchase",
-  shipping: "ship",
-  clearing: "clear",
-  trucking_usa: "truckus",
-  trucking_ng: "truckng",
-  full_tank: "tank",
+  purchase_price: 'purchase',
+  shipping: 'ship',
+  clearing: 'clear',
+  trucking_usa: 'truckus',
+  trucking_ng: 'truckng',
+  full_tank: 'tank',
 };
 
 // kobo → the plain naira string the form's inputs hold (no symbols, no separators).
 function nairaString(kobo: number | null): string {
-  return kobo == null ? "" : String(kobo / 100);
+  return kobo == null ? '' : String(kobo / 100);
 }
 
 // The stored reference → the address the browser fetches, or nothing at all.
@@ -64,17 +64,17 @@ function nairaString(kobo: number | null): string {
 // enforces: the column never holds an address, and a value that is not a reference has no address
 // to give.
 function photoURL(assetId: string): string {
-  if (!isAssetRef(assetId)) return "";
+  if (!isAssetRef(assetId)) return '';
   try {
     return imageUrl(assetId);
   } catch {
-    return "";
+    return '';
   }
 }
 
 export default async function EditCarPage({ params }: { params: Promise<{ ref: string }> }) {
   const session = await requireOfficeSession();
-  const isDemo = session.space === "demo";
+  const isDemo = session.space === 'demo';
   const { ref } = await params;
 
   const [car, primaries, secondaries] = await Promise.all([
@@ -84,7 +84,7 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
   ]);
   if (!car) notFound();
 
-  const costs: CarCosts = { purchase: "", ship: "", clear: "", truckus: "", truckng: "", tank: "" };
+  const costs: CarCosts = { purchase: '', ship: '', clear: '', truckus: '', truckng: '', tank: '' };
   for (const line of car.cost_lines) {
     const field = FIELD_BY_KIND[line.kind];
     if (field) costs[field] = nairaString(line.amountMinor);
@@ -92,19 +92,19 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
 
   // The column stores the feature list as a JSON array text; the form's textarea holds
   // it one per line. A malformed/absent value shows an empty list, never a crash.
-  let features = "";
+  let features = '';
   if (car.features) {
     try {
       const parsed: unknown = JSON.parse(car.features);
-      if (Array.isArray(parsed)) features = parsed.filter((x) => typeof x === "string").join("\n");
+      if (Array.isArray(parsed)) features = parsed.filter((x) => typeof x === 'string').join('\n');
     } catch {
-      features = "";
+      features = '';
     }
   }
 
   // The sale, while the car is Sold (truth 5). The day is read in UTC — the same instant
   // the form writes it at — so the field shows back the day that was chosen.
-  const soldDay = car.sold_at ? asDate(car.sold_at).toISOString().slice(0, 10) : "";
+  const soldDay = car.sold_at ? asDate(car.sold_at).toISOString().slice(0, 10) : '';
 
   const data: CarFormData = {
     carId: car.id,
@@ -113,23 +113,23 @@ export default async function EditCarPage({ params }: { params: Promise<{ ref: s
     upd: updatedAt(car.updated_at),
     brand: car.brand,
     model: car.model,
-    trim: car.trim ?? "",
-    year: car.year != null ? String(car.year) : "",
-    mileage: car.mileage != null ? car.mileage.toLocaleString("en-US") : "",
-    ext: car.exterior_color ?? "",
-    int: car.interior_color ?? "",
+    trim: car.trim ?? '',
+    year: car.year != null ? String(car.year) : '',
+    mileage: car.mileage != null ? car.mileage.toLocaleString('en-US') : '',
+    ext: car.exterior_color ?? '',
+    int: car.interior_color ?? '',
     price: nairaString(car.doorstep_price_kobo),
     feat: features,
     costs,
     state: car.state,
     section: car.section,
     isNew: car.is_new_arrival,
-    arr: car.arrival_note ?? "",
-    note: car.note ?? "",
-    privateNote: car.private_note ?? "",
+    arr: car.arrival_note ?? '',
+    note: car.note ?? '',
+    privateNote: car.private_note ?? '',
     wasPrice: nairaString(car.was_price_kobo),
-    salePrice: car.section === "sold" ? nairaString(car.sale_price_kobo) : "",
-    saleDate: car.section === "sold" ? soldDay : "",
+    salePrice: car.section === 'sold' ? nairaString(car.sale_price_kobo) : '',
+    saleDate: car.section === 'sold' ? soldDay : '',
     priorStateId: car.prior_state_id ?? undefined,
     priorStateLabel: car.prior_state_label ?? undefined,
     photos: car.photos.map((p) => ({ assetId: p.assetId, url: photoURL(p.assetId) })),

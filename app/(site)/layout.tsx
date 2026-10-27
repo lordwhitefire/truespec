@@ -1,30 +1,22 @@
-import { cache, Suspense } from "react";
-import "../globals.css";
-import "../reference.css";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Ticker } from "@/components/site/Ticker";
-import { OfflineNotice } from "@/components/site/OfflineNotice";
-import { SiteFab } from "@/components/site/SiteFab";
-import { WhatsAppGate } from "@/components/site/WhatsAppGate";
-import { getPublicCars, getSetting } from "@/lib/public-cars";
-import { isSpecial, type PublicCar } from "@/lib/serialize";
-import { formatNaira } from "@/lib/money";
-import {
-  WA_OFF_REASON,
-  WA_OFF_TEXT,
-  waClass,
-  waLink,
-  waOffProps,
-} from "@/components/whatsapp";
-import { Photo } from "@/components/Photo";
+import { cache, Suspense } from 'react';
+import '../globals.css';
+import '../reference.css';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { Ticker } from '@/components/site/Ticker';
+import { OfflineNotice } from '@/components/site/OfflineNotice';
+import { SiteFab } from '@/components/site/SiteFab';
+import { WhatsAppGate } from '@/components/site/WhatsAppGate';
+import { getPublicCars, getSetting } from '@/lib/public-cars';
+import { isSpecial, type PublicCar } from '@/lib/serialize';
+import { formatNaira } from '@/lib/money';
+import { WA_OFF_REASON, WA_OFF_TEXT, waClass, waLink, waOffProps } from '@/components/whatsapp';
+import { Photo } from '@/components/Photo';
 
 // The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
 // under this layout renders per request, never from a build-time snapshot. (The data-heavy public
 // pages declare this themselves as well; this is the declaration the client pages, /privacy and
 // /not-found, cannot make for themselves.)
-export const dynamic = "force-dynamic";
-
-
+export const dynamic = 'force-dynamic';
 
 // The chrome's store reads live in small Suspense islands, not in the layout's own body
 // (plan Task 8a). An `await` in the layout holds the entire page back, and a loading boundary
@@ -33,42 +25,43 @@ export const dynamic = "force-dynamic";
 // suspended, a page can still answer a real 404, and every page that reads the store keeps its
 // own "waking the store" boundary in its segment's `loading.tsx`.
 const chromeData = cache(async () => {
-  const [number, cars] = await Promise.all([getSetting("whatsapp_number"), getPublicCars()]);
-  return { num: number ?? "", cars };
+  const [number, cars] = await Promise.all([getSetting('whatsapp_number'), getPublicCars()]);
+  return { num: number ?? '', cars };
 });
 
 function carTitle(c: PublicCar): string {
-  return [c.year, c.brand, c.model, c.trim].filter(Boolean).join(" ");
+  return [c.year, c.brand, c.model, c.trim].filter(Boolean).join(' ');
 }
 
 // The ticker's news lines (reference tickerLines), computed from live data.
 function buildTicker(cars: PublicCar[]): string[] {
-  const landed = cars.find((c) => c.section === "landed");
-  const onOrder = cars.find((c) => c.section === "on order");
+  const landed = cars.find((c) => c.section === 'landed');
+  const onOrder = cars.find((c) => c.section === 'on order');
   const drops = cars
     .filter(isSpecial)
     .sort((a, b) => (b.wasPriceKobo ?? 0) - b.priceKobo - ((a.wasPriceKobo ?? 0) - a.priceKobo));
   const drop = drops[0];
   const out: string[] = [];
   if (landed) out.push(`New on the lot: ${carTitle(landed)} — landed this year`);
-  if (onOrder) out.push(`Next to land: ${carTitle(onOrder)} — ${onOrder.arrivalNote ?? "expected soon"}`);
+  if (onOrder)
+    out.push(`Next to land: ${carTitle(onOrder)} — ${onOrder.arrivalNote ?? 'expected soon'}`);
   if (drop) {
     out.push(
-      `Biggest drop: ${carTitle(drop)} — was ${formatNaira(drop.wasPriceKobo ?? 0)}, now ${formatNaira(drop.priceKobo)}`,
+      `Biggest drop: ${carTitle(drop)} — was ${formatNaira(drop.wasPriceKobo ?? 0)}, now ${formatNaira(drop.priceKobo)}`
     );
   }
-  out.push("One doorstep price — shipping, clearing and delivery included.");
-  out.push("Shipped from the USA, delivered anywhere in Nigeria.");
+  out.push('One doorstep price — shipping, clearing and delivery included.');
+  out.push('Shipped from the USA, delivered anywhere in Nigeria.');
   return out.slice(0, 4);
 }
 
-const WA_QUESTION = "Hello TrueSpec, I have a question.";
+const WA_QUESTION = 'Hello TrueSpec, I have a question.';
 
 async function WhatsAppNumber() {
   const { num } = await chromeData();
   // Nothing is invented when the owner has not saved a number; the line says so (D16).
   return (
-    <b className={num ? undefined : "off-note"} title={num ? undefined : WA_OFF_REASON}>
+    <b className={num ? undefined : 'off-note'} title={num ? undefined : WA_OFF_REASON}>
       {num || WA_OFF_TEXT}
     </b>
   );
@@ -79,7 +72,7 @@ async function HeaderChat() {
   const link = waLink(num, WA_QUESTION);
   return (
     <a
-      className={waClass("wab", !link)}
+      className={waClass('wab', !link)}
       href={link ?? undefined}
       {...waOffProps(!link)}
       target="_blank"
@@ -99,7 +92,7 @@ async function TickerLines() {
 async function FooterGallery() {
   const { cars } = await chromeData();
   const gallery = cars
-    .filter((c) => c.section === "available")
+    .filter((c) => c.section === 'available')
     .slice(0, 4)
     .map((c) => c.photos[0])
     .filter(Boolean);
@@ -117,12 +110,12 @@ async function FooterWhatsAppIcon() {
   const link = waLink(num, WA_QUESTION);
   return (
     <a
-      className={link ? undefined : "wa-off"}
+      className={link ? undefined : 'wa-off'}
       href={link ?? undefined}
       {...waOffProps(!link)}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={link ? "WhatsApp" : `WhatsApp — ${WA_OFF_REASON}`}
+      aria-label={link ? 'WhatsApp' : `WhatsApp — ${WA_OFF_REASON}`}
     >
       <i className="fa-brands fa-whatsapp" />
     </a>
@@ -134,7 +127,7 @@ async function FooterWhatsAppButton() {
   const link = waLink(num, WA_QUESTION);
   return (
     <a
-      className={waClass("wab big", !link)}
+      className={waClass('wab big', !link)}
       href={link ?? undefined}
       {...waOffProps(!link)}
       target="_blank"
@@ -223,7 +216,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 <h4>
                   <em>TrueSpec</em> Automotive
                 </h4>
-                <p>We import and deliver quality vehicles from the USA. One honest doorstep price on every car.</p>
+                <p>
+                  We import and deliver quality vehicles from the USA. One honest doorstep price on
+                  every car.
+                </p>
               </div>
               <div>
                 <h4>Photo gallery</h4>
@@ -288,27 +284,33 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <div>
                 <h4>Chat hours</h4>
                 <p>
-                  <b style={{ color: "#fff" }}>Mon - Fri:</b> 09:00AM - 06:00PM
+                  <b style={{ color: '#fff' }}>Mon - Fri:</b> 09:00AM - 06:00PM
                   <br />
-                  <b style={{ color: "#fff" }}>Saturday:</b> 10:00AM - 04:00PM
+                  <b style={{ color: '#fff' }}>Saturday:</b> 10:00AM - 04:00PM
                   <br />
-                  <b style={{ color: "#fff" }}>Sunday:</b> Closed
+                  <b style={{ color: '#fff' }}>Sunday:</b> Closed
                 </p>
               </div>
               <div>
                 <h4>Viewing</h4>
-                <p>Cars can be viewed by appointment once they have landed. Message us to book a time.</p>
+                <p>
+                  Cars can be viewed by appointment once they have landed. Message us to book a
+                  time.
+                </p>
               </div>
               <div>
                 <h4>Delivery</h4>
-                <p>We deliver to your door anywhere in Nigeria. Delivery is included in the price.</p>
+                <p>
+                  We deliver to your door anywhere in Nigeria. Delivery is included in the price.
+                </p>
               </div>
             </div>
             <div className="cp">
-              <span>&copy; {new Date().getFullYear()} TrueSpec Automotive. All rights reserved.</span>
               <span>
-                <a href="/privacy">Privacy notice</a> ·
-                <a href="/terms">Terms of service</a> ·
+                &copy; {new Date().getFullYear()} TrueSpec Automotive. All rights reserved.
+              </span>
+              <span>
+                <a href="/privacy">Privacy notice</a> ·<a href="/terms">Terms of service</a> ·
                 Imported from the USA
               </span>
             </div>

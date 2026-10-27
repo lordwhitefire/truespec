@@ -10,7 +10,7 @@
  * Pure, and deliberately importable from both sides — the log is a client component and the dashboard
  * is a server component, and both draw the same rows. Nothing here reads the store or the browser.
  */
-import { clock, dayKey, dayTitle, weekdayDay } from "./office-time";
+import { clock, dayKey, dayTitle, weekdayDay } from './office-time';
 
 /** One row of the log, as both screens draw it. The day and time arrive preformatted, in UTC. */
 export type ActivityEntry = {
@@ -43,46 +43,46 @@ export type ActivityEvent = {
 
 /** What each kind says, and which chip it belongs to. One word per kind, used by both screens. */
 export const ACTIONS: Record<string, { word: string; category: string }> = {
-  "car.created": { word: "Added a car", category: "add" },
-  "car.updated": { word: "Edited a car", category: "edit" },
-  "car.sold": { word: "Marked a car as Sold", category: "sold" },
-  "car.unsold": { word: "Took a car out of Sold", category: "state" },
-  "car.deleted": { word: "Deleted a car", category: "del" },
+  'car.created': { word: 'Added a car', category: 'add' },
+  'car.updated': { word: 'Edited a car', category: 'edit' },
+  'car.sold': { word: 'Marked a car as Sold', category: 'sold' },
+  'car.unsold': { word: 'Took a car out of Sold', category: 'state' },
+  'car.deleted': { word: 'Deleted a car', category: 'del' },
   // D31 — one word must not cover two actions. A delete and its undo are two events, so the
   // restoration has its own chip and its own count rather than reading (and counting) as a
   // deletion. "Deleted" keeps deleting — and removing for good, whose own word says deletion too.
-  "car.restored": { word: "Restored a car", category: "res" },
-  "car.removed": { word: "Removed a car for good", category: "del" },
+  'car.restored': { word: 'Restored a car', category: 'res' },
+  'car.removed': { word: 'Removed a car for good', category: 'del' },
 
   // An enquiry's events name its `ENQ-####`, never the customer: identifiers in the log, personal
   // details in the `enquiry` row (owner ruling 2026-10-20 #4). Creating and editing share the two
   // chips the car's events use, so the log reads as one history rather than two.
-  "enquiry.created": { word: "Added an enquiry", category: "add" },
-  "enquiry.updated": { word: "Edited an enquiry", category: "edit" },
-  "enquiry.deleted": { word: "Deleted an enquiry", category: "del" },
+  'enquiry.created': { word: 'Added an enquiry', category: 'add' },
+  'enquiry.updated': { word: 'Edited an enquiry', category: 'edit' },
+  'enquiry.deleted': { word: 'Deleted an enquiry', category: 'del' },
 };
 
 export const CATEGORIES = [
-  { k: "all", label: "All" },
-  { k: "add", label: "Added" },
-  { k: "edit", label: "Edited" },
-  { k: "state", label: "State" },
-  { k: "sold", label: "Sold" },
-  { k: "del", label: "Deleted" },
-  { k: "res", label: "Restored" },
-  { k: "imp", label: "Imports" },
-  { k: "set", label: "Settings" },
+  { k: 'all', label: 'All' },
+  { k: 'add', label: 'Added' },
+  { k: 'edit', label: 'Edited' },
+  { k: 'state', label: 'State' },
+  { k: 'sold', label: 'Sold' },
+  { k: 'del', label: 'Deleted' },
+  { k: 'res', label: 'Restored' },
+  { k: 'imp', label: 'Imports' },
+  { k: 'set', label: 'Settings' },
 ] as const;
 
 /** The chip a kind belongs to, or `""` for a kind this build does not yet name. */
-export const categoryOf = (kind: string): string => ACTIONS[kind]?.category ?? "";
+export const categoryOf = (kind: string): string => ACTIONS[kind]?.category ?? '';
 
 /** A kind this build names reads as its own word; anything else reads as itself. */
 export const wordOf = (kind: string): string => ACTIONS[kind]?.word ?? kind;
 
 /** The chip's own label — `Other` for a kind this build does not yet name. */
 export function categoryLabel(kind: string): string {
-  return CATEGORIES.find((t) => t.k === categoryOf(kind))?.label ?? "Other";
+  return CATEGORIES.find((t) => t.k === categoryOf(kind))?.label ?? 'Other';
 }
 
 /**
@@ -90,7 +90,7 @@ export function categoryLabel(kind: string): string {
  * the chip's name cannot come apart — a restoration lands in "Restored" and nowhere else.
  */
 export function countOf(entries: readonly ActivityEntry[], k: string): number {
-  return entries.filter((e) => k === "all" || categoryOf(e.kind) === k).length;
+  return entries.filter((e) => k === 'all' || categoryOf(e.kind) === k).length;
 }
 
 /**
@@ -105,9 +105,9 @@ export function operator(actor: string | null): {
 } {
   if (!actor) {
     return {
-      initial: "?",
-      title: "An operator whose account has since been removed",
-      label: "",
+      initial: '?',
+      title: 'An operator whose account has since been removed',
+      label: '',
     };
   }
   return { initial: actor.slice(0, 1).toUpperCase(), title: actor, label: actor };

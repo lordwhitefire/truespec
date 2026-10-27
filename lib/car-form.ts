@@ -8,25 +8,20 @@
 //
 // Nothing here decides *what* to write; it only reads and judges. The caller writes.
 
-import "server-only";
-import {
-  readCarInput,
-  type CarFormInput,
-  type CarInputValue,
-  type FieldError,
-} from "./car-input";
-import { storeQuery } from "./store-guard";
-import { findImageAsset } from "./sanity";
-import { isAssetRef } from "./photo-rules";
-import { isSection, type Section } from "./sections";
-import { saleForState, SOLD_SECTION, type SaleInput } from "./sale";
+import 'server-only';
+import { readCarInput, type CarFormInput, type CarInputValue, type FieldError } from './car-input';
+import { storeQuery } from './store-guard';
+import { findImageAsset } from './sanity';
+import { isAssetRef } from './photo-rules';
+import { isSection, type Section } from './sections';
+import { saleForState, SOLD_SECTION, type SaleInput } from './sale';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** A car form, judged: the values to store, the photos proven, and the chosen state's section. */
 export type CarFormValue = {
-  columns: CarInputValue["columns"];
-  costs: CarInputValue["costs"];
+  columns: CarInputValue['columns'];
+  costs: CarInputValue['costs'];
   secondaryStateIds: string[];
   /** The photos as the form lists them — the whole set, in order, position 0 the cover (truth 7). */
   photos: string[];
@@ -40,34 +35,36 @@ export type CarFormValue = {
 export function toCarForm(form: FormData): CarFormInput {
   const str = (name: string): string => {
     const v = form.get(name);
-    return typeof v === "string" ? v : "";
+    return typeof v === 'string' ? v : '';
   };
   return {
-    brand: str("brand"),
-    model: str("model"),
-    trim: str("trim"),
-    year: str("year"),
-    exteriorColor: str("exteriorColor"),
-    interiorColor: str("interiorColor"),
-    mileage: str("mileage"),
-    features: str("features"),
-    note: str("note"),
-    privateNote: str("privateNote"),
-    wasPrice: str("wasPrice"),
-    arrivalNote: str("arrivalNote"),
-    price: str("price"),
-    stateId: str("stateId"),
-    secondaryStateIds: form.getAll("secondaryStateIds").filter((v): v is string => typeof v === "string"),
+    brand: str('brand'),
+    model: str('model'),
+    trim: str('trim'),
+    year: str('year'),
+    exteriorColor: str('exteriorColor'),
+    interiorColor: str('interiorColor'),
+    mileage: str('mileage'),
+    features: str('features'),
+    note: str('note'),
+    privateNote: str('privateNote'),
+    wasPrice: str('wasPrice'),
+    arrivalNote: str('arrivalNote'),
+    price: str('price'),
+    stateId: str('stateId'),
+    secondaryStateIds: form
+      .getAll('secondaryStateIds')
+      .filter((v): v is string => typeof v === 'string'),
     costs: {
-      purchase_price: str("cost.purchase_price"),
-      shipping: str("cost.shipping"),
-      clearing: str("cost.clearing"),
-      trucking_usa: str("cost.trucking_usa"),
-      trucking_ng: str("cost.trucking_ng"),
-      full_tank: str("cost.full_tank"),
+      purchase_price: str('cost.purchase_price'),
+      shipping: str('cost.shipping'),
+      clearing: str('cost.clearing'),
+      trucking_usa: str('cost.trucking_usa'),
+      trucking_ng: str('cost.trucking_ng'),
+      full_tank: str('cost.full_tank'),
     },
-    salePrice: str("salePrice"),
-    saleDate: str("saleDate"),
+    salePrice: str('salePrice'),
+    saleDate: str('saleDate'),
   };
 }
 
@@ -84,8 +81,8 @@ export function toCarForm(form: FormData): CarFormInput {
  */
 export function readPhotos(form: FormData): string[] {
   const photos: string[] = [];
-  for (const raw of form.getAll("photos")) {
-    if (typeof raw !== "string") continue;
+  for (const raw of form.getAll('photos')) {
+    if (typeof raw !== 'string') continue;
     const id = raw.trim();
     if (!id) continue;
     if (!photos.includes(id)) photos.push(id);
@@ -108,10 +105,10 @@ async function photosExist(photos: readonly string[]): Promise<string | null> {
     try {
       const found = await findImageAsset(id);
       if (!found) {
-        return "One of those photos is not in the picture store any more. Add it again and save.";
+        return 'One of those photos is not in the picture store any more. Add it again and save.';
       }
     } catch {
-      return "The picture store could not be reached, so nothing was saved. Try again.";
+      return 'The picture store could not be reached, so nothing was saved. Try again.';
     }
   }
   return null;
@@ -129,29 +126,36 @@ async function photosExist(photos: readonly string[]): Promise<string | null> {
  */
 export async function carFormFacts(
   value: CarInputValue,
-  photos: readonly string[],
+  photos: readonly string[]
 ): Promise<{ ok: true; value: CarFormValue } | { ok: false; errors: FieldError[] }> {
   const { columns, costs, secondaryStateIds, sale: saleFacts } = value;
 
   // Not an asset id at all: refused first, before any state or store check.
   for (const id of photos) {
     if (!isAssetRef(id)) {
-      return { ok: false, errors: [{ field: "photos", message: "One of those photos could not be read" }] };
+      return {
+        ok: false,
+        errors: [{ field: 'photos', message: 'One of those photos could not be read' }],
+      };
     }
   }
 
   const errors: FieldError[] = [];
-  if (!UUID.test(columns.state_id)) errors.push({ field: "stateId", message: "Choose the car's state" });
+  if (!UUID.test(columns.state_id))
+    errors.push({ field: 'stateId', message: "Choose the car's state" });
   for (const id of secondaryStateIds) {
-    if (!UUID.test(id)) errors.push({ field: "secondaryStateIds", message: "One of those states could not be read" });
+    if (!UUID.test(id))
+      errors.push({ field: 'secondaryStateIds', message: 'One of those states could not be read' });
   }
   if (errors.length > 0) return { ok: false, errors };
 
-  const [check] = await storeQuery<{
-    primary_kind: string | null;
-    primary_section: string | null;
-    secondaries_ok: boolean;
-  }[]>(
+  const [check] = await storeQuery<
+    {
+      primary_kind: string | null;
+      primary_section: string | null;
+      secondaries_ok: boolean;
+    }[]
+  >(
     `SELECT
        (SELECT kind FROM car_state WHERE id = $1) AS primary_kind,
        (SELECT section FROM car_state WHERE id = $1) AS primary_section,
@@ -162,13 +166,19 @@ export async function carFormFacts(
                   SELECT 1 FROM car_state cs
                    WHERE cs.id = (s.value)::uuid AND cs.kind = 'secondary')
        ) AS secondaries_ok`,
-    [columns.state_id, JSON.stringify(secondaryStateIds)],
+    [columns.state_id, JSON.stringify(secondaryStateIds)]
   );
-  if (check.primary_kind !== "primary" || !isSection(check.primary_section)) {
-    return { ok: false, errors: [{ field: "stateId", message: "Choose one of the car's four states" }] };
+  if (check.primary_kind !== 'primary' || !isSection(check.primary_section)) {
+    return {
+      ok: false,
+      errors: [{ field: 'stateId', message: "Choose one of the car's four states" }],
+    };
   }
   if (!check.secondaries_ok) {
-    return { ok: false, errors: [{ field: "secondaryStateIds", message: "One of those states no longer exists" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'secondaryStateIds', message: 'One of those states no longer exists' }],
+    };
   }
 
   // The sale belongs to the Sold state and to nothing else (truth 5). A car being set
@@ -180,23 +190,26 @@ export async function carFormFacts(
   if (section === SOLD_SECTION && sale === null) {
     return {
       ok: false,
-      errors: [{ field: "salePrice", message: "Enter the sale price and the date it sold" }],
+      errors: [{ field: 'salePrice', message: 'Enter the sale price and the date it sold' }],
     };
   }
 
   // Truth 7: the bytes went first, so every id the form lists must really be in the store before a row
   // may name it. Last, after every cheap refusal, because it is the only check that asks the network.
   const absent = await photosExist(photos);
-  if (absent) return { ok: false, errors: [{ field: "photos", message: absent }] };
+  if (absent) return { ok: false, errors: [{ field: 'photos', message: absent }] };
 
-  return { ok: true, value: { columns, costs, secondaryStateIds, photos: [...photos], sale, section } };
+  return {
+    ok: true,
+    value: { columns, costs, secondaryStateIds, photos: [...photos], sale, section },
+  };
 }
 
 /**
  * Read the form and prove its state facts against the registry — the step both car writes share.
  */
 export async function readCarForm(
-  form: FormData,
+  form: FormData
 ): Promise<{ ok: true; value: CarFormValue } | { ok: false; errors: FieldError[] }> {
   const read = readCarInput(toCarForm(form));
   if (!read.ok) return { ok: false, errors: read.errors };

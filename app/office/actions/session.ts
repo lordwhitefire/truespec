@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { endSession, SIGN_OUT_PATH } from "@/lib/session";
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { endSession, SIGN_OUT_PATH } from '@/lib/session';
 
 /**
  * Sign out. A Server Action, so no GET can sign anyone out

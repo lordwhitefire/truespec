@@ -7,9 +7,9 @@
 // (R-SEC-5), and the row's section is resolved by that module's one rule rather
 // than trusted straight from the registry column (R-SEC-2).
 
-import { createImageUrlBuilder } from "@sanity/image-url";
+import { createImageUrlBuilder } from '@sanity/image-url';
 
-import { sectionOfState, type Section } from "./sections";
+import { sectionOfState, type Section } from './sections';
 
 // The public section is the one section, sourced from `lib/sections.ts` (R-SEC-5).
 export type PublicSection = Section;
@@ -40,21 +40,21 @@ export type PublicCar = {
 };
 
 export const PUBLIC_CAR_FIELDS: readonly (keyof PublicCar)[] = [
-  "ref",
-  "brand",
-  "model",
-  "trim",
-  "year",
-  "exteriorColor",
-  "interiorColor",
-  "mileageKm",
-  "features",
-  "photos",
-  "priceKobo",
-  "wasPriceKobo",
-  "section",
-  "isNewArrival",
-  "arrivalNote",
+  'ref',
+  'brand',
+  'model',
+  'trim',
+  'year',
+  'exteriorColor',
+  'interiorColor',
+  'mileageKm',
+  'features',
+  'photos',
+  'priceKobo',
+  'wasPriceKobo',
+  'section',
+  'isNewArrival',
+  'arrivalNote',
 ] as const;
 
 export type RawCarRow = {
@@ -96,7 +96,7 @@ export function parseFeatures(features: string | null): string[] {
 
 export function normalizePhotos(photos: unknown): string[] {
   if (Array.isArray(photos)) return photos.map((p) => String(p));
-  if (typeof photos === "string") {
+  if (typeof photos === 'string') {
     try {
       const parsed = JSON.parse(photos);
       if (Array.isArray(parsed)) return parsed.map((p) => String(p));
@@ -107,20 +107,16 @@ export function normalizePhotos(photos: unknown): string[] {
   return [];
 }
 
-export function resolvePhotoUrl(
-  assetId: string,
-  projectId: string,
-  dataset: string,
-): string {
+export function resolvePhotoUrl(assetId: string, projectId: string, dataset: string): string {
   // A photo row holds a Sanity asset reference and nothing else — never a third-party address
   // (task.md conflict 5). The branch that passed one through is gone: the rebuild-from-nothing
   // (Task 20) left the store holding 49 references and 0 addresses, so there is nothing left to
   // pass through. Something that is not a reference arriving here is an invariant broken, and it
   // fails here, named — rather than rendering as a plausible broken image, or quietly putting
   // someone else's media back on a public page.
-  if (!assetId.startsWith("image-")) {
+  if (!assetId.startsWith('image-')) {
     throw new Error(
-      `a photo row holds what is not a Sanity asset reference: ${assetId.slice(0, 80)}`,
+      `a photo row holds what is not a Sanity asset reference: ${assetId.slice(0, 80)}`
     );
   }
 
@@ -139,7 +135,7 @@ export function isListed(row: RawCarRow): boolean {
 
 export function toPublicCar(
   row: RawCarRow,
-  env: { sanityProjectId: string; sanityDataset: string },
+  env: { sanityProjectId: string; sanityDataset: string }
 ): PublicCar {
   const assetIds = normalizePhotos(row.photos);
   return {
@@ -164,6 +160,6 @@ export function toPublicCar(
   };
 }
 
-export function isSpecial(car: Pick<PublicCar, "priceKobo" | "wasPriceKobo">): boolean {
+export function isSpecial(car: Pick<PublicCar, 'priceKobo' | 'wasPriceKobo'>): boolean {
   return car.wasPriceKobo !== null && car.wasPriceKobo > car.priceKobo;
 }

@@ -15,14 +15,14 @@
 // Pure: bytes in, drafts and refusals out. No store, no session, no clock — so a filled blank can be
 // read in a test without a database, and the same bytes always read the same way.
 
-import { PDFDocument, PDFTextField, type PDFForm } from "pdf-lib";
-import { readCarFields } from "./car-input";
+import { PDFDocument, PDFTextField, type PDFForm } from 'pdf-lib';
+import { readCarFields } from './car-input';
 import {
   CAR_TEMPLATE_FIELDS,
   isCarFieldNameBeyondLimit,
   readCarFieldName,
   TEMPLATE_MAX_CARS,
-} from "./template-rules";
+} from './template-rules';
 
 /** One car read from the file — the record's fields as the file carried them, nothing more. */
 export type CarDraft = {
@@ -42,17 +42,18 @@ export type CarFileRead =
   | { ok: false; reason: string };
 
 export const NOT_A_PDF =
-  "That file is not a PDF. Download the car template from the office inventory and fill that in.";
+  'That file is not a PDF. Download the car template from the office inventory and fill that in.';
 export const PDF_UNREADABLE =
-  "That PDF could not be opened. Try saving it again, or fill in a fresh template.";
+  'That PDF could not be opened. Try saving it again, or fill in a fresh template.';
 export const NOT_OUR_TEMPLATE =
-  "That PDF is not one of our car templates — none of its fields are ours. Download the template from the office inventory.";
+  'That PDF is not one of our car templates — none of its fields are ours. Download the template from the office inventory.';
 export const TOO_MANY_CARS = `That file carries more than ${TEMPLATE_MAX_CARS} cars, which is more than a blank holds.`;
 
 /** The words the owner reads for a recipe field, without the caption's parenthetical notes. */
 function labelFor(recipeName: string): string {
-  const words = CAR_TEMPLATE_FIELDS.find((field) => field.recipe === recipeName)?.words ?? recipeName;
-  return words.replace(/\s*\(.*$/, "");
+  const words =
+    CAR_TEMPLATE_FIELDS.find((field) => field.recipe === recipeName)?.words ?? recipeName;
+  return words.replace(/\s*\(.*$/, '');
 }
 
 /**
@@ -63,12 +64,12 @@ function labelFor(recipeName: string): string {
  * comfort can change what it appears to demand.
  */
 function refusalReason(errors: readonly { field: string; message: string }[]): string {
-  return errors.map((error) => `"${labelFor(error.field)}" — ${error.message}`).join("; ");
+  return errors.map((error) => `"${labelFor(error.field)}" — ${error.message}`).join('; ');
 }
 
 /** A PDF's header may sit after a short run of bytes; the first kilobyte is where a reader looks. */
 function startsWithPdf(bytes: Uint8Array): boolean {
-  return new TextDecoder("latin1").decode(bytes.subarray(0, 1024)).includes("%PDF-");
+  return new TextDecoder('latin1').decode(bytes.subarray(0, 1024)).includes('%PDF-');
 }
 
 /**
@@ -103,7 +104,7 @@ export async function readCarFile(bytes: Uint8Array): Promise<CarFileRead> {
     if (!where) continue;
 
     const slot = byCar.get(where.car) ?? { carried: {}, odd: [] };
-    if (field instanceof PDFTextField) slot.carried[where.recipe] = field.getText() ?? "";
+    if (field instanceof PDFTextField) slot.carried[where.recipe] = field.getText() ?? '';
     else slot.odd.push(name);
     byCar.set(where.car, slot);
   }
@@ -118,13 +119,13 @@ export async function readCarFile(bytes: Uint8Array): Promise<CarFileRead> {
 
     // A name of ours carried by something that is not a text field is a file we cannot trust.
     if (slot.odd.length > 0) {
-      const named = slot.odd.map((name) => `"${name}"`).join(", ");
+      const named = slot.odd.map((name) => `"${name}"`).join(', ');
       refusals.push({ page, reason: `${named} is not a field this template writes as text` });
       continue;
     }
 
-    if (!Object.values(slot.carried).some((value) => value.trim() !== "")) {
-      refusals.push({ page, reason: "no car details were filled in on this page" });
+    if (!Object.values(slot.carried).some((value) => value.trim() !== '')) {
+      refusals.push({ page, reason: 'no car details were filled in on this page' });
       continue;
     }
 

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Retryable } from "@/components/retryable";
+import { Retryable } from '@/components/retryable';
 
 /**
  * The retryable state for everything below the app root (design D18; truth 16).
@@ -10,6 +10,11 @@ import { Retryable } from "@/components/retryable";
  * because an error boundary does not catch the layout in its own segment: the public layout's store
  * read is caught here.
  */
-export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function Error({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   return <Retryable onRetry={reset} />;
 }

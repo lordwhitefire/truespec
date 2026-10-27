@@ -14,11 +14,11 @@
  * No row contents and no secret are printed. `DATABASE_URL_RESTORE` is the only connection this
  * script opens; the main URL is read only to compare identities.
  */
-import { readFileSync } from "node:fs";
-import { config as loadEnv } from "dotenv";
-import { Client } from "pg";
-import { decryptBackup } from "../lib/backup-crypto";
-import type { BackupArchive } from "../lib/backup-archive";
+import { readFileSync } from 'node:fs';
+import { config as loadEnv } from 'dotenv';
+import { Client } from 'pg';
+import { decryptBackup } from '../lib/backup-crypto';
+import type { BackupArchive } from '../lib/backup-archive';
 import {
   connectionIdentity,
   isSameDatabase,
@@ -26,10 +26,10 @@ import {
   readColumnTypes,
   restoreArchive,
   RestoreError,
-} from "../lib/backup-restore";
-import { BACKUP_SEQUENCES, BACKUP_TABLES, quoteIdentifier } from "../lib/backup-tables";
+} from '../lib/backup-restore';
+import { BACKUP_SEQUENCES, BACKUP_TABLES, quoteIdentifier } from '../lib/backup-tables';
 
-loadEnv({ path: ".env.local", quiet: true });
+loadEnv({ path: '.env.local', quiet: true });
 
 function argument(name: string): string | undefined {
   const args = process.argv.slice(2);
@@ -40,20 +40,21 @@ function argument(name: string): string | undefined {
 }
 
 async function main(): Promise<void> {
-  const file = argument("--file") ?? process.env.BACKUP_FILE;
+  const file = argument('--file') ?? process.env.BACKUP_FILE;
   const target = process.env.DATABASE_URL_RESTORE;
   const main = process.env.DATABASE_URL;
   const key = process.env.BACKUP_ENCRYPTION_KEY;
 
-  if (!file) throw new RestoreError("arguments", "pass the backup file with --file <path>");
-  if (!key) throw new RestoreError("configuration", "BACKUP_ENCRYPTION_KEY is not set");
-  if (!target) throw new RestoreError("target", "DATABASE_URL_RESTORE is not set");
-  if (!main) throw new RestoreError("target", "DATABASE_URL is not set, so the target cannot be checked");
+  if (!file) throw new RestoreError('arguments', 'pass the backup file with --file <path>');
+  if (!key) throw new RestoreError('configuration', 'BACKUP_ENCRYPTION_KEY is not set');
+  if (!target) throw new RestoreError('target', 'DATABASE_URL_RESTORE is not set');
+  if (!main)
+    throw new RestoreError('target', 'DATABASE_URL is not set, so the target cannot be checked');
   if (isSameDatabase(target, main)) {
     const identity = connectionIdentity(target);
     throw new RestoreError(
-      "target",
-      `refusing: the restore target is the main database (${identity.host}/${identity.database})`,
+      'target',
+      `refusing: the restore target is the main database (${identity.host}/${identity.database})`
     );
   }
 
@@ -64,8 +65,8 @@ async function main(): Promise<void> {
   } catch (error) {
     if (error instanceof RestoreError) throw error;
     throw new RestoreError(
-      "decrypt",
-      error instanceof Error ? error.message : "the backup could not be read",
+      'decrypt',
+      error instanceof Error ? error.message : 'the backup could not be read'
     );
   }
 
@@ -88,8 +89,8 @@ async function main(): Promise<void> {
       const expected = archive.tables[table].length;
       if (counts[table] !== expected) {
         throw new RestoreError(
-          "verify-after-commit",
-          `${table} has ${counts[table]} rows after commit, expected ${expected}`,
+          'verify-after-commit',
+          `${table} has ${counts[table]} rows after commit, expected ${expected}`
         );
       }
     }
@@ -107,7 +108,10 @@ async function main(): Promise<void> {
         sequences[name].last_value !== expected.last_value ||
         sequences[name].is_called !== expected.is_called
       ) {
-        throw new RestoreError("verify-after-commit", `the sequence ${name} does not match the backup`);
+        throw new RestoreError(
+          'verify-after-commit',
+          `the sequence ${name} does not match the backup`
+        );
       }
     }
 
@@ -123,8 +127,8 @@ async function main(): Promise<void> {
           restored,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   } finally {
     await client.end();
@@ -137,7 +141,7 @@ main().catch((error) => {
   } else {
     // The thrown message from the driver can name a host but never a password; keep it to the type
     // and a generic line so a connection string cannot slip into a log.
-    console.error(`restore failed: ${error instanceof Error ? error.name : "unknown error"}`);
+    console.error(`restore failed: ${error instanceof Error ? error.name : 'unknown error'}`);
   }
   process.exitCode = 1;
 });

@@ -19,7 +19,7 @@
  */
 export const PHOTO_MAX_BYTES = 15 * 1024 * 1024;
 
-export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export type PhotoType = (typeof PHOTO_TYPES)[number];
 
 export function isPhotoType(value: string): value is PhotoType {
@@ -44,7 +44,7 @@ export function megabytes(bytes: number): string {
 
 /** The cap, on its own — so a file can be refused before it is read. */
 export function checkPhotoSize(bytes: number): { ok: true } | { ok: false; reason: string } {
-  if (bytes === 0) return { ok: false, reason: "That file is empty." };
+  if (bytes === 0) return { ok: false, reason: 'That file is empty.' };
   if (bytes > PHOTO_MAX_BYTES) {
     return {
       ok: false,

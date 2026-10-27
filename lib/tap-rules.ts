@@ -17,7 +17,7 @@
  * finds it is never read, never mind stored. The row's own columns are the other half of the
  * guarantee, and the witness checks both.
  */
-import { isValidRef } from "./refs";
+import { isValidRef } from './refs';
 
 /** Long enough for any path on this site, short enough to refuse a body that is not one. */
 export const TAP_PAGE_MAX = 300;
@@ -28,12 +28,12 @@ export const TAP_PAGE_MAX = 300;
  * `location.pathname` satisfies this by construction; a value that does not is not one of ours.
  */
 export function isTapPage(value: unknown): value is string {
-  if (typeof value !== "string") return false;
+  if (typeof value !== 'string') return false;
   if (value.length === 0 || value.length > TAP_PAGE_MAX) return false;
-  if (!value.startsWith("/")) return false;
-  if (value.startsWith("//")) return false; // protocol-relative — that is an address
+  if (!value.startsWith('/')) return false;
+  if (value.startsWith('//')) return false; // protocol-relative — that is an address
   if (/[\s\\]/.test(value)) return false;
-  if (value.includes(":")) return false; // a scheme, a port or a search term's colon: not a path
+  if (value.includes(':')) return false; // a scheme, a port or a search term's colon: not a path
   return true;
 }
 
@@ -64,10 +64,7 @@ export type TapInput = {
   carRef: string | null;
 };
 
-export type TapRead =
-  | { ok: true; value: TapInput }
-  | { ok: false; reason: string };
-
+export type TapRead = { ok: true; value: TapInput } | { ok: false; reason: string };
 
 /**
  * Read a tap out of whatever arrived. Two fields are read and every other key is ignored, so nothing
@@ -77,18 +74,18 @@ export type TapRead =
  * tell a stranger anything about how the door is shaped.
  */
 export function readTap(body: unknown): TapRead {
-  if (typeof body !== "object" || body === null || Array.isArray(body)) {
-    return { ok: false, reason: "the body is not an object" };
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return { ok: false, reason: 'the body is not an object' };
   }
   const { page, carRef } = body as Record<string, unknown>;
 
-  if (!isTapPage(page)) return { ok: false, reason: "the page is not a path on this site" };
+  if (!isTapPage(page)) return { ok: false, reason: 'the page is not a path on this site' };
 
-  if (carRef === undefined || carRef === null || carRef === "") {
+  if (carRef === undefined || carRef === null || carRef === '') {
     return { ok: true, value: { page, carRef: null } };
   }
-  if (typeof carRef !== "string" || !isValidRef(carRef)) {
-    return { ok: false, reason: "the car reference is not one of ours" };
+  if (typeof carRef !== 'string' || !isValidRef(carRef)) {
+    return { ok: false, reason: 'the car reference is not one of ours' };
   }
   return { ok: true, value: { page, carRef } };
 }

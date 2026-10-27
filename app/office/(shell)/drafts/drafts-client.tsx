@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { Photo } from "@/components/Photo";
-import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from "@/lib/photo-rules";
-import { Dialog } from "@/components/office/Dialog";
-import { uploadCarPhoto } from "../../actions/photo";
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { Photo } from '@/components/Photo';
+import { checkPhotoSize, megabytes, PHOTO_MAX_BYTES } from '@/lib/photo-rules';
+import { Dialog } from '@/components/office/Dialog';
+import { uploadCarPhoto } from '../../actions/photo';
 import {
   addDraftImage,
   deleteDraftAction,
   makeDraftCover,
   removeDraftImage,
   saveDraft,
-} from "../../actions/draft";
+} from '../../actions/draft';
 
 /* Drafts — the holding place, reviewed (truth 9). This is the interactive half; the page above reads
    the store and hands down only plain values.
@@ -24,7 +24,7 @@ export type StateOption = { id: string; label: string };
 
 export type DraftCard = {
   id: string;
-  kind: "car" | "enquiry";
+  kind: 'car' | 'enquiry';
   fields: { label: string; value: string }[];
   images: { assetId: string; url: string }[];
   /** The state the file named, as a name — or `null` when it named none. */
@@ -40,7 +40,7 @@ export type DraftCard = {
 export type DraftBatch = {
   batchId: string;
   sourceFilename: string;
-  kind: "car" | "enquiry";
+  kind: 'car' | 'enquiry';
   cards: DraftCard[];
 };
 
@@ -50,9 +50,9 @@ type Props = {
   enquiryStates: StateOption[];
 };
 
-const KIND_WORDS: Record<"car" | "enquiry", { one: string; many: string; icon: string }> = {
-  car: { one: "car", many: "cars", icon: "fa-car-side" },
-  enquiry: { one: "enquiry", many: "enquiries", icon: "fa-comments" },
+const KIND_WORDS: Record<'car' | 'enquiry', { one: string; many: string; icon: string }> = {
+  car: { one: 'car', many: 'cars', icon: 'fa-car-side' },
+  enquiry: { one: 'enquiry', many: 'enquiries', icon: 'fa-comments' },
 };
 
 export function Drafts({ batches, carStates, enquiryStates }: Props) {
@@ -75,8 +75,8 @@ export function Drafts({ batches, carStates, enquiryStates }: Props) {
       {batches.length === 0 ? (
         <div className="nowait">
           <i className="fa-solid fa-inbox" aria-hidden="true" />
-          No drafts are waiting. A filled template or sales sheet is read into drafts the moment it is
-          uploaded.
+          No drafts are waiting. A filled template or sales sheet is read into drafts the moment it
+          is uploaded.
         </div>
       ) : (
         batches.map((b) => {
@@ -101,7 +101,7 @@ export function Drafts({ batches, carStates, enquiryStates }: Props) {
                   <DraftRow
                     key={card.id}
                     card={card}
-                    states={card.kind === "car" ? carStates : enquiryStates}
+                    states={card.kind === 'car' ? carStates : enquiryStates}
                     onToast={showToast}
                   />
                 ))}
@@ -114,14 +114,14 @@ export function Drafts({ batches, carStates, enquiryStates }: Props) {
       <p className="note">
         <i className="fa-solid fa-circle-info" aria-hidden="true" />
         <span>
-          Nothing here is in the showroom yet. A draft spends no <b>TS-####</b> until it is saved, and
-          the code is given at the moment of saving — so saving one leaves its brothers exactly as they
-          are, and abandoning one costs nothing.
+          Nothing here is in the showroom yet. A draft spends no <b>TS-####</b> until it is saved,
+          and the code is given at the moment of saving — so saving one leaves its brothers exactly
+          as they are, and abandoning one costs nothing.
         </span>
       </p>
 
-      <div className={"toast" + (toastShow ? " show" : "")} role="status">
-        <span dangerouslySetInnerHTML={{ __html: toast ?? "" }} />
+      <div className={'toast' + (toastShow ? ' show' : '')} role="status">
+        <span dangerouslySetInnerHTML={{ __html: toast ?? '' }} />
       </div>
     </>
   );
@@ -138,7 +138,7 @@ function DraftRow({
 }) {
   const [pending, start] = useTransition();
   const [uploading, setUploading] = useState(false);
-  const [stateId, setStateId] = useState(card.stateId ?? "");
+  const [stateId, setStateId] = useState(card.stateId ?? '');
   const [images, setImages] = useState(card.images);
   const [error, setError] = useState<string | null>(null);
   const [delOpen, setDelOpen] = useState(false);
@@ -149,21 +149,23 @@ function DraftRow({
   function save() {
     setError(null);
     const fd = new FormData();
-    fd.set("draftId", card.id);
-    fd.set("stateId", stateId);
+    fd.set('draftId', card.id);
+    fd.set('stateId', stateId);
     start(async () => {
       let res;
       try {
         res = await saveDraft(fd);
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
         return;
       }
       if (res.ok) {
         // The code the store minted is the one the log names, so the confirmation says it too.
-        const named = res.ref ? ` as ${res.ref}` : "";
-        const where = card.kind === "car" ? "showroom" : "board";
-        onToast(`Saved the ${words.one}${named}. It is a record now, and the ${where} updates immediately.`);
+        const named = res.ref ? ` as ${res.ref}` : '';
+        const where = card.kind === 'car' ? 'showroom' : 'board';
+        onToast(
+          `Saved the ${words.one}${named}. It is a record now, and the ${where} updates immediately.`
+        );
         return;
       }
       setError(res.errors[0]?.message ?? `That ${words.one} could not be saved.`);
@@ -173,21 +175,21 @@ function DraftRow({
   function remove() {
     setError(null);
     const fd = new FormData();
-    fd.set("draftId", card.id);
+    fd.set('draftId', card.id);
     start(async () => {
       let res;
       try {
         res = await deleteDraftAction(fd);
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
         return;
       }
       if (res.ok) {
         setDelOpen(false);
-        onToast("Draft deleted. Nothing was created from it.");
+        onToast('Draft deleted. Nothing was created from it.');
         return;
       }
-      setError(res.errors[0]?.message ?? "That draft could not be deleted.");
+      setError(res.errors[0]?.message ?? 'That draft could not be deleted.');
     });
   }
 
@@ -206,28 +208,28 @@ function DraftRow({
           continue;
         }
         const fd = new FormData();
-        fd.append("photo", file, file.name);
+        fd.append('photo', file, file.name);
         const up = await uploadCarPhoto(fd);
         if (!up.ok) {
-          setError(up.errors[0]?.message ?? "That photo could not be added.");
+          setError(up.errors[0]?.message ?? 'That photo could not be added.');
           continue;
         }
         const add = new FormData();
-        add.set("draftId", card.id);
-        add.set("assetId", up.assetId);
+        add.set('draftId', card.id);
+        add.set('assetId', up.assetId);
         const res = await addDraftImage(add);
         if (!res.ok) {
-          setError(res.errors[0]?.message ?? "That photo could not be added.");
+          setError(res.errors[0]?.message ?? 'That photo could not be added.');
           continue;
         }
         setImages((prev) =>
           prev.some((p) => p.assetId === up.assetId)
             ? prev
-            : [...prev, { assetId: up.assetId, url: up.url }],
+            : [...prev, { assetId: up.assetId, url: up.url }]
         );
       }
     } catch {
-      setError("The picture store could not be reached — try that again");
+      setError('The picture store could not be reached — try that again');
     } finally {
       setUploading(false);
     }
@@ -236,18 +238,18 @@ function DraftRow({
   function dropImage(assetId: string) {
     setError(null);
     const fd = new FormData();
-    fd.set("draftId", card.id);
-    fd.set("assetId", assetId);
+    fd.set('draftId', card.id);
+    fd.set('assetId', assetId);
     start(async () => {
       try {
         const res = await removeDraftImage(fd);
         if (!res.ok) {
-          setError(res.errors[0]?.message ?? "That photo could not be removed.");
+          setError(res.errors[0]?.message ?? 'That photo could not be removed.');
           return;
         }
         setImages((prev) => prev.filter((p) => p.assetId !== assetId));
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
       }
     });
   }
@@ -255,13 +257,13 @@ function DraftRow({
   function makeCover(assetId: string) {
     setError(null);
     const fd = new FormData();
-    fd.set("draftId", card.id);
-    fd.set("assetId", assetId);
+    fd.set('draftId', card.id);
+    fd.set('assetId', assetId);
     start(async () => {
       try {
         const res = await makeDraftCover(fd);
         if (!res.ok) {
-          setError(res.errors[0]?.message ?? "That could not be made the cover.");
+          setError(res.errors[0]?.message ?? 'That could not be made the cover.');
           return;
         }
         setImages((prev) => {
@@ -270,7 +272,7 @@ function DraftRow({
           return [one, ...prev.filter((p) => p.assetId !== assetId)];
         });
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
       }
     });
   }
@@ -297,7 +299,7 @@ function DraftRow({
 
       <div className="dstate">
         <label htmlFor={`st-${card.id}`}>
-          {card.kind === "car" ? "Car state" : "Enquiry state"}
+          {card.kind === 'car' ? 'Car state' : 'Enquiry state'}
         </label>
         <select
           id={`st-${card.id}`}
@@ -309,10 +311,8 @@ function DraftRow({
           {/* A car's own state must be one of the four primaries, so there is no empty choice to
               offer — it must be chosen. An enquiry may sit in no state, so "no state" is a real
               choice for it. */}
-          {card.kind === "car" ? null : <option value="">No state — sits in none</option>}
-          {card.kind === "car" && stateId === "" ? (
-            <option value="">Choose a state…</option>
-          ) : null}
+          {card.kind === 'car' ? null : <option value="">No state — sits in none</option>}
+          {card.kind === 'car' && stateId === '' ? <option value="">Choose a state…</option> : null}
           {states.map((s) => (
             <option key={s.id} value={s.id}>
               {s.label}
@@ -338,12 +338,12 @@ function DraftRow({
             onChange={(e) => {
               const files = e.target.files;
               if (files) void addFiles(files);
-              e.target.value = "";
+              e.target.value = '';
             }}
           />
           <i className="fa-solid fa-cloud-arrow-up" aria-hidden="true" />
           {uploading
-            ? "Uploading…"
+            ? 'Uploading…'
             : `Add the pictures the file cannot carry — first one is the cover. Up to ${megabytes(PHOTO_MAX_BYTES)} each.`}
         </label>
         {images.length > 0 ? (
@@ -396,7 +396,7 @@ function DraftRow({
         ) : null}
         <button type="button" className="btn" onClick={save} disabled={pending || uploading}>
           <i className="fa-solid fa-check" aria-hidden="true" />
-          {pending ? "Saving…" : `Save as a ${words.one}`}
+          {pending ? 'Saving…' : `Save as a ${words.one}`}
         </button>
         <button
           type="button"
@@ -409,9 +409,9 @@ function DraftRow({
         </button>
         <span className="sp" />
         <span className="hint">
-          {card.kind === "car"
-            ? "Saving mints the next TS-#### and computes the change-check."
-            : "Saving records the enquiry; no TS-#### is spent on an enquiry."}
+          {card.kind === 'car'
+            ? 'Saving mints the next TS-#### and computes the change-check.'
+            : 'Saving records the enquiry; no TS-#### is spent on an enquiry.'}
         </span>
       </div>
 
@@ -429,12 +429,17 @@ function DraftRow({
           <div className="mrow">
             {/* The safe way out comes first; the draft is the one deletion that cannot be undone
                 (owner's ruling 2026-10-17), so its action carries the permanent words. */}
-            <button type="button" className="btn gh" onClick={() => setDelOpen(false)} disabled={pending}>
+            <button
+              type="button"
+              className="btn gh"
+              onClick={() => setDelOpen(false)}
+              disabled={pending}
+            >
               Keep it
             </button>
             <button type="button" className="btn" onClick={remove} disabled={pending}>
               <i className="fa-solid fa-trash-can" aria-hidden="true" />
-              {pending ? "Removing…" : "Remove for good"}
+              {pending ? 'Removing…' : 'Remove for good'}
             </button>
           </div>
         </div>

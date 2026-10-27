@@ -21,7 +21,7 @@
  * written here; the store's trigger would refuse it (0018).
  */
 
-import type { EnquirySeed } from "./draft-save";
+import type { EnquirySeed } from './draft-save';
 
 export type EnquiryUpdateArgs = {
   id: string;

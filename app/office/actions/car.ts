@@ -1,16 +1,16 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { storeQueryRefusing, storeRefusal } from "@/lib/store-guard";
-import { type FieldError } from "@/lib/car-input";
-import { readCarForm } from "@/lib/car-form";
-import { carCreateStatement } from "@/lib/car-create";
-import { carUpdateStatement } from "@/lib/car-update";
-import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from "@/lib/car-delete";
-import { carChangeCheck, CHANGE_CHECK_VERSION } from "@/lib/change-check";
-import { SOLD_SECTION } from "@/lib/sale";
-import { deleteAsset } from "@/lib/sanity";
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { storeQueryRefusing, storeRefusal } from '@/lib/store-guard';
+import { type FieldError } from '@/lib/car-input';
+import { readCarForm } from '@/lib/car-form';
+import { carCreateStatement } from '@/lib/car-create';
+import { carUpdateStatement } from '@/lib/car-update';
+import { carDeleteStatement, carRestoreStatement, carRemoveStatement } from '@/lib/car-delete';
+import { carChangeCheck, CHANGE_CHECK_VERSION } from '@/lib/change-check';
+import { SOLD_SECTION } from '@/lib/sale';
+import { deleteAsset } from '@/lib/sanity';
 
 /**
  * Create a car — the first write behind the door (build step 3).
@@ -38,11 +38,9 @@ import { deleteAsset } from "@/lib/sanity";
  * the store's reply, so it can never be the browser's claim about itself (truth 14).
  */
 export type CreateCarResult =
-  | { ok: true; ref: string; changed: boolean }
-  | { ok: false; errors: FieldError[] };
+  { ok: true; ref: string; changed: boolean } | { ok: false; errors: FieldError[] };
 export type UpdateCarResult =
-  | { ok: true; ref: string; changed: boolean }
-  | { ok: false; errors: FieldError[] };
+  { ok: true; ref: string; changed: boolean } | { ok: false; errors: FieldError[] };
 export type DeleteCarResult = { ok: true; ref: string } | { ok: false; errors: FieldError[] };
 export type RemoveCarResult =
   | { ok: true; ref: string; assetsCleared: number; assetsFailed: number }
@@ -52,10 +50,10 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** The office pages a car write changes. */
 function revalidateCarPaths(): void {
-  revalidatePath("/office");
-  revalidatePath("/office/inventory");
-  revalidatePath("/office/cars");
-  revalidatePath("/office/car");
+  revalidatePath('/office');
+  revalidatePath('/office/inventory');
+  revalidatePath('/office/cars');
+  revalidatePath('/office/car');
 }
 
 export async function createCar(form: FormData): Promise<CreateCarResult> {
@@ -64,11 +62,11 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   // The form session's key: minted by the add page, held in the form, sent unchanged on every
   // submit. It is the car's key, so a double click or a retried action converges on one row. A
   // missing or malformed key is a stale/forged form, not a new car.
-  const submissionId = form.get("submissionId");
-  if (typeof submissionId !== "string" || !UUID.test(submissionId)) {
+  const submissionId = form.get('submissionId');
+  if (typeof submissionId !== 'string' || !UUID.test(submissionId)) {
     return {
       ok: false,
-      errors: [{ field: "form", message: "This form could not be identified — reload the page" }],
+      errors: [{ field: 'form', message: 'This form could not be identified — reload the page' }],
     };
   }
 
@@ -83,7 +81,12 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
   if (read.value.section === SOLD_SECTION) {
     return {
       ok: false,
-      errors: [{ field: "stateId", message: "A new car can't start as sold — add it first, then mark it sold" }],
+      errors: [
+        {
+          field: 'stateId',
+          message: "A new car can't start as sold — add it first, then mark it sold",
+        },
+      ],
     };
   }
 
@@ -100,8 +103,8 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     actorId: session.officeUserId,
   });
   const attempt = await storeQueryRefusing<{ ref: string; changed: boolean }[]>(text, params, {
-    field: "carId",
-    action: "That car could not be saved",
+    field: 'carId',
+    action: 'That car could not be saved',
   });
   if (!attempt.ok) return attempt;
 
@@ -113,9 +116,9 @@ export async function createCar(form: FormData): Promise<CreateCarResult> {
     // on the conflict, the first commits, and its fallback read runs under a snapshot older than
     // that commit. A failed write still reports as a failed write (DR25), never as a throw.
     return storeRefusal(
-      "carId",
-      "That car could not be saved",
-      new Error("createCar: the store returned no reference for the new car"),
+      'carId',
+      'That car could not be saved',
+      new Error('createCar: the store returned no reference for the new car')
     );
   }
 
@@ -129,9 +132,9 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
   // The car's key, as the edit form carries it. It is the row's name, not a detail —
   // the statement never writes it and the store's own trigger refuses a write that
   // would change it.
-  const carId = form.get("carId");
-  if (typeof carId !== "string" || !UUID.test(carId)) {
-    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+  const carId = form.get('carId');
+  if (typeof carId !== 'string' || !UUID.test(carId)) {
+    return { ok: false, errors: [{ field: 'carId', message: 'This car could not be identified' }] };
   }
 
   const read = await readCarForm(form);
@@ -155,14 +158,17 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
     actorId: session.officeUserId,
   });
   const attempt = await storeQueryRefusing<{ ref: string; changed: boolean }[]>(text, params, {
-    field: "carId",
-    action: "That change could not be saved",
+    field: 'carId',
+    action: 'That change could not be saved',
   });
   if (!attempt.ok) return attempt;
 
   const row = attempt.rows[0];
   if (!row?.ref) {
-    return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'carId', message: 'That car is no longer in the office' }],
+    };
   }
 
   revalidateCarPaths();
@@ -183,22 +189,26 @@ export async function updateCar(form: FormData): Promise<UpdateCarResult> {
  */
 export async function deleteCar(
   carId: string,
-  opts: { revalidate?: boolean } = {},
+  opts: { revalidate?: boolean } = {}
 ): Promise<DeleteCarResult> {
   const session = await requireOfficeSession();
   if (!UUID.test(carId)) {
-    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+    return { ok: false, errors: [{ field: 'carId', message: 'This car could not be identified' }] };
   }
 
   const { text, params } = carDeleteStatement({ id: carId, actorId: session.officeUserId });
   const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
-    field: "carId",
-    action: "That car could not be deleted",
+    field: 'carId',
+    action: 'That car could not be deleted',
   });
   if (!attempt.ok) return attempt;
 
   const ref = attempt.rows[0]?.ref;
-  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+  if (!ref)
+    return {
+      ok: false,
+      errors: [{ field: 'carId', message: 'That car is no longer in the office' }],
+    };
 
   // The car form's own delete holds its undo offer on the page it stands on, and revalidating
   // `/office/car` would re-render that page mid-offer — the car is a tombstone now, so the
@@ -218,18 +228,22 @@ export async function deleteCar(
 export async function undoDeleteCar(carId: string): Promise<DeleteCarResult> {
   const session = await requireOfficeSession();
   if (!UUID.test(carId)) {
-    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+    return { ok: false, errors: [{ field: 'carId', message: 'This car could not be identified' }] };
   }
 
   const { text, params } = carRestoreStatement({ id: carId, actorId: session.officeUserId });
   const attempt = await storeQueryRefusing<{ ref: string }[]>(text, params, {
-    field: "carId",
-    action: "That car could not be restored",
+    field: 'carId',
+    action: 'That car could not be restored',
   });
   if (!attempt.ok) return attempt;
 
   const ref = attempt.rows[0]?.ref;
-  if (!ref) return { ok: false, errors: [{ field: "carId", message: "That car is no longer in the office" }] };
+  if (!ref)
+    return {
+      ok: false,
+      errors: [{ field: 'carId', message: 'That car is no longer in the office' }],
+    };
 
   revalidateCarPaths();
   return { ok: true, ref };
@@ -253,19 +267,26 @@ export async function undoDeleteCar(carId: string): Promise<DeleteCarResult> {
 export async function removeCarForever(carId: string): Promise<RemoveCarResult> {
   const session = await requireOfficeSession();
   if (!UUID.test(carId)) {
-    return { ok: false, errors: [{ field: "carId", message: "This car could not be identified" }] };
+    return { ok: false, errors: [{ field: 'carId', message: 'This car could not be identified' }] };
   }
 
   const { text, params } = carRemoveStatement({ id: carId, actorId: session.officeUserId });
-  const attempt = await storeQueryRefusing<{ ref: string | null; assets: string[] }[]>(text, params, {
-    field: "carId",
-    action: "That car could not be removed",
-  });
+  const attempt = await storeQueryRefusing<{ ref: string | null; assets: string[] }[]>(
+    text,
+    params,
+    {
+      field: 'carId',
+      action: 'That car could not be removed',
+    }
+  );
   if (!attempt.ok) return attempt;
 
   const row = attempt.rows[0];
   if (!row?.ref) {
-    return { ok: false, errors: [{ field: "carId", message: "That car is not waiting to be cleared" }] };
+    return {
+      ok: false,
+      errors: [{ field: 'carId', message: 'That car is not waiting to be cleared' }],
+    };
   }
 
   // The rows are gone within the store's own transaction; the bytes are external, so

@@ -1,79 +1,84 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { countStock } from "@/lib/counts";
-import { inAvailablePresentation } from "@/lib/sections";
-import type { PublicCar } from "@/lib/serialize";
-import { WA_OFF_REASON, waClass, waLink } from "@/components/whatsapp";
-import { carHref, carTitle } from "./car-view";
-import { speak } from "./speak";
-import { store } from "./store";
+import { useEffect } from 'react';
+import { countStock } from '@/lib/counts';
+import { inAvailablePresentation } from '@/lib/sections';
+import type { PublicCar } from '@/lib/serialize';
+import { WA_OFF_REASON, waClass, waLink } from '@/components/whatsapp';
+import { carHref, carTitle } from './car-view';
+import { speak } from './speak';
+import { store } from './store';
 
 // The reference visitor behaviours for the home screen: first-visit welcome,
 // the return bar, the ask panel answers, the farewell exit intent, the social
 // proof toast and "last car opened". Renders the shared modal + toast slots.
 const SAY = {
-  askT: "What are you after?",
+  askT: 'What are you after?',
   askS: "Umar here — I own the place. One tap and I'll shorten the list for you, or skip it.",
   okOther:
     "Tell me the make, model and year and I'll source it in the USA — one doorstep price, delivered to you.",
-  skipMsg: "No problem — the full showroom is below. Message me any time.",
-  reopen: "Ask me again",
-  welcomeBack: "Good to see you back",
+  skipMsg: 'No problem — the full showroom is below. Message me any time.',
+  reopen: 'Ask me again',
+  welcomeBack: 'Good to see you back',
   landedSince: (n: number) => `${n} cars landed since you last looked`,
   newSince: (n: number) => `${n} new cars since your last visit`,
   stillThinking: (t: string) => `Still thinking about the ${t}?`,
-  openIt: "Open it",
+  openIt: 'Open it',
   seeNew: "See what's new",
-  farewellT: "Before you go",
-  farewellS: "Tell me the car you're after and I'll find it — shipped, cleared and delivered, one price.",
+  farewellT: 'Before you go',
+  farewellS:
+    "Tell me the car you're after and I'll find it — shipped, cleared and delivered, one price.",
   stayB: "I'll stay",
-  waB: "Message me on WhatsApp",
-  msgAny: "Message me about any of them.",
+  waB: 'Message me on WhatsApp',
+  msgAny: 'Message me about any of them.',
 };
 
-const CITIES = ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Enugu", "Benin City"];
-const WHEN = ["20 min ago", "45 min ago", "1 hr ago", "this morning"];
+const CITIES = ['Lagos', 'Abuja', 'Port Harcourt', 'Ibadan', 'Kano', 'Enugu', 'Benin City'];
+const WHEN = ['20 min ago', '45 min ago', '1 hr ago', 'this morning'];
 
 export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: string }) {
   useEffect(() => {
-    const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const ovl = document.getElementById("ovl") as HTMLDialogElement | null;
-    const ask = document.getElementById("ask");
-    const mx = document.getElementById("mx");
-    const toast = document.getElementById("toast");
-    const toastx = document.getElementById("toastx");
-    const my = waLink(number, "Hello TrueSpec, I have a question.");
+    const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ovl = document.getElementById('ovl') as HTMLDialogElement | null;
+    const ask = document.getElementById('ask');
+    const mx = document.getElementById('mx');
+    const toast = document.getElementById('toast');
+    const toastx = document.getElementById('toastx');
+    const my = waLink(number, 'Hello TrueSpec, I have a question.');
     // No number: the control stays on screen, visibly off, and carries its reason — never a link
     // pointing at nobody (D16).
     const waAttr = my
       ? ` href="${my}"`
       : ` role="link" aria-disabled="true" tabindex="-1" title="${WA_OFF_REASON}"`;
-    const scrollGrid = () => document.getElementById("cars")?.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" });
+    const scrollGrid = () =>
+      document.getElementById('cars')?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth' });
 
-    const asked0 = store.get("asked", false);
-    const visits = store.get("visits", 0) + 1;
-    store.set("visits", visits);
+    const asked0 = store.get('asked', false);
+    const visits = store.get('visits', 0) + 1;
+    store.set('visits', visits);
     const isFirst = visits === 1;
-    const known = store.get<string[] | null>("known", null);
+    const known = store.get<string[] | null>('known', null);
     const knownCars = known ? all.filter((c) => !known.includes(c.ref)) : [];
-    store.set("known", all.map((c) => c.ref));
-    const lastRef = store.get<string | null>("lastcar", null);
+    store.set(
+      'known',
+      all.map((c) => c.ref)
+    );
+    const lastRef = store.get<string | null>('lastcar', null);
     const lastCar = lastRef ? (all.find((c) => c.ref === lastRef) ?? null) : null;
 
-    let covering = store.sget("covering", 0);
-    const lock = (on: boolean) => document.body.classList.toggle("lock", on);
+    let covering = store.sget('covering', 0);
+    const lock = (on: boolean) => document.body.classList.toggle('lock', on);
     function openModal(title: string, body: string) {
       if (covering >= 2 || !ovl) return;
       covering += 1;
-      store.sset("covering", covering);
-      const mt = document.getElementById("mtitle");
-      const mb = document.getElementById("mbody");
+      store.sset('covering', covering);
+      const mt = document.getElementById('mtitle');
+      const mb = document.getElementById('mbody');
       if (mt) mt.textContent = title;
       if (mb) mb.innerHTML = body;
       if (!ovl.open) ovl.showModal();
       lock(true);
-      document.getElementById("mx")?.focus();
+      document.getElementById('mx')?.focus();
     }
     function closeModal() {
       if (ovl?.open) ovl.close();
@@ -81,7 +86,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     }
 
     const welcomeBody = `<p class="mp">${SAY.askS}</p><div class="mbtns" style="margin-top:14px"><button type="button" data-a="suv">A family SUV</button><button type="button" data-a="sedan">A saloon</button><button type="button" data-a="other">Something I haven't listed yet</button><button type="button" class="sk" data-a="skip">Skip</button></div>`;
-    const farewellBody = `<p class="mp">${SAY.farewellS}</p><div class="mbtns" style="margin-top:14px"><a class="${waClass("wab", !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" data-a="stay">${SAY.stayB}</button></div>`;
+    const farewellBody = `<p class="mp">${SAY.farewellS}</p><div class="mbtns" style="margin-top:14px"><a class="${waClass('wab', !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a><button type="button" class="sk" data-a="stay">${SAY.stayB}</button></div>`;
 
     function returnBar() {
       let html = `${SAY.welcomeBack} \u{1F44B}`;
@@ -89,15 +94,14 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
         // The count comes from the one counting rule, not local arithmetic (R-CNT-1).
         const fresh = countStock(knownCars);
         const allLanded = fresh.landed === knownCars.length;
-        html += ` — ${
-          allLanded ? SAY.landedSince(fresh.landed) : SAY.newSince(knownCars.length)
-        }`;
+        html += ` — ${allLanded ? SAY.landedSince(fresh.landed) : SAY.newSince(knownCars.length)}`;
       }
       if (lastCar) {
         html += `. ${SAY.stillThinking(carTitle(lastCar))} <a href="${carHref(lastCar)}">${SAY.openIt}</a>`;
       }
       html += ` <button class="lnk" type="button" data-a="reopen">${SAY.reopen}</button>`;
-      if (knownCars.length) html += ` <button class="lnk" type="button" data-a="new">${SAY.seeNew}</button>`;
+      if (knownCars.length)
+        html += ` <button class="lnk" type="button" data-a="new">${SAY.seeNew}</button>`;
       speak(html);
     }
 
@@ -112,7 +116,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     const welcomeTimer =
       isFirst && !asked0
         ? window.setTimeout(() => {
-            if (!store.get("asked", false)) openModal(SAY.askT, welcomeBody);
+            if (!store.get('asked', false)) openModal(SAY.askT, welcomeBody);
           }, 1000)
         : undefined;
 
@@ -149,17 +153,17 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
     // social proof toast — one per session
     let toastTimer: number | undefined;
     let hideToastTimer: number | undefined;
-    if (!store.sget("toast", false)) {
+    if (!store.sget('toast', false)) {
       const fire = () => {
         if (ovl?.open) {
           toastTimer = window.setTimeout(fire, 12000);
           return;
         }
-        store.sset("toast", true);
+        store.sset('toast', true);
         const pool = all.filter((c) => inAvailablePresentation(c.section));
         if (!pool.length) return;
         const car = pool[Math.floor(Math.random() * pool.length)];
-        const txt = document.getElementById("toasttxt");
+        const txt = document.getElementById('toasttxt');
         if (txt) {
           txt.textContent = `Someone from ${CITIES[Math.floor(Math.random() * CITIES.length)]} asked about the ${carTitle(car)} — ${WHEN[Math.floor(Math.random() * WHEN.length)]}`;
         }
@@ -176,47 +180,51 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
       if (!t) return;
       const link = t.closest('a[href*="/car/"]') as HTMLAnchorElement | null;
       if (link) {
-        const m = /\/car\/([^/?#]+)/.exec(link.getAttribute("href") || "");
-        if (m) store.set("lastcar", decodeURIComponent(m[1]));
+        const m = /\/car\/([^/?#]+)/.exec(link.getAttribute('href') || '');
+        if (m) store.set('lastcar', decodeURIComponent(m[1]));
       }
-      const b = t.closest("[data-a]") as HTMLElement | null;
+      const b = t.closest('[data-a]') as HTMLElement | null;
       if (!b) return;
       const act = b.dataset.a;
-      if (act === "stay") {
+      if (act === 'stay') {
         closeModal();
         return;
       }
-      if (act === "skip") {
-        store.set("asked", true);
+      if (act === 'skip') {
+        store.set('asked', true);
         if (ask) ask.hidden = true;
         closeModal();
         speak(SAY.skipMsg);
         return;
       }
-      if (act === "reopen") {
+      if (act === 'reopen') {
         if (ask) ask.hidden = false;
-        document.getElementById("ask")?.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "center" });
+        document
+          .getElementById('ask')
+          ?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
         return;
       }
-      if (act === "new") {
-        window.dispatchEvent(new CustomEvent("ts-show-new"));
+      if (act === 'new') {
+        window.dispatchEvent(new CustomEvent('ts-show-new'));
         scrollGrid();
         return;
       }
-      if (act === "suv" || act === "sedan" || act === "other") {
-        store.set("asked", true);
+      if (act === 'suv' || act === 'sedan' || act === 'other') {
+        store.set('asked', true);
         if (ask) ask.hidden = true;
         closeModal();
-        if (act === "other") {
-          speak(`${SAY.okOther} <a class="${waClass("wab sm", !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a>`);
+        if (act === 'other') {
+          speak(
+            `${SAY.okOther} <a class="${waClass('wab sm', !my)}" target="_blank" rel="noopener noreferrer"${waAttr}><i class="fa-brands fa-whatsapp"></i>${SAY.waB}</a>`
+          );
           scrollGrid();
           return;
         }
-        window.location.href = act === "suv" ? "/inventory?body=SUV" : "/inventory?body=Sedan";
+        window.location.href = act === 'suv' ? '/inventory?body=SUV' : '/inventory?body=Sedan';
       }
     };
     const onOvlClick = (e: MouseEvent) => {
-      if ((e.target as HTMLElement)?.id === "ovl") closeModal();
+      if ((e.target as HTMLElement)?.id === 'ovl') closeModal();
     };
     // Escape is the platform's own: its `close` event is where the page unlocks.
     const onOvlClose = () => lock(false);
@@ -224,29 +232,29 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
       if (toast) toast.hidden = true;
     };
 
-    mx?.addEventListener("click", closeModal);
-    ovl?.addEventListener("click", onOvlClick);
-    ovl?.addEventListener("close", onOvlClose);
-    document.addEventListener("click", onClick);
-    document.addEventListener("mouseout", onMouseOut);
-    document.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: true });
-    document.addEventListener("touchend", onTouchEnd, { passive: true });
-    toastx?.addEventListener("click", onToastX);
+    mx?.addEventListener('click', closeModal);
+    ovl?.addEventListener('click', onOvlClick);
+    ovl?.addEventListener('close', onOvlClose);
+    document.addEventListener('click', onClick);
+    document.addEventListener('mouseout', onMouseOut);
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    toastx?.addEventListener('click', onToastX);
 
     return () => {
       if (welcomeTimer) window.clearTimeout(welcomeTimer);
       if (toastTimer) window.clearTimeout(toastTimer);
       if (hideToastTimer) window.clearTimeout(hideToastTimer);
-      mx?.removeEventListener("click", closeModal);
-      ovl?.removeEventListener("click", onOvlClick);
-      ovl?.removeEventListener("close", onOvlClose);
-      document.removeEventListener("click", onClick);
-      document.removeEventListener("mouseout", onMouseOut);
-      document.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
-      toastx?.removeEventListener("click", onToastX);
+      mx?.removeEventListener('click', closeModal);
+      ovl?.removeEventListener('click', onOvlClick);
+      ovl?.removeEventListener('close', onOvlClose);
+      document.removeEventListener('click', onClick);
+      document.removeEventListener('mouseout', onMouseOut);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', onTouchEnd);
+      toastx?.removeEventListener('click', onToastX);
     };
   }, [all, number]);
 
@@ -261,7 +269,7 @@ export function HomeBehaviors({ all, number }: { all: PublicCar[]; number: strin
             <div className="av" aria-hidden="true">
               U
             </div>
-            <h2 id="mtitle" />
+            <h2 id="mtitle">Chat with TrueSpec</h2>
           </div>
           <div id="mbody" />
         </div>

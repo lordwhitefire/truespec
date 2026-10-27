@@ -11,7 +11,7 @@
 // the selected photo's `File` — is left out, so the draft holds the text a save would post and the
 // photo asset references, never the bytes.
 
-export const DEVICE_DRAFT_PREFIX = "ts-draft:";
+export const DEVICE_DRAFT_PREFIX = 'ts-draft:';
 export const DEVICE_DRAFT_VERSION = 1;
 export const DRAFT_DEBOUNCE_MS = 400;
 
@@ -27,7 +27,7 @@ export type DeviceCarDraft = {
   photos: { assetId: string; url: string }[];
 };
 
-export type DeviceSettingField = "whatsapp" | "tagline" | "tank";
+export type DeviceSettingField = 'whatsapp' | 'tagline' | 'tank';
 
 /** One settings card's draft: the last saved value (`base`) and the unsaved value. */
 export type DeviceSettingDraft = {
@@ -36,8 +36,8 @@ export type DeviceSettingDraft = {
   value: string;
 };
 
-export type DraftStorage = Pick<Storage, "getItem" | "setItem" | "removeItem"> &
-  Partial<Pick<Storage, "key" | "length">>;
+export type DraftStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'> &
+  Partial<Pick<Storage, 'key' | 'length'>>;
 
 /**
  * Capture a form's fields as a draft payload.
@@ -52,7 +52,7 @@ export function captureFormData(form: FormData): DraftFields {
   for (const [name, value] of form.entries()) {
     // The file input's bytes never enter a draft, and the form-session key must never be restored as
     // a live identity: a draft survives the page, but the key belongs to one form session only.
-    if (name === "photo" || name === "submissionId" || typeof value !== "string") continue;
+    if (name === 'photo' || name === 'submissionId' || typeof value !== 'string') continue;
     const current = captured[name];
     if (current === undefined) captured[name] = value;
     else if (Array.isArray(current)) current.push(value);
@@ -63,7 +63,7 @@ export function captureFormData(form: FormData): DraftFields {
 
 /** The logical key for a car form: its store id in edit mode, `new` before a first save. */
 export function carDraftKey(carId: string | null | undefined): string {
-  return `car:${carId || "new"}`;
+  return `car:${carId || 'new'}`;
 }
 
 /** The logical key for one of the three settings cards. */
@@ -86,7 +86,7 @@ function browserStorage(): DraftStorage | null {
 export function readDraft<T>(
   key: string,
   fallback: T,
-  storage: DraftStorage | null = browserStorage(),
+  storage: DraftStorage | null = browserStorage()
 ): T {
   if (!storage) return fallback;
   try {
@@ -101,7 +101,7 @@ export function readDraft<T>(
 export function writeDraft(
   key: string,
   value: unknown,
-  storage: DraftStorage | null = browserStorage(),
+  storage: DraftStorage | null = browserStorage()
 ): void {
   if (!storage) return;
   try {
@@ -112,10 +112,7 @@ export function writeDraft(
 }
 
 /** Remove a draft. The erase itself is governed by Task 38's act rules; this is only the write. */
-export function removeDraft(
-  key: string,
-  storage: DraftStorage | null = browserStorage(),
-): void {
+export function removeDraft(key: string, storage: DraftStorage | null = browserStorage()): void {
   if (!storage) return;
   try {
     storage.removeItem(DEVICE_DRAFT_PREFIX + key);
@@ -172,7 +169,7 @@ export type DraftWriter = {
  */
 export function createDraftWriter(
   write: (key: string, value: unknown) => void,
-  options: { delayMs?: number; timer?: DraftTimer } = {},
+  options: { delayMs?: number; timer?: DraftTimer } = {}
 ): DraftWriter {
   const delayMs = options.delayMs ?? DRAFT_DEBOUNCE_MS;
   const timer = options.timer ?? defaultTimer;

@@ -1,11 +1,11 @@
-import "server-only";
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "pdf-lib";
+import 'server-only';
+import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
 import {
   ENQUIRY_TEMPLATE_DEFAULT,
   ENQUIRY_TEMPLATE_MAX,
   ENQUIRY_TEMPLATE_TITLE,
   enquiryFields,
-} from "./enquiry-template-rules";
+} from './enquiry-template-rules';
 
 // The enquiry's blank, as bytes (owner ruling 2026-10-20: "add an enquiry template pdf … readable by
 // the existing upload").
@@ -56,16 +56,19 @@ function drawHeading(page: PDFPage, { font, bold, page: number, pages }: Heading
   });
 
   page.drawText(
-    "Fill in one page for each customer, save the file, then upload it from Enquiries.",
-    { x: MARGIN, y: PAGE.height - 82, size: 9, font, color: MUTED },
+    'Fill in one page for each customer, save the file, then upload it from Enquiries.',
+    { x: MARGIN, y: PAGE.height - 82, size: 9, font, color: MUTED }
   );
-  page.drawText("The name and phone number are required when the draft is saved; the rest may wait.", {
-    x: MARGIN,
-    y: PAGE.height - 96,
-    size: 9,
-    font,
-    color: MUTED,
-  });
+  page.drawText(
+    'The name and phone number are required when the draft is saved; the rest may wait.',
+    {
+      x: MARGIN,
+      y: PAGE.height - 96,
+      size: 9,
+      font,
+      color: MUTED,
+    }
+  );
 
   page.drawLine({
     start: { x: MARGIN, y: PAGE.height - 112 },
@@ -91,9 +94,7 @@ function drawHeading(page: PDFPage, { font, bold, page: number, pages }: Heading
  * A fresh document is built on every call, so a download can never hand out a document someone
  * filled in — there is no cached copy to hand out.
  */
-export async function enquiryTemplatePdf(
-  pages = ENQUIRY_TEMPLATE_DEFAULT,
-): Promise<Uint8Array> {
+export async function enquiryTemplatePdf(pages = ENQUIRY_TEMPLATE_DEFAULT): Promise<Uint8Array> {
   if (!Number.isInteger(pages) || pages < 1 || pages > ENQUIRY_TEMPLATE_MAX) {
     throw new Error(`a blank carries 1 to ${ENQUIRY_TEMPLATE_MAX} enquiries, not ${pages}`);
   }
@@ -104,7 +105,7 @@ export async function enquiryTemplatePdf(
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
 
   doc.setTitle(
-    pages === 1 ? ENQUIRY_TEMPLATE_TITLE : `${ENQUIRY_TEMPLATE_TITLE} (${pages} enquiries)`,
+    pages === 1 ? ENQUIRY_TEMPLATE_TITLE : `${ENQUIRY_TEMPLATE_TITLE} (${pages} enquiries)`
   );
 
   for (let pageNumber = 1; pageNumber <= pages; pageNumber += 1) {

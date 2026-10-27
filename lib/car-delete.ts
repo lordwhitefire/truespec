@@ -1,4 +1,4 @@
-import type { CarCostLine } from "./car-input";
+import type { CarCostLine } from './car-input';
 
 /**
  * The three statements a car's removal is made of — delete, undo, and the owner's
@@ -99,11 +99,11 @@ export function carRemoveStatement(args: CarDeleteArgs): { text: string; params:
  * took with it. Kept beside the statements so the witness and the action name the same
  * set (the store's own `UNIQUE (car_id, kind)` and CHECK are the real authority).
  */
-export const CAR_COST_KINDS: readonly CarCostLine["kind"][] = [
-  "purchase_price",
-  "shipping",
-  "clearing",
-  "trucking_usa",
-  "trucking_ng",
-  "full_tank",
+export const CAR_COST_KINDS: readonly CarCostLine['kind'][] = [
+  'purchase_price',
+  'shipping',
+  'clearing',
+  'trucking_usa',
+  'trucking_ng',
+  'full_tank',
 ];

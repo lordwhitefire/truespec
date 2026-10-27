@@ -16,13 +16,13 @@
  * `drafts-client.tsx:156`) and *"The store refused that change"* (`:100`, `:129`). They are lifted
  * here so the office says one thing about one fact, from the server as well as the browser.
  */
-import { isTransientStoreError } from "./store-retry-rules";
+import { isTransientStoreError } from './store-retry-rules';
 
 /**
  * The cause clause for a store that could not be reached — the cold-compute case the retry exists
  * for, and the overwhelmingly common one. Trying again is the move, so these words say so.
  */
-const UNREACHED = "the store could not be reached. Try again.";
+const UNREACHED = 'the store could not be reached. Try again.';
 
 /**
  * The cause clause for a store that answered and refused the change — a unique violation, a dropped
@@ -30,7 +30,7 @@ const UNREACHED = "the store could not be reached. Try again.";
  * is sent, so these words deliberately do **not** invite a retry: telling someone to try again when
  * it cannot work is the kind of small lie this layer removes.
  */
-const REFUSED = "the store refused that change.";
+const REFUSED = 'the store refused that change.';
 
 /** Which of the two cause clauses a failed write gets, from its cause alone. Pure. */
 export function writeFailedClause(error: unknown): string {

@@ -13,9 +13,9 @@
  *                                              hosts: { read_write_host, read_write_pooled_host,
  *                                                       read_only_host, read_only_pooled_host }, ... }] }
  */
-import { connectionIdentity } from "./backup-restore";
+import { connectionIdentity } from './backup-restore';
 
-const NEON_API_BASE = "https://console.neon.tech/api/v2";
+const NEON_API_BASE = 'https://console.neon.tech/api/v2';
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 export type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
@@ -46,10 +46,10 @@ export type NeonEndpoint = {
 export class NeonApiError extends Error {
   constructor(
     readonly step: string,
-    message: string,
+    message: string
   ) {
     super(message);
-    this.name = "NeonApiError";
+    this.name = 'NeonApiError';
   }
 }
 
@@ -64,7 +64,10 @@ export type NeonApiDeps = {
  * read-only endpoint is never accepted just because its host normalises to the same name.
  */
 export function normalizeNeonHost(host: string): string {
-  return host.trim().toLowerCase().replace(/-pooler(?=\.)/, "");
+  return host
+    .trim()
+    .toLowerCase()
+    .replace(/-pooler(?=\.)/, '');
 }
 
 function requestUrl(path: string): URL {
@@ -75,30 +78,30 @@ async function getJson<T>(
   url: URL,
   apiKey: string,
   fetchImpl: FetchLike,
-  timeoutMs: number,
+  timeoutMs: number
 ): Promise<T> {
   let response: Response;
   try {
     response = await fetchImpl(url, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        Accept: "application/json",
+        Accept: 'application/json',
       },
-      cache: "no-store",
+      cache: 'no-store',
       signal: AbortSignal.timeout(timeoutMs),
     });
   } catch {
-    throw new NeonApiError("target", "the Neon API could not be reached");
+    throw new NeonApiError('target', 'the Neon API could not be reached');
   }
 
   if (!response.ok) {
-    throw new NeonApiError("target", `the Neon API refused the request (HTTP ${response.status})`);
+    throw new NeonApiError('target', `the Neon API refused the request (HTTP ${response.status})`);
   }
 
   try {
     return (await response.json()) as T;
   } catch {
-    throw new NeonApiError("target", "the Neon API returned an unreadable response");
+    throw new NeonApiError('target', 'the Neon API returned an unreadable response');
   }
 }
 
@@ -109,36 +112,36 @@ async function listPaginated<T, K extends string>(
   apiKey: string,
   fetchImpl: FetchLike,
   timeoutMs: number,
-  extraParams?: Record<string, string>,
+  extraParams?: Record<string, string>
 ): Promise<T[]> {
   const items: T[] = [];
   const seen = new Set<string>();
   let cursor: string | undefined;
 
   do {
-    const url = requestUrl(path.replace("{project_id}", encodeURIComponent(projectId)));
+    const url = requestUrl(path.replace('{project_id}', encodeURIComponent(projectId)));
     for (const [name, value] of Object.entries(extraParams ?? {})) {
       url.searchParams.set(name, value);
     }
-    if (cursor) url.searchParams.set("cursor", cursor);
+    if (cursor) url.searchParams.set('cursor', cursor);
 
     const body = await getJson<Record<string, unknown>>(url, apiKey, fetchImpl, timeoutMs);
     const page = body[key];
     if (!Array.isArray(page)) {
-      throw new NeonApiError("target", `the Neon API returned an unreadable ${key} list`);
+      throw new NeonApiError('target', `the Neon API returned an unreadable ${key} list`);
     }
     items.push(...(page as T[]));
 
     const pagination = body.pagination;
     const next =
-      pagination && typeof pagination === "object" && "next" in pagination
+      pagination && typeof pagination === 'object' && 'next' in pagination
         ? (pagination as { next?: unknown }).next
         : undefined;
-    if (typeof next !== "string" || next.length === 0) {
+    if (typeof next !== 'string' || next.length === 0) {
       cursor = undefined;
     } else {
       if (seen.has(next)) {
-        throw new NeonApiError("target", "the Neon API returned a repeating pagination cursor");
+        throw new NeonApiError('target', 'the Neon API returned a repeating pagination cursor');
       }
       seen.add(next);
       cursor = next;
@@ -151,31 +154,31 @@ async function listPaginated<T, K extends string>(
 export async function listBranches(
   projectId: string,
   apiKey: string,
-  deps: NeonApiDeps = {},
+  deps: NeonApiDeps = {}
 ): Promise<NeonBranch[]> {
-  return listPaginated<NeonBranch, "branches">(
-    "/projects/{project_id}/branches",
-    "branches",
+  return listPaginated<NeonBranch, 'branches'>(
+    '/projects/{project_id}/branches',
+    'branches',
     projectId,
     apiKey,
     deps.fetch ?? fetch,
     deps.timeoutMs ?? DEFAULT_TIMEOUT_MS,
-    { limit: "100" },
+    { limit: '100' }
   );
 }
 
 export async function listEndpoints(
   projectId: string,
   apiKey: string,
-  deps: NeonApiDeps = {},
+  deps: NeonApiDeps = {}
 ): Promise<NeonEndpoint[]> {
-  return listPaginated<NeonEndpoint, "endpoints">(
-    "/projects/{project_id}/endpoints",
-    "endpoints",
+  return listPaginated<NeonEndpoint, 'endpoints'>(
+    '/projects/{project_id}/endpoints',
+    'endpoints',
     projectId,
     apiKey,
     deps.fetch ?? fetch,
-    deps.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    deps.timeoutMs ?? DEFAULT_TIMEOUT_MS
   );
 }
 
@@ -212,23 +215,23 @@ export async function verifyDemoBranch(input: {
   });
   const branch = branches.find((item) => item.id === input.branchId);
   if (!branch) {
-    throw new NeonApiError("target", "the configured branch is not in the Neon project");
+    throw new NeonApiError('target', 'the configured branch is not in the Neon project');
   }
   if (branch.project_id !== input.projectId) {
-    throw new NeonApiError("target", "the configured branch belongs to another Neon project");
+    throw new NeonApiError('target', 'the configured branch belongs to another Neon project');
   }
-  if (branch.name !== "demo") {
-    throw new NeonApiError("target", "the configured branch is not named demo");
+  if (branch.name !== 'demo') {
+    throw new NeonApiError('target', 'the configured branch is not named demo');
   }
   if (branch.default !== false) {
-    throw new NeonApiError("target", "the configured branch is the project's default branch");
+    throw new NeonApiError('target', "the configured branch is the project's default branch");
   }
 
   let host: string;
   try {
     host = normalizeNeonHost(connectionIdentity(input.demoDatabaseUrl).host);
   } catch {
-    throw new NeonApiError("target", "DEMO_DATABASE_URL is not a valid PostgreSQL URL");
+    throw new NeonApiError('target', 'DEMO_DATABASE_URL is not a valid PostgreSQL URL');
   }
 
   const endpoints = await listEndpoints(input.projectId, input.apiKey, {
@@ -236,26 +239,26 @@ export async function verifyDemoBranch(input: {
     timeoutMs,
   });
   const branchEndpoints = endpoints.filter(
-    (item) => item.project_id === input.projectId && item.branch_id === input.branchId,
+    (item) => item.project_id === input.projectId && item.branch_id === input.branchId
   );
   if (branchEndpoints.length === 0) {
-    throw new NeonApiError("target", "the configured branch has no compute endpoint");
+    throw new NeonApiError('target', 'the configured branch has no compute endpoint');
   }
 
   const endpoint = branchEndpoints.find((item) => {
-    if (item.type !== "read_write" || item.disabled === true) return false;
+    if (item.type !== 'read_write' || item.disabled === true) return false;
     const hosts = [
       item.host,
       item.hosts?.read_write_host,
       item.hosts?.read_write_pooled_host,
-    ].filter((value): value is string => typeof value === "string" && value.length > 0);
+    ].filter((value): value is string => typeof value === 'string' && value.length > 0);
     return hosts.some((candidate) => normalizeNeonHost(candidate) === host);
   });
 
   if (!endpoint) {
     throw new NeonApiError(
-      "target",
-      "the demo URL host is not a read-write endpoint of the configured branch",
+      'target',
+      'the demo URL host is not a read-write endpoint of the configured branch'
     );
   }
 

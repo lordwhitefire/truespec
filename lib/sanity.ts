@@ -1,9 +1,9 @@
-import "server-only";
+import 'server-only';
 
-import { createClient, type SanityClient } from "@sanity/client";
-import { createImageUrlBuilder } from "@sanity/image-url";
+import { createClient, type SanityClient } from '@sanity/client';
+import { createImageUrlBuilder } from '@sanity/image-url';
 
-import { getConfig } from "./config";
+import { getConfig } from './config';
 
 // The asset store (specs/media). Sanity holds the images and the enquiry PDFs;
 // the database holds only a reference to an asset — never bytes, never an
@@ -17,7 +17,7 @@ import { getConfig } from "./config";
 // Hard-coded, never derived from the clock: a floating version would break the
 // application at a random point in the future (`@sanity/client` v8, its own
 // guidance). Bump it deliberately.
-const API_VERSION = "2026-10-13";
+const API_VERSION = '2026-10-13';
 
 let cached: SanityClient | null = null;
 
@@ -72,9 +72,9 @@ export type UploadedAsset = {
  */
 export async function uploadImage(
   bytes: Buffer,
-  options: { filename: string; contentType: string; label?: string },
+  options: { filename: string; contentType: string; label?: string }
 ): Promise<UploadedAsset> {
-  const asset = await sanityClient().assets.upload("image", bytes, {
+  const asset = await sanityClient().assets.upload('image', bytes, {
     filename: options.filename,
     contentType: options.contentType,
     label: options.label,
@@ -95,11 +95,11 @@ export async function uploadImage(
  * a row pointing at nothing (reported, never repaired here).
  */
 export async function findImageAsset(
-  assetId: string,
+  assetId: string
 ): Promise<{ assetId: string; url: string; size: number | null } | null> {
   const row = await sanityClient().fetch<{ _id: string; url: string; size: number } | null>(
     `*[_id == $id][0]{_id, url, size}`,
-    { id: assetId },
+    { id: assetId }
   );
   if (!row) return null;
   return { assetId: row._id, url: row.url, size: row.size ?? null };
@@ -116,9 +116,9 @@ export async function findImageAsset(
  */
 export async function uploadFile(
   bytes: Buffer,
-  options: { filename: string; contentType: string; label?: string },
+  options: { filename: string; contentType: string; label?: string }
 ): Promise<{ assetId: string; url: string; size: number | null; label: string | null }> {
-  const asset = await sanityClient().assets.upload("file", bytes, {
+  const asset = await sanityClient().assets.upload('file', bytes, {
     filename: options.filename,
     contentType: options.contentType,
     label: options.label,
@@ -138,7 +138,7 @@ export async function uploadFile(
  */
 export type StoredAsset = {
   assetId: string;
-  kind: "image" | "file";
+  kind: 'image' | 'file';
   filename: string | null;
   size: number | null;
   /** The server-set label, when the asset has one. Exact matches are the system-file identity. */
@@ -158,11 +158,11 @@ export async function listStoredAssets(): Promise<StoredAsset[]> {
       _createdAt?: string | null;
     }[]
   >(
-    `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label, _createdAt}`,
+    `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label, _createdAt}`
   );
   return rows.map((row) => ({
     assetId: row._id,
-    kind: row._type === "sanity.imageAsset" ? "image" : "file",
+    kind: row._type === 'sanity.imageAsset' ? 'image' : 'file',
     filename: row.originalFilename ?? null,
     size: row.size ?? null,
     label: row.label ?? null,
@@ -183,7 +183,7 @@ export async function listFileAssets(): Promise<StoredAsset[]> {
   >(`*[_type == "sanity.fileAsset"]{_id, originalFilename, size, label, _createdAt}`);
   return rows.map((row) => ({
     assetId: row._id,
-    kind: "file" as const,
+    kind: 'file' as const,
     filename: row.originalFilename ?? null,
     size: row.size ?? null,
     label: row.label ?? null,
@@ -216,7 +216,7 @@ export async function listFileAssets(): Promise<StoredAsset[]> {
  * references it. The caller prints the reason; a failed delete never aborts a run.
  */
 export async function deleteAsset(
-  assetId: string,
+  assetId: string
 ): Promise<{ assetId: string; deleted: boolean; reason?: string }> {
   try {
     await sanityClient().delete(assetId);
@@ -226,7 +226,7 @@ export async function deleteAsset(
     return {
       assetId,
       deleted: false,
-      reason: `HTTP ${e.statusCode ?? "?"}: ${e.message ?? "unknown error"}`,
+      reason: `HTTP ${e.statusCode ?? '?'}: ${e.message ?? 'unknown error'}`,
     };
   }
 }
@@ -236,11 +236,11 @@ export async function deleteAsset(
  * the database either resolves to bytes in private storage or points at nothing.
  */
 export async function findFileAsset(
-  assetId: string,
+  assetId: string
 ): Promise<{ assetId: string; url: string; size: number | null } | null> {
   const row = await sanityClient().fetch<{ _id: string; url: string; size: number } | null>(
     `*[_id == $id][0]{_id, url, size}`,
-    { id: assetId },
+    { id: assetId }
   );
   if (!row) return null;
   return { assetId: row._id, url: row.url, size: row.size ?? null };
@@ -254,9 +254,9 @@ export async function findFileAsset(
 export async function downloadFileAsset(assetId: string): Promise<Buffer> {
   const asset = await findFileAsset(assetId);
   if (!asset) {
-    throw new Error("the seed asset is not in the store");
+    throw new Error('the seed asset is not in the store');
   }
-  const response = await fetch(asset.url, { cache: "no-store" });
+  const response = await fetch(asset.url, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`the seed asset download was refused (HTTP ${response.status})`);
   }

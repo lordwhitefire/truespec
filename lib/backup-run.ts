@@ -24,8 +24,8 @@ import {
   buildBackupArchive,
   type BackupArchive,
   type BackupQuery,
-} from "./backup-archive";
-import { encryptBackup } from "./backup-crypto";
+} from './backup-archive';
+import { encryptBackup } from './backup-crypto';
 
 export const BACKUP_KEEP = 7;
 export const BACKUP_FILENAME_PATTERN = /^backup-(\d{4}-\d{2}-\d{2})\.json\.gz\.enc$/;
@@ -36,7 +36,7 @@ export function backupFilename(at: Date): string {
 
 /** Is this exactly one of the job's own files? The cleanup card uses this to keep backups out of litter. */
 export function isBackupFilename(filename: string | null | undefined): boolean {
-  return typeof filename === "string" && BACKUP_FILENAME_PATTERN.test(filename);
+  return typeof filename === 'string' && BACKUP_FILENAME_PATTERN.test(filename);
 }
 
 export type BackupStep = {
@@ -76,7 +76,7 @@ export type BackupSummary = {
 
 type UploadFile = (
   bytes: Buffer,
-  options: { filename: string; contentType: string },
+  options: { filename: string; contentType: string }
 ) => Promise<{ assetId: string }>;
 type DeleteAsset = (assetId: string) => Promise<{ deleted: boolean; reason?: string }>;
 
@@ -103,7 +103,7 @@ export type BackupDeps = {
  */
 export async function pruneBackups(
   files: BackupFile[],
-  remove: DeleteAsset,
+  remove: DeleteAsset
 ): Promise<RetentionResult> {
   const backups = files
     .filter((file) => file.filename !== null && BACKUP_FILENAME_PATTERN.test(file.filename))
@@ -122,7 +122,7 @@ export async function pruneBackups(
     } catch (error) {
       failed.push({
         filename: file.filename!,
-        reason: error instanceof Error ? error.message : "the asset store refused the delete",
+        reason: error instanceof Error ? error.message : 'the asset store refused the delete',
       });
     }
   }
@@ -157,7 +157,7 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
     } catch (error) {
       // Only a BackupError's own words are safe to repeat: they name tables, sequences and steps,
       // never a key, a connection string or a row. Anything else is reported by step name only.
-      const detail = error instanceof BackupError ? error.message : "the step failed";
+      const detail = error instanceof BackupError ? error.message : 'the step failed';
       const record = { step: name, ok: false, ms: Date.now() - started, detail };
       steps.push(record);
       console.log(`[backup] ${JSON.stringify(record)}`);
@@ -166,12 +166,12 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
   }
 
   try {
-    if (!deps.key) throw new BackupError("configuration", "BACKUP_ENCRYPTION_KEY is not set");
+    if (!deps.key) throw new BackupError('configuration', 'BACKUP_ENCRYPTION_KEY is not set');
 
     // The filename is the idempotency key. Look for it **before** dumping: a second run on the same
     // UTC day must not dump, encrypt or upload again. If the first run uploaded and died before the
     // heartbeat, this finds the file and writes the heartbeat — the same path.
-    const existing = await step("list-before", () => deps.listFileAssets());
+    const existing = await step('list-before', () => deps.listFileAssets());
     const match = existing.find((asset) => asset.filename === filename);
     let assetId: string;
     let backupBytes: number;
@@ -180,21 +180,21 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
       backupBytes = match.size ?? 0;
       summary.reused = true;
       summary.bytes = backupBytes;
-      await step("reuse", async () => undefined);
+      await step('reuse', async () => undefined);
     } else {
       const build = deps.buildArchive ?? buildBackupArchive;
-      const archive = await step("dump", () => build(deps.query, now));
+      const archive = await step('dump', () => build(deps.query, now));
       summary.rows = archiveRowCount(archive);
       summary.tables = Object.keys(archive.tables).length;
 
-      const bytes = await step("encrypt", async () =>
-        encryptBackup(JSON.stringify(archive), deps.key as string),
+      const bytes = await step('encrypt', async () =>
+        encryptBackup(JSON.stringify(archive), deps.key as string)
       );
       backupBytes = bytes.byteLength;
       summary.bytes = backupBytes;
 
-      const uploaded = await step("upload", () =>
-        deps.uploadFile(bytes, { filename, contentType: "application/octet-stream" }),
+      const uploaded = await step('upload', () =>
+        deps.uploadFile(bytes, { filename, contentType: 'application/octet-stream' })
       );
       assetId = uploaded.assetId;
     }
@@ -203,20 +203,20 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
     // The heartbeat is the fact "a file exists in the store". It is written only after the upload
     // answered with an asset id (or the file was already there), never before.
     const backupAt = now.toISOString();
-    await step("heartbeat", () => deps.writeSetting("last_backup_at", backupAt));
+    await step('heartbeat', () => deps.writeSetting('last_backup_at', backupAt));
     summary.backupAt = backupAt;
 
     // Retention sees the file we just uploaded even if the listing is a moment behind; otherwise the
     // newest file would not count against the seven and an eighth would survive.
-    const afterUpload = await step("list-retention", () => deps.listFileAssets());
+    const afterUpload = await step('list-retention', () => deps.listFileAssets());
     const forRetention = afterUpload.some((asset) => asset.assetId === assetId)
       ? afterUpload
       : [...afterUpload, { assetId, filename, size: backupBytes }];
-    summary.retention = await step("retention", () => pruneBackups(forRetention, deps.deleteAsset));
+    summary.retention = await step('retention', () => pruneBackups(forRetention, deps.deleteAsset));
 
     // Measurement happens after upload and retention: the figures describe the store as it now is.
-    const dbBytes = await step("measure-database", () => deps.databaseBytes());
-    const assets = await step("measure-assets", () => deps.listStoredAssets());
+    const dbBytes = await step('measure-database', () => deps.databaseBytes());
+    const assets = await step('measure-assets', () => deps.listStoredAssets());
     const measured = assets.reduce((total, asset) => total + (asset.size ?? 0), 0);
     // If the just-uploaded file is not visible in the listing yet, count its bytes rather than
     // pretending the store is smaller than it is.
@@ -224,15 +224,17 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
       ? measured
       : measured + backupBytes;
 
-    await step("write-storage", async () => {
-      await deps.writeSetting("database_used_bytes", String(dbBytes));
-      await deps.writeSetting("storage_used_bytes", String(assetBytes));
+    await step('write-storage', async () => {
+      await deps.writeSetting('database_used_bytes', String(dbBytes));
+      await deps.writeSetting('storage_used_bytes', String(assetBytes));
     });
     summary.storage = { databaseBytes: dbBytes, assetBytes };
     summary.ok = true;
   } catch (error) {
     summary.error =
-      error instanceof BackupError ? error.message : "the backup did not finish — see the failed step";
+      error instanceof BackupError
+        ? error.message
+        : 'the backup did not finish — see the failed step';
   }
 
   console.log(
@@ -248,7 +250,7 @@ export async function runDailyBackup(deps: BackupDeps): Promise<BackupSummary> {
       retention: summary.retention,
       storage: summary.storage,
       error: summary.error,
-    })}`,
+    })}`
   );
   return summary;
 }

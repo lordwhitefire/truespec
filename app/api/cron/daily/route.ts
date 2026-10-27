@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { runDailyBackupLive } from "@/lib/backup-run-live";
+import { NextResponse } from 'next/server';
+import { runDailyBackupLive } from '@/lib/backup-run-live';
 
 /**
  * The daily backup's door.
@@ -15,14 +15,14 @@ import { runDailyBackupLive } from "@/lib/backup-run-live";
  * The response is the summary. A step failure is a non-200: Vercel's cron record and any log reader
  * see the failure, and the next run is idempotent by filename.
  */
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request): Promise<Response> {
   const secret = process.env.CRON_SECRET;
-  const authorization = request.headers.get("authorization");
+  const authorization = request.headers.get('authorization');
   if (!secret || authorization !== `Bearer ${secret}`) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+    return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
 
   const summary = await runDailyBackupLive();

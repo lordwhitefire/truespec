@@ -1,17 +1,17 @@
-import "server-only";
-import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { storeQuery } from "./store-guard";
-import { resolveSpace, type Space } from "./space";
+import 'server-only';
+import { auth, clerkClient, currentUser } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
+import { storeQuery } from './store-guard';
+import { resolveSpace, type Space } from './space';
 import {
   checkOfficeSessionWith,
   endSessionWith,
   type OfficeSession,
   type OfficeSessionState,
   type SessionDeps,
-} from "./session-space";
+} from './session-space';
 
-export type { OfficeSession, OfficeSessionState } from "./session-space";
+export type { OfficeSession, OfficeSessionState } from './session-space';
 
 /**
  * Our own `session` row (design D4 / D17), bound to Clerk and the store doors.
@@ -30,10 +30,10 @@ export type { OfficeSession, OfficeSessionState } from "./session-space";
  */
 
 /** The door, mounted in the office (design D4; task.md §Process step 1). */
-export const SIGN_IN_PATH = "/office/sign-in";
+export const SIGN_IN_PATH = '/office/sign-in';
 
 /** The client-side sign-out that clears the provider's cookie, then returns to the door. */
-export const SIGN_OUT_PATH = "/office/sign-out";
+export const SIGN_OUT_PATH = '/office/sign-out';
 
 function liveDeps(): SessionDeps {
   return {
@@ -45,16 +45,11 @@ function liveDeps(): SessionDeps {
     readEmail: async () => {
       const user = await currentUser();
       return (
-        user?.primaryEmailAddress?.emailAddress ??
-        user?.emailAddresses?.[0]?.emailAddress ??
-        null
+        user?.primaryEmailAddress?.emailAddress ?? user?.emailAddresses?.[0]?.emailAddress ?? null
       );
     },
-    query: <T = unknown>(
-      text: string,
-      params?: unknown[],
-      options?: { space: Space },
-    ) => storeQuery<T>(text, params, options),
+    query: <T = unknown>(text: string, params?: unknown[], options?: { space: Space }) =>
+      storeQuery<T>(text, params, options),
     revokeSession: async (clerkSessionId) => {
       const client = await clerkClient();
       await client.sessions.revokeSession(clerkSessionId);
@@ -70,10 +65,7 @@ function liveDeps(): SessionDeps {
  * resolved; the sign-out action omits it and the resolver runs here. Either way the delete lands in
  * one branch, never in both.
  */
-export async function endSession(
-  clerkSessionId: string,
-  space?: Space,
-): Promise<void> {
+export async function endSession(clerkSessionId: string, space?: Space): Promise<void> {
   const resolved = space ?? (await resolveSpace());
   await endSessionWith(clerkSessionId, resolved, liveDeps());
 }
@@ -95,7 +87,7 @@ export async function checkOfficeSession(): Promise<OfficeSessionState> {
  */
 export async function getOfficeSession(): Promise<OfficeSession | null> {
   const state = await checkOfficeSession();
-  return state.status === "active" ? state.session : null;
+  return state.status === 'active' ? state.session : null;
 }
 
 /**
@@ -107,6 +99,6 @@ export async function getOfficeSession(): Promise<OfficeSession | null> {
  */
 export async function requireOfficeSession(): Promise<OfficeSession> {
   const state = await checkOfficeSession();
-  if (state.status === "active") return state.session;
-  redirect(state.status === "ended" ? SIGN_OUT_PATH : SIGN_IN_PATH);
+  if (state.status === 'active') return state.session;
+  redirect(state.status === 'ended' ? SIGN_OUT_PATH : SIGN_IN_PATH);
 }

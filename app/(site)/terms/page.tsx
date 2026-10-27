@@ -1,20 +1,20 @@
-import Link from "next/link";
-import "./terms.css";
-import "../../reference.css";
-import { pageMetadata, TERMS_LAST_UPDATED } from "@/lib/site";
-import { getSetting } from "@/lib/public-cars";
-import type { Metadata } from "next";
+import Link from 'next/link';
+import './terms.css';
+import '../../reference.css';
+import { pageMetadata, TERMS_LAST_UPDATED } from '@/lib/site';
+import { getSetting } from '@/lib/public-cars';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = pageMetadata({
-  title: "Terms of service",
+  title: 'Terms of service',
   description:
-    "TrueSpec Automotive terms of service: availability, price changes, the WhatsApp sale path, delivery, and Nigerian law (Lagos).",
-  path: "/terms",
+    'TrueSpec Automotive terms of service: availability, price changes, the WhatsApp sale path, delivery, and Nigerian law (Lagos).',
+  path: '/terms',
 });
 
 export default async function TermsPage() {
-  const num = (await getSetting("whatsapp_number")) ?? "";
-  const digits = num.replace(/\D/g, "");
+  const num = (await getSetting('whatsapp_number')) ?? '';
+  const digits = num.replace(/\D/g, '');
 
   return (
     <>
@@ -71,20 +71,20 @@ export default async function TermsPage() {
         <section id="what">
           <h2>What this site is</h2>
           <p>
-            TrueSpec Automotive is a Nigerian vehicle-import showroom. The public pages show the cars
-            we have, the cars we have on order and the cars that have landed. The private office is
-            for TrueSpec; this site is the showroom. Nothing is sold on this page — buying happens in
-            the WhatsApp conversation.
+            TrueSpec Automotive is a Nigerian vehicle-import showroom. The public pages show the
+            cars we have, the cars we have on order and the cars that have landed. The private
+            office is for TrueSpec; this site is the showroom. Nothing is sold on this page — buying
+            happens in the WhatsApp conversation.
           </p>
         </section>
 
         <section id="availability">
           <h2>Availability</h2>
           <p>
-            Each car page shows the car’s current state — available, on order or landed. Availability
-            can change: a car can be sold or reserved while you are looking. We do not hold a car for
-            you until we agree it in the WhatsApp conversation. If a car is no longer available, we
-            will tell you and help you find another.
+            Each car page shows the car’s current state — available, on order or landed.
+            Availability can change: a car can be sold or reserved while you are looking. We do not
+            hold a car for you until we agree it in the WhatsApp conversation. If a car is no longer
+            available, we will tell you and help you find another.
           </p>
         </section>
 
@@ -114,8 +114,8 @@ export default async function TermsPage() {
             We deliver to your door anywhere in Nigeria. Delivery is included in the price. Timing
             depends on the car’s state: an available or landed car can be delivered sooner; an
             on-order car is shipped from the USA and cleared at the port first. We will confirm the
-            expected timing in the WhatsApp conversation, and the car is delivered fully cleared with
-            the requirements completed.
+            expected timing in the WhatsApp conversation, and the car is delivered fully cleared
+            with the requirements completed.
           </p>
         </section>
 
@@ -142,25 +142,21 @@ export default async function TermsPage() {
         <section id="law">
           <h2>Governing law</h2>
           <p>
-            These terms and any sale are governed by the laws of the Federal Republic of Nigeria. The
-            courts of Lagos State have jurisdiction.
+            These terms and any sale are governed by the laws of the Federal Republic of Nigeria.
+            The courts of Lagos State have jurisdiction.
           </p>
         </section>
 
         <section id="contact">
           <h2>Contact</h2>
           <p>
-            Questions about these terms: message us on WhatsApp,{" "}
+            Questions about these terms: message us on WhatsApp,{' '}
             {digits ? (
-              <a
-                href={`https://wa.me/${digits}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={`https://wa.me/${digits}`} target="_blank" rel="noopener noreferrer">
                 WhatsApp
               </a>
             ) : (
-              "WhatsApp"
+              'WhatsApp'
             )}
             .
           </p>

@@ -1,6 +1,6 @@
-import "server-only";
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from "pdf-lib";
-import { TEMPLATE_MAX_CARS, carFields } from "./template-rules";
+import 'server-only';
+import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'pdf-lib';
+import { TEMPLATE_MAX_CARS, carFields } from './template-rules';
 
 // The car's blank, as bytes (truth 9, and build step 7: "the car's PDF template offered as a blank
 // at the upload point").
@@ -42,7 +42,7 @@ type HeadingOptions = {
  * different — which car they are, and that a page left blank is not a way to leave a car out.
  */
 function drawHeading(page: PDFPage, { font, bold, car, cars }: HeadingOptions): void {
-  page.drawText("TrueSpec — car template", {
+  page.drawText('TrueSpec — car template', {
     x: MARGIN,
     y: PAGE.height - 62,
     size: 16,
@@ -64,12 +64,12 @@ function drawHeading(page: PDFPage, { font, bold, car, cars }: HeadingOptions): 
 
   const line1 =
     car === 1
-      ? "Fill in one page for each car, save the file, then upload it from the office inventory."
-      : "The same fourteen details, for another car.";
+      ? 'Fill in one page for each car, save the file, then upload it from the office inventory.'
+      : 'The same fourteen details, for another car.';
   const line2 =
     car === 1
-      ? "Photographs are added in the office, by hand, after the file has been read."
-      : "Every page in this file is a car. Do not leave one blank — it would be reported back to you.";
+      ? 'Photographs are added in the office, by hand, after the file has been read.'
+      : 'Every page in this file is a car. Do not leave one blank — it would be reported back to you.';
 
   page.drawText(line1, { x: MARGIN, y: PAGE.height - 82, size: 9, font, color: MUTED });
   page.drawText(line2, { x: MARGIN, y: PAGE.height - 96, size: 9, font, color: MUTED });
@@ -98,7 +98,7 @@ export async function carTemplatePdf(cars = 1): Promise<Uint8Array> {
   const font = await doc.embedFont(StandardFonts.Helvetica);
   const bold = await doc.embedFont(StandardFonts.HelveticaBold);
 
-  doc.setTitle(cars === 1 ? "TrueSpec — car template" : `TrueSpec — car template (${cars} cars)`);
+  doc.setTitle(cars === 1 ? 'TrueSpec — car template' : `TrueSpec — car template (${cars} cars)`);
 
   for (let car = 1; car <= cars; car += 1) {
     const page = doc.addPage([PAGE.width, PAGE.height]);

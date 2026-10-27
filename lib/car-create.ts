@@ -1,4 +1,4 @@
-import type { CarColumns, CarCostLine } from "./car-input";
+import type { CarColumns, CarCostLine } from './car-input';
 
 /**
  * The one statement that makes a car.

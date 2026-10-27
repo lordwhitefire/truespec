@@ -33,12 +33,12 @@ import {
   PDFTextField,
   decodePDFRawStream,
   type PDFForm,
-} from "pdf-lib";
+} from 'pdf-lib';
 import {
   ENQUIRY_TEMPLATE_MAX,
   isEnquiryFieldNameBeyondLimit,
   readEnquiryFieldName,
-} from "./enquiry-template-rules";
+} from './enquiry-template-rules';
 
 /** One enquiry read from the sheet: the record's fields as the sheet carried them, nothing more. */
 export type EnquiryDraft = {
@@ -63,13 +63,13 @@ export type EnquiryFileRead =
   | { ok: false; reason: string };
 
 /** The sheet's own title line — how we know a PDF is one of ours without a form field to go by. */
-export const ENQUIRY_SHEET_TITLE = "TrueSpec Autos - Enquiry Sheet";
+export const ENQUIRY_SHEET_TITLE = 'TrueSpec Autos - Enquiry Sheet';
 
 export const NOT_AN_ENQUIRY_SHEET =
   "That PDF is not an enquiry file — it carries neither our template's fields nor our sheet's heading. " +
-  "Download the enquiry template from Enquiries, send the sheet the office imports, or send the car template from the inventory.";
+  'Download the enquiry template from Enquiries, send the sheet the office imports, or send the car template from the inventory.';
 export const ENQUIRY_PDF_UNREADABLE =
-  "That PDF could not be opened. Try saving it again, or send a fresh sheet.";
+  'That PDF could not be opened. Try saving it again, or send a fresh sheet.';
 export const TOO_MANY_ENQUIRIES = `That file carries more than ${ENQUIRY_TEMPLATE_MAX} enquiries, which is more than a blank holds.`;
 
 /**
@@ -83,9 +83,9 @@ export const TOO_MANY_ENQUIRIES = `That file carries more than ${ENQUIRY_TEMPLAT
  * without it simply gives a draft no state, and the save asks the owner to choose.
  */
 const LABELS: Readonly<Record<string, string | undefined>> = {
-  "asked for": "asked_for",
-  note: "note",
-  state: "state",
+  'asked for': 'asked_for',
+  note: 'note',
+  state: 'state',
 };
 
 /** The line the rows start after: `Name                  Phone               Recorded`. */
@@ -103,7 +103,7 @@ const RULE = /^-{6,}$/;
 /** A value as the sheet carried it: trimmed, and `null` when the sheet wrote nothing. */
 function text(value: string): string | null {
   const trimmed = value.trim();
-  return trimmed === "" ? null : trimmed;
+  return trimmed === '' ? null : trimmed;
 }
 
 /** One row while it is being read: its place, its name and number, and the details beneath it. */
@@ -122,9 +122,11 @@ type Row = {
  * followed by its labelled details, exactly as the sheet writes them.
  */
 export function parseEnquirySheet(
-  lines: readonly string[],
-): { ok: true; enquiries: EnquiryDraft[]; refusals: EnquiryRefusal[] } | { ok: false; reason: string } {
-  const title = lines.find((line) => line.trim() !== "")?.trim();
+  lines: readonly string[]
+):
+  | { ok: true; enquiries: EnquiryDraft[]; refusals: EnquiryRefusal[] }
+  | { ok: false; reason: string } {
+  const title = lines.find((line) => line.trim() !== '')?.trim();
   if (title !== ENQUIRY_SHEET_TITLE) return { ok: false, reason: NOT_AN_ENQUIRY_SHEET };
 
   const header = lines.findIndex((line) => HEADER.test(line.trim()));
@@ -142,7 +144,7 @@ export function parseEnquirySheet(
     if (!current.refused) {
       const values: Record<string, unknown> = { name: current.name, number: current.number };
       for (const [field, value] of Object.entries(current.details)) {
-        if (field === "state") continue;
+        if (field === 'state') continue;
         const read = text(value);
         if (read !== null) values[field] = read;
       }
@@ -153,8 +155,8 @@ export function parseEnquirySheet(
   };
 
   for (const raw of lines.slice(header + 1)) {
-    const line = raw.replace(/\s+$/, "");
-    if (line.trim() === "") continue;
+    const line = raw.replace(/\s+$/, '');
+    if (line.trim() === '') continue;
     if (RULE.test(line.trim())) continue;
 
     const detail = DETAIL.exec(line);
@@ -167,7 +169,10 @@ export function parseEnquirySheet(
         // Written twice: which value is right cannot be known, so the row is refused rather than
         // keeping whichever happened to come last.
         current.refused = true;
-        refusals.push({ row: current.row, reason: `"${detail[1].trim()}" is written twice on this row` });
+        refusals.push({
+          row: current.row,
+          reason: `"${detail[1].trim()}" is written twice on this row`,
+        });
       } else {
         current.details[field] = detail[2];
       }
@@ -180,7 +185,7 @@ export function parseEnquirySheet(
       // we cannot place. Refusing it is how the owner learns which line, rather than losing it.
       refusals.push({
         row: current ? current.row : rowNumber + 1,
-        reason: "this line is not a name and number the sheet can read",
+        reason: 'this line is not a name and number the sheet can read',
       });
       continue;
     }
@@ -203,7 +208,7 @@ export function parseEnquirySheet(
 
 /** A PDF's header may sit after a short run of bytes; the first kilobyte is where a reader looks. */
 function startsWithPdf(bytes: Uint8Array): boolean {
-  return new TextDecoder("latin1").decode(bytes.subarray(0, 1024)).includes("%PDF-");
+  return new TextDecoder('latin1').decode(bytes.subarray(0, 1024)).includes('%PDF-');
 }
 
 /**
@@ -223,9 +228,19 @@ function contentLines(content: string): string[] {
       match[0]
         .slice(1, -1)
         .replace(/\\([nrtbf()\\])/g, (_, ch: string) =>
-          ch === "n" ? "\n" : ch === "r" ? "\r" : ch === "t" ? "\t" : ch === "b" ? "\b" : ch === "f" ? "\f" : ch,
+          ch === 'n'
+            ? '\n'
+            : ch === 'r'
+              ? '\r'
+              : ch === 't'
+                ? '\t'
+                : ch === 'b'
+                  ? '\b'
+                  : ch === 'f'
+                    ? '\f'
+                    : ch
         )
-        .replace(/\\([0-7]{1,3})/g, (_, oct: string) => String.fromCharCode(parseInt(oct, 8))),
+        .replace(/\\([0-7]{1,3})/g, (_, oct: string) => String.fromCharCode(parseInt(oct, 8)))
     );
   }
   return strings;
@@ -238,8 +253,9 @@ function contentLines(content: string): string[] {
  * so decoding the whole stream this way changes nothing but the words.
  */
 function streamText(stream: PDFStream): string {
-  const bytes = stream instanceof PDFRawStream ? decodePDFRawStream(stream).decode() : stream.getContents();
-  return new TextDecoder("windows-1252").decode(bytes);
+  const bytes =
+    stream instanceof PDFRawStream ? decodePDFRawStream(stream).decode() : stream.getContents();
+  return new TextDecoder('windows-1252').decode(bytes);
 }
 
 /** Every word the document draws, across its pages, in order. */
@@ -299,7 +315,7 @@ function readEnquiryTemplate(doc: PDFDocument): EnquiryFileRead | undefined {
 
     const slot = byPage.get(where.page) ?? { carried: {}, odd: [] };
     if (field instanceof PDFTextField) {
-      slot.carried[where.recipe] = field.getText() ?? "";
+      slot.carried[where.recipe] = field.getText() ?? '';
     } else {
       slot.odd.push(name);
     }
@@ -316,7 +332,7 @@ function readEnquiryTemplate(doc: PDFDocument): EnquiryFileRead | undefined {
     const slot = byPage.get(page) as FormPage;
 
     if (slot.odd.length > 0) {
-      const named = slot.odd.map((name) => `"${name}"`).join(", ");
+      const named = slot.odd.map((name) => `"${name}"`).join(', ');
       refusals.push({
         page,
         reason: `${named} is not a field this template writes as text`,
@@ -324,14 +340,14 @@ function readEnquiryTemplate(doc: PDFDocument): EnquiryFileRead | undefined {
       continue;
     }
 
-    const carried = Object.entries(slot.carried).filter(([, value]) => value.trim() !== "");
+    const carried = Object.entries(slot.carried).filter(([, value]) => value.trim() !== '');
     if (carried.length === 0) continue; // a blank page in the pad
 
     const values: Record<string, unknown> = {};
     let stateLabel: string | null = null;
     for (const [recipe, raw] of carried) {
       const value = raw.trim();
-      if (recipe === "enquiry_state_id") {
+      if (recipe === 'enquiry_state_id') {
         stateLabel = value;
       } else {
         values[recipe] = value;

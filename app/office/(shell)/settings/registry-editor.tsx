@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useTransition, type ReactNode } from "react";
-import type { EditResult } from "@/lib/edit-result";
-import { inkFor } from "./colour";
+import { useState, useTransition, type ReactNode } from 'react';
+import type { EditResult } from '@/lib/edit-result';
+import { inkFor } from './colour';
 
 /* One registry editor, used twice: a car's states and an enquiry's states.
 
@@ -24,7 +24,7 @@ import { inkFor } from "./colour";
    Every edit is written when it is finished, so there is no unsaved state to lose: a
    refused edit puts the field back to what the store holds (the row's key is bumped). */
 
-const DEFAULT_COLOUR = "#8a9096";
+const DEFAULT_COLOUR = '#8a9096';
 
 /** One row, as an editor draws it. `locked` rows are drawn and nothing more. */
 export type EditorRow = {
@@ -90,14 +90,14 @@ export function RegistryEditor({
       try {
         result = await work();
       } catch {
-        setError("The store could not be reached — try that again");
+        setError('The store could not be reached — try that again');
         return;
       }
       if (result.ok) {
         opts?.onOk?.();
         return;
       }
-      setError(result.errors[0]?.message ?? "The store refused that change");
+      setError(result.errors[0]?.message ?? 'The store refused that change');
       if (opts?.rowId) {
         const id = opts.rowId;
         clearLive(id);
@@ -107,19 +107,19 @@ export function RegistryEditor({
   }
 
   function commitName(row: EditorRow, value: string) {
-    const label = value.replace(/\s+/g, " ").trim();
+    const label = value.replace(/\s+/g, ' ').trim();
     if (label === row.label) return;
     const form = new FormData();
-    form.set("id", row.id);
-    form.set("label", label);
+    form.set('id', row.id);
+    form.set('label', label);
     run(() => actions.rename(form), { rowId: row.id });
   }
 
   function commitColour(row: EditorRow, colour: string) {
     if (colour.toLowerCase() === row.colour.toLowerCase()) return;
     const form = new FormData();
-    form.set("id", row.id);
-    form.set("colour", colour);
+    form.set('id', row.id);
+    form.set('colour', colour);
     run(() => actions.recolour(form), { rowId: row.id });
   }
 
@@ -151,12 +151,12 @@ export function RegistryEditor({
     // carries and the owner renames it. Names are the store's own unique constraint, so
     // the placeholder steps aside rather than colliding.
     const taken = new Set(rows.map((row) => row.label));
-    let label = "New state";
+    let label = 'New state';
     for (let n = 2; taken.has(label); n += 1) label = `New state ${n}`;
 
     const form = new FormData();
-    form.set("label", label);
-    form.set("colour", DEFAULT_COLOUR);
+    form.set('label', label);
+    form.set('colour', DEFAULT_COLOUR);
     run(() => actions.add(form), { onOk: () => setJustAdded(true) });
   }
 
@@ -198,8 +198,8 @@ export function RegistryEditor({
             const colour = live[row.id] ?? row.colour;
             return (
               <div
-                className={`edrow${dragId === row.id ? " dragging" : ""}${
-                  overId === row.id ? " dragover" : ""
+                className={`edrow${dragId === row.id ? ' dragging' : ''}${
+                  overId === row.id ? ' dragover' : ''
                 }`}
                 role="row"
                 key={`${row.id}:${row.label}:${refused[row.id] ?? 0}`}
@@ -228,17 +228,17 @@ export function RegistryEditor({
                   draggable
                   onDragStart={(e) => {
                     setDragId(row.id);
-                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.effectAllowed = 'move';
                   }}
                   onDragEnd={() => {
                     setDragId(null);
                     setOverId(null);
                   }}
                   onKeyDown={(e) => {
-                    if (e.key === "ArrowUp") {
+                    if (e.key === 'ArrowUp') {
                       e.preventDefault();
                       moveBy(row.id, -1);
-                    } else if (e.key === "ArrowDown") {
+                    } else if (e.key === 'ArrowDown') {
                       e.preventDefault();
                       moveBy(row.id, 1);
                     }
@@ -253,7 +253,7 @@ export function RegistryEditor({
                   defaultValue={row.label}
                   autoFocus={justAdded && row.id === lastEditable}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
+                    if (e.key === 'Enter') e.currentTarget.blur();
                   }}
                   onBlur={(e) => {
                     setJustAdded(false);
@@ -272,10 +272,7 @@ export function RegistryEditor({
                     }}
                     onBlur={(e) => commitColour(row, e.currentTarget.value)}
                   />
-                  <span
-                    className="edsample"
-                    style={{ background: colour, color: inkFor(colour) }}
-                  >
+                  <span className="edsample" style={{ background: colour, color: inkFor(colour) }}>
                     {row.label}
                   </span>
                 </span>

@@ -1,19 +1,19 @@
-import type { Metadata } from "next";
-import "../../door.css";
-import { SignIn } from "@clerk/nextjs";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { demoSwitchOn } from "@/lib/config";
-import { checkOfficeSession, SIGN_OUT_PATH } from "@/lib/session";
+import type { Metadata } from 'next';
+import '../../door.css';
+import { SignIn } from '@clerk/nextjs';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { demoSwitchOn } from '@/lib/config';
+import { checkOfficeSession, SIGN_OUT_PATH } from '@/lib/session';
 
 // The door reads the provider's session, so it renders per request.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 // The door is a surface of its own, so it carries its own document title rather
 // than inheriting the showroom's. The root layout sets no title template, so this
 // string is used as written.
 export const metadata: Metadata = {
-  title: "Owner sign in | TrueSpec Automotive",
+  title: 'Owner sign in | TrueSpec Automotive',
 };
 
 /**
@@ -29,8 +29,8 @@ export const metadata: Metadata = {
  */
 export default async function OfficeSignInPage() {
   const state = await checkOfficeSession();
-  if (state.status === "active") redirect("/office");
-  if (state.status === "ended") redirect(SIGN_OUT_PATH);
+  if (state.status === 'active') redirect('/office');
+  if (state.status === 'ended') redirect(SIGN_OUT_PATH);
 
   const demoSignupEnabled = demoSwitchOn(process.env.DEMO_SIGNUP_ENABLED);
 

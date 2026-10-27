@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   addCarState,
@@ -6,9 +6,9 @@ import {
   removeCarState,
   renameCarState,
   reorderCarStates,
-} from "@/app/office/actions/state";
-import type { RegistryState } from "@/lib/car-state";
-import { RegistryEditor } from "./registry-editor";
+} from '@/app/office/actions/state';
+import type { RegistryState } from '@/lib/car-state';
+import { RegistryEditor } from './registry-editor';
 
 /* The car-state editor, bound to its registry and its five writes (truth 10, D15).
 
@@ -27,7 +27,7 @@ export function CarStateEditor({ states }: { states: RegistryState[] }) {
         label: row.label,
         colour: row.colour,
         count: row.cars,
-        locked: row.kind === "primary",
+        locked: row.kind === 'primary',
       }))}
       actions={{
         add: addCarState,
@@ -39,8 +39,8 @@ export function CarStateEditor({ states }: { states: RegistryState[] }) {
       note={
         <>
           The four at the top are fixed — the showroom groups by them, and it shows the first three,
-          never Sold. The states below are yours: give a new one a name, drag a row to set the order,
-          and pick its colour. A state a car sits in cannot be deleted.
+          never Sold. The states below are yours: give a new one a name, drag a row to set the
+          order, and pick its colour. A state a car sits in cannot be deleted.
         </>
       }
     />

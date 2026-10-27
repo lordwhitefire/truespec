@@ -28,9 +28,9 @@ const NEEDS_QUOTES = /[",\r\n]/;
 
 /** How one value is put into words: `null` and `undefined` are both the empty cell. */
 function asText(value: CsvValue): string {
-  if (value === null || value === undefined) return "";
+  if (value === null || value === undefined) return '';
   if (value instanceof Date) return value.toISOString();
-  if (typeof value === "object") return JSON.stringify(value);
+  if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
 }
 
@@ -42,7 +42,7 @@ export function csvCell(value: CsvValue): string {
 
 /** One record: cells joined with commas. The line break is the caller's business, not this row's. */
 export function csvRow(values: readonly CsvValue[]): string {
-  return values.map(csvCell).join(",");
+  return values.map(csvCell).join(',');
 }
 
 /**
@@ -50,7 +50,5 @@ export function csvRow(values: readonly CsvValue[]): string {
  * names), including the last.
  */
 export function csvOf(header: readonly string[], rows: readonly (readonly CsvValue[])[]): string {
-  return [csvRow(header), ...rows.map((row) => csvRow(row))]
-    .map((line) => line + "\r\n")
-    .join("");
+  return [csvRow(header), ...rows.map((row) => csvRow(row))].map((line) => line + '\r\n').join('');
 }

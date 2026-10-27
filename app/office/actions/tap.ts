@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { markTapsSeenThrough } from "@/lib/office";
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { markTapsSeenThrough } from '@/lib/office';
 
 /**
  * Mark the taps seen, up to the tap the office has just looked at — the write behind the badge
@@ -19,7 +19,7 @@ import { markTapsSeenThrough } from "@/lib/office";
  */
 export async function markTapsSeenAction(tapId: string): Promise<void> {
   await requireOfficeSession();
-  if (typeof tapId !== "string" || tapId.length === 0) return;
+  if (typeof tapId !== 'string' || tapId.length === 0) return;
   try {
     await markTapsSeenThrough(tapId);
   } catch (error) {
@@ -31,8 +31,8 @@ export async function markTapsSeenAction(tapId: string): Promise<void> {
     //
     // The tap a buyer makes is a different write (`lib/tap.ts`, `storeQueryOnce`, no retry by
     // design): it lives on its own route, which already answers 503 rather than throwing.
-    console.error("[store] write failed — the taps could not be marked seen", error);
+    console.error('[store] write failed — the taps could not be marked seen', error);
     return;
   }
-  revalidatePath("/", "layout");
+  revalidatePath('/', 'layout');
 }

@@ -1,11 +1,11 @@
-import "server-only";
-import { storeQuery } from "./store-guard";
-import { countStock, type StockCounts } from "./counts";
-import { type CostLineInput } from "./money";
-import { sectionOfState, type Section } from "./sections";
-import { stockOverview, type MoneyTotal, type OverviewCar } from "./overview";
-import { type RegistryState } from "./car-state";
-import { type EnquiryRegistryState } from "./enquiry-state";
+import 'server-only';
+import { storeQuery } from './store-guard';
+import { countStock, type StockCounts } from './counts';
+import { type CostLineInput } from './money';
+import { sectionOfState, type Section } from './sections';
+import { stockOverview, type MoneyTotal, type OverviewCar } from './overview';
+import { type RegistryState } from './car-state';
+import { type EnquiryRegistryState } from './enquiry-state';
 
 // Office read layer (plan §6). Costs and profit live here and reach office
 // screens only — the public path never imports this module. The office reads the
@@ -54,7 +54,13 @@ export type OfficeCarView = OfficeCarRow & { section: Section };
  * list: the section comes from the same one rule as everywhere else. Office
  * screens read their state chips from here, never from a map of their own.
  */
-export type OfficeState = { id: string; label: string; section: Section; isNewArrival: boolean; kind?: string };
+export type OfficeState = {
+  id: string;
+  label: string;
+  section: Section;
+  isNewArrival: boolean;
+  kind?: string;
+};
 
 /**
  * A secondary state — a stage the owner tracks, carrying **no section** (D15): a
@@ -80,8 +86,8 @@ function toNumber(v: string | number | null): number | null {
 }
 
 // "2018 Camry XLE" — year + model + trim, the way the office names a sold car.
-function label(row: Pick<OfficeCarRow, "year" | "model" | "trim">): string {
-  return [row.year, row.model, row.trim].filter(Boolean).join(" ");
+function label(row: Pick<OfficeCarRow, 'year' | 'model' | 'trim'>): string {
+  return [row.year, row.model, row.trim].filter(Boolean).join(' ');
 }
 
 // The six-line shape no longer needs expanding: the office's rows carry the stored
@@ -93,7 +99,7 @@ export function toOverviewCar(row: OfficeCarView): OverviewCar {
   // action follows from it; D15: the showroom reads only the primary state). The sale
   // row holds only the money facts, so a car whose state is Sold and a car with a sale
   // row are the same car — the write that sets one sets the other.
-  const sold = row.section === "sold";
+  const sold = row.section === 'sold';
   return {
     section: row.section,
     isNewArrival: row.is_new_arrival,
@@ -136,7 +142,7 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
        LEFT JOIN sale ON sale.car_id = c.id
        LEFT JOIN cost_line cl ON cl.car_id = c.id
       WHERE c.deleted_at IS NULL
-      ORDER BY c.ref, cl.kind`,
+      ORDER BY c.ref, cl.kind`
   )) as RawOfficeRow[];
 
   const byRef = new Map<string, OfficeCarRow>();
@@ -173,7 +179,7 @@ export async function getOfficeCars(): Promise<OfficeCarRow[]> {
 // Only a primary state carries a section (D15); a car's state is always a primary.
 async function sectionsByState(): Promise<Map<string, string>> {
   const rows = (await storeQuery(
-    `SELECT label, section FROM car_state WHERE kind = 'primary'`,
+    `SELECT label, section FROM car_state WHERE kind = 'primary'`
   )) as {
     label: string;
     section: string;
@@ -200,7 +206,7 @@ export async function getOfficeCarViews(): Promise<OfficeCarView[]> {
 export async function getOfficeStates(): Promise<OfficeState[]> {
   const rows = (await storeQuery(
     `SELECT id, label, section, is_new_arrival FROM car_state
-      WHERE kind = 'primary' ORDER BY sort, label`,
+      WHERE kind = 'primary' ORDER BY sort, label`
   )) as { id: string; label: string; section: string; is_new_arrival: boolean }[];
   return rows.map((r) => ({
     id: r.id,
@@ -218,7 +224,7 @@ export async function getOfficeCounts(): Promise<StockCounts> {
 export async function getOfficeDashboard(): Promise<OfficeDashboard> {
   const views = await getOfficeCarViews();
   const overview = stockOverview(views.map(toOverviewCar));
-  const firstSold = views.find((v) => v.section === "sold") ?? null;
+  const firstSold = views.find((v) => v.section === 'sold') ?? null;
   return {
     counts: overview.counts,
     moneyTiedUp: overview.moneyTiedUp,
@@ -235,7 +241,7 @@ export async function getOfficeSecondaryStates(): Promise<OfficeSecondaryState[]
     `SELECT id, label
        FROM car_state
       WHERE kind = 'secondary'
-      ORDER BY sort, label`,
+      ORDER BY sort, label`
   );
   return rows.map((r) => ({ id: r.id, label: r.label }));
 }
@@ -253,7 +259,14 @@ export async function getOfficeSecondaryStates(): Promise<OfficeSecondaryState[]
  */
 export async function getCarStateRegistry(): Promise<RegistryState[]> {
   const rows = await storeQuery<
-    { id: string; label: string; colour: string; kind: string; section: string | null; cars: string | number }[]
+    {
+      id: string;
+      label: string;
+      colour: string;
+      kind: string;
+      section: string | null;
+      cars: string | number;
+    }[]
   >(
     `SELECT c.id, c.label, c.colour, c.kind, c.section,
             CASE WHEN c.kind = 'primary'
@@ -261,14 +274,14 @@ export async function getCarStateRegistry(): Promise<RegistryState[]> {
                  ELSE (SELECT count(*) FROM car_secondary_state WHERE state_id = c.id)
             END AS cars
        FROM car_state c
-      ORDER BY c.kind, c.sort, c.label`,
+      ORDER BY c.kind, c.sort, c.label`
   );
   return rows.map((r) => ({
     id: r.id,
     label: r.label,
     colour: r.colour,
-    kind: r.kind === "primary" ? "primary" : "secondary",
-    section: r.kind === "primary" ? sectionOfState(r.label, r.section) : null,
+    kind: r.kind === 'primary' ? 'primary' : 'secondary',
+    section: r.kind === 'primary' ? sectionOfState(r.label, r.section) : null,
     cars: toNumber(r.cars) ?? 0,
   }));
 }
@@ -293,7 +306,7 @@ export async function getEnquiryStateRegistry(): Promise<EnquiryRegistryState[]>
     `SELECT s.id, s.label, s.colour,
             (SELECT count(*) FROM enquiry WHERE enquiry_state_id = s.id) AS enquiries
        FROM enquiry_state s
-      ORDER BY s.sort, s.label`,
+      ORDER BY s.sort, s.label`
   );
   return rows.map((r) => ({
     id: r.id,
@@ -346,7 +359,7 @@ export async function getEnquiries(): Promise<OfficeEnquiry[]> {
     `SELECT e.id, e.ref, e.name, e.number, e.asked_for, e.note, e.enquiry_state_id, e.created_at,
             (e.pdf_import_id IS NOT NULL) AS imported
        FROM enquiry e
-      ORDER BY e.created_at DESC, e.name, e.id`,
+      ORDER BY e.created_at DESC, e.name, e.id`
   );
   return rows.map((r) => ({
     id: r.id,
@@ -398,7 +411,7 @@ export async function getOfficeEnquiryForEdit(id: string): Promise<OfficeEnquiry
     `SELECT id, ref, name, number, asked_for, note, enquiry_state_id
        FROM enquiry
       WHERE id = $1::uuid`,
-    [id],
+    [id]
   );
 
   const row = rows[0];
@@ -449,7 +462,7 @@ export async function getOfficeActivity(): Promise<OfficeActivityEvent[]> {
        FROM activity_event a
        LEFT JOIN office_user u ON u.id = a.actor_id
       ORDER BY a.at DESC, a.id
-      LIMIT 200`,
+      LIMIT 200`
   );
   return rows.map((r) => ({
     id: r.id,
@@ -513,8 +526,8 @@ export async function getOfficeTaps(limit: number | null = TAP_LIMIT): Promise<O
     `SELECT t.id, t.page, t.car_ref, t.at, c.year, c.model, c.trim
        FROM tap t
        LEFT JOIN car c ON c.ref = t.car_ref
-      ORDER BY t.at DESC, t.id${limit === null ? "" : " LIMIT $1"}`,
-    limit === null ? [] : [limit],
+      ORDER BY t.at DESC, t.id${limit === null ? '' : ' LIMIT $1'}`,
+    limit === null ? [] : [limit]
   );
   return rows.map((r) => ({
     id: r.id,
@@ -568,7 +581,7 @@ export async function getNewOfficeTapCount(): Promise<number> {
   const rows = await storeQuery<{ n: number }[]>(
     `SELECT count(*)::int AS n
        FROM tap
-      WHERE at > COALESCE((SELECT seen_through FROM tap_seen WHERE id), '-infinity'::timestamptz)`,
+      WHERE at > COALESCE((SELECT seen_through FROM tap_seen WHERE id), '-infinity'::timestamptz)`
   );
   return rows[0]?.n ?? 0;
 }
@@ -591,7 +604,7 @@ export async function markTapsSeenThrough(tapId: string): Promise<void> {
      ON CONFLICT (id) DO UPDATE
        SET seen_through = GREATEST(tap_seen.seen_through, EXCLUDED.seen_through),
            updated_at = now()`,
-    [tapId],
+    [tapId]
   );
 }
 
@@ -700,7 +713,7 @@ export async function getOfficeCarForEdit(ref: string): Promise<OfficeCarEdit | 
        LEFT JOIN sale sl ON sl.car_id = c.id
        LEFT JOIN car_state ps ON ps.id = sl.prior_state_id
       WHERE c.ref = $1 AND c.deleted_at IS NULL`,
-    [ref],
+    [ref]
   )) as RawOfficeEdit[];
 
   const r = rows[0];
@@ -757,7 +770,7 @@ export async function getTombstonedCars(): Promise<TombstonedCar[]> {
     `SELECT id, ref, brand, model, trim, deleted_at
        FROM car
       WHERE deleted_at IS NOT NULL
-      ORDER BY deleted_at DESC`,
+      ORDER BY deleted_at DESC`
   )) as {
     id: string;
     ref: string;
@@ -769,7 +782,7 @@ export async function getTombstonedCars(): Promise<TombstonedCar[]> {
   return rows.map((r) => ({
     id: r.id,
     ref: r.ref,
-    name: [r.brand, r.model, r.trim].filter(Boolean).join(" "),
+    name: [r.brand, r.model, r.trim].filter(Boolean).join(' '),
     deletedAt: r.deleted_at,
   }));
 }

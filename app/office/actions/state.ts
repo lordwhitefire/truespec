@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { randomUUID } from "node:crypto";
-import { revalidatePath } from "next/cache";
-import { requireOfficeSession } from "@/lib/session";
-import { storeQuery, storeRefusal } from "@/lib/store-guard";
-import type { EditResult } from "@/lib/edit-result";
+import { randomUUID } from 'node:crypto';
+import { revalidatePath } from 'next/cache';
+import { requireOfficeSession } from '@/lib/session';
+import { storeQuery, storeRefusal } from '@/lib/store-guard';
+import type { EditResult } from '@/lib/edit-result';
 import {
   carStateAddStatement,
   carStateHoldersStatement,
@@ -12,7 +12,7 @@ import {
   carStateRemoveStatement,
   carStateRenameStatement,
   carStateReorderStatement,
-} from "@/lib/car-state";
+} from '@/lib/car-state';
 
 /**
  * The registry's writes — the owner's own secondary states, and only those (truth 10, D15).
@@ -58,22 +58,22 @@ const fail = (field: string, message: string): Refusal => ({
 
 /** A state's name: collapsed to single spaces, non-empty, within the cap. */
 function readLabel(raw: FormDataEntryValue | null): { ok: true; label: string } | Refusal {
-  const value = typeof raw === "string" ? raw.replace(/\s+/g, " ").trim() : "";
-  if (value === "") return fail("label", "Give the state a name");
-  if (value.length > NAME_MAX) return fail("label", `Keep the name to ${NAME_MAX} characters`);
+  const value = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim() : '';
+  if (value === '') return fail('label', 'Give the state a name');
+  if (value.length > NAME_MAX) return fail('label', `Keep the name to ${NAME_MAX} characters`);
   return { ok: true, label: value };
 }
 
 /** A state's colour: the six-digit hex the store's own `car_state_colour_hex` check accepts. */
 function readColour(raw: FormDataEntryValue | null): { ok: true; colour: string } | Refusal {
-  const value = typeof raw === "string" ? raw.trim() : "";
-  if (!HEX.test(value)) return fail("colour", "Pick a colour for the state");
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (!HEX.test(value)) return fail('colour', 'Pick a colour for the state');
   return { ok: true, colour: value };
 }
 
 function readId(raw: FormDataEntryValue | null): { ok: true; id: string } | Refusal {
-  const value = typeof raw === "string" ? raw.trim() : "";
-  if (!UUID.test(value)) return fail("id", "That state could not be identified");
+  const value = typeof raw === 'string' ? raw.trim() : '';
+  if (!UUID.test(value)) return fail('id', 'That state could not be identified');
   return { ok: true, id: value };
 }
 
@@ -81,25 +81,25 @@ function readId(raw: FormDataEntryValue | null): { ok: true; id: string } | Refu
 function refusal(error: unknown): { code?: string; constraint?: string } {
   const e = error as { code?: unknown; constraint?: unknown } | null;
   return {
-    code: typeof e?.code === "string" ? e.code : undefined,
-    constraint: typeof e?.constraint === "string" ? e.constraint : undefined,
+    code: typeof e?.code === 'string' ? e.code : undefined,
+    constraint: typeof e?.constraint === 'string' ? e.constraint : undefined,
   };
 }
 
 /** The office pages a registry write changes. Public pages never read the owner's states. */
 function revalidateStatePaths(): void {
-  revalidatePath("/office/settings");
-  revalidatePath("/office/car");
-  revalidatePath("/office/inventory");
-  revalidatePath("/office");
+  revalidatePath('/office/settings');
+  revalidatePath('/office/car');
+  revalidatePath('/office/inventory');
+  revalidatePath('/office');
 }
 
 export async function addCarState(form: FormData): Promise<StateEditResult> {
   await requireOfficeSession();
 
-  const label = readLabel(form.get("label"));
+  const label = readLabel(form.get('label'));
   if (!label.ok) return label;
-  const colour = readColour(form.get("colour"));
+  const colour = readColour(form.get('colour'));
   if (!colour.ok) return colour;
 
   const { text, params } = carStateAddStatement({
@@ -112,10 +112,10 @@ export async function addCarState(form: FormData): Promise<StateEditResult> {
     await storeQuery(text, params);
   } catch (error) {
     const { code } = refusal(error);
-    if (code === "23505") {
-      return fail("label", "Another state already has that name — names are shared by both kinds");
+    if (code === '23505') {
+      return fail('label', 'Another state already has that name — names are shared by both kinds');
     }
-    return storeRefusal("label", "That state could not be added", error);
+    return storeRefusal('label', 'That state could not be added', error);
   }
 
   revalidateStatePaths();
@@ -125,9 +125,9 @@ export async function addCarState(form: FormData): Promise<StateEditResult> {
 export async function renameCarState(form: FormData): Promise<StateEditResult> {
   await requireOfficeSession();
 
-  const id = readId(form.get("id"));
+  const id = readId(form.get('id'));
   if (!id.ok) return id;
-  const label = readLabel(form.get("label"));
+  const label = readLabel(form.get('label'));
   if (!label.ok) return label;
 
   const { text, params } = carStateRenameStatement({ id: id.id, label: label.label });
@@ -136,10 +136,10 @@ export async function renameCarState(form: FormData): Promise<StateEditResult> {
     await storeQuery(text, params);
   } catch (error) {
     const { code } = refusal(error);
-    if (code === "23505") {
-      return fail("label", "Another state already has that name — names are shared by both kinds");
+    if (code === '23505') {
+      return fail('label', 'Another state already has that name — names are shared by both kinds');
     }
-    return storeRefusal("label", "That state could not be renamed", error);
+    return storeRefusal('label', 'That state could not be renamed', error);
   }
 
   revalidateStatePaths();
@@ -149,9 +149,9 @@ export async function renameCarState(form: FormData): Promise<StateEditResult> {
 export async function recolourCarState(form: FormData): Promise<StateEditResult> {
   await requireOfficeSession();
 
-  const id = readId(form.get("id"));
+  const id = readId(form.get('id'));
   if (!id.ok) return id;
-  const colour = readColour(form.get("colour"));
+  const colour = readColour(form.get('colour'));
   if (!colour.ok) return colour;
 
   const { text, params } = carStateRecolourStatement({ id: id.id, colour: colour.colour });
@@ -159,7 +159,7 @@ export async function recolourCarState(form: FormData): Promise<StateEditResult>
   try {
     await storeQuery(text, params);
   } catch (error) {
-    return storeRefusal("colour", "That colour could not be saved", error);
+    return storeRefusal('colour', 'That colour could not be saved', error);
   }
 
   revalidateStatePaths();
@@ -169,8 +169,13 @@ export async function recolourCarState(form: FormData): Promise<StateEditResult>
 export async function reorderCarStates(ids: string[]): Promise<StateEditResult> {
   await requireOfficeSession();
 
-  if (!Array.isArray(ids) || ids.length === 0 || ids.length > ORDER_MAX || !ids.every((id) => UUID.test(id))) {
-    return fail("order", "That order could not be read");
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    ids.length > ORDER_MAX ||
+    !ids.every((id) => UUID.test(id))
+  ) {
+    return fail('order', 'That order could not be read');
   }
 
   const { text, params } = carStateReorderStatement({ ids });
@@ -178,7 +183,7 @@ export async function reorderCarStates(ids: string[]): Promise<StateEditResult> 
   try {
     await storeQuery(text, params);
   } catch (error) {
-    return storeRefusal("order", "That order could not be saved", error);
+    return storeRefusal('order', 'That order could not be saved', error);
   }
 
   revalidateStatePaths();
@@ -188,8 +193,8 @@ export async function reorderCarStates(ids: string[]): Promise<StateEditResult> 
 export async function removeCarState(id: string): Promise<StateEditResult> {
   await requireOfficeSession();
 
-  if (typeof id !== "string" || !UUID.test(id)) {
-    return fail("id", "That state could not be identified");
+  if (typeof id !== 'string' || !UUID.test(id)) {
+    return fail('id', 'That state could not be identified');
   }
 
   try {
@@ -197,24 +202,24 @@ export async function removeCarState(id: string): Promise<StateEditResult> {
     const rows = await storeQuery<{ label: string }[]>(text, params);
     // A state that is not there is not a change: the delete has already happened, so a repeat
     // reports the same thing it would the first time (D18).
-    if (!rows[0]) return fail("id", "That state is no longer in the office");
+    if (!rows[0]) return fail('id', 'That state is no longer in the office');
   } catch (error) {
     const { code } = refusal(error);
     // The store's own refusal (truth 10). Its number, not the screen's. Postgres reports an
     // `ON DELETE RESTRICT` foreign key as 23001 (restrict_violation) and a `NO ACTION` one as
     // 23503 (foreign_key_violation); both are the same refusal and both are caught here.
-    if (code === "23001" || code === "23503") {
+    if (code === '23001' || code === '23503') {
       const { text, params } = carStateHoldersStatement({ id });
       const held = await storeQuery<{ holders: string | number }[]>(text, params);
       const holders = Number(held[0]?.holders ?? 0);
       return fail(
-        "id",
+        'id',
         holders > 0
-          ? `${holders} ${holders === 1 ? "car" : "cars"} still carry this state — move ${holders === 1 ? "it" : "them"} out first`
-          : "A car still carries this state, so the store won't delete it",
+          ? `${holders} ${holders === 1 ? 'car' : 'cars'} still carry this state — move ${holders === 1 ? 'it' : 'them'} out first`
+          : "A car still carries this state, so the store won't delete it"
       );
     }
-    return storeRefusal("id", "That state could not be removed", error);
+    return storeRefusal('id', 'That state could not be removed', error);
   }
 
   revalidateStatePaths();

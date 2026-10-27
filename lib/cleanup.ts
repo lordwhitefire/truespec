@@ -1,7 +1,7 @@
-import "server-only";
-import { storeQueryMain } from "./store-guard";
-import { sanityClient } from "./sanity";
-import { unreferencedLitter } from "./cleanup-litter";
+import 'server-only';
+import { storeQueryMain } from './store-guard';
+import { sanityClient } from './sanity';
+import { unreferencedLitter } from './cleanup-litter';
 
 // Cleanup readiness — what is waiting to be cleared, as it stands.
 //
@@ -46,7 +46,7 @@ export type EnquiryAtItsYear = {
 
 /** A row that holds a third-party address instead of an asset reference — not ours to clear. */
 export type RowHoldingAnAddress = {
-  rowKind: "car_photo" | "enquiry_pdf";
+  rowKind: 'car_photo' | 'enquiry_pdf';
   rowId: string;
   ref: string | null;
   address: string;
@@ -55,7 +55,7 @@ export type RowHoldingAnAddress = {
 
 /** A row that names an asset the store does not hold — the missing-file case. */
 export type RowPointingAtAMissingAsset = {
-  rowKind: "car_photo" | "enquiry_pdf";
+  rowKind: 'car_photo' | 'enquiry_pdf';
   rowId: string;
   ref: string | null;
   assetId: string;
@@ -95,14 +95,14 @@ type RawDeletedCar = {
 };
 
 type RawReferencingRow = {
-  row_kind: "car_photo" | "enquiry_pdf";
+  row_kind: 'car_photo' | 'enquiry_pdf';
   row_id: string;
   ref: string | null;
   asset_id: string;
 };
 
 type RawAddressRow = {
-  row_kind: "car_photo" | "enquiry_pdf";
+  row_kind: 'car_photo' | 'enquiry_pdf';
   row_id: string;
   ref: string | null;
   address: string;
@@ -133,7 +133,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
             EXISTS (SELECT 1 FROM sale WHERE sale.car_id = c.id) AS sold
        FROM car c
       WHERE c.deleted_at IS NOT NULL
-      ORDER BY c.deleted_at`,
+      ORDER BY c.deleted_at`
   )) as RawDeletedCar[];
 
   // 2. Enquiries at their year. The clock is the row's own created_at.
@@ -142,7 +142,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
             (now()::date - created_at::date) AS age_days
        FROM enquiry
       WHERE created_at <= now() - interval '1 year'
-      ORDER BY created_at`,
+      ORDER BY created_at`
   )) as {
     id: string;
     ref: string;
@@ -163,7 +163,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
      SELECT 'enquiry_pdf', ep.id, NULL, ep.sanity_asset_id
        FROM enquiry_pdf ep
       WHERE ep.sanity_asset_id !~* '^https?://'
-      ORDER BY 1, 3`,
+      ORDER BY 1, 3`
   )) as RawReferencingRow[];
 
   const addressRows = (await storeQueryMain(
@@ -174,12 +174,12 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
      SELECT 'enquiry_pdf', ep.id, NULL, ep.sanity_asset_id, NULL
        FROM enquiry_pdf ep
       WHERE ep.sanity_asset_id ~* '^https?://'
-      ORDER BY 1, 3, 4`,
+      ORDER BY 1, 3, 4`
   )) as RawAddressRow[];
 
   // 5. The two exceptions — the machine's own litter. Nothing here is a record.
   const authRows = (await storeQueryMain(
-    `SELECT count(*)::int AS stale FROM auth_attempt WHERE at < now() - interval '90 days'`,
+    `SELECT count(*)::int AS stale FROM auth_attempt WHERE at < now() - interval '90 days'`
   )) as { stale: number }[];
 
   // The asset store is a second read, and it can fail (network, token). A failed read is reported as
@@ -189,7 +189,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
   let note: string | null = null;
   try {
     assets = (await sanityClient().fetch(
-      `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label}`,
+      `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]]{_id, _type, originalFilename, size, label}`
     )) as RawAsset[];
     readable = true;
   } catch (err) {
@@ -203,7 +203,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
   return {
     deletedCars: deletedRows.map((r) => ({
       ref: r.ref,
-      name: [r.year, r.model, r.trim].filter(Boolean).join(" "),
+      name: [r.year, r.model, r.trim].filter(Boolean).join(' '),
       deletedAt: iso(r.deleted_at),
       ageDays: r.age_days,
       photos: r.photos,
@@ -245,7 +245,7 @@ export async function listWaitingToBeCleared(): Promise<WaitingToBeCleared> {
           bytes: a.size ?? 0,
           label: a.label,
         })),
-        referenced,
+        referenced
       ),
       staleAuthAttempts: authRows[0]?.stale ?? 0,
     },

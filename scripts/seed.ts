@@ -1,9 +1,9 @@
-import { readFileSync } from "node:fs";
-import { config as loadEnv } from "dotenv";
-import { Client } from "pg";
-import { CHANGE_CHECK_VERSION, carChangeCheck, enquiryChangeCheck } from "../lib/change-check";
+import { readFileSync } from 'node:fs';
+import { config as loadEnv } from 'dotenv';
+import { Client } from 'pg';
+import { CHANGE_CHECK_VERSION, carChangeCheck, enquiryChangeCheck } from '../lib/change-check';
 
-loadEnv({ path: ".env.local" });
+loadEnv({ path: '.env.local' });
 
 const N = (naira: number) => Math.round(naira * 100); // naira -> kobo (integer)
 
@@ -29,18 +29,18 @@ type DemoCar = {
   was: number; // kobo, 0 = no "was" price
   // The car's one primary state (D15). One of the four fixed primaries —
   // Available | On Order | Landed | Sold. This is what the showroom groups by.
-  primary: "Available" | "On Order" | "Landed" | "Sold";
+  primary: 'Available' | 'On Order' | 'Landed' | 'Sold';
   // The owner's own stage, where the recipe has one — the stage the fleet used to be
   // described by (On the way | At port | Cleared). A car may carry any number of
   // secondary states; the demo uses at most one. A secondary carries no section and
   // is never shown to a buyer.
-  secondary?: "On the way" | "At port" | "Cleared";
+  secondary?: 'On the way' | 'At port' | 'Cleared';
   features: string[];
   arrivalNote?: string;
   sold?: string; // ISO date — the sale row, alongside the Sold primary
   // The primary state the car held before it sold (truth 5): un-marking returns it to
   // that state. Required whenever `sold` is set — the sale's own `prior_state_id`.
-  prior?: "Available" | "On Order" | "Landed";
+  prior?: 'Available' | 'On Order' | 'Landed';
   // Cost lines deliberately not yet entered. A car still on the water has not paid
   // Nigerian trucking or filled its tank; TS-1018 is furthest out, so neither.
   missingCosts?: readonly string[];
@@ -48,34 +48,407 @@ type DemoCar = {
 
 const DEMO: DemoCar[] = [
   // Available — on the lot, fully costed (7)
-  { ref: "TS-1001", brand: "Toyota", model: "Camry", trim: "XSE V6", year: 2021, exterior: "Obsidian black", interior: "Black", mileage: 31000, price: N(34_500_000), was: 0, primary: "Available", features: ["Panoramic roof", "Leather upholstery", "Heated and ventilated front seats", "Apple CarPlay and Android Auto", "JBL 9-speaker audio", "Adaptive cruise control", "Quad exhaust tips"] },
-  { ref: "TS-1003", brand: "Lexus", model: "RX 350", trim: "F Sport", year: 2020, exterior: "Sonic grey", interior: "Black", mileage: 41000, price: N(52_000_000), was: 0, primary: "Available", features: ["F Sport body kit", "20-inch alloy wheels", "Adaptive variable suspension", "Heated and ventilated front seats", "Lexus Premium Sound", "Panoramic roof", "Power tailgate"] },
-  { ref: "TS-1005", brand: "BMW", model: "X5", trim: "xDrive40i", year: 2021, exterior: "Alpine white", interior: "Black", mileage: 34000, price: N(88_000_000), was: 0, primary: "Available", features: ["M Sport package", "Head-up display", "Parking Assistant", "Heated front seats", "Harman Kardon audio", "Panoramic roof", "Adaptive M suspension"] },
-  { ref: "TS-1007", brand: "Honda", model: "Accord", trim: "Touring", year: 2021, exterior: "Graphite", interior: "Black", mileage: 29000, price: N(38_000_000), was: 0, primary: "Available", features: ["Wireless charging", "Adaptive cruise control", "Sunroof", "Heated front seats", "12-speaker audio", "Head-up display", "Blind spot monitoring"] },
-  { ref: "TS-1008", brand: "Toyota", model: "RAV4 Prime", trim: "SE", year: 2022, exterior: "Wind chill pearl", interior: "Black", mileage: 12000, price: N(45_500_000), was: N(50_900_000), primary: "Available", features: ["Plug-in hybrid", "18-inch alloy wheels", "Heated front seats", "Power tailgate", "Blind spot monitoring", "Qi wireless charging", "JBL audio"] },
-  { ref: "TS-1011", brand: "Mercedes-Benz", model: "C 300", trim: "AMG Line", year: 2018, exterior: "Obsidian black", interior: "Black", mileage: 71000, price: N(29_500_000), was: N(33_000_000), primary: "Available", features: ["AMG Line exterior", "Dual-zone climate", "Sunroof", "Garage door opener", "Heated front seats", "Burmester audio", "Keyless entry"] },
-  { ref: "TS-1012", brand: "BMW", model: "X3", trim: "xDrive30i", year: 2019, exterior: "Santorini black", interior: "Black", mileage: 58000, price: N(41_000_000), was: 0, primary: "Available", features: ["Adaptive suspension", "Panoramic roof", "Heated front seats", "Harman Kardon audio", "LED headlights", "Parking Assistant", "Leather upholstery"] },
+  {
+    ref: 'TS-1001',
+    brand: 'Toyota',
+    model: 'Camry',
+    trim: 'XSE V6',
+    year: 2021,
+    exterior: 'Obsidian black',
+    interior: 'Black',
+    mileage: 31000,
+    price: N(34_500_000),
+    was: 0,
+    primary: 'Available',
+    features: [
+      'Panoramic roof',
+      'Leather upholstery',
+      'Heated and ventilated front seats',
+      'Apple CarPlay and Android Auto',
+      'JBL 9-speaker audio',
+      'Adaptive cruise control',
+      'Quad exhaust tips',
+    ],
+  },
+  {
+    ref: 'TS-1003',
+    brand: 'Lexus',
+    model: 'RX 350',
+    trim: 'F Sport',
+    year: 2020,
+    exterior: 'Sonic grey',
+    interior: 'Black',
+    mileage: 41000,
+    price: N(52_000_000),
+    was: 0,
+    primary: 'Available',
+    features: [
+      'F Sport body kit',
+      '20-inch alloy wheels',
+      'Adaptive variable suspension',
+      'Heated and ventilated front seats',
+      'Lexus Premium Sound',
+      'Panoramic roof',
+      'Power tailgate',
+    ],
+  },
+  {
+    ref: 'TS-1005',
+    brand: 'BMW',
+    model: 'X5',
+    trim: 'xDrive40i',
+    year: 2021,
+    exterior: 'Alpine white',
+    interior: 'Black',
+    mileage: 34000,
+    price: N(88_000_000),
+    was: 0,
+    primary: 'Available',
+    features: [
+      'M Sport package',
+      'Head-up display',
+      'Parking Assistant',
+      'Heated front seats',
+      'Harman Kardon audio',
+      'Panoramic roof',
+      'Adaptive M suspension',
+    ],
+  },
+  {
+    ref: 'TS-1007',
+    brand: 'Honda',
+    model: 'Accord',
+    trim: 'Touring',
+    year: 2021,
+    exterior: 'Graphite',
+    interior: 'Black',
+    mileage: 29000,
+    price: N(38_000_000),
+    was: 0,
+    primary: 'Available',
+    features: [
+      'Wireless charging',
+      'Adaptive cruise control',
+      'Sunroof',
+      'Heated front seats',
+      '12-speaker audio',
+      'Head-up display',
+      'Blind spot monitoring',
+    ],
+  },
+  {
+    ref: 'TS-1008',
+    brand: 'Toyota',
+    model: 'RAV4 Prime',
+    trim: 'SE',
+    year: 2022,
+    exterior: 'Wind chill pearl',
+    interior: 'Black',
+    mileage: 12000,
+    price: N(45_500_000),
+    was: N(50_900_000),
+    primary: 'Available',
+    features: [
+      'Plug-in hybrid',
+      '18-inch alloy wheels',
+      'Heated front seats',
+      'Power tailgate',
+      'Blind spot monitoring',
+      'Qi wireless charging',
+      'JBL audio',
+    ],
+  },
+  {
+    ref: 'TS-1011',
+    brand: 'Mercedes-Benz',
+    model: 'C 300',
+    trim: 'AMG Line',
+    year: 2018,
+    exterior: 'Obsidian black',
+    interior: 'Black',
+    mileage: 71000,
+    price: N(29_500_000),
+    was: N(33_000_000),
+    primary: 'Available',
+    features: [
+      'AMG Line exterior',
+      'Dual-zone climate',
+      'Sunroof',
+      'Garage door opener',
+      'Heated front seats',
+      'Burmester audio',
+      'Keyless entry',
+    ],
+  },
+  {
+    ref: 'TS-1012',
+    brand: 'BMW',
+    model: 'X3',
+    trim: 'xDrive30i',
+    year: 2019,
+    exterior: 'Santorini black',
+    interior: 'Black',
+    mileage: 58000,
+    price: N(41_000_000),
+    was: 0,
+    primary: 'Available',
+    features: [
+      'Adaptive suspension',
+      'Panoramic roof',
+      'Heated front seats',
+      'Harman Kardon audio',
+      'LED headlights',
+      'Parking Assistant',
+      'Leather upholstery',
+    ],
+  },
 
   // On Order / On the way — bought, on the water, an arrival note each (3)
-  { ref: "TS-1013", brand: "Range Rover", model: "Sport", trim: "HSE", year: 2021, exterior: "Fuji white", interior: "Black", mileage: 0, price: N(115_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: November", missingCosts: ["full_tank"], features: ["Meridian Signature audio", "Terrain Response", "Adaptive air suspension", "Panoramic roof", "Heated and ventilated front seats", "Power tailgate", "21-inch alloy wheels"] },
-  { ref: "TS-1014", brand: "Porsche", model: "Macan", trim: "S", year: 2021, exterior: "Gentian blue", interior: "Black", mileage: 0, price: N(96_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: December", features: ["Sport Chrono package", "Bose Surround Sound", "20-inch alloy wheels", "Adaptive air suspension", "Heated front seats", "Power panoramic roof", "Lane change assist"] },
-  { ref: "TS-1018", brand: "BMW", model: "X7", trim: "xDrive40i", year: 2022, exterior: "Alpine white", interior: "Black", mileage: 0, price: N(128_000_000), was: 0, primary: "On Order", secondary: "On the way", arrivalNote: "Expected arrival: January", missingCosts: ["trucking_ng", "full_tank"], features: ["Six seats with captain's chairs", "Panoramic roof", "Harman Kardon audio", "Heated front seats", "Driving Assistance Pro", "Air suspension", "Power tailgate"] },
+  {
+    ref: 'TS-1013',
+    brand: 'Range Rover',
+    model: 'Sport',
+    trim: 'HSE',
+    year: 2021,
+    exterior: 'Fuji white',
+    interior: 'Black',
+    mileage: 0,
+    price: N(115_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'On the way',
+    arrivalNote: 'Expected arrival: November',
+    missingCosts: ['full_tank'],
+    features: [
+      'Meridian Signature audio',
+      'Terrain Response',
+      'Adaptive air suspension',
+      'Panoramic roof',
+      'Heated and ventilated front seats',
+      'Power tailgate',
+      '21-inch alloy wheels',
+    ],
+  },
+  {
+    ref: 'TS-1014',
+    brand: 'Porsche',
+    model: 'Macan',
+    trim: 'S',
+    year: 2021,
+    exterior: 'Gentian blue',
+    interior: 'Black',
+    mileage: 0,
+    price: N(96_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'On the way',
+    arrivalNote: 'Expected arrival: December',
+    features: [
+      'Sport Chrono package',
+      'Bose Surround Sound',
+      '20-inch alloy wheels',
+      'Adaptive air suspension',
+      'Heated front seats',
+      'Power panoramic roof',
+      'Lane change assist',
+    ],
+  },
+  {
+    ref: 'TS-1018',
+    brand: 'BMW',
+    model: 'X7',
+    trim: 'xDrive40i',
+    year: 2022,
+    exterior: 'Alpine white',
+    interior: 'Black',
+    mileage: 0,
+    price: N(128_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'On the way',
+    arrivalNote: 'Expected arrival: January',
+    missingCosts: ['trucking_ng', 'full_tank'],
+    features: [
+      "Six seats with captain's chairs",
+      'Panoramic roof',
+      'Harman Kardon audio',
+      'Heated front seats',
+      'Driving Assistance Pro',
+      'Air suspension',
+      'Power tailgate',
+    ],
+  },
 
   // On Order / At port — cleared customs paperwork, not yet released (2)
-  { ref: "TS-1015", brand: "Toyota", model: "Land Cruiser Prado", trim: "VX", year: 2022, exterior: "Alpine white", interior: "Tan", mileage: 0, price: N(92_000_000), was: 0, primary: "On Order", secondary: "At port", arrivalNote: "Expected arrival: January", features: ["Full-time four wheel drive", "Low range", "Leather upholstery", "Powered tailgate", "Moonroof", "Heated front seats", "Multi-terrain select"] },
-  { ref: "TS-1016", brand: "Chevrolet", model: "Tahoe", trim: "LT", year: 2020, exterior: "Summit white", interior: "Black", mileage: 0, price: N(74_000_000), was: 0, primary: "On Order", secondary: "At port", arrivalNote: "Expected arrival: November", features: ["Rear entertainment system", "Third row seats", "Power liftgate", "Heated second row seats", "Bose audio", "Safety alert system", "Remote start"] },
+  {
+    ref: 'TS-1015',
+    brand: 'Toyota',
+    model: 'Land Cruiser Prado',
+    trim: 'VX',
+    year: 2022,
+    exterior: 'Alpine white',
+    interior: 'Tan',
+    mileage: 0,
+    price: N(92_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'At port',
+    arrivalNote: 'Expected arrival: January',
+    features: [
+      'Full-time four wheel drive',
+      'Low range',
+      'Leather upholstery',
+      'Powered tailgate',
+      'Moonroof',
+      'Heated front seats',
+      'Multi-terrain select',
+    ],
+  },
+  {
+    ref: 'TS-1016',
+    brand: 'Chevrolet',
+    model: 'Tahoe',
+    trim: 'LT',
+    year: 2020,
+    exterior: 'Summit white',
+    interior: 'Black',
+    mileage: 0,
+    price: N(74_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'At port',
+    arrivalNote: 'Expected arrival: November',
+    features: [
+      'Rear entertainment system',
+      'Third row seats',
+      'Power liftgate',
+      'Heated second row seats',
+      'Bose audio',
+      'Safety alert system',
+      'Remote start',
+    ],
+  },
 
   // On Order / Cleared — the completed gap between At port and Landed (1)
-  { ref: "TS-1017", brand: "Ford", model: "F-150", trim: "Lariat", year: 2021, exterior: "Oxford white", interior: "Black", mileage: 0, price: N(68_000_000), was: 0, primary: "On Order", secondary: "Cleared", arrivalNote: "Expected arrival: November", features: ["Pro Power Onboard generator", "Tow package", "Four wheel drive", "B&O audio", "Heated and cooled front seats", "Bed liner", "360-degree camera"] },
+  {
+    ref: 'TS-1017',
+    brand: 'Ford',
+    model: 'F-150',
+    trim: 'Lariat',
+    year: 2021,
+    exterior: 'Oxford white',
+    interior: 'Black',
+    mileage: 0,
+    price: N(68_000_000),
+    was: 0,
+    primary: 'On Order',
+    secondary: 'Cleared',
+    arrivalNote: 'Expected arrival: November',
+    features: [
+      'Pro Power Onboard generator',
+      'Tow package',
+      'Four wheel drive',
+      'B&O audio',
+      'Heated and cooled front seats',
+      'Bed liner',
+      '360-degree camera',
+    ],
+  },
 
   // Landed — this year's group (Landed carries is_new_arrival) (3)
-  { ref: "TS-1019", brand: "Lexus", model: "RX 350", trim: "350", year: 2019, exterior: "Celestial silver", interior: "Black", mileage: 64000, price: N(44_500_000), was: 0, primary: "Landed", features: ["Leather upholstery", "Heated and ventilated front seats", "Power tailgate", "Blind spot monitoring", "LED headlights", "Roof rails", "Dual-zone climate"] },
-  { ref: "TS-1020", brand: "Honda", model: "CR-V", trim: "EX-L", year: 2020, exterior: "Platinum white", interior: "Black", mileage: 48000, price: N(36_000_000), was: 0, primary: "Landed", features: ["Leather upholstery", "Panoramic sunroof", "Power tailgate", "Heated front seats", "Honda Sensing safety suite", "Wireless charging", "12-speaker audio"] },
-  { ref: "TS-1023", brand: "Mercedes-Benz", model: "E 350", trim: "350", year: 2020, exterior: "Obsidian black", interior: "Tan", mileage: 39000, price: N(48_000_000), was: N(52_500_000), primary: "Landed", features: ["Burmester 3D audio", "Ambient lighting", "Heated front seats", "Wireless charging", "Air suspension", "Panoramic sunroof", "Driver Assistance package"] },
+  {
+    ref: 'TS-1019',
+    brand: 'Lexus',
+    model: 'RX 350',
+    trim: '350',
+    year: 2019,
+    exterior: 'Celestial silver',
+    interior: 'Black',
+    mileage: 64000,
+    price: N(44_500_000),
+    was: 0,
+    primary: 'Landed',
+    features: [
+      'Leather upholstery',
+      'Heated and ventilated front seats',
+      'Power tailgate',
+      'Blind spot monitoring',
+      'LED headlights',
+      'Roof rails',
+      'Dual-zone climate',
+    ],
+  },
+  {
+    ref: 'TS-1020',
+    brand: 'Honda',
+    model: 'CR-V',
+    trim: 'EX-L',
+    year: 2020,
+    exterior: 'Platinum white',
+    interior: 'Black',
+    mileage: 48000,
+    price: N(36_000_000),
+    was: 0,
+    primary: 'Landed',
+    features: [
+      'Leather upholstery',
+      'Panoramic sunroof',
+      'Power tailgate',
+      'Heated front seats',
+      'Honda Sensing safety suite',
+      'Wireless charging',
+      '12-speaker audio',
+    ],
+  },
+  {
+    ref: 'TS-1023',
+    brand: 'Mercedes-Benz',
+    model: 'E 350',
+    trim: '350',
+    year: 2020,
+    exterior: 'Obsidian black',
+    interior: 'Tan',
+    mileage: 39000,
+    price: N(48_000_000),
+    was: N(52_500_000),
+    primary: 'Landed',
+    features: [
+      'Burmester 3D audio',
+      'Ambient lighting',
+      'Heated front seats',
+      'Wireless charging',
+      'Air suspension',
+      'Panoramic sunroof',
+      'Driver Assistance package',
+    ],
+  },
 
   // Sold — under D15 the car's primary state is Sold (a section of its own), and the
   // sale row records the sale itself. The showroom never shows a Sold car.
-  { ref: "TS-1025", brand: "Honda", model: "Civic", trim: "EX", year: 2021, exterior: "Sonic grey", interior: "Black", mileage: 42000, price: N(28_000_000), was: 0, primary: "Sold", sold: "2026-09-15", prior: "Landed", features: ["Adaptive cruise control", "Lane keeping assist", "Apple CarPlay and Android Auto", "Heated front seats", "Sunroof", "Blind spot monitoring", "LED headlights"] },
+  {
+    ref: 'TS-1025',
+    brand: 'Honda',
+    model: 'Civic',
+    trim: 'EX',
+    year: 2021,
+    exterior: 'Sonic grey',
+    interior: 'Black',
+    mileage: 42000,
+    price: N(28_000_000),
+    was: 0,
+    primary: 'Sold',
+    sold: '2026-09-15',
+    prior: 'Landed',
+    features: [
+      'Adaptive cruise control',
+      'Lane keeping assist',
+      'Apple CarPlay and Android Auto',
+      'Heated front seats',
+      'Sunroof',
+      'Blind spot monitoring',
+      'LED headlights',
+    ],
+  },
 ];
 
 // The refs the previous seed wrote — TS-1001…TS-1025. They are demonstration rows
@@ -91,17 +464,18 @@ function nairaLines(priceKobo: number, seed: number) {
   const truckNg = 32_000_000 + (seed % 4) * 3_000_000; // ₦320k–₦410k (kobo)
   const ngn = fullTank + truckNg;
   const nairaBudget = Math.max(Math.round(priceKobo * 0.72) - ngn, 10_000_000);
-  const kinds = ["purchase_price", "shipping", "clearing", "trucking_usa"] as const;
+  const kinds = ['purchase_price', 'shipping', 'clearing', 'trucking_usa'] as const;
   const parts = [0.62, 0.2, 0.12, 0.06];
   const lines: { kind: string; amountMinor: number }[] = [];
   let allocated = 0;
   kinds.forEach((kind, i) => {
-    const target = i === kinds.length - 1 ? nairaBudget - allocated : Math.round(nairaBudget * parts[i]);
+    const target =
+      i === kinds.length - 1 ? nairaBudget - allocated : Math.round(nairaBudget * parts[i]);
     allocated += target;
     lines.push({ kind, amountMinor: target });
   });
-  lines.push({ kind: "trucking_ng", amountMinor: truckNg });
-  lines.push({ kind: "full_tank", amountMinor: fullTank });
+  lines.push({ kind: 'trucking_ng', amountMinor: truckNg });
+  lines.push({ kind: 'full_tank', amountMinor: fullTank });
   return lines;
 }
 
@@ -115,8 +489,24 @@ function nairaLines(priceKobo: number, seed: number) {
 // writes it with. It is the recipe's, never the customer's, and it is what makes a
 // second run leave this enquiry alone rather than write it again (decision 6).
 const ENQUIRIES = [
-  { handle: "demo-enquiry-01", name: "Chidi O.", number: "+2348030000001", askedFor: "a clean automatic saloon under ₦10 million — anything you have", note: "Asked about servicing history", state: "New", date: "2025-08-14" },
-  { handle: "demo-enquiry-02", name: "Aisha B.", number: "+2348030000002", askedFor: "the Range Rover Sport when it lands", note: "Wants to see the Sport when it lands", state: "Talking", date: "2026-10-01" },
+  {
+    handle: 'demo-enquiry-01',
+    name: 'Chidi O.',
+    number: '+2348030000001',
+    askedFor: 'a clean automatic saloon under ₦10 million — anything you have',
+    note: 'Asked about servicing history',
+    state: 'New',
+    date: '2025-08-14',
+  },
+  {
+    handle: 'demo-enquiry-02',
+    name: 'Aisha B.',
+    number: '+2348030000002',
+    askedFor: 'the Range Rover Sport when it lands',
+    note: 'Wants to see the Sport when it lands',
+    state: 'Talking',
+    date: '2026-10-01',
+  },
 ];
 
 // Written by the photo upload (Task 12): the Sanity asset id and the recorded
@@ -132,42 +522,54 @@ type EnquiryImport = {
   sanityAssetId: string;
   rowsTotal: number;
   importedAt: string;
-  rows: { name: string; phone: string; askedFor: string; note: string; date: string; state: string }[];
+  rows: {
+    name: string;
+    phone: string;
+    askedFor: string;
+    note: string;
+    date: string;
+    state: string;
+  }[];
 };
 
 async function main() {
   const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
-  if (!connectionString) throw new Error("DATABASE_URL is not set (expected in .env.local).");
+  if (!connectionString) throw new Error('DATABASE_URL is not set (expected in .env.local).');
   const client = new Client({ connectionString });
   await client.connect();
 
-  const photos: PhotoManifest = JSON.parse(readFileSync("scripts/demo-photo-manifest.json", "utf8"));
-  const imported: EnquiryImport = JSON.parse(readFileSync("scripts/demo-enquiry-import.json", "utf8"));
+  const photos: PhotoManifest = JSON.parse(
+    readFileSync('scripts/demo-photo-manifest.json', 'utf8')
+  );
+  const imported: EnquiryImport = JSON.parse(
+    readFileSync('scripts/demo-enquiry-import.json', 'utf8')
+  );
 
   try {
     const stateRows = await client.query<{ id: string; label: string; kind: string }>(
-      "SELECT id, label, kind FROM car_state",
+      'SELECT id, label, kind FROM car_state'
     );
     const stateByLabel = new Map(stateRows.rows.map((r) => [r.label, r]));
     const enquiryStateRows = await client.query<{ id: string; label: string }>(
-      "SELECT id, label FROM enquiry_state",
+      'SELECT id, label FROM enquiry_state'
     );
     const enquiryStateByLabel = new Map(enquiryStateRows.rows.map((r) => [r.label, r.id]));
 
-    await client.query("BEGIN");
+    await client.query('BEGIN');
 
     // The previous seed's rows are demonstration rows too. Bounded to the refs that
     // seed wrote; nothing is removed.
     const marked = await client.query(
-      "UPDATE car SET is_demo = true WHERE ref = ANY($1) AND is_demo = false",
-      [PREVIOUS_SEED_REFS],
+      'UPDATE car SET is_demo = true WHERE ref = ANY($1) AND is_demo = false',
+      [PREVIOUS_SEED_REFS]
     );
 
     for (let i = 0; i < DEMO.length; i++) {
       const c = DEMO[i];
       const primary = stateByLabel.get(c.primary);
-      if (!primary) throw new Error(`seed: primary state "${c.primary}" not found (run migrations first).`);
-      if (primary.kind !== "primary") {
+      if (!primary)
+        throw new Error(`seed: primary state "${c.primary}" not found (run migrations first).`);
+      if (primary.kind !== 'primary') {
         throw new Error(`seed: "${c.primary}" is a ${primary.kind} state, not a primary (D15).`);
       }
       const stateId = primary.id;
@@ -177,21 +579,25 @@ async function main() {
       if (c.sold && !c.prior) {
         throw new Error(`seed: ${c.ref} is Sold but names no prior state (add \`prior\`).`);
       }
-      if (c.prior && (!prior || prior.kind !== "primary")) {
+      if (c.prior && (!prior || prior.kind !== 'primary')) {
         throw new Error(`seed: prior state "${c.prior}" is not one of the four primaries (D15).`);
       }
       const secondary = c.secondary ? stateByLabel.get(c.secondary) : undefined;
       if (c.secondary && !secondary) {
         throw new Error(`seed: secondary state "${c.secondary}" not found (run migrations first).`);
       }
-      if (secondary && secondary.kind !== "secondary") {
-        throw new Error(`seed: "${c.secondary}" is a ${secondary.kind} state, not a secondary (D15).`);
+      if (secondary && secondary.kind !== 'secondary') {
+        throw new Error(
+          `seed: "${c.secondary}" is a ${secondary.kind} state, not a secondary (D15).`
+        );
       }
       const carPhotos = photos.images
         .filter((p) => p.ref === c.ref)
         .sort((a, b) => a.position - b.position);
       if (carPhotos.length === 0) {
-        throw new Error(`seed: no uploaded photos for ${c.ref} — run the photo upload (Task 12) first.`);
+        throw new Error(
+          `seed: no uploaded photos for ${c.ref} — run the photo upload (Task 12) first.`
+        );
       }
 
       // The car is found by its ref — the code the owner and the customer both read,
@@ -207,7 +613,9 @@ async function main() {
           private_note: string | null;
           content_hash: string;
           hash_version: number;
-        }>("SELECT id, note, private_note, content_hash, hash_version FROM car WHERE ref = $1", [c.ref])
+        }>('SELECT id, note, private_note, content_hash, hash_version FROM car WHERE ref = $1', [
+          c.ref,
+        ])
       ).rows[0];
 
       const carRow = {
@@ -227,9 +635,20 @@ async function main() {
         state_id: stateId,
       };
       const carFields = [
-        carRow.brand, carRow.model, carRow.trim, carRow.year, carRow.exterior_color,
-        carRow.interior_color, carRow.mileage, carRow.features, carRow.note, carRow.private_note,
-        carRow.was_price_kobo, carRow.arrival_note, carRow.doorstep_price_kobo, carRow.state_id,
+        carRow.brand,
+        carRow.model,
+        carRow.trim,
+        carRow.year,
+        carRow.exterior_color,
+        carRow.interior_color,
+        carRow.mileage,
+        carRow.features,
+        carRow.note,
+        carRow.private_note,
+        carRow.was_price_kobo,
+        carRow.arrival_note,
+        carRow.doorstep_price_kobo,
+        carRow.state_id,
       ];
       const carHash = carChangeCheck(carRow);
 
@@ -242,7 +661,7 @@ async function main() {
                               doorstep_price_kobo, state_id, content_hash, hash_version, is_demo)
              VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,true)
              RETURNING id`,
-            [c.ref, ...carFields, carHash, CHANGE_CHECK_VERSION],
+            [c.ref, ...carFields, carHash, CHANGE_CHECK_VERSION]
           )
         ).rows[0].id;
       } else if (stored.content_hash === carHash && stored.hash_version === CHANGE_CHECK_VERSION) {
@@ -256,7 +675,7 @@ async function main() {
                           was_price_kobo=$12, arrival_note=$13, doorstep_price_kobo=$14, state_id=$15,
                           content_hash=$16, hash_version=$17, is_demo=true
              WHERE id=$1`,
-          [carId, ...carFields, carHash, CHANGE_CHECK_VERSION],
+          [carId, ...carFields, carHash, CHANGE_CHECK_VERSION]
         );
       }
 
@@ -267,7 +686,7 @@ async function main() {
         await client.query(
           `INSERT INTO car_secondary_state (car_id, state_id) VALUES ($1,$2)
              ON CONFLICT (car_id, state_id) DO NOTHING`,
-          [carId, secondary.id],
+          [carId, secondary.id]
         );
       }
 
@@ -279,7 +698,7 @@ async function main() {
           `INSERT INTO cost_line (car_id, kind, amount_minor) VALUES ($1,$2,$3)
              ON CONFLICT (car_id, kind) DO UPDATE SET amount_minor = EXCLUDED.amount_minor
              WHERE cost_line.amount_minor IS DISTINCT FROM EXCLUDED.amount_minor`,
-          [carId, line.kind, line.amountMinor],
+          [carId, line.kind, line.amountMinor]
         );
       }
 
@@ -292,7 +711,7 @@ async function main() {
                SET sanity_asset_id = EXCLUDED.sanity_asset_id, origin = EXCLUDED.origin
              WHERE car_photo.sanity_asset_id IS DISTINCT FROM EXCLUDED.sanity_asset_id
                 OR car_photo.origin IS DISTINCT FROM EXCLUDED.origin`,
-          [carId, p.assetId, p.origin, p.position],
+          [carId, p.assetId, p.origin, p.position]
         );
       }
 
@@ -312,7 +731,7 @@ async function main() {
            WHERE sale.sale_price_kobo IS DISTINCT FROM EXCLUDED.sale_price_kobo
               OR sale.sold_at IS DISTINCT FROM EXCLUDED.sold_at
               OR sale.prior_state_id IS DISTINCT FROM EXCLUDED.prior_state_id`,
-          [carId, c.price, new Date(`${c.sold}T12:00:00.000Z`), prior?.id ?? null],
+          [carId, c.price, new Date(`${c.sold}T12:00:00.000Z`), prior?.id ?? null]
         );
       }
     }
@@ -339,7 +758,17 @@ async function main() {
            note = EXCLUDED.note, enquiry_state_id = EXCLUDED.enquiry_state_id, is_demo = true,
            content_hash = EXCLUDED.content_hash, hash_version = EXCLUDED.hash_version
          WHERE enquiry.content_hash IS DISTINCT FROM EXCLUDED.content_hash`,
-        [e.name, e.number, e.askedFor, e.note, stateId, `${e.date}T10:00:00.000Z`, e.handle, hash, CHANGE_CHECK_VERSION],
+        [
+          e.name,
+          e.number,
+          e.askedFor,
+          e.note,
+          stateId,
+          `${e.date}T10:00:00.000Z`,
+          e.handle,
+          hash,
+          CHANGE_CHECK_VERSION,
+        ]
       );
     }
 
@@ -348,8 +777,8 @@ async function main() {
     // demo's own rows — and it does: the recipe names the file.
     const existingPdf = (
       await client.query<{ id: string; sanity_asset_id: string; rows_total: number }>(
-        "SELECT id, sanity_asset_id, rows_total FROM enquiry_pdf WHERE filename = $1",
-        [imported.originalFilename],
+        'SELECT id, sanity_asset_id, rows_total FROM enquiry_pdf WHERE filename = $1',
+        [imported.originalFilename]
       )
     ).rows[0];
 
@@ -359,7 +788,12 @@ async function main() {
         await client.query<{ id: string }>(
           `INSERT INTO enquiry_pdf (sanity_asset_id, filename, rows_total, imported_at)
            VALUES ($1,$2,$3,$4) RETURNING id`,
-          [imported.sanityAssetId, imported.originalFilename, imported.rowsTotal, imported.importedAt],
+          [
+            imported.sanityAssetId,
+            imported.originalFilename,
+            imported.rowsTotal,
+            imported.importedAt,
+          ]
         )
       ).rows[0].id;
     } else {
@@ -370,7 +804,7 @@ async function main() {
       ) {
         await client.query(
           `UPDATE enquiry_pdf SET sanity_asset_id = $2, rows_total = $3 WHERE id = $1`,
-          [pdfId, imported.sanityAssetId, imported.rowsTotal],
+          [pdfId, imported.sanityAssetId, imported.rowsTotal]
         );
       }
     }
@@ -381,7 +815,7 @@ async function main() {
       const row = imported.rows[i];
       const stateId = enquiryStateByLabel.get(row.state);
       if (!stateId) throw new Error(`seed: enquiry state "${row.state}" not found.`);
-      const handle = `demo-enquiry-pdf-${String(i + 1).padStart(2, "0")}`;
+      const handle = `demo-enquiry-pdf-${String(i + 1).padStart(2, '0')}`;
       const hash = enquiryChangeCheck({
         name: row.name,
         number: row.phone,
@@ -399,7 +833,18 @@ async function main() {
            pdf_import_id = EXCLUDED.pdf_import_id, is_demo = true,
            content_hash = EXCLUDED.content_hash, hash_version = EXCLUDED.hash_version
          WHERE enquiry.content_hash IS DISTINCT FROM EXCLUDED.content_hash`,
-        [row.name, row.phone, row.askedFor, row.note, stateId, pdfId, `${row.date}T10:00:00.000Z`, handle, hash, CHANGE_CHECK_VERSION],
+        [
+          row.name,
+          row.phone,
+          row.askedFor,
+          row.note,
+          stateId,
+          pdfId,
+          `${row.date}T10:00:00.000Z`,
+          handle,
+          hash,
+          CHANGE_CHECK_VERSION,
+        ]
       );
     }
 
@@ -411,16 +856,16 @@ async function main() {
       )
     `);
 
-    await client.query("COMMIT");
+    await client.query('COMMIT');
     console.log(
       `seed: ${DEMO.length} fleet car(s) synced (found by ref, written only where changed), ` +
         `${DEMO.filter((c) => c.secondary).length} secondary link(s), ` +
         `${marked.rowCount ?? 0} earlier demo row(s) marked is_demo, ` +
         `${photos.images.length} photo(s) referenced, ` +
-        `${ENQUIRIES.length + imported.rows.length} enquiry(ies) synced by handle — nothing deleted.`,
+        `${ENQUIRIES.length + imported.rows.length} enquiry(ies) synced by handle — nothing deleted.`
     );
   } catch (err) {
-    await client.query("ROLLBACK").catch(() => {});
+    await client.query('ROLLBACK').catch(() => {});
     throw err;
   } finally {
     await client.end();

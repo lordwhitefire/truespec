@@ -1,8 +1,8 @@
-import "server-only";
-import { demoDb, mainDb } from "./db";
-import type { Space } from "./space-rule";
-import { runWithRetry } from "./store-retry-rules";
-import { writeFailedMessage } from "./store-refusal-rules";
+import 'server-only';
+import { demoDb, mainDb } from './db';
+import type { Space } from './space-rule';
+import { runWithRetry } from './store-retry-rules';
+import { writeFailedMessage } from './store-refusal-rules';
 
 /**
  * The one place a store call becomes retryable (design D18).
@@ -33,19 +33,19 @@ import { writeFailedMessage } from "./store-refusal-rules";
 export type StoreDoorOptions = { space?: Space };
 
 async function clientFor(options?: StoreDoorOptions) {
-  if (options?.space === "main") return mainDb();
-  if (options?.space === "demo") return demoDb();
+  if (options?.space === 'main') return mainDb();
+  if (options?.space === 'demo') return demoDb();
 
   // Lazy on purpose: a CLI or a public main door must be importable under
   // `--conditions=react-server` without pulling in `next/headers` or Clerk.
-  const { resolveSpace } = await import("./space");
-  return (await resolveSpace()) === "main" ? mainDb() : demoDb();
+  const { resolveSpace } = await import('./space');
+  return (await resolveSpace()) === 'main' ? mainDb() : demoDb();
 }
 
 export async function storeQuery<T = unknown>(
   text: string,
   params: unknown[] = [],
-  options?: StoreDoorOptions,
+  options?: StoreDoorOptions
 ): Promise<T> {
   const sql = await clientFor(options);
   return runWithRetry(async () => (await sql.query(text, params)) as T);
@@ -70,7 +70,7 @@ export async function storeQuery<T = unknown>(
  */
 export async function storeQueryOnceMain<T = unknown>(
   text: string,
-  params: unknown[] = [],
+  params: unknown[] = []
 ): Promise<T> {
   const sql = mainDb();
   return (await sql.query(text, params)) as T;
@@ -79,7 +79,7 @@ export async function storeQueryOnceMain<T = unknown>(
 /** The old name, kept as a main-only alias. New call sites use `storeQueryOnceMain`. */
 export async function storeQueryOnce<T = unknown>(
   text: string,
-  params: unknown[] = [],
+  params: unknown[] = []
 ): Promise<T> {
   return storeQueryOnceMain<T>(text, params);
 }
@@ -87,7 +87,7 @@ export async function storeQueryOnce<T = unknown>(
 /** The main-only retrying door: public showroom, backup, cleanup and scripts. */
 export async function storeQueryMain<T = unknown>(
   text: string,
-  params: unknown[] = [],
+  params: unknown[] = []
 ): Promise<T> {
   const sql = mainDb();
   return runWithRetry(async () => (await sql.query(text, params)) as T);
@@ -123,7 +123,7 @@ export async function storeQueryRefusing<T = unknown>(
   text: string,
   params: unknown[],
   refusal: { field: string; action: string },
-  options?: StoreDoorOptions,
+  options?: StoreDoorOptions
 ): Promise<{ ok: true; rows: T } | StoreRefusal> {
   try {
     return { ok: true, rows: await storeQuery<T>(text, params, options) };
@@ -136,7 +136,7 @@ export async function storeQueryRefusing<T = unknown>(
 export async function storeQueryMainRefusing<T = unknown>(
   text: string,
   params: unknown[],
-  refusal: { field: string; action: string },
+  refusal: { field: string; action: string }
 ): Promise<{ ok: true; rows: T } | StoreRefusal> {
   try {
     return { ok: true, rows: await storeQueryMain<T>(text, params) };

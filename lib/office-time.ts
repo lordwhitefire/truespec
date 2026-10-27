@@ -12,32 +12,11 @@
  * surprise anyone.
  */
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const WEEKDAYS = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const pad = (n: number) => String(n).padStart(2, "0");
+const pad = (n: number) => String(n).padStart(2, '0');
 
 /** The instant's UTC calendar day, as `2026-10-04`. Keys a group of entries. */
 export function dayKey(iso: string): string {
@@ -80,14 +59,14 @@ export function shortAge(iso: string, now: Date): string {
 
   if (days <= 0) {
     const minutes = Math.floor((now.getTime() - new Date(iso).getTime()) / 60_000);
-    if (minutes < 1) return "just now";
+    if (minutes < 1) return 'just now';
     if (minutes < 60) return `${minutes} min`;
     const hours = Math.floor(minutes / 60);
     if (hours < 24) return `${hours} hr`;
-    return "today";
+    return 'today';
   }
 
-  if (days === 1) return "Yesterday";
+  if (days === 1) return 'Yesterday';
   if (days < 7) return `${days} days`;
   return longDay(iso).slice(0, -5);
 }
@@ -98,7 +77,7 @@ export function shortAge(iso: string, now: Date): string {
  */
 export function dayTitle(iso: string, now: Date): string {
   const days = daysApart(iso, now);
-  if (days <= 0) return "Today";
-  if (days === 1) return "Yesterday";
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Yesterday';
   return weekdayDay(iso);
 }

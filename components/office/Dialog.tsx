@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * The platform's modal, in place of the hand-built `.ovl`/`.mdl` div (Task 13).
@@ -50,7 +50,7 @@ export function Dialog({
     if (!open) return;
     const body = document.body;
     const previous = body.style.overflow;
-    body.style.overflow = "hidden";
+    body.style.overflow = 'hidden';
     return () => {
       body.style.overflow = previous;
     };

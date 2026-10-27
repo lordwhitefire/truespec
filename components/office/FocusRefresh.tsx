@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 /**
  * The dashboard's refresh-on-focus (`specs/dashboard/spec.md:35-40`):
@@ -25,21 +25,21 @@ export function FocusRefresh() {
 
   useEffect(() => {
     const refresh = () => {
-      if (document.visibilityState !== "visible") return;
+      if (document.visibilityState !== 'visible') return;
       const now = Date.now();
       if (now - last.current < COOLDOWN_MS) return;
       last.current = now;
       router.refresh();
     };
     const onVisibility = () => {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === 'visible') refresh();
     };
 
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("focus", refresh);
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', refresh);
     return () => {
-      document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("focus", refresh);
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', refresh);
     };
   }, [router]);
 

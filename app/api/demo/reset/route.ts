@@ -1,17 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
 
 import {
   openDemoClient,
   resetEnvFromProcess,
   resetHttpStatus,
   runDemoReset,
-} from "@/lib/demo-reset";
-import {
-  deleteAsset,
-  downloadFileAsset,
-  listFileAssets,
-  listStoredAssets,
-} from "@/lib/sanity";
+} from '@/lib/demo-reset';
+import { deleteAsset, downloadFileAsset, listFileAssets, listStoredAssets } from '@/lib/sanity';
 
 /**
  * The demo reset's door.
@@ -29,12 +24,12 @@ import {
  * see the failure. The one log line carries counts and the failed step — never a key, a connection
  * string, a row or a person.
  */
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request): Promise<Response> {
   const summary = await runDemoReset({
-    authorization: request.headers.get("authorization"),
+    authorization: request.headers.get('authorization'),
     env: resetEnvFromProcess(),
     listFileAssets,
     downloadSeed: downloadFileAsset,
@@ -45,7 +40,7 @@ export async function GET(request: Request): Promise<Response> {
 
   console.log(
     JSON.stringify({
-      event: "demo-reset",
+      event: 'demo-reset',
       ok: summary.ok,
       step: summary.step,
       snapshotAt: summary.snapshotAt,
@@ -53,7 +48,7 @@ export async function GET(request: Request): Promise<Response> {
       rowsAfter: summary.rowsAfter,
       cleanup: summary.cleanup,
       durationMs: summary.durationMs,
-    }),
+    })
   );
 
   return NextResponse.json(summary, { status: resetHttpStatus(summary) });

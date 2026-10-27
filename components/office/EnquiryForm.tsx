@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { saveDraftForm, type SaveDraftFormResult } from "@/app/office/actions/draft";
-import { updateEnquiry, type UpdateEnquiryResult } from "@/app/office/actions/enquiry";
-import type { EnquiryFormData } from "@/lib/enquiry-form";
+import { useState, useTransition, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { saveDraftForm, type SaveDraftFormResult } from '@/app/office/actions/draft';
+import { updateEnquiry, type UpdateEnquiryResult } from '@/app/office/actions/enquiry';
+import type { EnquiryFormData } from '@/lib/enquiry-form';
 
 /* The enquiry editor (owner ruling 2026-10-20, #3 and #4).
 
@@ -34,22 +34,20 @@ export type EnquiryEditData = {
 };
 
 type EnquiryFormProps = { states: EnquiryFormStateOption[] } & (
-  | { mode: "draft"; data: EnquiryFormData }
-  | { mode: "edit"; data: EnquiryEditData }
+  { mode: 'draft'; data: EnquiryFormData } | { mode: 'edit'; data: EnquiryEditData }
 );
 
 type StoredResult =
-  | { mode: "draft"; res: SaveDraftFormResult }
-  | { mode: "edit"; res: UpdateEnquiryResult };
+  { mode: 'draft'; res: SaveDraftFormResult } | { mode: 'edit'; res: UpdateEnquiryResult };
 
 export function EnquiryForm(props: EnquiryFormProps) {
   const { mode, states } = props;
   const data = props.data;
-  const draftData = mode === "draft" ? props.data : null;
+  const draftData = mode === 'draft' ? props.data : null;
 
   const [result, setResult] = useState<StoredResult | null>(null);
   const [completed, setCompleted] = useState<{ ref: string } | null>(null);
-  const [pendingIntent, setPendingIntent] = useState<"draft" | "enquiry" | "edit" | null>(null);
+  const [pendingIntent, setPendingIntent] = useState<'draft' | 'enquiry' | 'edit' | null>(null);
   const [pending, start] = useTransition();
   const router = useRouter();
 
@@ -58,14 +56,14 @@ export function EnquiryForm(props: EnquiryFormProps) {
     failure?.errors.find((error) => error.field === field)?.message;
 
   const draftSaved =
-    result?.mode === "draft" && result.res.ok && result.res.outcome === "draft" ? result.res : null;
-  const editSaved = result?.mode === "edit" && result.res.ok ? result.res : null;
+    result?.mode === 'draft' && result.res.ok && result.res.outcome === 'draft' ? result.res : null;
+  const editSaved = result?.mode === 'edit' && result.res.ok ? result.res : null;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
-    const intent: "draft" | "enquiry" | "edit" =
-      mode === "draft" ? (submitter?.value === "draft" ? "draft" : "enquiry") : "edit";
+    const intent: 'draft' | 'enquiry' | 'edit' =
+      mode === 'draft' ? (submitter?.value === 'draft' ? 'draft' : 'enquiry') : 'edit';
 
     const fd = new FormData(event.currentTarget);
     setResult(null);
@@ -73,32 +71,32 @@ export function EnquiryForm(props: EnquiryFormProps) {
 
     start(async () => {
       try {
-        if (mode === "draft") {
-          fd.set("draftId", props.data.draftId);
-          fd.set("intent", intent);
+        if (mode === 'draft') {
+          fd.set('draftId', props.data.draftId);
+          fd.set('intent', intent);
           const res = await saveDraftForm(fd);
-          setResult({ mode: "draft", res });
+          setResult({ mode: 'draft', res });
           if (!res.ok) return;
-          if (res.outcome === "draft") return;
+          if (res.outcome === 'draft') return;
           // The draft has become the record. The confirmation names the code the log will use; the
           // draft row is gone, so the form stays closed rather than offering a second save.
           setCompleted({ ref: res.ref });
           return;
         }
 
-        fd.set("id", props.data.id);
+        fd.set('id', props.data.id);
         const res = await updateEnquiry(fd);
-        setResult({ mode: "edit", res });
+        setResult({ mode: 'edit', res });
         if (!res.ok) return;
         router.refresh();
       } catch {
         const errors = [
-          { field: "id", message: "The store could not be reached — try that again" },
+          { field: 'id', message: 'The store could not be reached — try that again' },
         ];
         setResult(
-          mode === "draft"
-            ? { mode: "draft", res: { ok: false, errors } }
-            : { mode: "edit", res: { ok: false, errors } },
+          mode === 'draft'
+            ? { mode: 'draft', res: { ok: false, errors } }
+            : { mode: 'edit', res: { ok: false, errors } }
         );
       } finally {
         setPendingIntent(null);
@@ -110,15 +108,16 @@ export function EnquiryForm(props: EnquiryFormProps) {
     <>
       <div className="hrow">
         <div>
-          <h1>{completed ? "Enquiry saved" : mode === "draft" ? "Edit enquiry draft" : "Edit enquiry"}</h1>
+          <h1>
+            {completed ? 'Enquiry saved' : mode === 'draft' ? 'Edit enquiry draft' : 'Edit enquiry'}
+          </h1>
           <p className="sub2">
             {completed ? (
               <>The draft became a record. This page has nothing left to edit.</>
-            ) : mode === "draft" ? (
+            ) : mode === 'draft' ? (
               <>
-                From {props.data.draftSource || "the uploaded sheet"} · waiting{" "}
-                {props.data.waiting}. Every value can be edited; nothing is a record until you save
-                the enquiry.
+                From {props.data.draftSource || 'the uploaded sheet'} · waiting {props.data.waiting}
+                . Every value can be edited; nothing is a record until you save the enquiry.
               </>
             ) : (
               <>
@@ -161,11 +160,11 @@ export function EnquiryForm(props: EnquiryFormProps) {
                   name="name"
                   type="text"
                   defaultValue={data.name}
-                  aria-invalid={fieldError("name") ? true : undefined}
+                  aria-invalid={fieldError('name') ? true : undefined}
                 />
-                {fieldError("name") ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                    {fieldError("name")}
+                {fieldError('name') ? (
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                    {fieldError('name')}
                   </span>
                 ) : null}
               </div>
@@ -177,11 +176,11 @@ export function EnquiryForm(props: EnquiryFormProps) {
                   name="number"
                   type="tel"
                   defaultValue={data.number}
-                  aria-invalid={fieldError("number") ? true : undefined}
+                  aria-invalid={fieldError('number') ? true : undefined}
                 />
-                {fieldError("number") ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                    {fieldError("number")}
+                {fieldError('number') ? (
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                    {fieldError('number')}
                   </span>
                 ) : null}
               </div>
@@ -193,11 +192,11 @@ export function EnquiryForm(props: EnquiryFormProps) {
                   name="asked_for"
                   type="text"
                   defaultValue={data.askedFor}
-                  aria-invalid={fieldError("asked_for") ? true : undefined}
+                  aria-invalid={fieldError('asked_for') ? true : undefined}
                 />
-                {fieldError("asked_for") ? (
-                  <span className="hint" style={{ color: "var(--bad)" }} role="alert">
-                    {fieldError("asked_for")}
+                {fieldError('asked_for') ? (
+                  <span className="hint" style={{ color: 'var(--bad)' }} role="alert">
+                    {fieldError('asked_for')}
                   </span>
                 ) : null}
               </div>
@@ -208,7 +207,7 @@ export function EnquiryForm(props: EnquiryFormProps) {
                   id="e-note"
                   name="note"
                   defaultValue={data.note}
-                  aria-invalid={fieldError("note") ? true : undefined}
+                  aria-invalid={fieldError('note') ? true : undefined}
                 ></textarea>
                 <span className="hint">Office-only — the note is never shown to buyers.</span>
               </div>
@@ -221,7 +220,7 @@ export function EnquiryForm(props: EnquiryFormProps) {
             </h2>
             <div className="f">
               <label htmlFor="e-state">Where this enquiry is</label>
-              <select className="in" id="e-state" name="stateId" defaultValue={data.stateId ?? ""}>
+              <select className="in" id="e-state" name="stateId" defaultValue={data.stateId ?? ''}>
                 {/* An enquiry may sit in no state, so the empty choice is real, not a placeholder. */}
                 <option value="">No state — sits in none</option>
                 {states.map((state) => (
@@ -231,47 +230,59 @@ export function EnquiryForm(props: EnquiryFormProps) {
                 ))}
               </select>
               {draftData && draftData.stateLabel !== null && draftData.stateId === null ? (
-                <span className="hint" style={{ color: "var(--warn)" }}>
-                  The file named “{draftData.stateLabel}”, which is gone — choose a state, or leave it
-                  in none.
+                <span className="hint" style={{ color: 'var(--warn)' }}>
+                  The file named “{draftData.stateLabel}”, which is gone — choose a state, or leave
+                  it in none.
                 </span>
               ) : null}
             </div>
           </section>
 
           <div className="saverow">
-            {mode === "draft" ? (
+            {mode === 'draft' ? (
               <>
-                <button className="btn gh" type="submit" name="intent" value="draft" disabled={pending}>
-                  <i className="fa-solid fa-floppy-disk" />{" "}
-                  {pendingIntent === "draft" ? "Saving…" : "Save as draft"}
+                <button
+                  className="btn gh"
+                  type="submit"
+                  name="intent"
+                  value="draft"
+                  disabled={pending}
+                >
+                  <i className="fa-solid fa-floppy-disk" />{' '}
+                  {pendingIntent === 'draft' ? 'Saving…' : 'Save as draft'}
                 </button>
-                <button className="btn" type="submit" name="intent" value="enquiry" disabled={pending}>
-                  <i className="fa-solid fa-check" />{" "}
-                  {pendingIntent === "enquiry" ? "Saving…" : "Save enquiry"}
+                <button
+                  className="btn"
+                  type="submit"
+                  name="intent"
+                  value="enquiry"
+                  disabled={pending}
+                >
+                  <i className="fa-solid fa-check" />{' '}
+                  {pendingIntent === 'enquiry' ? 'Saving…' : 'Save enquiry'}
                 </button>
                 <a className="btn gh" href="/office/drafts">
                   Cancel
                 </a>
                 <span className="hint2">
                   {failure
-                    ? "Some fields need attention — see the messages beside them."
-                    : "Save as draft keeps it waiting; Save enquiry puts it on the board."}
+                    ? 'Some fields need attention — see the messages beside them.'
+                    : 'Save as draft keeps it waiting; Save enquiry puts it on the board.'}
                 </span>
               </>
             ) : (
               <>
                 <button className="btn" type="submit" disabled={pending}>
-                  <i className="fa-solid fa-check" />{" "}
-                  {pendingIntent === "edit" ? "Saving…" : "Save changes"}
+                  <i className="fa-solid fa-check" />{' '}
+                  {pendingIntent === 'edit' ? 'Saving…' : 'Save changes'}
                 </button>
                 <a className="btn gh" href="/office/enquiries">
                   Cancel
                 </a>
                 <span className="hint2">
                   {failure
-                    ? "Some fields need attention — see the messages beside them."
-                    : "Saving writes the change to the enquiry."}
+                    ? 'Some fields need attention — see the messages beside them.'
+                    : 'Saving writes the change to the enquiry.'}
                 </span>
               </>
             )}
@@ -282,15 +293,15 @@ export function EnquiryForm(props: EnquiryFormProps) {
               role="alert"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--bad)",
+                border: '1px solid var(--bad)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--bad)",
+                padding: '10px 12px',
+                color: 'var(--bad)',
                 fontSize: 13,
               }}
             >
               <b>Could not save.</b>
-              <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+              <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
                 {failure.errors.map((error) => (
                   <li key={error.field}>{error.message}</li>
                 ))}
@@ -303,10 +314,10 @@ export function EnquiryForm(props: EnquiryFormProps) {
               role="status"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--ok)",
+                border: '1px solid var(--ok)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--ok)",
+                padding: '10px 12px',
+                color: 'var(--ok)',
                 fontSize: 13,
               }}
             >
@@ -319,10 +330,10 @@ export function EnquiryForm(props: EnquiryFormProps) {
               role="status"
               style={{
                 marginTop: 12,
-                border: "1px solid var(--ok)",
+                border: '1px solid var(--ok)',
                 borderRadius: 10,
-                padding: "10px 12px",
-                color: "var(--ok)",
+                padding: '10px 12px',
+                color: 'var(--ok)',
                 fontSize: 13,
               }}
             >

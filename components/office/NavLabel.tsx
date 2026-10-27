@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useLinkStatus } from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useLinkStatus } from 'next/link';
+import { useEffect, useState, type ReactNode } from 'react';
 
 /**
  * The waiting sign for a soft navigation (Task 33; approved copy "Loading…").

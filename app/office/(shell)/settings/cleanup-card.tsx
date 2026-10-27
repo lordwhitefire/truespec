@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
-import type { WaitingToBeCleared } from "@/lib/cleanup";
-import { formatBytes } from "@/lib/notices";
-import { longDay } from "@/lib/office-time";
+import type { ReactNode } from 'react';
+import type { WaitingToBeCleared } from '@/lib/cleanup';
+import { formatBytes } from '@/lib/notices';
+import { longDay } from '@/lib/office-time';
 
 /**
  * The report-only "Waiting to be cleared" card (TASK-006 G / Q10).
@@ -30,7 +30,11 @@ function Group({
         <h3>{title}</h3>
         <span className="cleanup-count">{count}</span>
       </div>
-      {count === 0 ? <p className="cleanup-empty">{empty}</p> : <div className="cleanup-list">{children}</div>}
+      {count === 0 ? (
+        <p className="cleanup-empty">{empty}</p>
+      ) : (
+        <div className="cleanup-list">{children}</div>
+      )}
     </section>
   );
 }
@@ -69,10 +73,10 @@ export function CleanupCard({ data }: { data: WaitingToBeCleared }) {
             <div className="cleanup-row" key={car.ref}>
               <b>{car.ref}</b>
               <span>
-                {[car.name || "Unnamed car"].join(" ")} · deleted {car.ageDays} day
-                {car.ageDays === 1 ? "" : "s"} ago · {car.photos} photo
-                {car.photos === 1 ? "" : "s"}, {car.costLines} cost line
-                {car.costLines === 1 ? "" : "s"} · {car.sold ? "had a sale" : "no sale"}
+                {[car.name || 'Unnamed car'].join(' ')} · deleted {car.ageDays} day
+                {car.ageDays === 1 ? '' : 's'} ago · {car.photos} photo
+                {car.photos === 1 ? '' : 's'}, {car.costLines} cost line
+                {car.costLines === 1 ? '' : 's'} · {car.sold ? 'had a sale' : 'no sale'}
               </span>
             </div>
           ))}
@@ -87,9 +91,9 @@ export function CleanupCard({ data }: { data: WaitingToBeCleared }) {
             <div className="cleanup-row" key={enquiry.id}>
               <b>{enquiry.ref}</b>
               <span>
-                {enquiry.name || "No name"} · {enquiry.number || "no number"} · asked for{" "}
-                {enquiry.askedFor || "—"} · recorded {longDay(enquiry.recordedAt)} ({enquiry.ageDays}{" "}
-                days)
+                {enquiry.name || 'No name'} · {enquiry.number || 'no number'} · asked for{' '}
+                {enquiry.askedFor || '—'} · recorded {longDay(enquiry.recordedAt)} (
+                {enquiry.ageDays} days)
               </span>
             </div>
           ))}
@@ -102,10 +106,14 @@ export function CleanupCard({ data }: { data: WaitingToBeCleared }) {
         >
           {data.rowsHoldingAnAddress.map((row) => (
             <div className="cleanup-row" key={`${row.rowKind}:${row.rowId}`}>
-              <b>{row.rowKind === "car_photo" ? `Photo${row.ref ? ` on ${row.ref}` : ""}` : "Imported sheet"}</b>
+              <b>
+                {row.rowKind === 'car_photo'
+                  ? `Photo${row.ref ? ` on ${row.ref}` : ''}`
+                  : 'Imported sheet'}
+              </b>
               <span>
                 <code className="cleanup-code">{row.address}</code>
-                {row.origin ? ` · ${row.origin}` : ""}
+                {row.origin ? ` · ${row.origin}` : ''}
               </span>
             </div>
           ))}
@@ -116,15 +124,20 @@ export function CleanupCard({ data }: { data: WaitingToBeCleared }) {
           count={data.rowsPointingAtMissingAssets.length}
           empty={
             data.assetStore.readable
-              ? "Every asset reference resolves."
-              : "Unknown until the asset store can be read."
+              ? 'Every asset reference resolves.'
+              : 'Unknown until the asset store can be read.'
           }
         >
           {data.rowsPointingAtMissingAssets.map((row) => (
             <div className="cleanup-row" key={`${row.rowKind}:${row.rowId}`}>
-              <b>{row.rowKind === "car_photo" ? `Photo${row.ref ? ` on ${row.ref}` : ""}` : "Imported sheet"}</b>
+              <b>
+                {row.rowKind === 'car_photo'
+                  ? `Photo${row.ref ? ` on ${row.ref}` : ''}`
+                  : 'Imported sheet'}
+              </b>
               <span>
-                names <code className="cleanup-code">{row.assetId}</code>, which the store does not hold.
+                names <code className="cleanup-code">{row.assetId}</code>, which the store does not
+                hold.
               </span>
             </div>
           ))}
@@ -134,33 +147,39 @@ export function CleanupCard({ data }: { data: WaitingToBeCleared }) {
           title="Machine litter"
           count={
             data.assetStore.readable
-              ? data.machineLitter.unreferenced.length + (data.machineLitter.staleAuthAttempts > 0 ? 1 : 0)
+              ? data.machineLitter.unreferenced.length +
+                (data.machineLitter.staleAuthAttempts > 0 ? 1 : 0)
               : data.machineLitter.staleAuthAttempts + 1
           }
           empty={
             data.assetStore.readable
-              ? "No unreferenced assets and no stale sign-in attempts."
-              : "Unknown until the asset store can be read."
+              ? 'No unreferenced assets and no stale sign-in attempts.'
+              : 'Unknown until the asset store can be read.'
           }
         >
           {!data.assetStore.readable ? (
             <div className="cleanup-row">
               <b>Unknown</b>
-              <span>Unreferenced assets could not be read while the asset store is unavailable.</span>
+              <span>
+                Unreferenced assets could not be read while the asset store is unavailable.
+              </span>
             </div>
           ) : null}
           {data.machineLitter.unreferenced.map((asset) => (
             <div className="cleanup-row" key={asset.assetId}>
               <b>{asset.filename || asset.assetId}</b>
               <span>
-                unreferenced {asset.kind.replace("sanity.", "")} · {formatBytes(asset.bytes)}
+                unreferenced {asset.kind.replace('sanity.', '')} · {formatBytes(asset.bytes)}
               </span>
             </div>
           ))}
           {data.machineLitter.staleAuthAttempts > 0 ? (
             <div className="cleanup-row">
               <b>{data.machineLitter.staleAuthAttempts}</b>
-              <span>sign-in attempt{data.machineLitter.staleAuthAttempts === 1 ? "" : "s"} older than 90 days.</span>
+              <span>
+                sign-in attempt{data.machineLitter.staleAuthAttempts === 1 ? '' : 's'} older than 90
+                days.
+              </span>
             </div>
           ) : null}
         </Group>

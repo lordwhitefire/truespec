@@ -1,13 +1,13 @@
-import { OfficeNav } from "@/components/office/OfficeNav";
-import { OfficeBottomNav } from "@/components/office/OfficeBottomNav";
-import { OfficeTopbar } from "@/components/office/OfficeTopbar";
-import { TapNotice } from "@/components/office/TapNotice";
-import { OfflineBanner } from "@/components/office/OfflineBanner";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { requireOfficeSession } from "@/lib/session";
-import { getNewOfficeTapCount } from "@/lib/office";
-import { DemoBanner } from "./demo-banner";
-import { signOutOffice } from "../actions/session";
+import { OfficeNav } from '@/components/office/OfficeNav';
+import { OfficeBottomNav } from '@/components/office/OfficeBottomNav';
+import { OfficeTopbar } from '@/components/office/OfficeTopbar';
+import { TapNotice } from '@/components/office/TapNotice';
+import { OfflineBanner } from '@/components/office/OfflineBanner';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { requireOfficeSession } from '@/lib/session';
+import { getNewOfficeTapCount } from '@/lib/office';
+import { DemoBanner } from './demo-banner';
+import { signOutOffice } from '../actions/session';
 
 // The shared Office shell: sidebar (desktop) / topbar (mobile) + bottom nav.
 // Comes into being here, with the first page that uses it (the dashboard).
@@ -36,7 +36,7 @@ export default async function OfficeLayout({ children }: { children: React.React
   try {
     tapCount = await getNewOfficeTapCount();
   } catch (error) {
-    console.error("[office shell] tap count read failed; notice omitted", error);
+    console.error('[office shell] tap count read failed; notice omitted', error);
   }
 
   return (
@@ -60,15 +60,15 @@ export default async function OfficeLayout({ children }: { children: React.React
                 <button
                   type="submit"
                   style={{
-                    display: "inline-flex",
-                    alignItems: "center",
+                    display: 'inline-flex',
+                    alignItems: 'center',
                     gap: 7,
-                    color: "#8a9096",
-                    background: "none",
+                    color: '#8a9096',
+                    background: 'none',
                     border: 0,
                     padding: 0,
-                    font: "inherit",
-                    cursor: "pointer",
+                    font: 'inherit',
+                    cursor: 'pointer',
                   }}
                 >
                   <i className="fa-solid fa-right-from-bracket" />
@@ -87,7 +87,7 @@ export default async function OfficeLayout({ children }: { children: React.React
 
         <main className="main">
           {/* The demo notice is shell-wide and not dismissible. Main renders nothing. */}
-          {session.space === "demo" ? <DemoBanner /> : null}
+          {session.space === 'demo' ? <DemoBanner /> : null}
           {children}
         </main>
       </div>

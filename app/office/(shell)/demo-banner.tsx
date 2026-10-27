@@ -22,8 +22,8 @@ export function DemoBanner() {
 @media(max-width:820px){.ts-demo-banner{top:calc(56px + var(--ts-office-offline-h,0px))}}
 `}</style>
       <div className="ts-demo-banner" role="note" aria-label="Demo notice">
-        <strong>Demo</strong> — everything here resets daily (around 03:00 UTC). Uploads are
-        deleted with the demo.
+        <strong>Demo</strong> — everything here resets daily (around 03:00 UTC). Uploads are deleted
+        with the demo.
       </div>
     </>
   );

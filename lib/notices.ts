@@ -18,7 +18,7 @@
  * not carry is never invented — the whole point of reading a row instead of computing.
  */
 
-import { clock, longDay } from "./office-time";
+import { clock, longDay } from './office-time';
 
 /** The default asset-warning figure (the spec's "4 GB"). Binary, as storage is counted. */
 export const DEFAULT_STORAGE_WARNING_BYTES = 4 * 1024 ** 3;
@@ -29,8 +29,8 @@ export const DEFAULT_DATABASE_WARNING_BYTES = 800 * 1024 ** 2;
 /** How long a backup heartbeat may go quiet before the office says so. */
 export const BACKUP_STALE_HOURS = 48;
 
-export type NoticeLevel = "warn" | "info";
-export type NoticeKind = "database" | "storage" | "backup";
+export type NoticeLevel = 'warn' | 'info';
+export type NoticeKind = 'database' | 'storage' | 'backup';
 export type Notice = { kind: NoticeKind; level: NoticeLevel; title: string; body: string };
 
 /**
@@ -38,7 +38,7 @@ export type Notice = { kind: NoticeKind; level: NoticeLevel; title: string; body
  * are three different facts; collapsing the third into the first would tell the owner "not reported
  * yet" about a figure that is present and broken.
  */
-export type StoredNumber = number | null | "unreadable";
+export type StoredNumber = number | null | 'unreadable';
 
 /** What the store holds for the notices. `null` means the row is absent — never zero, never a guess. */
 export type NoticeInput = {
@@ -53,65 +53,62 @@ const HOUR_MS = 3_600_000;
 
 /** Whole bytes as a person reads them: `4 GB`, `4.2 GB`, `512 MB`, `900 B`. */
 export function formatBytes(bytes: number): string {
-  const one = (n: number) => (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, "");
+  const one = (n: number) => (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, '');
   if (bytes >= 1024 ** 3) return `${one(bytes / 1024 ** 3)} GB`;
   if (bytes >= 1024 ** 2) return `${one(bytes / 1024 ** 2)} MB`;
   if (bytes >= 1024) return `${one(bytes / 1024)} KB`;
   return `${bytes} B`;
 }
 
-function warningFigure(
-  value: StoredNumber,
-  fallback: number,
-): { bytes: number; note: string } {
-  if (value === "unreadable") {
+function warningFigure(value: StoredNumber, fallback: number): { bytes: number; note: string } {
+  if (value === 'unreadable') {
     return {
       bytes: fallback,
       note: ` The stored warning figure could not be read, so the default of ${formatBytes(fallback)} is used.`,
     };
   }
-  return { bytes: value ?? fallback, note: "" };
+  return { bytes: value ?? fallback, note: '' };
 }
 
 /** The photos-and-files notice: past the warning figure, under it, or honestly unreported. */
 function storageNotice(input: NoticeInput): Notice {
   const { bytes: warning, note } = warningFigure(
     input.storageWarningBytes,
-    DEFAULT_STORAGE_WARNING_BYTES,
+    DEFAULT_STORAGE_WARNING_BYTES
   );
   const used = input.storageUsedBytes;
 
-  if (used === "unreadable") {
+  if (used === 'unreadable') {
     return {
-      kind: "storage",
-      level: "warn",
-      title: "Photos and files: usage could not be read",
-      body: "The stored asset-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.",
+      kind: 'storage',
+      level: 'warn',
+      title: 'Photos and files: usage could not be read',
+      body: 'The stored asset-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.',
     };
   }
 
   if (used === null) {
     return {
-      kind: "storage",
-      level: "info",
-      title: "Photos and files",
-      body: "Photo and file storage usage has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.",
+      kind: 'storage',
+      level: 'info',
+      title: 'Photos and files',
+      body: 'Photo and file storage usage has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.',
     };
   }
 
   if (used >= warning) {
     return {
-      kind: "storage",
-      level: "warn",
-      title: "Photos and files are past their warning figure",
+      kind: 'storage',
+      level: 'warn',
+      title: 'Photos and files are past their warning figure',
       body: `Photo and file storage is at ${formatBytes(used)} of ${formatBytes(warning)}. Upgrade, or trim photos.${note}`,
     };
   }
 
   return {
-    kind: "storage",
-    level: "info",
-    title: "Photos and files",
+    kind: 'storage',
+    level: 'info',
+    title: 'Photos and files',
     body: `Photo and file storage is at ${formatBytes(used)} of ${formatBytes(warning)}.${note}`,
   };
 }
@@ -120,41 +117,41 @@ function storageNotice(input: NoticeInput): Notice {
 function databaseNotice(input: NoticeInput): Notice {
   const { bytes: warning, note } = warningFigure(
     input.databaseWarningBytes,
-    DEFAULT_DATABASE_WARNING_BYTES,
+    DEFAULT_DATABASE_WARNING_BYTES
   );
   const used = input.databaseUsedBytes;
 
-  if (used === "unreadable") {
+  if (used === 'unreadable') {
     return {
-      kind: "database",
-      level: "warn",
-      title: "Database: usage could not be read",
-      body: "The stored database-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.",
+      kind: 'database',
+      level: 'warn',
+      title: 'Database: usage could not be read',
+      body: 'The stored database-size figure is not a number the office can read. Nothing is invented here — fix the row and the notice will read it.',
     };
   }
 
   if (used === null) {
     return {
-      kind: "database",
-      level: "info",
-      title: "Database",
-      body: "Database size has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.",
+      kind: 'database',
+      level: 'info',
+      title: 'Database',
+      body: 'Database size has not been reported yet. The daily job writes the figure; until it does, the office has nothing to show.',
     };
   }
 
   if (used >= warning) {
     return {
-      kind: "database",
-      level: "warn",
-      title: "Database is past its warning figure",
+      kind: 'database',
+      level: 'warn',
+      title: 'Database is past its warning figure',
       body: `The database is at ${formatBytes(used)} of ${formatBytes(warning)}. Neon Free stops accepting writes at 1 GB; trim or upgrade.${note}`,
     };
   }
 
   return {
-    kind: "database",
-    level: "info",
-    title: "Database",
+    kind: 'database',
+    level: 'info',
+    title: 'Database',
     body: `The database is at ${formatBytes(used)} of ${formatBytes(warning)}.${note}`,
   };
 }
@@ -165,20 +162,20 @@ function backupNotice(input: NoticeInput, now: Date): Notice {
 
   if (at === null) {
     return {
-      kind: "backup",
-      level: "warn",
-      title: "No backup recorded yet",
-      body: "The daily backup job has not written a heartbeat. Nothing has been backed up yet — your export is your own copy until it does.",
+      kind: 'backup',
+      level: 'warn',
+      title: 'No backup recorded yet',
+      body: 'The daily backup job has not written a heartbeat. Nothing has been backed up yet — your export is your own copy until it does.',
     };
   }
 
   const ts = Date.parse(at);
   if (!Number.isFinite(ts)) {
     return {
-      kind: "backup",
-      level: "warn",
-      title: "Backup status could not be read",
-      body: "The stored backup time is not a date the office can read. Nothing is invented here — fix the row and the notice will read it.",
+      kind: 'backup',
+      level: 'warn',
+      title: 'Backup status could not be read',
+      body: 'The stored backup time is not a date the office can read. Nothing is invented here — fix the row and the notice will read it.',
     };
   }
 
@@ -189,17 +186,17 @@ function backupNotice(input: NoticeInput, now: Date): Notice {
     const days = Math.floor(ageHours / 24);
     const howLong = days >= 2 ? `${days} days` : `${Math.floor(ageHours)} hours`;
     return {
-      kind: "backup",
-      level: "warn",
+      kind: 'backup',
+      level: 'warn',
       title: `Last backup was ${when}`,
       body: `That is ${howLong} ago. The daily job reports a heartbeat — check that it is still running.`,
     };
   }
 
   return {
-    kind: "backup",
-    level: "info",
-    title: "Backup is current",
+    kind: 'backup',
+    level: 'info',
+    title: 'Backup is current',
     body: `Last backup ${when}.`,
   };
 }

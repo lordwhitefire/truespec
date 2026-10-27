@@ -1,5 +1,5 @@
-import { Photo } from "@/components/Photo";
-import { waClass, waLink, waOffProps } from "@/components/whatsapp";
+import { Photo } from '@/components/Photo';
+import { waClass, waLink, waOffProps } from '@/components/whatsapp';
 
 /* The car page's furniture that more than one render shares.
  *
@@ -40,7 +40,7 @@ export function CarLayers({ wa }: { wa: string | null }) {
           <div className="num" id="mp" />
         </div>
         <a
-          className={waClass("wab", !wa)}
+          className={waClass('wab', !wa)}
           id="mw"
           href={wa ?? undefined}
           {...waOffProps(!wa)}
@@ -95,7 +95,7 @@ export function CarLayers({ wa }: { wa: string | null }) {
 export function NotFoundView({ num }: { num: string }) {
   const waSource = waLink(
     num,
-    "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: ",
+    "Hello TrueSpec, the car I'm after isn't on your site. Make/Model/Year: "
   );
   return (
     <>
@@ -108,30 +108,30 @@ export function NotFoundView({ num }: { num: string }) {
       </div>
 
       <div className="main" id="main">
-      <div className="w nfbox">
-        <div className="av" aria-hidden="true">
-          U
+        <div className="w nfbox">
+          <div className="av" aria-hidden="true">
+            U
+          </div>
+          <h1>We could not find that car</h1>
+          <p>
+            That car may have sold, or the link is old. Tell me what you were after and I&apos;ll
+            find one like it — or browse what&apos;s on the lot now.
+          </p>
+          <div className="row">
+            <a
+              className={waClass('wab big', !waSource)}
+              href={waSource ?? undefined}
+              {...waOffProps(!waSource)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
+            </a>
+            <a className="btn" href="/#cars">
+              <i className="fa-solid fa-grip" /> See all cars
+            </a>
+          </div>
         </div>
-        <h1>We could not find that car</h1>
-        <p>
-          That car may have sold, or the link is old. Tell me what you were after and I&apos;ll
-          find one like it — or browse what&apos;s on the lot now.
-        </p>
-        <div className="row">
-          <a
-            className={waClass("wab big", !waSource)}
-            href={waSource ?? undefined}
-            {...waOffProps(!waSource)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <i className="fa-brands fa-whatsapp fa-xl" /> Message Umar
-          </a>
-          <a className="btn" href="/#cars">
-            <i className="fa-solid fa-grip" /> See all cars
-          </a>
-        </div>
-      </div>
       </div>
 
       <RelatedShell />

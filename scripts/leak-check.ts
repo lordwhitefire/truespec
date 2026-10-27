@@ -1,13 +1,13 @@
-import { config as loadEnv } from "dotenv";
-import { Client } from "pg";
-import { formatNaira, totalCostKobo, type CostLineInput } from "../lib/money";
-import { mentionsValue } from "../lib/leak-match";
+import { config as loadEnv } from 'dotenv';
+import { Client } from 'pg';
+import { formatNaira, totalCostKobo, type CostLineInput } from '../lib/money';
+import { mentionsValue } from '../lib/leak-match';
 
-loadEnv({ path: ".env.local" });
+loadEnv({ path: '.env.local' });
 
 // The build server per the plan's standing rule (owner 2026-10-13): build on :3210,
 // reference on :3211. Port 3000 is never used.
-const BASE = process.env.LEAK_BASE_URL ?? "http://localhost:3210";
+const BASE = process.env.LEAK_BASE_URL ?? 'http://localhost:3210';
 
 // Field names / tokens that must never appear in a public response. Tokens are
 // identifiers (snake_case field or kind names) and quoted shapes (`"shipping"`),
@@ -17,22 +17,22 @@ const BASE = process.env.LEAK_BASE_URL ?? "http://localhost:3210";
 // check; the genuine rate signal is `rate_minor`/`currency` (field names) plus
 // the naira cost-value check below.
 const FORBIDDEN: (string | RegExp)[] = [
-  "purchase_price",
+  'purchase_price',
   '"shipping"',
   '"clearing"',
-  "trucking_usa",
-  "trucking_ng",
-  "full_tank",
-  "amount_minor",
-  "rate_minor",
-  "currency",
-  "cost_line",
-  "total_cost",
-  "totalCost",
-  "profit",
-  "private_note",
-  "doorstep_price_kobo",
-  "kobo",
+  'trucking_usa',
+  'trucking_ng',
+  'full_tank',
+  'amount_minor',
+  'rate_minor',
+  'currency',
+  'cost_line',
+  'total_cost',
+  'totalCost',
+  'profit',
+  'private_note',
+  'doorstep_price_kobo',
+  'kobo',
   /\bcost\b/,
   /\brate\b/,
 ];
@@ -47,7 +47,7 @@ async function listedRefs(client: Client): Promise<string[]> {
        AND c.doorstep_price_kobo IS NOT NULL
        AND sale.id IS NULL
        AND EXISTS (SELECT 1 FROM car_photo p WHERE p.car_id = c.id)
-     ORDER BY c.ref`,
+     ORDER BY c.ref`
   );
   return rows.map((r) => r.ref);
 }
@@ -60,7 +60,7 @@ async function costTotals(client: Client): Promise<Set<string>> {
     doorstep_price_kobo: string | null;
   }>(
     `SELECT c.ref, cl.kind, cl.amount_minor, c.doorstep_price_kobo
-     FROM car c JOIN cost_line cl ON cl.car_id = c.id`,
+     FROM car c JOIN cost_line cl ON cl.car_id = c.id`
   );
   const byCar = new Map<string, { lines: CostLineInput[]; price: number | null }>();
   for (const r of rows) {
@@ -98,7 +98,7 @@ async function privateReferences(client: Client): Promise<Set<string>> {
      UNION ALL
      SELECT sanity_asset_id FROM enquiry_pdf WHERE sanity_asset_id !~* '^https?://'
      UNION ALL
-     SELECT filename FROM enquiry_pdf WHERE filename IS NOT NULL`,
+     SELECT filename FROM enquiry_pdf WHERE filename IS NOT NULL`
   );
   return new Set(rows.map((r) => r.ref).filter((v): v is string => Boolean(v && v.length >= 6)));
 }
@@ -129,14 +129,14 @@ async function customerDetail(client: Client): Promise<Set<string>> {
  */
 async function officeStateLabels(client: Client): Promise<Set<string>> {
   const { rows } = await client.query<{ label: string }>(
-    `SELECT DISTINCT label FROM car_state WHERE kind = 'secondary' ORDER BY label`,
+    `SELECT DISTINCT label FROM car_state WHERE kind = 'secondary' ORDER BY label`
   );
   return new Set(rows.map((r) => r.label));
 }
 
 async function main() {
   const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
-  if (!connectionString) throw new Error("DATABASE_URL is not set.");
+  if (!connectionString) throw new Error('DATABASE_URL is not set.');
   const client = new Client({ connectionString });
   await client.connect();
 
@@ -149,22 +149,22 @@ async function main() {
     const privateRefs = await privateReferences(client);
     const enquiries = await customerDetail(client);
     const officeLabels = await officeStateLabels(client);
-    const routes = ["/", "/inventory", ...refs.map((r) => `/car/${r}`)];
+    const routes = ['/', '/inventory', ...refs.map((r) => `/car/${r}`)];
 
     console.log(`leak-check against ${BASE} — ${routes.length} public route(s)`);
     console.log(
       `watching for: ${FORBIDDEN.length} token(s) · ${costValues.size} cost value(s) · ` +
         `${privateRefs.size} asset/file reference(s) · ${enquiries.size} customer value(s) · ` +
-        `${officeLabels.size} office state label(s)\n`,
+        `${officeLabels.size} office state label(s)\n`
     );
 
     for (const route of routes) {
-      const res = await fetch(`${BASE}${route}`, { redirect: "manual" });
+      const res = await fetch(`${BASE}${route}`, { redirect: 'manual' });
       const body = await res.text();
       const contentHits: string[] = [];
 
       for (const token of FORBIDDEN) {
-        const hit = typeof token === "string" ? body.includes(token) : token.test(body);
+        const hit = typeof token === 'string' ? body.includes(token) : token.test(body);
         if (hit) contentHits.push(`token "${token}"`);
       }
       for (const value of costValues) {
@@ -204,17 +204,17 @@ async function main() {
     await client.end();
   }
 
-  console.log("");
+  console.log('');
   if (failures > 0) {
     console.log(
       `LEAK CHECK FAILED — ${failures} route(s): ${contentFailures} with forbidden content, ` +
-        `${statusFailures} that did not render.`,
+        `${statusFailures} that did not render.`
     );
     process.exit(1);
   }
   console.log(
-    "LEAK CHECK PASSED — no cost, currency or profit value, no asset or file reference, no " +
-      "customer detail and no office state label appeared on any public route.",
+    'LEAK CHECK PASSED — no cost, currency or profit value, no asset or file reference, no ' +
+      'customer detail and no office state label appeared on any public route.'
   );
 }
 

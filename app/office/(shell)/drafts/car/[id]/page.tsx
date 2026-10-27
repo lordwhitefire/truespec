@@ -1,16 +1,16 @@
-import "../../../car/car.css";
-import { notFound } from "next/navigation";
-import { getOfficeSecondaryStates, getOfficeStates } from "@/lib/office";
-import { requireOfficeSession } from "@/lib/session";
-import { imageUrl } from "@/lib/sanity";
-import { isAssetRef } from "@/lib/photo-rules";
-import { shortAge } from "@/lib/office-time";
-import { getDraft } from "@/lib/draft-store";
-import { carFormDataFromDraft, type DraftFormState } from "@/lib/draft-form";
-import { CarForm } from "../../../car/car-client";
+import '../../../car/car.css';
+import { notFound } from 'next/navigation';
+import { getOfficeSecondaryStates, getOfficeStates } from '@/lib/office';
+import { requireOfficeSession } from '@/lib/session';
+import { imageUrl } from '@/lib/sanity';
+import { isAssetRef } from '@/lib/photo-rules';
+import { shortAge } from '@/lib/office-time';
+import { getDraft } from '@/lib/draft-store';
+import { carFormDataFromDraft, type DraftFormState } from '@/lib/draft-form';
+import { CarForm } from '../../../car/car-client';
 
 // A draft is the store's row, so this page renders per request — never from a build-time snapshot.
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 /* Editing a car draft (owner ruling 2026-10-20, #3): "a draft is completely editable", and editing
    one opens the normal Add/Edit car page. The route is the draft's own id, not a `TS-####` — a draft
@@ -20,17 +20,17 @@ export const dynamic = "force-dynamic";
    reading when there is not. */
 
 function photoURL(assetId: string): string {
-  if (!isAssetRef(assetId)) return "";
+  if (!isAssetRef(assetId)) return '';
   try {
     return imageUrl(assetId);
   } catch {
-    return "";
+    return '';
   }
 }
 
 export default async function EditCarDraftPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await requireOfficeSession();
-  const isDemo = session.space === "demo";
+  const isDemo = session.space === 'demo';
   const { id } = await params;
 
   const [draft, primaries, secondaries] = await Promise.all([
@@ -38,7 +38,7 @@ export default async function EditCarDraftPage({ params }: { params: Promise<{ i
     getOfficeStates(),
     getOfficeSecondaryStates(),
   ]);
-  if (draft === null || draft.kind !== "car") notFound();
+  if (draft === null || draft.kind !== 'car') notFound();
 
   const states: DraftFormState[] = primaries.map((state) => ({
     id: state.id,

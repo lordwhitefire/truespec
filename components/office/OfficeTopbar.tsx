@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { TapNotice } from "./TapNotice";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { TapNotice } from './TapNotice';
 
 // The office topbar (mobile shell). Which icon it carries depends on the route:
 //   /office/settings → dashboard
@@ -22,10 +22,10 @@ export function OfficeTopbar({ tapCount = 0 }: { tapCount?: number }) {
     <header className="topbar">
       <span className="lg">
         <i className="fa-solid fa-gauge-high" />
-        TrueSpec <span style={{ color: "var(--gold)" }}>Office</span>
+        TrueSpec <span style={{ color: 'var(--gold)' }}>Office</span>
       </span>
       <span className="sp" />
-      {pathname === "/office/settings" ? (
+      {pathname === '/office/settings' ? (
         <Link className="ico" href="/office" aria-label="Dashboard">
           <i className="fa-solid fa-chart-pie" />
         </Link>

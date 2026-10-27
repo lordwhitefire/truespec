@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
+import { useState, useTransition } from 'react';
 
 /* "Create from file" — the office's way in for a filled car template or the sales desk's enquiry
    sheet (task.md §Q2: it sits on the inventory and enquiry screens; the drafts it makes are reviewed
@@ -27,7 +27,7 @@ type UploadBody = {
   reason?: string;
 };
 
-type Created = { kind: "car" | "enquiry"; count: number; refusals: Refusal[] };
+type Created = { kind: 'car' | 'enquiry'; count: number; refusals: Refusal[] };
 type Failed = { reason: string; refusals: Refusal[] };
 
 export function CreateFromFile({ hint }: { hint?: string }) {
@@ -39,51 +39,54 @@ export function CreateFromFile({ hint }: { hint?: string }) {
     setCreated(null);
     setFailed(null);
     const fd = new FormData();
-    fd.append("file", file, file.name);
+    fd.append('file', file, file.name);
     start(async () => {
       let res: Response;
       try {
-        res = await fetch("/api/upload", { method: "POST", body: fd });
+        res = await fetch('/api/upload', { method: 'POST', body: fd });
       } catch {
-        setFailed({ reason: "The upload could not be sent — check the connection and try again.", refusals: [] });
+        setFailed({
+          reason: 'The upload could not be sent — check the connection and try again.',
+          refusals: [],
+        });
         return;
       }
       const body = (await res.json().catch(() => null)) as UploadBody | null;
       if (res.ok && body?.ok) {
         setCreated({
-          kind: body.kind === "enquiry" ? "enquiry" : "car",
+          kind: body.kind === 'enquiry' ? 'enquiry' : 'car',
           count: body.cars ?? body.enquiries ?? 0,
           refusals: body.refusals ?? [],
         });
         return;
       }
       setFailed({
-        reason: body?.reason ?? "That file could not be read.",
+        reason: body?.reason ?? 'That file could not be read.',
         refusals: body?.refusals ?? [],
       });
     });
   }
 
-  const many = (n: number, kind: "car" | "enquiry") =>
-    `${n} ${kind === "car" ? "car" : "enquiry"}${n === 1 ? "" : kind === "car" ? "s" : "ies"} waiting`;
+  const many = (n: number, kind: 'car' | 'enquiry') =>
+    `${n} ${kind === 'car' ? 'car' : 'enquiry'}${n === 1 ? '' : kind === 'car' ? 's' : 'ies'} waiting`;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-start" }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
       <label
         style={{
-          position: "relative",
-          display: "inline-flex",
-          alignItems: "center",
+          position: 'relative',
+          display: 'inline-flex',
+          alignItems: 'center',
           gap: 9,
-          background: "none",
-          border: "1px solid var(--line)",
-          color: "var(--ink)",
+          background: 'none',
+          border: '1px solid var(--line)',
+          color: 'var(--ink)',
           fontWeight: 600,
           fontSize: 14,
-          padding: "0 18px",
+          padding: '0 18px',
           height: 44,
           borderRadius: 6,
-          cursor: pending ? "progress" : "pointer",
+          cursor: pending ? 'progress' : 'pointer',
           opacity: pending ? 0.6 : 1,
         }}
       >
@@ -96,48 +99,47 @@ export function CreateFromFile({ hint }: { hint?: string }) {
             const file = e.target.files?.[0];
             if (file) choose(file);
             // Cleared so choosing the same file again still uploads it.
-            e.target.value = "";
+            e.target.value = '';
           }}
           style={{
-            position: "absolute",
+            position: 'absolute',
             inset: 0,
-            width: "100%",
-            height: "100%",
+            width: '100%',
+            height: '100%',
             opacity: 0,
-            cursor: "inherit",
+            cursor: 'inherit',
           }}
         />
         <i
-          className={`fa-solid ${pending ? "fa-spinner fa-spin" : "fa-file-arrow-up"}`}
+          className={`fa-solid ${pending ? 'fa-spinner fa-spin' : 'fa-file-arrow-up'}`}
           aria-hidden="true"
-          style={{ color: "var(--gold)" }}
+          style={{ color: 'var(--gold)' }}
         />
-        {pending ? "Reading…" : "Create from file"}
+        {pending ? 'Reading…' : 'Create from file'}
       </label>
 
       {hint ? (
-        <span style={{ fontSize: 12, color: "var(--mute)", maxWidth: 320 }}>{hint}</span>
+        <span style={{ fontSize: 12, color: 'var(--mute)', maxWidth: 320 }}>{hint}</span>
       ) : null}
 
       {created ? (
         <div
           role="status"
           style={{
-            background: "var(--lt)",
-            border: "1px solid var(--line)",
-            borderLeft: "4px solid var(--ok)",
+            background: 'var(--lt)',
+            border: '1px solid var(--line)',
+            borderLeft: '4px solid var(--ok)',
             borderRadius: 8,
-            padding: "10px 12px",
+            padding: '10px 12px',
             fontSize: 12.5,
           }}
         >
-          <b>{many(created.count, created.kind)}.</b> Nothing is in the showroom yet — review and save
-          them at{" "}
-          <a href="/office/drafts" style={{ color: "var(--gold)", fontWeight: 700 }}>
+          <b>{many(created.count, created.kind)}.</b> Nothing is in the showroom yet — review and
+          save them at{' '}
+          <a href="/office/drafts" style={{ color: 'var(--gold)', fontWeight: 700 }}>
             Drafts
           </a>
-          .
-          {created.refusals.length > 0 ? <Refusals refusals={created.refusals} /> : null}
+          .{created.refusals.length > 0 ? <Refusals refusals={created.refusals} /> : null}
         </div>
       ) : null}
 
@@ -145,11 +147,11 @@ export function CreateFromFile({ hint }: { hint?: string }) {
         <div
           role="alert"
           style={{
-            background: "var(--lt)",
-            border: "1px solid var(--line)",
-            borderLeft: "4px solid var(--bad)",
+            background: 'var(--lt)',
+            border: '1px solid var(--line)',
+            borderLeft: '4px solid var(--bad)',
             borderRadius: 8,
-            padding: "10px 12px",
+            padding: '10px 12px',
             fontSize: 12.5,
             maxWidth: 380,
           }}
@@ -165,7 +167,7 @@ export function CreateFromFile({ hint }: { hint?: string }) {
 /** A refused row, named by its page — reported to the owner, never quietly dropped. */
 function Refusals({ refusals }: { refusals: Refusal[] }) {
   return (
-    <ul style={{ margin: "6px 0 0 16px", color: "var(--mute)" }}>
+    <ul style={{ margin: '6px 0 0 16px', color: 'var(--mute)' }}>
       {refusals.map((r, i) => (
         <li key={i}>
           {r.page !== undefined ? <>Page {r.page}: </> : null}

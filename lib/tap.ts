@@ -1,6 +1,6 @@
-import "server-only";
-import { storeQueryOnceMain } from "./store-guard";
-import type { TapInput } from "./tap-rules";
+import 'server-only';
+import { storeQueryOnceMain } from './store-guard';
+import type { TapInput } from './tap-rules';
 
 /**
  * The tap's write (truth 8). One row, three facts, and the store's own clock for the time.
