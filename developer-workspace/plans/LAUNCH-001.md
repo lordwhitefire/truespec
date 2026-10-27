@@ -602,21 +602,27 @@ runtime 8/8; 523 tests; typecheck and build pass. Evidence:
 the target and the release check that includes keyboard and screen-reader passes.
 
 **Acceptance criteria:**
-- [ ] Inventory matches the observed Clerk session cookie, theme preference, demo state and office
+- [x] Inventory matches the observed Clerk session cookie, theme preference, demo state and office
       device drafts; no unrecorded tracker.
-- [ ] Consent position says a banner is not required for this set; any non-essential tracker requires a
+- [x] Consent position says a banner is not required for this set; any non-essential tracker requires a
       consent and privacy review.
-- [ ] Accessibility release check records WCAG 2.2 AA, the pages, the keyboard pass and the
-      screen-reader pass (or NOT RUN with reason).
+- [x] Accessibility release check records WCAG 2.2 AA, the pages, the keyboard pass and the
+      screen-reader pass (NOT RUN with reason — separate testing session).
 
 **Verification:**
-- [ ] Runtime checklist E5, C8.
-- [ ] Browser DevTools storage inspection on a fresh public session and an office session.
-- [ ] Release check reviewed against the accessibility spec.
+- [x] Runtime checklist E5, C8.
+- [x] Browser DevTools storage inspection on a fresh public session and an office session.
+- [x] Release check reviewed against the accessibility spec.
 
 **Dependencies:** 14.
 **Files:** `docs/cookies.md`, `docs/accessibility.md`, `README.md`.
 **Size:** S (3 files).
+
+**Done (2026-10-27).** E5 storage inspected live on `:3210` (public) and `:3211` (office): only
+Clerk session cookies and app localStorage (`ts-theme`, `ts-visits`, `ts-seen`, `ts-lastcar`,
+`ts-known`), zero analytics/tracker cookies, no consent banner. C8 recorded WCAG 2.2 AA target,
+pages tested, keyboard pass; screen-reader pass NOT RUN pending separate session. README added as
+entry point. Evidence: `developer-workspace/reports/LAUNCH-001-task15.md`.
 
 **Checkpoint 5 — legal and trust**
 - [x] E1–E6 pass. E1/E2 verified for terms (runtime 10/10); E6 terms part passes; E6 privacy
