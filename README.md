@@ -100,9 +100,27 @@ not a GitHub Actions workflow or branch protection. The owner decides whether to
 
 ## Operational commands safe against production
 
-Read-only commands (safe against production): `npm test`, `npm run typecheck`, `npm run build`.
-Write commands (care — can modify data): `npm run db:seed`, `npm run db:migrate`,
-`npm run backup:restore`, `npm run demo:snapshot`, `npm run demo:wipe`.
+Read-only commands (safe against production): `npm test`, `npm run typecheck`, `npm run build`,
+`npm run leak-check`, `npm run store-freshness`, `npm run cleanup:readiness`.
+
+Write commands (care — can modify data): `npm run db:migrate`, `npm run db:seed`,
+`npm run backup:restore`, `npm run demo:snapshot`.
+
+- `npm run db:migrate` — applies `migrations/*.sql` to `DATABASE_URL_UNPOOLED` (or `DATABASE_URL`);
+  writes schema and the `schema_migrations` ledger only.
+- `npm run db:seed` — upserts the authored demo fleet; it deletes nothing, and it must point at the
+  demo branch, never main.
+- `npm run backup:restore -- --file <path>` — restores an encrypted backup into
+  `DATABASE_URL_RESTORE`; never the main database unless that is the explicit target.
+- `npm run demo:snapshot` — captures a demo-branch snapshot; reads main and demo.
+- `npm run leak-check` — read-only scan of `LEAK_BASE_URL` (default `http://127.0.0.1:3210`) for
+  private fields; writes nothing.
+- `npm run store-freshness` — read-only check that `.next` contains no prerendered store reads and
+  no fetch-cache entries; run it after `npm run build`.
+- `npm run cleanup:readiness` — read-only list of records waiting to be cleared; removes nothing.
+
+The retired `demo:wipe` command fails closed and is not a supported path; the daily demo reset is the
+only demo deletion path.
 
 ## Monitoring
 

@@ -17,7 +17,8 @@
     "demo:snapshot": "node --import tsx --conditions=react-server scripts/demo-snapshot.ts",
     "db:seed": "tsx scripts/seed.ts",
     "leak-check": "tsx scripts/leak-check.ts",
-    "store-freshness": "tsx scripts/store-freshness-check.ts"
+    "store-freshness": "tsx scripts/store-freshness-check.ts",
+    "cleanup:readiness": "node --env-file=.env.local --conditions=react-server --import tsx scripts/cleanup-readiness.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.15",

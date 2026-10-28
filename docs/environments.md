@@ -18,13 +18,13 @@ points at the production database or the production asset store.
 
 The Vercel Preview environment is configured as:
 
-| Variable                | Preview value     |
-| ----------------------- | ----------------- |
-| `DATABASE_URL`          | demo Neon branch  |
-| `DATABASE_URL_UNPOOLED` | demo Neon branch  |
-| `DEMO_DATABASE_URL`     | demo Neon branch  |
-| `SANITY_DATASET`        | `preview`         |
-| `NEON_BRANCH`           | `demo`            |
+| Variable                | Preview value    |
+| ----------------------- | ---------------- |
+| `DATABASE_URL`          | demo Neon branch |
+| `DATABASE_URL_UNPOOLED` | demo Neon branch |
+| `DEMO_DATABASE_URL`     | demo Neon branch |
+| `SANITY_DATASET`        | `preview`        |
+| `NEON_BRANCH`           | `demo`           |
 
 Production has separate values for the same keys. The `preview` dataset carries a copy of the
 production assets with their original asset ids, so the demo database's asset references resolve.
