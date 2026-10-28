@@ -40,3 +40,5 @@ developer-workspace/**/captures-*/
 # Software-assurance evidence dumps (generated, large)
 .saa/evidence/extract001-prod/build.json
 .saa/evidence/extract001-prod/reference.json
+.vercel
+.env*

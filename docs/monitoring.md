@@ -1,15 +1,17 @@
 # Uptime monitor
 
-The public showroom is monitored with UptimeRobot (free tier). The owner creates the
-UptimeRobot account and the monitor; this document records what to configure.
+The public showroom is monitored with UptimeRobot (free tier). The monitor is live;
+this document records its configuration.
 
 ## Monitor
 
+- **Monitor ID:** `804452457` — name **TrueSpec showroom**
+- **Status:** UP (first check 2026-10-28)
 - **URL:** `https://truespec-k4y6.vercel.app/` (public showroom home page)
 - **Type:** HTTP(s)
 - **Interval:** 5 minutes (UptimeRobot free tier minimum)
 - **Alert threshold:** 1 failed check (down immediately)
-- **Alert owner:** the site owner (email used for the UptimeRobot account)
+- **Alert owner:** email contact `victormakuo2002@gmail.com` (active)
 - **Expected:** the home page returns `200 OK` and renders the public showroom
 
 ## What is NOT monitored
@@ -29,5 +31,5 @@ To verify the monitor and alerting without causing an outage:
 
 - This is an external, anonymous check — no session, no database write, no secrets.
 - The monitor URL is a public route that returns `200` when the showroom is healthy.
-- If the monitor cannot be created (owner has not set up UptimeRobot), runtime checklist F1 is
-  `NOT RUN` with this documented setup.
+- If the monitor is ever deleted, recreate it from this document; runtime checklist F1
+  records the monitor as created on 2026-10-28.
