@@ -1,12 +1,14 @@
 import { getPublicCars, getSetting } from '@/lib/public-cars';
 import { sectionOfToken, type Section } from '@/lib/sections';
 import { pageMetadata } from '@/lib/site';
+import { buildInventoryJsonLd } from '@/lib/structured-data';
+import { JsonLd } from '@/components/JsonLd';
 import { InventoryBrowser, type InventoryInitial } from '@/components/site/InventoryBrowser';
 
 export const metadata = pageMetadata({
   title: 'Inventory',
   description:
-    'Browse the current TrueSpec inventory: available, on-order and landed cars, each with one doorstep price.',
+    'Browse the TrueSpec inventory: available, on-order and landed cars, each with one doorstep price, imported from the USA and delivered anywhere in Nigeria.',
   path: '/inventory',
 });
 export const dynamic = 'force-dynamic';
@@ -64,5 +66,10 @@ export default async function InventoryPage({
     page: Math.max(1, Math.floor(num(sp.page) ?? 1)),
   };
 
-  return <InventoryBrowser cars={cars} number={number ?? ''} initial={initial} />;
+  return (
+    <>
+      <JsonLd data={buildInventoryJsonLd(cars)} />
+      <InventoryBrowser cars={cars} number={number ?? ''} initial={initial} />
+    </>
+  );
 }

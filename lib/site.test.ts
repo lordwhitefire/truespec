@@ -55,10 +55,13 @@ test('pageMetadata builds an absolute canonical and social card', () => {
       width: DEFAULT_OG_IMAGE_WIDTH,
       height: DEFAULT_OG_IMAGE_HEIGHT,
       alt: `${SITE_NAME} — Inventory`,
+      type: 'image/png',
     },
   ]);
   assert.equal((metadata.twitter as { card?: string } | undefined)?.card, 'summary_large_image');
-  assert.deepEqual(metadata.twitter?.images, [`${SITE_ORIGIN}${DEFAULT_OG_IMAGE}`]);
+  assert.deepEqual(metadata.twitter?.images, [
+    { url: `${SITE_ORIGIN}${DEFAULT_OG_IMAGE}`, alt: `${SITE_NAME} — Inventory` },
+  ]);
 });
 
 test("pageMetadata uses a car's absolute cover image when one is supplied", () => {

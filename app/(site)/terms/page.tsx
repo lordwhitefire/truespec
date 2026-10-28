@@ -3,12 +3,14 @@ import './terms.css';
 import '../../reference.css';
 import { pageMetadata, TERMS_LAST_UPDATED } from '@/lib/site';
 import { getSetting } from '@/lib/public-cars';
+import { JsonLd } from '@/components/JsonLd';
+import { buildBreadcrumbJsonLd } from '@/lib/structured-data';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Terms of service',
   description:
-    'TrueSpec Automotive terms of service: availability, price changes, the WhatsApp sale path, delivery, and Nigerian law (Lagos).',
+    'TrueSpec Automotive terms of service: availability, price changes, the WhatsApp sale path, delivery, Nigerian law (Lagos), and no payment on this site.',
   path: '/terms',
 });
 
@@ -18,6 +20,12 @@ export default async function TermsPage() {
 
   return (
     <>
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'Terms of service', path: '/terms' },
+        ])}
+      />
       <main className="doc" id="doc">
         <p className="crumb">
           <Link href="/">Home</Link> / Terms of service

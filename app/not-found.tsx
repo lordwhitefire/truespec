@@ -1,10 +1,18 @@
 import './globals.css';
 import './reference.css';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { connection } from 'next/server';
 import { getSetting } from '@/lib/public-cars';
 import { waClass, waLink, waOffProps } from '@/components/whatsapp';
 import { ThemeSpeech } from '@/components/site/ThemeSpeech';
+
+export const metadata: Metadata = {
+  title: 'Page not found | TrueSpec Automotive',
+  description:
+    'The page you asked for is not here. Browse the TrueSpec inventory or head back to the home page.',
+  robots: { index: false, follow: false },
+};
 
 const WA_MESSAGE = 'Hello TrueSpec, I was looking for a car on your site.';
 
@@ -17,7 +25,7 @@ export default async function NotFound() {
   const wa = waLink(num, WA_MESSAGE);
 
   return (
-    <div
+    <main
       className="nfbox"
       style={{ padding: '90px 24px', textAlign: 'center', maxWidth: 620, margin: 'auto' }}
     >
@@ -103,6 +111,6 @@ export default async function NotFound() {
         .
       </p>
       <ThemeSpeech />
-    </div>
+    </main>
   );
 }

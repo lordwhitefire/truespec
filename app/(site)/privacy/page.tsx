@@ -3,12 +3,14 @@ import './privacy.css';
 import '../../reference.css';
 import { pageMetadata, PRIVACY_LAST_UPDATED } from '@/lib/site';
 import { getSetting } from '@/lib/public-cars';
+import { JsonLd } from '@/components/JsonLd';
+import { buildBreadcrumbJsonLd } from '@/lib/structured-data';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Privacy notice',
   description:
-    'TrueSpec privacy notice: what we store, the WhatsApp contact channel, demo accounts, deletion, and no analytics.',
+    'TrueSpec privacy notice: what we store, the WhatsApp contact channel, optional demo accounts, deletion, and no analytics. The public showroom needs no account.',
   path: '/privacy',
 });
 
@@ -20,6 +22,12 @@ export default async function PrivacyPage() {
 
   return (
     <>
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: 'Home', path: '/' },
+          { name: 'Privacy notice', path: '/privacy' },
+        ])}
+      />
       <main className="doc" id="doc">
         <p className="crumb">
           <Link href="/">Home</Link> / Privacy notice

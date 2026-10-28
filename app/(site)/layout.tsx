@@ -11,6 +11,8 @@ import { isSpecial, type PublicCar } from '@/lib/serialize';
 import { formatNaira } from '@/lib/money';
 import { WA_OFF_REASON, WA_OFF_TEXT, waClass, waLink, waOffProps } from '@/components/whatsapp';
 import { Photo } from '@/components/Photo';
+import { JsonLd } from '@/components/JsonLd';
+import { buildOrganizationJsonLd, buildWebSiteJsonLd } from '@/lib/structured-data';
 
 // The site chrome reads the store — the ticker, the gallery, the WhatsApp number — so every page
 // under this layout renders per request, never from a build-time snapshot. (The data-heavy public
@@ -143,8 +145,10 @@ async function SiteFabLive() {
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <JsonLd data={buildOrganizationJsonLd()} />
+      <JsonLd data={buildWebSiteJsonLd()} />
       <OfflineNotice />
-      <div id="site-header">
+      <header id="site-header">
         <div className="top" id="top">
           <div className="w">
             <a href="/" className="lg">
@@ -199,7 +203,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </Suspense>
           </div>
         </div>
-      </div>
+      </header>
 
       {children}
 

@@ -1,9 +1,12 @@
 import { carHref, carTitle } from '../components/site/car-view';
 import { sizedPhotoUrl } from './photo-url';
 import type { PublicCar } from './serialize';
-import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_NAME, SITE_ORIGIN } from './site';
+import { absoluteUrl, DEFAULT_OG_IMAGE, SITE_DESCRIPTION, SITE_NAME, SITE_ORIGIN } from './site';
 
 const SCHEMA = 'https://schema.org';
+
+export const ORGANIZATION_ID = `${SITE_ORIGIN}/#organization`;
+export const WEBSITE_ID = `${SITE_ORIGIN}/#website`;
 
 /**
  * The public Vehicle/Offer graph for a car page.
@@ -36,7 +39,7 @@ export type CarJsonLd = {
     availability: string;
     itemCondition: string;
     url: string;
-    seller: { '@type': 'AutoDealer'; name: string; url: string };
+    seller: { '@type': 'Organization'; '@id': string; name: string; url: string };
   };
 };
 
@@ -66,7 +69,12 @@ export function buildCarJsonLd(car: PublicCar): CarJsonLd {
       availability: availabilityFor(car),
       itemCondition: `${SCHEMA}/UsedCondition`,
       url,
-      seller: { '@type': 'AutoDealer', name: SITE_NAME, url: SITE_ORIGIN },
+      seller: {
+        '@type': 'Organization',
+        '@id': ORGANIZATION_ID,
+        name: SITE_NAME,
+        url: SITE_ORIGIN,
+      },
     },
   };
 
@@ -85,4 +93,110 @@ export function buildCarJsonLd(car: PublicCar): CarJsonLd {
   if (car.trim) jsonLd.vehicleConfiguration = car.trim;
 
   return jsonLd;
+}
+
+/**
+ * The site-wide Organization node. Minimal on purpose: the MVP is not a registered business, so
+ * there is no address, telephone, geo, tax ID or AutoDealer type to assert.
+ */
+export type OrganizationJsonLd = {
+  '@context': string;
+  '@type': 'Organization';
+  '@id': string;
+  name: string;
+  url: string;
+  description: string;
+};
+
+export function buildOrganizationJsonLd(): OrganizationJsonLd {
+  return {
+    '@context': SCHEMA,
+    '@type': 'Organization',
+    '@id': ORGANIZATION_ID,
+    name: SITE_NAME,
+    url: SITE_ORIGIN,
+    description: SITE_DESCRIPTION,
+  };
+}
+
+/**
+ * The site-wide WebSite node. No `SearchAction`: the public site has no real search endpoint, and a
+ * fake one would promise a capability that does not exist.
+ */
+export type WebSiteJsonLd = {
+  '@context': string;
+  '@type': 'WebSite';
+  '@id': string;
+  url: string;
+  name: string;
+  description: string;
+  inLanguage: string;
+  publisher: { '@id': string };
+};
+
+export function buildWebSiteJsonLd(): WebSiteJsonLd {
+  return {
+    '@context': SCHEMA,
+    '@type': 'WebSite',
+    '@id': WEBSITE_ID,
+    url: SITE_ORIGIN,
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    inLanguage: 'en-NG',
+    publisher: { '@id': ORGANIZATION_ID },
+  };
+}
+
+export type BreadcrumbItem = { name: string; path: string };
+
+export type BreadcrumbListJsonLd = {
+  '@context': string;
+  '@type': 'BreadcrumbList';
+  itemListElement: Array<{
+    '@type': 'ListItem';
+    position: number;
+    name: string;
+    item: string;
+  }>;
+};
+
+export function buildBreadcrumbJsonLd(items: BreadcrumbItem[]): BreadcrumbListJsonLd {
+  return {
+    '@context': SCHEMA,
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+export type InventoryJsonLd = {
+  '@context': string;
+  '@type': 'ItemList';
+  name: string;
+  numberOfItems: number;
+  itemListElement: Array<{
+    '@type': 'ListItem';
+    position: number;
+    url: string;
+    name: string;
+  }>;
+};
+
+export function buildInventoryJsonLd(cars: PublicCar[]): InventoryJsonLd {
+  return {
+    '@context': SCHEMA,
+    '@type': 'ItemList',
+    name: `${SITE_NAME} inventory`,
+    numberOfItems: cars.length,
+    itemListElement: cars.map((car, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: absoluteUrl(carHref(car)),
+      name: carTitle(car),
+    })),
+  };
 }

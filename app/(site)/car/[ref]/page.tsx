@@ -11,7 +11,8 @@ import { isSpecial, type PublicCar } from '@/lib/serialize';
 import { getPublicCarForView, getPublicCars, getSetting } from '@/lib/public-cars';
 import { pageMetadata } from '@/lib/site';
 import { carGallerySrcSet, sizedPhotoUrl } from '@/lib/photo-url';
-import { buildCarJsonLd } from '@/lib/structured-data';
+import { buildBreadcrumbJsonLd, buildCarJsonLd } from '@/lib/structured-data';
+import { JsonLd } from '@/components/JsonLd';
 import { CarLayers, RelatedShell } from './car-parts';
 
 export const dynamic = 'force-dynamic';
@@ -27,6 +28,8 @@ export async function generateMetadata({
     // The not-found boundary answers 404; keep the metadata honest too.
     return {
       title: 'Car not found | TrueSpec Automotive',
+      description:
+        'That car is no longer listed. Browse the current TrueSpec inventory of available, on-order and landed cars, each with one doorstep price. Imported from the USA.',
       robots: { index: false, follow: false },
     };
   }
@@ -40,7 +43,7 @@ export async function generateMetadata({
   if (sold) {
     return pageMetadata({
       title: `Sold — ${name}`,
-      description: `Sold — ${name}. ${price}, ${mileage}. See what else TrueSpec Automotive has available.`,
+      description: `Sold — ${name}. ${price}, ${mileage}. See what else TrueSpec Automotive has available, imported from the USA and delivered anywhere in Nigeria.`,
       path: carHref(car),
       image,
       imageAlt: `${name} — sold`,
@@ -50,7 +53,7 @@ export async function generateMetadata({
 
   return pageMetadata({
     title: name,
-    description: `${name} — ${price}, ${mileage}. ${sectionLabel(car.section)} from TrueSpec Automotive.`,
+    description: `${name} — ${price}, ${mileage}. ${sectionLabel(car.section)} from TrueSpec Automotive, imported from the USA and delivered anywhere in Nigeria. One price.`,
     path: carHref(car),
     image,
     imageAlt: name,
@@ -131,11 +134,16 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   // normal listing; the sold view and noindex keep it out of the index.
   const sold = car.sold || car.section === 'sold';
   const jsonLd = buildCarJsonLd(car);
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Inventory', path: '/inventory' },
+    { name: sold ? 'Sold' : crumbTitle(car), path: carHref(car) },
+  ]);
   const jsonLdScript = (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-    />
+    <>
+      <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+    </>
   );
   if (sold) {
     return (
@@ -180,17 +188,17 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
   return (
     <>
       {jsonLdScript}
-      <div className="crumbs">
+      <nav className="crumbs" aria-label="Breadcrumb">
         <div className="w" id="crumb">
           <a href="/">Home</a>
           <i className="fa-solid fa-chevron-right" />
           <a href="/inventory">Inventory</a>
           <i className="fa-solid fa-chevron-right" />
-          <b>{crumbTitle(car)}</b>
+          <b aria-current="page">{crumbTitle(car)}</b>
         </div>
-      </div>
+      </nav>
 
-      <div className="main" id="main">
+      <main className="main" id="main">
         <div className="w">
           <div className="cols">
             <div>
@@ -445,7 +453,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
             </aside>
           </div>
         </div>
-      </div>
+      </main>
 
       <section className="rel">
         <div className="w">
@@ -570,17 +578,17 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
   const similar = all.filter((c) => c.section === 'available').slice(0, 4);
   return (
     <>
-      <div className="crumbs">
+      <nav className="crumbs" aria-label="Breadcrumb">
         <div className="w" id="crumb">
           <a href="/">Home</a>
           <i className="fa-solid fa-chevron-right" />
           <a href="/inventory">Inventory</a>
           <i className="fa-solid fa-chevron-right" />
-          <b>Sold</b>
+          <b aria-current="page">Sold</b>
         </div>
-      </div>
+      </nav>
 
-      <div className="main" id="main">
+      <main className="main" id="main">
         <div className="w nfbox">
           {car.photos[0] ? (
             <Photo
@@ -664,7 +672,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
             find one.
           </div>
         )}
-      </div>
+      </main>
 
       <RelatedShell />
       <CarLayers wa={soldWa} alt={`${name} photo`} />

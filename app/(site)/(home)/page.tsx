@@ -27,7 +27,7 @@ export default async function HomePage() {
   return (
     <>
       <h1 className="sr-only">{SITE_TITLE}</h1>
-      <div className="sv">
+      <main className="sv">
         <HeroSlider cars={heroCars} />
 
         {/* Umar's one question, inline after the hero. First visit until answered/skipped. */}
@@ -155,7 +155,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       <HomeBehaviors all={cars} number={num} />
     </>

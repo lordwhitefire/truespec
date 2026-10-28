@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { PublicCar } from './serialize';
-import { buildCarJsonLd } from './structured-data';
+import {
+  buildBreadcrumbJsonLd,
+  buildCarJsonLd,
+  buildInventoryJsonLd,
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+} from './structured-data';
 
 const base: PublicCar = {
   ref: 'TS-1001',
@@ -58,7 +64,8 @@ test('live car emits a public Vehicle and an InStock Offer', () => {
   assert.equal(jsonLd.offers.itemCondition, 'https://schema.org/UsedCondition');
   assert.equal(jsonLd.offers.url, 'https://truespec-k4y6.vercel.app/car/TS-1001');
   assert.deepEqual(jsonLd.offers.seller, {
-    '@type': 'AutoDealer',
+    '@type': 'Organization',
+    '@id': 'https://truespec-k4y6.vercel.app/#organization',
     name: 'TrueSpec Automotive',
     url: 'https://truespec-k4y6.vercel.app',
   });
@@ -136,4 +143,87 @@ test('missing mileage, colours and trim are omitted, not emitted as null', () =>
   assert.equal(jsonLd.vehicleInteriorColor, undefined);
   assert.equal(jsonLd.vehicleConfiguration, undefined);
   assert.doesNotMatch(JSON.stringify(jsonLd), /null/);
+});
+
+test('the Organization node is minimal and does not invent a business identity', () => {
+  const jsonLd = buildOrganizationJsonLd();
+
+  assert.equal(jsonLd['@context'], 'https://schema.org');
+  assert.equal(jsonLd['@type'], 'Organization');
+  assert.equal(jsonLd['@id'], 'https://truespec-k4y6.vercel.app/#organization');
+  assert.equal(jsonLd.name, 'TrueSpec Automotive');
+  assert.equal(jsonLd.url, 'https://truespec-k4y6.vercel.app');
+  assert.match(jsonLd.description, /Nigerian vehicle-import showroom/);
+  assert.doesNotMatch(JSON.stringify(jsonLd), /address|telephone|geo|taxID|AutoDealer|review/i);
+});
+
+test('the WebSite node references the Organization and promises no fake search', () => {
+  const jsonLd = buildWebSiteJsonLd();
+
+  assert.equal(jsonLd['@type'], 'WebSite');
+  assert.equal(jsonLd['@id'], 'https://truespec-k4y6.vercel.app/#website');
+  assert.equal(jsonLd.url, 'https://truespec-k4y6.vercel.app');
+  assert.deepEqual(jsonLd.publisher, {
+    '@id': 'https://truespec-k4y6.vercel.app/#organization',
+  });
+  assert.doesNotMatch(JSON.stringify(jsonLd), /SearchAction|potentialAction/i);
+});
+
+test('breadcrumbs are numbered in order and use absolute URLs', () => {
+  const jsonLd = buildBreadcrumbJsonLd([
+    { name: 'Home', path: '/' },
+    { name: 'Inventory', path: '/inventory' },
+    { name: '2021 Toyota Camry', path: '/car/TS-1001' },
+  ]);
+
+  assert.equal(jsonLd['@type'], 'BreadcrumbList');
+  assert.deepEqual(jsonLd.itemListElement, [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://truespec-k4y6.vercel.app/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Inventory',
+      item: 'https://truespec-k4y6.vercel.app/inventory',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: '2021 Toyota Camry',
+      item: 'https://truespec-k4y6.vercel.app/car/TS-1001',
+    },
+  ]);
+});
+
+test('the inventory ItemList is the public cars, numbered in order', () => {
+  const second = withCar({
+    ref: 'TS-1002',
+    brand: 'Lexus',
+    model: 'RX',
+    trim: null,
+    year: 2022,
+  });
+  const jsonLd = buildInventoryJsonLd([base, second]);
+
+  assert.equal(jsonLd['@type'], 'ItemList');
+  assert.equal(jsonLd.name, 'TrueSpec Automotive inventory');
+  assert.equal(jsonLd.numberOfItems, 2);
+  assert.deepEqual(jsonLd.itemListElement, [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      url: 'https://truespec-k4y6.vercel.app/car/TS-1001',
+      name: '2021 Toyota Camry XSE V6',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      url: 'https://truespec-k4y6.vercel.app/car/TS-1002',
+      name: '2022 Lexus RX',
+    },
+  ]);
 });

@@ -11,7 +11,7 @@ export const SITE_ORIGIN = 'https://truespec-k4y6.vercel.app';
 export const SITE_NAME = 'TrueSpec Automotive';
 export const SITE_TITLE = 'TrueSpec — cars you can trust';
 export const SITE_DESCRIPTION =
-  'A Nigerian vehicle-import showroom: browse, judge a car completely, chat on WhatsApp.';
+  'A Nigerian vehicle-import showroom: browse available, on-order and landed cars, judge each one completely, and buy through WhatsApp with one doorstep price.';
 
 /** The generated default card at `app/opengraph-image.tsx`. */
 export const DEFAULT_OG_IMAGE = '/opengraph-image';
@@ -59,6 +59,8 @@ export type PageMetadataInput = {
   /** An absolute image URL (e.g. a Sanity cover) or a root-relative path. Defaults to the site card. */
   image?: string;
   imageAlt?: string;
+  /** The image MIME type. Defaults to `image/png` only for the generated card. */
+  imageType?: string;
   type?: 'website' | 'article';
   noIndex?: boolean;
   /** Use the title exactly as given; for the home page, which already carries the brand. */
@@ -75,6 +77,7 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
   const canonical = absoluteUrl(input.path);
   const image = absoluteUrl(input.image || DEFAULT_OG_IMAGE);
   const imageAlt = input.imageAlt || `${SITE_NAME} — ${input.title}`;
+  const imageType = input.imageType ?? (input.image ? undefined : 'image/png');
 
   return {
     title,
@@ -93,6 +96,7 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
           width: DEFAULT_OG_IMAGE_WIDTH,
           height: DEFAULT_OG_IMAGE_HEIGHT,
           alt: imageAlt,
+          ...(imageType ? { type: imageType } : {}),
         },
       ],
     },
@@ -100,7 +104,7 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
       card: 'summary_large_image',
       title,
       description,
-      images: [image],
+      images: [{ url: image, alt: imageAlt }],
     },
     ...(input.noIndex ? { robots: { index: false, follow: false } } : {}),
   };
