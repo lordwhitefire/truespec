@@ -36,22 +36,21 @@ stable.
 
 ## Bundle budget
 
-Total client JavaScript (`.next/static/chunks`): ~1.6 MB across chunks. The largest individual
-chunks are:
+Configured budget: **220 KB per chunk** (`scripts/bundle-report.mjs`). The current release build
+(2026-10-28) reports **2 breaches**, named here as the release-note record required by G7:
 
-- `framework-67e87833b9140bb8.js` — ~214 KB
-- `4bd1b696-f785427dddbba9fb.js` — ~169 KB
-- `1255-5cd2fe06309409a0.js` — ~170 KB
-- `main-24b24585c266ce83.js` — ~126 KB
-- `polyfills-42372ed130431b0a.js` — ~110 KB
-- `8845-86ebd783910ad336.js` — ~124 KB
+- **BREACH** `8102-0b64ba3d4cd0d9ae.js` — 357.6 KB
+- **BREACH** `main-b72b8118caf09c27.js` — 238.7 KB
+- `framework-94b7c442f36cc9bd.js` — 213.9 KB (under budget)
+- `4bd1b696-f785427dddbba9fb.js` — 169.0 KB
+- `8845-86ebd783910ad336.js` — 123.5 KB
+- `polyfills-42372ed130431b0a.js` — 110.0 KB
 
-No single chunk exceeds ~220 KB; the shared framework chunk is the largest. No bundle budget
-breach is identified in this release; if a future change pushes a single chunk above ~250 KB, it
-should be named in the release note and split or deferred.
+Total client JavaScript: 1.28 MB across 14 chunks. The two breaches are **not waived**: splitting or
+deferring them is follow-up work. They do not block the release by themselves; the owner decides.
 
 ## How to re-measure
 
-`npm run build` then `PORT=3210 npm start`, then run Lighthouse against `http://127.0.0.1:3210/`,
-`/inventory` and `/car/[ref]` on the agreed mobile profile. Bundle sizes are in
-`.next/static/chunks/`.
+`npm run build`, then `PORT=3210 npm start`, then run Lighthouse against `http://127.0.0.1:3210/`,
+`/inventory` and `/car/[ref]` on the agreed mobile profile. Run `npm run bundle-report` for the
+per-chunk sizes and budget check.
