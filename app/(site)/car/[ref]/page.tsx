@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation';
 import '@/app/(site)/car/car.css';
 import { CarBehaviors } from '@/components/site/CarBehaviors';
 import { Photo } from '@/components/Photo';
-import { carHref, carTitle, mileageLabel } from '@/components/site/car-view';
+import { carHref, carTitle } from '@/components/site/car-view';
 import { carWaLink, waClass, waLink, waOffProps } from '@/components/whatsapp';
 import { formatNaira } from '@/lib/money';
+import { carDescription } from '@/lib/car-meta';
 import { sectionLabel, tokenOf } from '@/lib/sections';
 import { isSpecial, type PublicCar } from '@/lib/serialize';
 import { getPublicCarForView, getPublicCars, getSetting } from '@/lib/public-cars';
@@ -35,15 +36,13 @@ export async function generateMetadata({
   }
 
   const name = carTitle(car);
-  const price = formatNaira(car.priceKobo);
-  const mileage = mileageLabel(car) ?? 'Mileage not stated';
   const image = car.photos[0] ? sizedPhotoUrl(car.photos[0], 1200, 630) : undefined;
   const sold = car.sold || car.section === 'sold';
 
   if (sold) {
     return pageMetadata({
       title: `Sold — ${name}`,
-      description: `Sold — ${name}. ${price}, ${mileage}. See what else TrueSpec Automotive has available, imported from the USA and delivered anywhere in Nigeria.`,
+      description: carDescription(car, true),
       path: carHref(car),
       image,
       imageAlt: `${name} — sold`,
@@ -53,7 +52,7 @@ export async function generateMetadata({
 
   return pageMetadata({
     title: name,
-    description: `${name} — ${price}, ${mileage}. ${sectionLabel(car.section)} from TrueSpec Automotive, imported from the USA and delivered anywhere in Nigeria. One price.`,
+    description: carDescription(car, false),
     path: carHref(car),
     image,
     imageAlt: name,

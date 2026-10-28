@@ -1,0 +1,12 @@
+# trust.txt — experimental
+# TrueSpec Automotive
+# Canonical site: https://truespec-k4y6.vercel.app
+#
+# This file is an experiment. It is not a recognized standard, and no crawler is known to honor it.
+#
+# Verification
+# Google Search Console: https://truespec-k4y6.vercel.app/google646db9dd031323ec.html
+# Bing Webmaster Tools: https://truespec-k4y6.vercel.app/BingSiteAuth.xml
+# Security contact: https://truespec-k4y6.vercel.app/.well-known/security.txt
+#
+# No social profiles are listed here because no verified handles exist yet.

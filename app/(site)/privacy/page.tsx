@@ -29,9 +29,11 @@ export default async function PrivacyPage() {
         ])}
       />
       <main className="doc" id="doc">
-        <p className="crumb">
-          <Link href="/">Home</Link> / Privacy notice
-        </p>
+        <nav aria-label="Breadcrumb">
+          <p className="crumb">
+            <Link href="/">Home</Link> / Privacy notice
+          </p>
+        </nav>
         <h1>Privacy notice</h1>
         <p className="upd">
           <i className="fa-regular fa-calendar" />

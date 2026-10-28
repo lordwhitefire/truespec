@@ -27,9 +27,11 @@ export default async function TermsPage() {
         ])}
       />
       <main className="doc" id="doc">
-        <p className="crumb">
-          <Link href="/">Home</Link> / Terms of service
-        </p>
+        <nav aria-label="Breadcrumb">
+          <p className="crumb">
+            <Link href="/">Home</Link> / Terms of service
+          </p>
+        </nav>
         <h1>Terms of service</h1>
         <p className="upd">
           <i className="fa-regular fa-calendar" />

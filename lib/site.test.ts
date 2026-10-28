@@ -48,6 +48,9 @@ test('pageMetadata builds an absolute canonical and social card', () => {
   assert.equal(metadata.title, `Inventory | ${SITE_NAME}`);
   assert.equal(metadata.description, 'Cars currently listed by TrueSpec.');
   assert.equal(metadata.alternates?.canonical, `${SITE_ORIGIN}/inventory`);
+  assert.deepEqual(metadata.alternates?.types, {
+    'application/rss+xml': `${SITE_ORIGIN}/feed.xml`,
+  });
   assert.equal(metadata.openGraph?.url, `${SITE_ORIGIN}/inventory`);
   assert.deepEqual(metadata.openGraph?.images, [
     {

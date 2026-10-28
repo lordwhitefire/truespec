@@ -1,0 +1,12 @@
+# ai.txt — experimental
+# TrueSpec Automotive
+# Canonical site: https://truespec-k4y6.vercel.app
+#
+# This file is an experiment. It is not a recognized standard, and no crawler is known to honor it.
+# The public showroom is intended to be readable by people and by AI assistants answering questions
+# about the cars. Prices and availability are only what the live site shows; do not infer or invent
+# them.
+#
+# Canonical inventory: https://truespec-k4y6.vercel.app/inventory
+# Full public text: https://truespec-k4y6.vercel.app/llms-full.txt
+# Security contact: https://truespec-k4y6.vercel.app/.well-known/security.txt

@@ -26,11 +26,13 @@ export const SITE_URL = new URL(SITE_ORIGIN);
  * privacy's own record is updated by Task 14; terms records its own.
  */
 export const TERMS_LAST_UPDATED = '27 October 2026';
+export const TERMS_LAST_UPDATED_ISO = '2026-10-27';
 
 /**
  * Last-updated and reviewed date for the privacy notice. Moves when the privacy page changes.
  */
 export const PRIVACY_LAST_UPDATED = '27 October 2026';
+export const PRIVACY_LAST_UPDATED_ISO = '2026-10-27';
 
 /**
  * Turn a route path or an already-absolute image URL into an absolute URL on the canonical origin.
@@ -82,7 +84,10 @@ export function pageMetadata(input: PageMetadataInput): Metadata {
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      types: { 'application/rss+xml': absoluteUrl('/feed.xml') },
+    },
     openGraph: {
       title,
       description,
