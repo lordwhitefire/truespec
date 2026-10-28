@@ -1,6 +1,8 @@
-# DEMO-001 copy review — pending owner approval
+# DEMO-001 copy review — approved
 
-**Status:** PENDING OWNER APPROVAL. Nothing in this note is an approval.
+**Status:** APPROVED by the owner on 2026-10-26. The visible "Owner note" block was removed in
+commit `57ff673`; the last-updated date is 26 October 2026 and the contact line uses the saved
+WhatsApp number.
 **Source of truth:** `app/office/sign-up/[[...sign-up]]/page.tsx` and
 `app/(site)/privacy/page.tsx`. The privacy page inserts the saved WhatsApp number when one exists;
 the text below marks those inserts as `{WhatsApp number}`.
@@ -115,8 +117,8 @@ jurisdiction, you may have other rights; we’ll try to help.
 
 Questions about this notice: message us on WhatsApp.
 
-**Owner note (visible on the page):** replace the "last updated" date and any contact details before
-publishing.
+**Pre-publication edit:** done in `57ff673`. The visible "Owner note" block is gone; the last-updated
+date is 26 October 2026 and the contact line uses the saved WhatsApp number.
 
 ## What changed
 

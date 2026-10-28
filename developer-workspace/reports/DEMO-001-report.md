@@ -1,14 +1,14 @@
-# DEMO-001 — code-level report
+# DEMO-001 — build and live-setup report
 
 **Date:** 2026-10-26
-**Verdict:** code complete; live verification pending owner setup.
-**Repository:** `truespec`, branch `main`, local commits only. No push was made.
+**Verdict:** code complete; snapshot, first reset, cron, Clerk sign-up and app switch verified live; remaining session checks pending owner execution.
+**Repository:** `truespec`, branch `main`. The owner pushed the build through `d088316`; T20 (`57ff673`) and T21 (`d6c0c1e`) are local commits.
 **Handover:** `/home/lordwhitefire/current-project/truespec-handover/DEMO-001-setup.md` (outside the
 repository, mode `600`, no secret values).
 
-**Copy gate:** the privacy notice and demo sign-up text are recorded in
-`developer-workspace/notes/DEMO-001-copy-review.md`. Owner approval is still **pending**; this report
-does not claim it. Keep `DEMO_SIGNUP_ENABLED` off until that text is approved.
+**Copy gate:** the privacy notice and demo sign-up text were approved by the owner on 2026-10-26.
+The visible “Owner note” was removed in `57ff673`; the copy review is
+`developer-workspace/notes/DEMO-001-copy-review.md`. Clerk sign-up is now open and `DEMO_SIGNUP_ENABLED=1` in Vercel.
 
 ---
 
@@ -89,28 +89,28 @@ below.
 
 ## 3. Live checks — blocked, not passed
 
-These require the owner's live Neon branch, Clerk application configuration, Vercel environment and
-deployment. They were not run by the developer and are not claimed as passing.
+The checks that were run are marked passed with their evidence. Checks that need a live Clerk
+session or a deliberate switch remain blocked — owner action.
 
 | Live check | Status | Why |
 | --- | --- | --- |
-| Demo branch exists, is named `demo`, is not default, and has a read-write endpoint | **blocked — owner action** | No demo branch exists yet. |
-| `DEMO_DATABASE_URL` and `DEMO_BRANCH_ID` are set | **blocked — owner action** | Demo environment values are not present. |
-| Demo branch migrated to main's migration set | **blocked — owner action** | No demo connection. |
-| One-time snapshot exists under the seed label | **blocked — owner action** | Snapshot has not been taken. |
-| First reset returns 200 / `ok: true` / `step: "done"` / `cleanup.failed: 0` | **blocked — owner action** | No demo branch, seed, or live reset. |
-| Owner and client have `truespec_space = "main"` | **blocked — owner action** | Clerk live metadata is owner setup. |
-| Clerk sign-up mode is open with lockout and enumeration protections | **blocked — owner action** | Clerk live configuration. |
-| `/api/demo/reset` cron exists at `0 3 * * *` UTC | **blocked — owner action** | Vercel deployment/cron setup. |
+| Demo branch exists, is named `demo`, is not default, and has a read-write endpoint | **passed** | `demo` / `br-cold-firefly-b2gzi24t`; parent `production`; not default; direct read-write endpoint. |
+| `DEMO_DATABASE_URL` and `DEMO_BRANCH_ID` are set | **passed** | Present in `.env.local`; owner reports the Vercel values added. |
+| Demo branch migrated to main's migration set | **passed** | 26/26 migration names match; last `0026_enquiry_pdf_unique.sql`. |
+| One-time snapshot exists under the seed label | **passed** | 392 rows, 18 tables, 20,306 bytes; asset `file-5d405e31d97317188457e5c1d0ce180e58d1df22-enc`; exactly one `truespec-demo-seed`. |
+| First reset returns 200 / `ok: true` / `step: "done"` / `cleanup.failed: 0` | **passed** | HTTP 200, `ok: true`, `step: "done"`, `cleanup.failed: 0`, 42.7s; demo/main both 26 cars, 117 events, 2 office users. |
+| Owner and client have `truespec_space = "main"` | **owner reported** | Owner reports badges done; not independently verified. |
+| Clerk sign-up mode is open with lockout and enumeration protections | **passed — owner done** | Clerk sign-up enabled in dashboard; `DEMO_SIGNUP_ENABLED=1` in Vercel; `/office/sign-up` returns `200` with Clerk form and redirects to `/office`. |
+| `/api/demo/reset` cron exists at `0 3 * * *` UTC | **passed — owner confirmed** | Both cron entries confirmed in Vercel; route live. |
 | Owner sees main, no banner, buyer preview present | **blocked — owner action** | No live main session/branch in this environment. |
 | Client sees main, no banner | **blocked — owner action** | No live client session. |
-| Stranger signs up and lands in demo with the banner | **blocked — owner action** | Clerk sign-up and demo branch are not live. |
+| Stranger signs up and lands in demo with the banner | **blocked — owner action** | Requires a live stranger demo session. |
 | Demo/main isolation under a real session | **blocked — owner action** | Requires live spaces. |
 | Demo upload label, cap, and missing-mark refusal | **blocked — owner action** | Requires a live demo session/store. |
 | Shell banner, Settings render, and hidden preview on live pages | **blocked — owner action** | Requires live demo session. |
-| Reset survival: main marker survives, demo upload disappears | **blocked — owner action** | Requires the first live reset. |
+| Reset survival: main marker survives, demo upload disappears | **blocked — owner action** | First reset passed; the marker/upload survival test needs a live demo session. |
 | Cleanup card excludes seed, backups and demo assets on live data | **blocked — owner action** | Requires live store data. |
-| Privacy/sign-up copy approval | **blocked — owner gate** | Exact text is waiting for approval. |
+| Privacy/sign-up copy approval | **passed** | Owner approved 2026-10-26; visible Owner note removed in `57ff673`. |
 | TASK-007 independent testing | **not claimed** | Separate task; this report is not that test. |
 
 `npm run leak-check` is the one gate that read the remote store; it is a public-leak check, not a
@@ -144,6 +144,8 @@ files were not staged.
 | 17 | Retire `demo:wipe` | `07a566f` |
 | 18 | Owner setup handover (record only; handover is outside git) | `2c03fde` |
 | 19 | Full gates and this report | this commit |
+| 20 | Remove visible Owner note | `57ff673` |
+| 21 | Post-sign-up note on sign-in page | `d6c0c1e` |
 
 The handover file itself is outside the repository and is not in a commit. Its plan/ledger record is
 `2c03fde`; the handover is the file named at the top of this report.
@@ -168,12 +170,11 @@ No secret is in this report, a commit, or a log.
 
 ## 6. What remains for the owner
 
-1. Approve the exact privacy/sign-up copy in
-   `developer-workspace/notes/DEMO-001-copy-review.md`.
-2. Follow the handover in order: owner/client metadata, demo branch from `production`, migration,
-   Vercel environment, snapshot, first reset, Clerk sign-up, app switch, cron, live verification.
-3. Keep `DEMO_SIGNUP_ENABLED` off until the copy is approved and Clerk sign-up is deliberately
-   opened.
-4. Run TASK-007 independently; this report does not substitute for it.
+1. Push `main` — T20 (`57ff673`) and T21 (`d6c0c1e`) are local commits.
+2. Run the remaining live session checks: owner/client main, stranger demo lands in demo with banner,
+   demo/main isolation, demo uploads labelled `truespec-demo`, main marker survives reset, demo upload
+   disappears, cleanup card excludes seed/backups/demo assets.
+3. Run TASK-007 independently; this report does not substitute for it.
 
-The build is code complete. Live verification is pending owner setup, not passed.
+The build is code complete. The snapshot, first reset, cron, Clerk sign-up and app switch are
+verified live. Remaining live session checks are pending owner execution and are not claimed.

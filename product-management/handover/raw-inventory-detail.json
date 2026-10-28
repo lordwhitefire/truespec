@@ -1,0 +1,973 @@
+[
+  {
+    "route": "/office/car/TS-1001",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/car/TS-1001",
+    "h": [
+      "Edit car",
+      "1The car",
+      "2Photos",
+      "3Costs — never leaves the office",
+      "4State",
+      "5Private notes",
+      "More",
+      "Delete this car?",
+      "Replace what is in the form?"
+    ],
+    "buttons": [
+      "Sign out",
+      "Mark as sold",
+      "Delete",
+      "Available",
+      "Landed",
+      "On Order",
+      "Sold",
+      "Save car",
+      "More",
+      "Keep it",
+      "Keep what I typed",
+      "Replace with the PDF",
+      "Undo"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Cancel",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Preview the buyer page",
+        "h": "/car/2019-toyota-sienna-xle"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Brand",
+      "Model",
+      "Trim",
+      "Year",
+      "Mileage",
+      "Doorstep price (₦)",
+      "Was price (₦) — optional",
+      "Exterior colour",
+      "Interior",
+      "Features — one per line",
+      "Note (buyers read this)",
+      "Drop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.",
+      "Purchase price (₦)",
+      "Shipping (₦)",
+      "Clearing (₦)",
+      "Trucking within USA (₦)",
+      "Trucking in Nigeria (₦)",
+      "Full tank (₦)",
+      "Where this car is",
+      "Tracking states — optional, office only",
+      "On the way",
+      "At port",
+      "Cleared",
+      "New arrivalAlso shows under \"Landed this year\" in the showroom, as well as Available.",
+      "Arrival note",
+      "Notes to self (private)"
+    ],
+    "placeholders": [
+      "Toyota",
+      "Sienna",
+      "LE",
+      "2020",
+      "52,614",
+      "33,900,000",
+      "36,500,000",
+      "Silver",
+      "Grey",
+      "Reverse camera\nPower sliding doors\nTri-zone AC",
+      "One owner, full service history, ready to drive.",
+      "26,500,000",
+      "3,200,000",
+      "1,850,000",
+      "470,000",
+      "525,000",
+      "110,000",
+      "Expected arrival: November",
+      "Duty paid, immaculate. Ready for viewing."
+    ],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nEDIT CAR\n\nToyota Camry XSE V6 2021 · TS-1001 · added 15 Oct 2026 · last updated by Umar, 17 Oct 18:33\n\nMark as sold\nDelete\n1\nTHE CAR\nBRAND\nMODEL\nTRIM\nYEAR\nMILEAGE\nShown exactly as the car reads — kilometres.\nDOORSTEP PRICE (₦)\n₦\nThe one price a buyer sees. Shipping, clearing and delivery are already inside it.\nWAS PRICE (₦) — OPTIONAL\n₦\nShown crossed out beside the price. Leave blank for no \"was\" price.\nEXTERIOR COLOUR\nINTERIOR\nFEATURES — ONE PER LINE\nWritten the way a seller types. These go straight to the buyer's page.\nNOTE (BUYERS READ THIS)\nShown on the car's page. The private note below stays office-only.\n2\nPHOTOS\nDrop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.\nCOVER\n3\nCOSTS\n— never leaves the office\nPURCHASE PRICE (₦)\n₦\nSHIPPING (₦)\n₦\nCLEARING (₦)\n₦\nTRUCKING WITHIN USA (₦)\n₦\nTRUCKING IN NIGERIA (₦)\n₦\nFULL TANK (₦)\n₦\nDefault from Settings — change per car if needed.\n4\nSTATE\nWHERE THIS CAR IS\nAvailable\nLanded\nOn Order\nSold\n\nThe showroom follows automatically. Buyers only ever see the three section names — never these labels.\n\nTRACKING STATES — OPTIONAL, OFFICE ONLY\nOn the way\nAt port\nCleared\n\nStages this car passes through — none or several. They never show to buyers and never change a count.\n\nNew arrival\nAlso shows under \"Landed this year\" in the showroom, as well as Available.\nARRIVAL NOTE\nShown to buyers on On-order cars. The one field they'd otherwise have to ask about.\n5\nPRIVATE NOTES\nNOTES TO SELF (PRIVATE)\nOffice-only — never sent to the showroom.\nSave car\nCancel\nSaving puts the car in the showroom immediately.\nLANDED COST — LIVE\nLANDED COST\n₦24,840,000\nDoorstep price\n₦34,500,000\nPROFIT ON THIS CAR\n₦9,660,000\n\nPrice − cost. ≈ 28.0% of the price.\n\nWHAT THE BUYER SEES\n\nOnly the doorstep price, the car's facts and its photos. Costs, profit, private states and these notes are never sent to the browser — it's a server rule, not a setting.\n\nPreview the buyer page ",
+    "consoleErrors": []
+  },
+  {
+    "route": "/office/drafts/car/954e4aed-b610-4899-bfd8-d5043e0c973b",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/drafts/car/954e4aed-b610-4899-bfd8-d5043e0c973b",
+    "h": [
+      "Edit car draft",
+      "1The car",
+      "2Photos",
+      "3Costs — never leaves the office",
+      "4State",
+      "5Private notes",
+      "More",
+      "Delete this car?",
+      "Replace what is in the form?"
+    ],
+    "buttons": [
+      "Sign out",
+      "Autofill from PDF",
+      "Mark as sold",
+      "Delete",
+      "Available",
+      "Landed",
+      "On Order",
+      "Save as draft",
+      "Save car",
+      "More",
+      "Keep it",
+      "Keep what I typed",
+      "Replace with the PDF",
+      "Undo"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Cancel",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Preview the buyer page",
+        "h": "/car/2019-toyota-sienna-xle"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Brand",
+      "Model",
+      "Trim",
+      "Year",
+      "Mileage",
+      "Doorstep price (₦)",
+      "Was price (₦) — optional",
+      "Exterior colour",
+      "Interior",
+      "Features — one per line",
+      "Note (buyers read this)",
+      "Drop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.",
+      "Purchase price (₦)",
+      "Shipping (₦)",
+      "Clearing (₦)",
+      "Trucking within USA (₦)",
+      "Trucking in Nigeria (₦)",
+      "Full tank (₦)",
+      "Where this car is",
+      "Tracking states — optional, office only",
+      "On the way",
+      "At port",
+      "Cleared",
+      "New arrivalAlso shows under \"Landed this year\" in the showroom, as well as Available.",
+      "Arrival note",
+      "Notes to self (private)"
+    ],
+    "placeholders": [
+      "Toyota",
+      "Sienna",
+      "LE",
+      "2020",
+      "52,614",
+      "33,900,000",
+      "36,500,000",
+      "Silver",
+      "Grey",
+      "Reverse camera\nPower sliding doors\nTri-zone AC",
+      "One owner, full service history, ready to drive.",
+      "26,500,000",
+      "3,200,000",
+      "1,850,000",
+      "470,000",
+      "525,000",
+      "110,000",
+      "Expected arrival: November",
+      "Duty paid, immaculate. Ready for viewing."
+    ],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nEDIT CAR DRAFT\n\nFrom car-template-1792145797830.pdf · waiting 16 Oct. Every field can be edited; nothing is a record until you save the car.\n\nAutofill from PDF\n1\nTHE CAR\nBRAND\nMODEL\nTRIM\nYEAR\nMILEAGE\nShown exactly as the car reads — kilometres.\nDOORSTEP PRICE (₦)\n₦\nThe one price a buyer sees. Shipping, clearing and delivery are already inside it.\nWAS PRICE (₦) — OPTIONAL\n₦\nShown crossed out beside the price. Leave blank for no \"was\" price.\nEXTERIOR COLOUR\nINTERIOR\nFEATURES — ONE PER LINE\nWritten the way a seller types. These go straight to the buyer's page.\nNOTE (BUYERS READ THIS)\nShown on the car's page. The private note below stays office-only.\n2\nPHOTOS\nDrop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.\n3\nCOSTS\n— never leaves the office\nPURCHASE PRICE (₦)\n₦\nSHIPPING (₦)\n₦\nCLEARING (₦)\n₦\nTRUCKING WITHIN USA (₦)\n₦\nTRUCKING IN NIGERIA (₦)\n₦\nFULL TANK (₦)\n₦\nDefault from Settings — change per car if needed.\n4\nSTATE\nWHERE THIS CAR IS\nAvailable\nLanded\nOn Order\n\nThe showroom follows automatically. Buyers only ever see the three section names — never these labels.\n\nTRACKING STATES — OPTIONAL, OFFICE ONLY\nOn the way\nAt port\nCleared\n\nStages this car passes through — none or several. They never show to buyers and never change a count.\n\nNew arrival\nAlso shows under \"Landed this year\" in the showroom, as well as Available.\nARRIVAL NOTE\nShown to buyers on On-order cars. The one field they'd otherwise have to ask about.\n5\nPRIVATE NOTES\nNOTES TO SELF (PRIVATE)\nOffice-only — never sent to the showroom.\nSave as draft\nSave car\nCancel\nSave as draft keeps it waiting; Save car puts it in the showroom.\nLANDED COST — LIVE\nLANDED COST\n—\nDoorstep price\n₦22,000\n0 of 6 costs entered. Projected profit excludes this car until all six are in. Money tied up counts whatever is entered.\nPROFIT ON THIS CAR\n—\n\nType the costs — this updates as you type.\n\nWHAT THE BUYER SEES\n\nOnly the doorstep price, the car's facts and its photos. Costs, profit, private states and these notes are never sent to the browser — it's a server rule, not a setting.\n\nPreview the buyer page ",
+    "consoleErrors": []
+  },
+  {
+    "route": "/office/drafts/enquiry/be66a36a-b00e-410d-ad84-292527176212",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/drafts/enquiry/be66a36a-b00e-410d-ad84-292527176212",
+    "h": [
+      "Edit enquiry draft",
+      "1The customer",
+      "2State",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "Save as draft",
+      "Save enquiry",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Cancel",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Name",
+      "Phone number",
+      "Asked for",
+      "Note",
+      "Where this enquiry is"
+    ],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nEDIT ENQUIRY DRAFT\n\nFrom truespec-enquiry-filled.pdf · waiting Yesterday. Every value can be edited; nothing is a record until you save the enquiry.\n\n1\nTHE CUSTOMER\nNAME\nPHONE NUMBER\nASKED FOR\nNOTE\nOffice-only — the note is never shown to buyers.\n2\nSTATE\nWHERE THIS ENQUIRY IS\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nSave as draft\nSave enquiry\nCancel\nSave as draft keeps it waiting; Save enquiry puts it on the board.",
+    "consoleErrors": []
+  },
+  {
+    "route": "/office/enquiries?tab=taps",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/enquiries?tab=taps",
+    "h": [
+      "Enquiries",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Enquiry template",
+        "h": "/api/enquiry-template"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Taps",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "2022 RAV4 Prime SE",
+        "h": "/office/car/TS-1008"
+      },
+      {
+        "t": "2021 Sport HSE",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "2021 Camry XSE V6",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "2021 Camry XSE V6",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Create from file"
+    ],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nENQUIRIES\n\nThe site only records that a WhatsApp tap happened, and on which car. You bring the names and numbers back here by importing the enquiry sheet.\n\nEnquiry template\nCreate from file\nImport a filled enquiry template or the sales desk's sheet — its rows become drafts.\nEnquiries\nTaps\n\nGeneral tap — /\n\nYesterday\n\nGeneral tap — /\n\n3 days\n\nTap on 2022 RAV4 Prime SE\n\n5 days\n\nTap on 2021 Sport HSE\n\n5 days\n\nTap on 2021 Camry XSE V6\n\n16 Oct\n\nTap on 2021 Camry XSE V6\n\n16 Oct",
+    "consoleErrors": []
+  },
+  {
+    "route": "/office/enquiries/ENQ-0004/edit",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/enquiries/ENQ-0004/edit",
+    "h": [
+      "That page isn't in the office",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "Back to the dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\nTHAT PAGE ISN'T IN THE OFFICE\n\nNo office screen matches that address. Nothing was lost.\n\nBack to the dashboard",
+    "consoleErrors": []
+  },
+  {
+    "route": "/car/TS-1001",
+    "title": "2021 Toyota Camry XSE V6 | TrueSpec Automotive",
+    "finalUrl": "/car/TS-1001",
+    "h": [
+      "Toyota Camry XSE V6 2021",
+      "More available cars",
+      "2020 Lexus RX 350",
+      "2021 BMW X5",
+      "2021 Honda Accord",
+      "2022 Toyota RAV4 Prime",
+      "2018 Mercedes-Benz C 300",
+      "2019 BMW X3",
+      "2021 Range Rover Sport",
+      "2021 Porsche Macan",
+      "2022 Toyota Land Cruiser Prado",
+      "2020 Chevrolet Tahoe",
+      "2021 Ford F-150",
+      "TrueSpec Automotive",
+      "Photo gallery",
+      "How buying works",
+      "Social network",
+      "Chat with us",
+      "Chat hours",
+      "Viewing",
+      "Delivery",
+      "Before you go to WhatsApp"
+    ],
+    "buttons": [
+      "Share this",
+      "Overview",
+      "Features",
+      "Delivery",
+      "×",
+      "Continue to WhatsApp",
+      "Cancel"
+    ],
+    "links": [
+      {
+        "t": "TrueSpec",
+        "h": "/"
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Home",
+        "h": "/"
+      },
+      {
+        "t": "Inventory",
+        "h": "/inventory"
+      },
+      {
+        "t": "Book a viewing",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20would%20like%20to%20book%20a%20viewing%20for%20the%202021%20Toyota%20Camry%20XSE%20V6%20(Ref%20TS-1001)."
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I'm%20interested%20in%20the%202021%20Toyota%20Camry%20XSE%20V6%20(TS-1001)."
+      },
+      {
+        "t": "Make an offer",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20would%20like%20to%20make%20an%20offer%20on%20the%202021%20Toyota%20Camry%20XSE%20V6%20(Ref%20TS-1001)%2C%20listed%20at%20%E2%82%A634%2C500%2C000."
+      },
+      {
+        "t": "Book a viewing",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20would%20like%20to%20book%20a%20viewing%20for%20the%202021%20Toyota%20Camry%20XSE%20V6%20(Ref%20TS-1001)."
+      },
+      {
+        "t": "2020 Lexus RX 350₦52,000,000",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "2021 BMW X5₦88,000,000",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "2021 Honda Accord₦38,000,000",
+        "h": "/car/TS-1007"
+      },
+      {
+        "t": "2022 Toyota RAV4 Prime₦45,500,000",
+        "h": "/car/TS-1008"
+      },
+      {
+        "t": "2018 Mercedes-Benz C 300₦29,500,000",
+        "h": "/car/TS-1011"
+      },
+      {
+        "t": "2019 BMW X3₦41,000,000",
+        "h": "/car/TS-1012"
+      },
+      {
+        "t": "2021 Range Rover Sport₦115,000,000",
+        "h": "/car/TS-1013"
+      },
+      {
+        "t": "2021 Porsche Macan₦96,000,000",
+        "h": "/car/TS-1014"
+      },
+      {
+        "t": "2022 Toyota Land Cruiser Prado₦92,000,000",
+        "h": "/car/TS-1015"
+      },
+      {
+        "t": "2020 Chevrolet Tahoe₦74,000,000",
+        "h": "/car/TS-1016"
+      },
+      {
+        "t": "2021 Ford F-150₦68,000,000",
+        "h": "/car/TS-1017"
+      },
+      {
+        "t": "Chat now",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I'm%20interested%20in%20the%202021%20Toyota%20Camry%20XSE%20V6%20(TS-1001)."
+      },
+      {
+        "t": "WhatsApp us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Privacy notice",
+        "h": "/privacy"
+      },
+      {
+        "t": "Read the full privacy notice",
+        "h": "/privacy"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nImported from the USA\nDelivered anywhere in Nigeria\nVISITS BY APPOINTMENT\nWHATSAPP\n+2348146927170\nCHAT HOURS\nMon - Sat, 9AM - 6PM\nNew on the lot: 2019 Lexus RX 350 350 — landed this year\nNext to land: 2021 Range Rover Sport HSE — Expected arrival: November\nBiggest drop: 2022 Toyota RAV4 Prime SE — was ₦50,900,000, now ₦45,500,000\nOne doorstep price — shipping, clearing and delivery included.\nChat on WhatsApp\nHome\nInventory\nToyota Camry 2021\nToyota Camry XSE V6 2021\nAVAILABLE\nRef TS-1001\nShare this\n\nGood to see you back on this one 👋 — the 2021 Toyota Camry XSE V6 is still waiting. Want to book a viewing?\nBook a viewing\n\n 1 / 3\nOVERVIEW\nFEATURES\nDELIVERY\n\nThis 2021 Toyota Camry XSE V6 comes in obsidian black with a black interior and 31,000 km on the clock.\n\nEvery Toyota we list is imported from the USA and delivered with one honest doorstep price.\n\nMessage us and we will send more photos, a video walk-around, or answer anything about this Camry.\n\nAvailable now. Message us to arrange a viewing.\n\nMessage us on WhatsApp for more photos, a video walk-around or to ask anything about this car.\n\nDOORSTEP PRICE\n₦34,500,000\nShipping, clearing and delivery included.\nChat on WhatsApp\nMAKE AN OFFER\nBOOK A VIEWING\nBrandToyota\nModelCamry\nTrimXSE V6\nYear2021\nMileage31,000 km\nExteriorObsidian black\nInteriorBlack\nStatusAvailable\n\nOne doorstep price, no extra fees\n\nShipped from the USA\n\nDelivered anywhere in Nigeria\n\nMore available cars\n2020 Lexus RX 350\n₦52,000,000\n2021 BMW X5\n₦88,000,000\n2021 Honda Accord\n₦38,000,000\n2022 Toyota RAV4 Prime\n₦45,500,000\n2018 Mercedes-Benz C 300\n₦29,500,000\n2019 BMW X3\n₦41,000,000\n2021 Range Rover Sport\n₦115,000,000\n2021 Porsche Macan\n₦96,000,000\n2022 Toyota Land Cruiser Prado\n₦92,000,000\n2020 Chevrolet Tahoe\n₦74,000,000\n2021 Ford F-150\n₦68,000,000\nTRUESPEC AUTOMOTIVE\n\nWe import and deliver quality vehicles from the USA. One honest doorstep price on every car.\n\nPHOTO GALLERY\nHOW BUYING WORKS\n1. Pick a car or ask for one\n2. Chat with us on WhatsApp\n3. We ship, clear and deliver\nSOCIAL NETWORK\nCHAT WITH US\nWhatsApp us\nCHAT HOURS\n\nMon - Fri: 09:00AM - 06:00PM\nSaturday: 10:00AM - 04:00PM\nSunday: Closed\n\nVIEWING\n\nCars can be viewed by appointment once they have landed. Message us to book a time.\n\nDELIVERY\n\nWe deliver to your door anywhere in Nigeria. Delivery is included in the price.\n\n© 2026 TrueSpec Automotive. All rights reserved.\nPrivacy notice · Imported from the USA",
+    "consoleErrors": []
+  },
+  {
+    "route": "/car/TS-1013",
+    "title": "2021 Range Rover Sport HSE | TrueSpec Automotive",
+    "finalUrl": "/car/TS-1013",
+    "h": [
+      "Range Rover Sport HSE 2021",
+      "More cars on order",
+      "2021 Toyota Camry",
+      "2020 Lexus RX 350",
+      "2021 BMW X5",
+      "2021 Honda Accord",
+      "2022 Toyota RAV4 Prime",
+      "2018 Mercedes-Benz C 300",
+      "2019 BMW X3",
+      "2021 Porsche Macan",
+      "2022 Toyota Land Cruiser Prado",
+      "2020 Chevrolet Tahoe",
+      "2021 Ford F-150",
+      "TrueSpec Automotive",
+      "Photo gallery",
+      "How buying works",
+      "Social network",
+      "Chat with us",
+      "Chat hours",
+      "Viewing",
+      "Delivery",
+      "Before you go to WhatsApp"
+    ],
+    "buttons": [
+      "Share this",
+      "Overview",
+      "Features",
+      "Delivery",
+      "×",
+      "Continue to WhatsApp",
+      "Cancel"
+    ],
+    "links": [
+      {
+        "t": "TrueSpec",
+        "h": "/"
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Home",
+        "h": "/"
+      },
+      {
+        "t": "Inventory",
+        "h": "/inventory"
+      },
+      {
+        "t": "Reserve this car",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I'm%20interested%20in%20the%202021%20Range%20Rover%20Sport%20HSE%20(TS-1013)."
+      },
+      {
+        "t": "Reserve this car",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I'm%20interested%20in%20the%202021%20Range%20Rover%20Sport%20HSE%20(TS-1013)."
+      },
+      {
+        "t": "Make an offer",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20would%20like%20to%20make%20an%20offer%20on%20the%202021%20Range%20Rover%20Sport%20HSE%20(Ref%20TS-1013)%2C%20listed%20at%20%E2%82%A6115%2C000%2C000."
+      },
+      {
+        "t": "Book a viewing",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20would%20like%20to%20book%20a%20viewing%20for%20the%202021%20Range%20Rover%20Sport%20HSE%20(Ref%20TS-1013)."
+      },
+      {
+        "t": "2021 Toyota Camry₦34,500,000",
+        "h": "/car/TS-1001"
+      },
+      {
+        "t": "2020 Lexus RX 350₦52,000,000",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "2021 BMW X5₦88,000,000",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "2021 Honda Accord₦38,000,000",
+        "h": "/car/TS-1007"
+      },
+      {
+        "t": "2022 Toyota RAV4 Prime₦45,500,000",
+        "h": "/car/TS-1008"
+      },
+      {
+        "t": "2018 Mercedes-Benz C 300₦29,500,000",
+        "h": "/car/TS-1011"
+      },
+      {
+        "t": "2019 BMW X3₦41,000,000",
+        "h": "/car/TS-1012"
+      },
+      {
+        "t": "2021 Porsche Macan₦96,000,000",
+        "h": "/car/TS-1014"
+      },
+      {
+        "t": "2022 Toyota Land Cruiser Prado₦92,000,000",
+        "h": "/car/TS-1015"
+      },
+      {
+        "t": "2020 Chevrolet Tahoe₦74,000,000",
+        "h": "/car/TS-1016"
+      },
+      {
+        "t": "2021 Ford F-150₦68,000,000",
+        "h": "/car/TS-1017"
+      },
+      {
+        "t": "Reserve now",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I'm%20interested%20in%20the%202021%20Range%20Rover%20Sport%20HSE%20(TS-1013)."
+      },
+      {
+        "t": "WhatsApp us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Privacy notice",
+        "h": "/privacy"
+      },
+      {
+        "t": "Read the full privacy notice",
+        "h": "/privacy"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nImported from the USA\nDelivered anywhere in Nigeria\nVISITS BY APPOINTMENT\nWHATSAPP\n+2348146927170\nCHAT HOURS\nMon - Sat, 9AM - 6PM\nNew on the lot: 2019 Lexus RX 350 350 — landed this year\nNext to land: 2021 Range Rover Sport HSE — Expected arrival: November\nBiggest drop: 2022 Toyota RAV4 Prime SE — was ₦50,900,000, now ₦45,500,000\nOne doorstep price — shipping, clearing and delivery included.\nChat on WhatsApp\nHome\nInventory\nRange Rover Sport 2021\nRange Rover Sport HSE 2021\nON ORDER\nRef TS-1013\nShare this\nExpected arrival: November\n\nArriving November. Reserve it with a message and I hold it for you — no payment yet.\nReserve this car\n\nON ORDER\n 1 / 3\nOVERVIEW\nFEATURES\nDELIVERY\n\nThis 2021 Range Rover Sport HSE comes in fuji white with a black interior and 0 km on the clock.\n\nEvery Range Rover we list is imported from the USA and delivered with one honest doorstep price.\n\nMessage us and we will send more photos, a video walk-around, or answer anything about this Sport.\n\nExpected arrival: November\n\nMessage us on WhatsApp for more photos, a video walk-around or to ask anything about this car.\n\nDOORSTEP PRICE\n₦115,000,000\nShipping, clearing and delivery included.\nReserve this car\nMAKE AN OFFER\nBOOK A VIEWING\nBrandRange Rover\nModelSport\nTrimHSE\nYear2021\nMileage0 km\nExteriorFuji white\nInteriorBlack\nStatusOn Order\n\nOne doorstep price, no extra fees\n\nShipped from the USA\n\nDelivered anywhere in Nigeria\n\nMore cars on order\n2021 Toyota Camry\n₦34,500,000\n2020 Lexus RX 350\n₦52,000,000\n2021 BMW X5\n₦88,000,000\n2021 Honda Accord\n₦38,000,000\n2022 Toyota RAV4 Prime\n₦45,500,000\n2018 Mercedes-Benz C 300\n₦29,500,000\n2019 BMW X3\n₦41,000,000\n2021 Porsche Macan\n₦96,000,000\n2022 Toyota Land Cruiser Prado\n₦92,000,000\n2020 Chevrolet Tahoe\n₦74,000,000\n2021 Ford F-150\n₦68,000,000\nTRUESPEC AUTOMOTIVE\n\nWe import and deliver quality vehicles from the USA. One honest doorstep price on every car.\n\nPHOTO GALLERY\nHOW BUYING WORKS\n1. Pick a car or ask for one\n2. Chat with us on WhatsApp\n3. We ship, clear and deliver\nSOCIAL NETWORK\nCHAT WITH US\nWhatsApp us\nCHAT HOURS\n\nMon - Fri: 09:00AM - 06:00PM\nSaturday: 10:00AM - 04:00PM\nSunday: Closed\n\nVIEWING\n\nCars can be viewed by appointment once they have landed. Message us to book a time.\n\nDELIVERY\n\nWe deliver to your door anywhere in Nigeria. Delivery is included in the price.\n\n© 2026 TrueSpec Automotive. All rights reserved.\nPrivacy notice · Imported from the USA",
+    "consoleErrors": []
+  },
+  {
+    "route": "/office/settings",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/settings",
+    "h": [
+      "Settings",
+      "WhatsApp number",
+      "Tagline",
+      "Cost default",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "General",
+      "Car states",
+      "Customer states",
+      "Account",
+      "Save number",
+      "Save tagline",
+      "Save default",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Number, with country code",
+      "Tagline",
+      "Full tank"
+    ],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\nSETTINGS\n\nThe few things the whole site runs on. Change them here and the showroom follows — immediately, everywhere.\n\nGeneral\nCar states\nCustomer states\nAccount\nWHATSAPP NUMBER\n\nEvery chat button on the site opens this number. A wrong number here is a dead button for every buyer.\n\nNUMBER, WITH COUNTRY CODE\n\nValid — buttons will open a chat with this number.\n\nOwner: the demonstration ships with a placeholder number. Save your real one here and every chat button on the site follows it.\nWHAT BUYERS SEE — LIVE PREVIEW\nWHATSAPP\n+2348146927170\nChat on WhatsApp\nButton live — opens\nwa.me/2348146927170\nSave number\n\nUpdated 16 Oct 2026, 11:55\n\nTAGLINE\n\nThe one line under the brand on the home page. Say what you do, plainly.\n\nTAGLINE\n\n38/80\n\nHOME PAGE PREVIEW\nTRUESPEC\nCARS YOU CAN TRUST, PRICES YOU CAN SEE\nSave tagline\n\nUpdated 16 Oct 2026, 10:18\n\nCOST DEFAULT\n\nPre-filled when typing a car's costs. Every amount is in naira — there is no currency conversion.\n\nFULL TANK\n₦\n\nDefault prefilled on every new car — change per car if needed.\n\nSave default\n\nUpdated 19 Oct 2026, 13:46",
+    "consoleErrors": []
+  }
+]

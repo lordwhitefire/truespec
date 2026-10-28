@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>TrueSpec — How to use your website and office</title>
+<style>
+  @page { size: A4; margin: 17mm 16mm 18mm 16mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.05pt; line-height: 1.49; color: #1b1c1e; margin: 0;
+  }
+  h1, h2, h3, h4 { font-family: "Oswald", "Arial Narrow", Arial, sans-serif; font-weight: 700; margin: 0; }
+  h2 { font-size: 18pt; letter-spacing: .2px; margin: 0 0 3.4mm; page-break-after: avoid; }
+  h3 { font-size: 10.8pt; letter-spacing: .9px; text-transform: uppercase; color: #8a6a1f; margin: 4.6mm 0 1.6mm; page-break-after: avoid; }
+  h4 { font-size: 10.2pt; margin: 3.4mm 0 1mm; }
+  p { margin: 0 0 2.1mm; }
+  ul, ol { margin: 0 0 2.4mm; padding-left: 5.2mm; }
+  li { margin-bottom: 1.2mm; }
+  b, strong { font-weight: 600; }
+  .page { page-break-before: always; }
+  .first { page-break-before: avoid; }
+  .rule { height: 2px; background: #b08a2e; width: 26mm; margin: 0 0 6mm; }
+  .num { font-family: "Oswald", Arial; font-size: 9pt; letter-spacing: 2px; color: #b08a2e; margin-bottom: 2mm; }
+  .lead { font-size: 11.6pt; color: #33363a; }
+  .muted { color: #6b6f74; }
+  .small { font-size: 9.2pt; }
+  .box { background: #f7f4ec; border-left: 3.5px solid #b08a2e; padding: 3.2mm 4.2mm; margin: 3.2mm 0; page-break-inside: avoid; }
+  .box h4 { margin: 0 0 1.2mm; font-size: 9.6pt; letter-spacing: .6px; text-transform: uppercase; color: #7a5d17; }
+  .warn { background: #fdf1ef; border-left-color: #b3261e; }
+  .warn h4 { color: #8c1d17; }
+  .plain { background: #f3f4f5; border-left-color: #5b6066; }
+  .plain h4 { color: #3e4348; }
+  .seelist { font-size: 9.6pt; color: #3d4146; margin: 2mm 0 3mm; }
+  .seelist span { display: inline-block; border: 1px solid #d9d3c4; background: #fff; padding: 1px 6px; margin: 0 3px 4px 0; border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; margin: 2.4mm 0 3.2mm; font-size: 9.3pt; }
+  th, td { text-align: left; vertical-align: top; padding: 1.7mm 2.6mm; border-bottom: 1px solid #e2ded3; }
+  th { background: #f4f1e9; font-size: 8.6pt; letter-spacing: .7px; text-transform: uppercase; color: #6c6f73; }
+  .kv td:first-child { width: 34%; font-weight: 600; }
+  .cover { height: 247mm; display: flex; flex-direction: column; justify-content: space-between; }
+  .brand { font-family: "Oswald", Arial; font-size: 15pt; letter-spacing: 3px; }
+  .brand small { display: block; font-size: 8pt; letter-spacing: 2px; color: #8a6a1f; margin-top: 1mm; }
+  .cover h1 { font-size: 40pt; line-height: 1.02; margin: 0 0 6mm; }
+  .cover .sub { font-size: 13pt; color: #4b4f54; max-width: 120mm; }
+  .cover .meta { font-size: 9.4pt; color: #6b6f74; border-top: 1px solid #ddd8ca; padding-top: 4mm; }
+  .toc { columns: 2; column-gap: 12mm; font-size: 10pt; }
+  .toc div { margin-bottom: 2.2mm; }
+  .toc b { color: #b08a2e; font-family: "Oswald", Arial; margin-right: 2mm; }
+  .step { display: flex; gap: 4mm; margin-bottom: 3.2mm; page-break-inside: avoid; }
+  .step .n { font-family: "Oswald", Arial; font-size: 16pt; color: #b08a2e; line-height: 1; min-width: 8mm; }
+  .step .b { flex: 1; }
+  .step .b h4 { margin: 0 0 .8mm; font-size: 10.3pt; }
+  .cred { border: 1px solid #d9d3c4; background: #fbfaf6; padding: 4mm; margin: 3.2mm 0; }
+  .cred div { font-size: 10.6pt; margin-bottom: 1.8mm; }
+  .cred code { font-family: "Courier New", monospace; font-size: 11pt; background: #eee9dc; padding: 1px 5px; }
+  .foot { margin-top: 8mm; border-top: 1px solid #e2ded3; padding-top: 3mm; font-size: 8.8pt; color: #7a7e83; }
+</style>
+</head>
+<body>
+
+<!-- ===================== COVER ===================== -->
+<section class="cover first">
+  <div>
+    <div class="brand">TRUESPEC<small>AUTOMOTIVE</small></div>
+    <div style="margin-top:26mm">
+      <h1>Your website<br/>and office.</h1>
+      <div class="sub">How to use it, page by page — written to be read once and then kept.</div>
+    </div>
+  </div>
+  <div>
+    <div class="box plain" style="margin-bottom:8mm">
+      <h4>What this is</h4>
+      <p style="margin:0">TrueSpec has two sides. The <b>showroom</b> is what customers see. The <b>office</b> is what you see. This guide walks through both, in the order you will meet them.</p>
+    </div>
+    <div class="meta">
+      Prepared 23 October 2026 &nbsp;·&nbsp; For the owner of TrueSpec Automotive &nbsp;·&nbsp; Keep this with your records
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTENTS ===================== -->
+<section class="page">
+  <div class="num">CONTENTS</div>
+  <h2>What is in here</h2>
+  <div class="rule"></div>
+  <div class="toc">
+    <div><b>01</b> Read this first</div>
+    <div><b>02</b> Your sign-in</div>
+    <div><b>03</b> Your first five minutes</div>
+    <div><b>04</b> The showroom — what customers see</div>
+    <div><b>05</b> The office — finding your way</div>
+    <div><b>06</b> Dashboard</div>
+    <div><b>07</b> Inventory</div>
+    <div><b>08</b> Add a car — the car and the photos</div>
+    <div><b>09</b> Add a car — costs, state, private notes</div>
+    <div><b>10</b> Change a car, sell it, delete it</div>
+    <div><b>11</b> Drafts — files you upload</div>
+    <div><b>12</b> Enquiries</div>
+    <div><b>13</b> Activity log</div>
+    <div><b>14</b> Settings</div>
+    <div><b>15</b> What changed from the brief, and why</div>
+    <div><b>16</b> Quick answers</div>
+  </div>
+
+  <h3>How to read it</h3>
+  <p>You do not need to read it all at once. Start with <b>01</b> and <b>02</b>. Then do <b>03</b> — it takes five minutes and makes the site yours. The rest is a reference: read the page you need, when you need it.</p>
+  <p>Words in <b>bold</b> are the exact words you will see on the screen. If this guide says <b>Save car</b>, there is a button called <b>Save car</b>.</p>
+
+  <div class="box">
+    <h4>The one thing to remember</h4>
+    <p style="margin:0">Your <b>cost</b> and your <b>profit</b> never leave the office. Not on the page, not in the data the page receives, not in the browser's developer tools. The server enforces it — it is not a setting and not something you can turn off by accident.</p>
+  </div>
+</section>
+
+<!-- ===================== 01 READ THIS FIRST ===================== -->
+<section class="page">
+  <div class="num">01</div>
+  <h2>Read this first</h2>
+  <div class="rule"></div>
+
+  <p class="lead">You have two websites in one. They look different because they are for different people.</p>
+
+  <h3>The showroom</h3>
+  <p>This is what a customer sees. Anyone can open it, from anywhere, without a password. They can look at cars, see the one price you have set, and start a WhatsApp conversation with you. They cannot change anything. They cannot see what a car cost you.</p>
+
+  <h3>The office</h3>
+  <p>This is what you see. It is private. It holds your stock, your costs, your profit, your enquiries, and the record of every change. Nobody reaches it without signing in.</p>
+
+  <table class="kv">
+    <tr><td>Showroom address</td><td>https://truespec-k4y6.vercel.app</td></tr>
+    <tr><td>Office address</td><td>https://truespec-k4y6.vercel.app/office</td></tr>
+    <tr><td>Who can get in</td><td>You, and anyone you invite. There is no public sign-up.</td></tr>
+  </table>
+
+  <div class="box plain">
+    <h4>One rule that governs everything</h4>
+    <p style="margin:0">A customer can see the <b>doorstep price</b> — the one number he pays. He can never see the purchase price, the shipping, the clearing, the trucking, the full tank, the landed cost, or the profit. Those live in the office only.</p>
+  </div>
+
+  <h3>The cars you will see are sample cars</h3>
+  <p>They are there so the site does not look empty on day one, and so you can practise. Replace them with your own, or delete them. Nothing you do to a sample car matters.</p>
+
+  <h3>What you can safely do</h3>
+  <p>Everything in this guide is safe to try. Nothing is permanent except a saved car, a saved enquiry, and the activity log — and even a deleted car can be brought back with <b>Undo</b>.</p>
+</section>
+
+<!-- ===================== 02 SIGN IN ===================== -->
+<section class="page">
+  <div class="num">02</div>
+  <h2>Your sign-in</h2>
+  <div class="rule"></div>
+
+  <p class="lead">The office has one door. This is it.</p>
+
+  <h3>The address</h3>
+  <div class="cred">
+    <div><b>https://truespec-k4y6.vercel.app/office</b></div>
+  </div>
+  <p><b>Bookmark</b> it or save it to your home screen. There is deliberately no “Office” link on the public site — customers should never wander into the back room.</p>
+
+  <h3>How you get in the first time</h3>
+  <div class="step"><div class="n">1</div><div class="b"><h4>Open the invitation email</h4><p>It goes to the address you gave me. Check your spam or junk folder too — invitations often land there.</p></div></div>
+  <div class="step"><div class="n">2</div><div class="b"><h4>Select the link in the email</h4><p>It opens the office sign-in screen.</p></div></div>
+  <div class="step"><div class="n">3</div><div class="b"><h4>Select “Continue with Google”</h4><p>Choose the Google account with that same email address. You are in — you land on the <b>Dashboard</b>.</p></div></div>
+
+  <p>Every time after that: open the office address and select <b>Continue with Google</b>.</p>
+
+  <div class="box">
+    <h4>Use the same Google account</h4>
+    <p style="margin:0">The invitation is tied to the email address you gave me. Use the Google account with that address — a different one will not be recognised.</p>
+  </div>
+
+  <h3>If it will not let you in</h3>
+  <p>Check your spam folder first. If the invitation has expired, tell me and I will send a new one. And make sure you picked the same Google account.</p>
+</section>
+
+<!-- ===================== 03 FIRST FIVE MINUTES ===================== -->
+<section class="page">
+  <div class="num">03</div>
+  <h2>Your first five minutes</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Do these five things now. After them, the site is yours — not a demonstration.</p>
+
+  <div class="step"><div class="n">1</div><div class="b">
+    <h4>Put in your real WhatsApp number</h4>
+    <p>Open <b>Settings</b> → <b>WhatsApp number</b>. Type your number with the country code, starting with <b>+234</b>. Select <b>Save number</b>.</p>
+    <p class="small muted">The site ships with a placeholder number. Until you change it, every chat button on the site opens a chat with the wrong number. This is the single most important thing on this page.</p>
+  </div></div>
+
+  <div class="step"><div class="n">2</div><div class="b">
+    <h4>Write your tagline</h4>
+    <p><b>Settings</b> → <b>Tagline</b>. One short line under the brand on the home page. Type it, watch the preview, select <b>Save tagline</b>.</p>
+  </div></div>
+
+  <div class="step"><div class="n">3</div><div class="b">
+    <h4>Set your full tank default</h4>
+    <p><b>Settings</b> → <b>Full tank</b>. Type the amount you usually spend filling a tank. Select <b>Save default</b>. Every new car will start with this figure; you can change it on any car.</p>
+  </div></div>
+
+  <div class="step"><div class="n">4</div><div class="b">
+    <h4>Add one real car</h4>
+    <p>Select <b>Add</b> (or <b>Add / edit car</b> on a computer). Fill in what you know. You do not have to finish every box — a car saves with what it has. Select <b>Save car</b>.</p>
+  </div></div>
+
+  <div class="step"><div class="n">5</div><div class="b">
+    <h4>Go and look at it in the showroom</h4>
+    <p>Open <b>https://truespec-k4y6.vercel.app</b> in another tab. Your car is there, with its doorstep price. Everything you kept in the office stayed in the office.</p>
+  </div></div>
+
+  <div class="box">
+    <h4>When you have done this</h4>
+    <p style="margin:0">The site is live and yours. Everything after this page is reference — read it when you need it, not before.</p>
+  </div>
+</section>
+
+<!-- ===================== 04 SHOWROOM ===================== -->
+<section class="page">
+  <div class="num">04</div>
+  <h2>The showroom — what customers see</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Four pages. No login. Nothing here can be changed by a visitor.</p>
+
+  <h3>Home</h3>
+  <p>The front door. It has a large opening image, the brand, your tagline, and a <b>Chat on WhatsApp</b> button that is never far away.</p>
+  <p>Below that, three short lines highlight something from your stock — a new arrival, a car about to land, and a price that has dropped. They come from the cars you have entered; you do not write them by hand.</p>
+  <p>Then a handful of featured cars, and a small panel that asks <b>What are you after?</b> A visitor can tap <b>A family SUV</b>, <b>A saloon</b>, or <b>Something I haven't listed yet</b>. It opens a WhatsApp message already written for him. He can also select <b>Skip</b>.</p>
+
+  <h3>Inventory</h3>
+  <p>Every car, in one place. At the top there are filters: <b>Status</b>, <b>Make</b>, <b>Year</b>, <b>Colour</b>, <b>Price</b>. The status filter holds the three sections — <b>Available</b>, <b>On Order</b>, <b>Landed this year</b> — with the number of cars in each.</p>
+  <p>There is a sort control (<b>Newest first</b>, <b>Price: low to high</b>, <b>Price: high to low</b>, <b>Year: newest</b>) and a search. Each car shows its photo, name, price, mileage and colour. Selecting it opens the car page.</p>
+
+  <h3>Car page</h3>
+  <p>One car in full: a photo gallery, the car's facts, and three tabs — <b>Overview</b>, <b>Features</b>, <b>Delivery</b>.</p>
+  <p>The price shown is the <b>doorstep price</b>: shipping, clearing and delivery already inside it. There is no second number anywhere on this page.</p>
+  <p>The visitor can <b>Chat on WhatsApp</b>, <b>Share this</b>, and — depending on the car's state — <b>Book a viewing</b> or <b>Reserve this car</b>. If he has looked at this car before, the page greets him by name of the car and offers to book.</p>
+
+  <h3>Privacy notice</h3>
+  <p>A plain page telling visitors what is stored. The short version: no accounts, no forms, no analytics; the only thing kept is the record that a WhatsApp button was tapped, and on which car.</p>
+
+  <div class="box">
+    <h4>Why this matters to you</h4>
+    <p style="margin:0">Every WhatsApp tap is recorded in your office. When someone taps a button on the BMW, you will see “Tap on BMW X5” — not his name, because the site never asks for it. The name arrives when he messages you.</p>
+  </div>
+</section>
+
+<!-- ===================== 05 OFFICE MAP ===================== -->
+<section class="page">
+  <div class="num">05</div>
+  <h2>The office — finding your way</h2>
+  <div class="rule"></div>
+
+  <p class="lead">The office has seven places. You will use four of them every week.</p>
+
+  <h3>On a computer</h3>
+  <p>The menu runs down the left side:</p>
+  <div class="seelist">
+    <span>Dashboard</span><span>Inventory</span><span>Add / edit car</span><span>Enquiries</span><span>Drafts</span><span>Activity log</span><span>Settings</span>
+  </div>
+  <p>At the bottom of that menu you will see <b>Signed in as</b> your email, a light/dark switch, and <b>Sign out</b>.</p>
+
+  <h3>On a phone</h3>
+  <p>The menu becomes a bar along the bottom with five cells:</p>
+  <div class="seelist">
+    <span>Home</span><span>Stock</span><span>Add</span><span>Chats</span><span>More</span>
+  </div>
+  <p><b>Home</b> is the Dashboard. <b>Stock</b> is Inventory. <b>Add</b> opens the add-a-car form. <b>Chats</b> is Enquiries. <b>More</b> opens a small panel with <b>Drafts</b>, <b>Activity log</b> and <b>Settings</b>.</p>
+
+  <h3>The same seven places, both ways</h3>
+  <table>
+    <tr><th>What it is for</th><th>Computer menu</th><th>Phone bar</th></tr>
+    <tr><td>The state of the business</td><td>Dashboard</td><td>Home</td></tr>
+    <tr><td>Every car, with cost and profit</td><td>Inventory</td><td>Stock</td></tr>
+    <tr><td>Create a new car</td><td>Add / edit car</td><td>Add</td></tr>
+    <tr><td>Customers and WhatsApp taps</td><td>Enquiries</td><td>Chats</td></tr>
+    <tr><td>Files waiting to be reviewed</td><td>Drafts</td><td>More → Drafts</td></tr>
+    <tr><td>Who changed what, when</td><td>Activity log</td><td>More → Activity log</td></tr>
+    <tr><td>Number, tagline, states</td><td>Settings</td><td>More → Settings</td></tr>
+  </table>
+
+  <h3>Two small things you will notice</h3>
+  <ul>
+    <li><b>A dot beside Enquiries:</b> it means someone tapped a WhatsApp button since you last looked. Opening the <b>Taps</b> tab clears it.</li>
+    <li><b>“We couldn't load this”:</b> the server did not answer. Nothing is lost. Select <b>Try again</b>. If it keeps happening, that is a fault worth reporting.</li>
+  </ul>
+</section>
+
+<!-- ===================== 06 DASHBOARD ===================== -->
+<section class="page">
+  <div class="num">06</div>
+  <h2>Dashboard</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Three numbers and three counts. This is the page you open first in the morning.</p>
+
+  <h3>The money</h3>
+  <table>
+    <tr><th>What it says</th><th>What it means</th></tr>
+    <tr><td><b>Money tied up</b></td><td>What you have spent on stock you still hold. It includes cars whose costs are not fully entered, because that money is already spent.</td></tr>
+    <tr><td><b>Projected profit</b></td><td>What you would make if every car sold at its current price. Cars with incomplete costs are left out, and the page tells you how many.</td></tr>
+    <tr><td><b>Real profit (sold)</b></td><td>What you have actually made on cars marked sold — sale price minus landed cost.</td></tr>
+  </table>
+  <p>If <b>Projected profit</b> says some cars are excluded, select <b>See which</b>. It takes you to the cars that need their costs finished. A car with a missing cost is not wrong — it is just not counted until it is complete.</p>
+
+  <h3>The counts</h3>
+  <p><b>Available</b>, <b>On order</b>, and <b>Landed</b> — the same three states customers browse. <b>New arrival</b> is counted inside Available and is also shown as a small figure of its own.</p>
+
+  <h3>The two lists</h3>
+  <p><b>Recent activity</b> is the last few things that happened, with who did them. <b>Recent WhatsApp taps</b> shows which cars people tapped. <b>Full log</b> and <b>All taps</b> open the longer versions.</p>
+
+  <div class="box plain">
+    <h4>If a number looks wrong</h4>
+    <p style="margin:0">Almost always, one car has an incomplete cost, or a car was marked sold with no sale price. Open <b>Inventory</b>, filter, and look. The activity log will tell you who changed what.</p>
+  </div>
+</section>
+
+<!-- ===================== 07 INVENTORY ===================== -->
+<section class="page">
+  <div class="num">07</div>
+  <h2>Inventory</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Every car you hold, what it cost, and what it should make. This page is never public.</p>
+
+  <h3>The columns</h3>
+  <table>
+    <tr><th>Column</th><th>What it shows</th></tr>
+    <tr><td><b>Car</b></td><td>Name, reference number (TS-####) and mileage. Select it to edit.</td></tr>
+    <tr><td><b>State</b></td><td>Available, Landed, On Order, or Sold.</td></tr>
+    <tr><td><b>Price</b></td><td>The doorstep price a customer pays.</td></tr>
+    <tr><td><b>Cost</b></td><td>Everything you spent to land the car.</td></tr>
+    <tr><td><b>Profit</b></td><td>Price minus cost. Red or blank means something is incomplete.</td></tr>
+    <tr><td><b>Actions</b></td><td><b>Edit</b>, and a <b>More</b> menu with keep, delete and undo.</td></tr>
+  </table>
+
+  <h3>The tabs</h3>
+  <p><b>All</b>, <b>Available</b>, <b>Landed</b>, <b>On Order</b>, <b>Sold</b>. Each carries its count. <b>All</b> includes sold cars; the others do not.</p>
+
+  <h3>Finding a car</h3>
+  <ul>
+    <li>Use <b>Newest first</b>, <b>Price: high to low</b>, <b>Price: low to high</b> or <b>Profit: high to low</b> to sort.</li>
+    <li>Choose how many cars to a page: <b>10</b>, <b>25</b>, <b>50</b> or <b>100</b>.</li>
+    <li><b>Costs incomplete</b> appears beside a cost that is missing a figure. Select it to open that car and finish it.</li>
+  </ul>
+
+  <h3>Two ways to create</h3>
+  <p><b>Add a car</b> opens a blank form — the normal way, one car at a time.</p>
+  <p><b>Create from file</b> takes a filled PDF. Its rows do not become cars. They become <b>drafts</b>, waiting for you in <b>Drafts</b> to check before saving. There is also a <b>Car template</b> you can download, fill in, and send back.</p>
+
+  <div class="box">
+    <h4>Why drafts exist</h4>
+    <p style="margin:0">A file full of cars is easy to get wrong, and hard to check once it is live. A draft lets you see each car before the world does. Nothing reaches the showroom until you select <b>Save car</b>.</p>
+  </div>
+</section>
+
+<!-- ===================== 08 ADD A CAR (1) ===================== -->
+<section class="page">
+  <div class="num">08</div>
+  <h2>Add a car — the car and the photos</h2>
+  <div class="rule"></div>
+
+  <p class="lead">One form, five numbered sections. You can stop at any point and save.</p>
+  <p>Open it with <b>Add</b> on a phone, or <b>Add / edit car</b> on a computer.</p>
+
+  <h3>1 — The car</h3>
+  <p>These are the facts a buyer reads.</p>
+  <table class="kv">
+    <tr><td>Brand, Model, Trim, Year</td><td>Write them as the car reads — <b>Toyota</b>, <b>Camry</b>, <b>XSE V6</b>, <b>2021</b>.</td></tr>
+    <tr><td>Mileage</td><td>In kilometres, exactly as shown on the car.</td></tr>
+    <tr><td>Doorstep price (₦)</td><td>The one price a buyer sees. Shipping, clearing and delivery are already inside it.</td></tr>
+    <tr><td>Was price (₦)</td><td>Optional. If you use it, it appears crossed out beside the price. Leave it blank for no “was” price.</td></tr>
+    <tr><td>Exterior colour, Interior</td><td>Plain words — <b>Obsidian black</b>, <b>Black</b>.</td></tr>
+    <tr><td>Features — one per line</td><td>Each line becomes a bullet on the car's page. Press Enter after each one.</td></tr>
+    <tr><td>Note (buyers read this)</td><td>Shown on the car's page. Anything a buyer should know — an arrival date, a small flaw, a reason to call.</td></tr>
+  </table>
+
+  <h3>2 — Photos</h3>
+  <p>Drag photos onto the box, or select it and choose them from your phone or computer. You can add several at once.</p>
+  <ul>
+    <li>The <b>first photo is the cover</b> — the one buyers see in the list. Choose it deliberately.</li>
+    <li>Each photo can be up to <b>15 MB</b>.</li>
+    <li>You can reorder and remove them before saving.</li>
+  </ul>
+
+  <div class="box warn">
+    <h4>About photo size</h4>
+    <p style="margin:0">The site keeps photos exactly as you upload them. It does not shrink them yet. Normal phone photos are fine; a very large photo will make the page slower for buyers. If a page feels slow, start by checking the photos on it.</p>
+  </div>
+
+  <div class="box plain">
+    <h4>Shortcut: Autofill from PDF</h4>
+    <p style="margin:0">If you already have the car's details in a PDF, select <b>Autofill from PDF</b> and choose the file. The form fills itself where it can. Check every box afterwards — a machine read the file, not you.</p>
+  </div>
+</section>
+
+<!-- ===================== 09 ADD A CAR (2) ===================== -->
+<section class="page">
+  <div class="num">09</div>
+  <h2>Add a car — costs, state, private notes</h2>
+  <div class="rule"></div>
+
+  <h3>3 — Costs — never leaves the office</h3>
+  <p>Six boxes. Type what you spent, in naira:</p>
+  <div class="seelist">
+    <span>Purchase price</span><span>Shipping</span><span>Clearing</span><span>Trucking within USA</span><span>Trucking in Nigeria</span><span>Full tank</span>
+  </div>
+  <p><b>Full tank</b> comes pre-filled from your Settings default. Change it on any car where the figure was different.</p>
+  <p>As you type, a panel on the side keeps a running <b>Landed cost</b>. When you have entered a doorstep price as well, it shows <b>Profit on this car</b>. You do not calculate anything.</p>
+
+  <div class="box">
+    <h4>What the buyer sees</h4>
+    <p style="margin:0">Beside the form is a small panel called <b>What the buyer sees</b>. It shows exactly what will be public: the facts, the photos, and the doorstep price. Your costs, your profit and your notes are not in it — because they are never sent to the buyer's browser at all.</p>
+  </div>
+
+  <h3>4 — State</h3>
+  <p>Choose where the car is. The showroom follows automatically.</p>
+  <table>
+    <tr><th>State</th><th>Where it appears</th></tr>
+    <tr><td><b>Available</b></td><td>In the showroom, for sale now.</td></tr>
+    <tr><td><b>On Order</b></td><td>In the showroom, as a car on the way. Buyers can reserve it.</td></tr>
+    <tr><td><b>Landed</b></td><td>In the showroom, under Landed this year.</td></tr>
+    <tr><td><b>Sold</b></td><td>Out of the public showroom, kept in your records with its real profit.</td></tr>
+  </table>
+
+  <p><b>Tracking states</b> are optional and office-only: <b>On the way</b>, <b>At port</b>, <b>Cleared</b>. Use them if a car passes through several stages. Buyers never see them and they do not change any count.</p>
+  <p><b>New arrival</b> is a small flag. It shows the car under “Landed this year” in the showroom as well as Available.</p>
+  <p><b>Arrival note</b> is shown to buyers on On Order cars — the one thing they would otherwise have to ask about. Write “Expected arrival: November”, for example.</p>
+
+  <h3>5 — Private notes</h3>
+  <p>Notes to yourself. Who you bought from, what to remember, what not to say. Office-only, forever.</p>
+
+  <h3>Save</h3>
+  <p>Select <b>Save car</b>. The car appears in the showroom <b>immediately</b> — there is no separate publish step. If you are not ready, select <b>Cancel</b>, or leave and come back.</p>
+  <p>Before saving, you can select <b>Preview the buyer page</b> to see it exactly as a customer would.</p>
+</section>
+
+<!-- ===================== 10 EDIT / SOLD / DELETE ===================== -->
+<section class="page">
+  <div class="num">10</div>
+  <h2>Change a car, sell it, delete it</h2>
+  <div class="rule"></div>
+
+  <h3>Change anything</h3>
+  <p>Go to <b>Inventory</b> and select <b>Edit</b> beside the car — or select the car's name. The same five-section form opens, filled in. Change what you need, then select <b>Save car</b>. The showroom updates immediately.</p>
+
+  <h3>Mark a car as sold</h3>
+  <p>Open the car and select <b>Mark as sold</b>. The state changes to <b>Sold</b> and two fields appear: <b>Sale price (₦)</b> and the sale date. Fill both, then <b>Save car</b>.</p>
+  <p>The car leaves the public showroom. In the office it stays — with the real profit you made, not the projected one. That is the figure on the Dashboard under <b>Real profit (sold)</b>.</p>
+
+  <h3>Delete a car</h3>
+  <p>Open the car and select <b>Delete</b>. Confirm. The car leaves the showroom and the inventory list.</p>
+  <p>If you deleted it by mistake, select <b>Undo</b> — it is offered straight away, and the car comes back. Every delete and restore is recorded in the <b>Activity log</b>, so you can always see what happened and when.</p>
+
+  <div class="box plain">
+    <h4>What “Sold” does to your numbers</h4>
+    <p style="margin:0">A sold car stops counting as stock and stops counting in <b>Projected profit</b>. It starts counting in <b>Real profit</b>. If a sale is recorded without a sale price, the profit cannot be worked out — so the Dashboard will tell you something is missing.</p>
+  </div>
+
+  <h3>The reference number</h3>
+  <p>Every car gets a <b>TS-####</b> number. It is how the office, the activity log and the WhatsApp taps refer to that car. You do not choose it and you cannot change it. Use it when you need to talk about a specific car with someone.</p>
+</section>
+
+<!-- ===================== 11 DRAFTS ===================== -->
+<section class="page">
+  <div class="num">11</div>
+  <h2>Drafts — files you upload</h2>
+  <div class="rule"></div>
+
+  <p class="lead">A draft is a car or an enquiry that has been read from a file but is not yet a record. Nothing in Drafts is public.</p>
+
+  <h3>How a file becomes a draft</h3>
+  <ol>
+    <li>On <b>Inventory</b>, select <b>Create from file</b> and choose a filled car template.</li>
+    <li>Or on <b>Enquiries</b>, select <b>Create from file</b> and choose the sales desk's sheet.</li>
+    <li>The site reads the file and puts what it found into <b>Drafts</b>.</li>
+    <li>Open <b>Drafts</b>, check each one, correct anything, and save it.</li>
+  </ol>
+  <p>Only PDF files are accepted. The site decides what kind of draft to make by reading the file, not by which page you uploaded it from.</p>
+
+  <h3>What you see in Drafts</h3>
+  <p>Files are grouped in batches, newest first. Under each file are the rows it produced — some <b>car</b> drafts, some <b>enquiry</b> drafts.</p>
+  <p>Each draft shows what was read and where it came from. Select <b>Edit</b> to open it. A car draft opens the same five-section car form; an enquiry draft opens name, phone number, what they asked for, note, and state.</p>
+
+  <h3>What you can do with a draft</h3>
+  <table>
+    <tr><th>Action</th><th>What happens</th></tr>
+    <tr><td><b>Edit</b></td><td>Correct anything the file got wrong, or fill what it could not carry.</td></tr>
+    <tr><td><b>Save as a car</b></td><td>The draft becomes a real car and appears in the showroom immediately.</td></tr>
+    <tr><td><b>Save as a enquiry</b></td><td>The draft becomes a real enquiry on your board. No car reference number is used up.</td></tr>
+    <tr><td><b>Delete</b></td><td>Moves it aside. <b>Remove for good</b> deletes it permanently.</td></tr>
+  </table>
+
+  <div class="box">
+    <h4>A refused row is named</h4>
+    <p style="margin:0">If the file has a row the site cannot read, it does not disappear quietly. The upload tells you which row or page was refused and why. Fix it in the file and upload again, or enter that car by hand.</p>
+  </div>
+
+  <div class="box plain">
+    <h4>Photos in a draft</h4>
+    <p style="margin:0">A PDF cannot carry the photos. On an enquiry draft you can add the pictures the file could not bring. For a car draft, add the photos in the car form before you save it.</p>
+  </div>
+</section>
+
+<!-- ===================== 12 ENQUIRIES ===================== -->
+<section class="page">
+  <div class="num">12</div>
+  <h2>Enquiries</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Two views of the same thing: the people who talked to you, and the taps that started it.</p>
+
+  <h3>Enquiries and Taps</h3>
+  <p><b>Enquiries</b> is your board of customers. <b>Taps</b> is the raw record of someone pressing a WhatsApp button on the site.</p>
+  <p>A tap tells you only three things: that it happened, which car, and when. It carries no name and no number — the site never asks for them. The name arrives when the person actually messages you.</p>
+
+  <h3>The board</h3>
+  <p>Enquiries move through five columns: <b>New</b>, <b>Talking</b>, <b>Negotiating</b>, <b>Sold</b>, <b>Lost</b>. Move a card as the conversation moves.</p>
+  <p>Each card shows the person's initials, name, date, phone number, an <b>ENQ-####</b> reference, what they asked for, and your note.</p>
+
+  <h3>What you can do with an enquiry</h3>
+  <ul>
+    <li><b>WhatsApp them</b> — opens a chat with that number.</li>
+    <li><b>Call</b> — opens the dialler.</li>
+    <li><b>Edit</b> — change the name, number, what they asked for, the note, or the state.</li>
+    <li><b>Delete enquiry</b> — remove it from the board.</li>
+  </ul>
+
+  <h3>Where enquiries come from</h3>
+  <p>From a file. Select <b>Create from file</b> and upload the filled <b>Enquiry template</b> or the sales desk's sheet. Its rows arrive in <b>Drafts</b>, where you check them and select <b>Save enquiry</b>.</p>
+  <p class="muted small">There is no blank “add enquiry” form. An enquiry always starts as a row in a file, so the board matches whatever record the conversation came from.</p>
+
+  <div class="box">
+    <h4>The weekly rhythm</h4>
+    <p style="margin:0">Check <b>Taps</b> in the morning — that is who reached out. Bring the names back from your WhatsApp and the sales sheet. Move the cards as you talk. The board is only useful if the state is true.</p>
+  </div>
+</section>
+
+<!-- ===================== 13 ACTIVITY LOG ===================== -->
+<section class="page">
+  <div class="num">13</div>
+  <h2>Activity log</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Every change made to a car, who made it, and when. Entries cannot be edited or removed — that is what makes the log worth trusting.</p>
+
+  <h3>What is recorded</h3>
+  <p>Adding a car, editing it, changing its state, marking it sold, deleting it, restoring it, importing a file, and changing settings. Each entry shows the car's reference, the action, the time, and the account that did it.</p>
+
+  <h3>The filters</h3>
+  <div class="seelist">
+    <span>All</span><span>Added</span><span>Edited</span><span>State</span><span>Sold</span><span>Deleted</span><span>Restored</span><span>Imports</span><span>Settings</span>
+  </div>
+  <p>Each carries its count. Select one to narrow the list.</p>
+
+  <div class="box plain">
+    <h4>When to use it</h4>
+    <p style="margin:0">When a price looks different from how you remember it. When a car has vanished. When two people use the office and you need to know who did what. The log answers “what happened here?” without anyone having to remember.</p>
+  </div>
+</section>
+
+<!-- ===================== 14 SETTINGS ===================== -->
+<section class="page">
+  <div class="num">14</div>
+  <h2>Settings</h2>
+  <div class="rule"></div>
+
+  <p class="lead">The few things the whole site runs on. Change one here and the showroom follows immediately, everywhere.</p>
+
+  <h3>General</h3>
+  <table class="kv">
+    <tr><td><b>WhatsApp number</b></td><td>Every chat button on the site opens this number. Type it with the country code, starting with <b>+234</b>. The preview shows you the button and the exact link it will open. Select <b>Save number</b>.</td></tr>
+    <tr><td><b>Tagline</b></td><td>The one line under the brand on the home page. Up to 80 characters. Watch the preview, then <b>Save tagline</b>.</td></tr>
+    <tr><td><b>Full tank</b></td><td>The amount pre-filled on every new car's costs. Change it on a single car whenever that car was different. Select <b>Save default</b>.</td></tr>
+  </table>
+
+  <div class="box warn">
+    <h4>Change the WhatsApp number first</h4>
+    <p style="margin:0">The site arrives with a placeholder number. Until you replace it, every chat button points at a number that is not yours. A wrong number here is a dead button for every buyer on every page.</p>
+  </div>
+
+  <h3>Car states</h3>
+  <p>The four main states — Available, Landed, On Order, Sold — are fixed; they are what the showroom is built on. The smaller tracking states are yours: add one, rename one, reorder them, or remove one you never use.</p>
+
+  <h3>Customer states</h3>
+  <p>The columns on your enquiry board — New, Talking, Negotiating, Sold, Lost. All of them are yours: add your own, rename them, give them a colour, put them in the order you think in.</p>
+
+  <h3>Account</h3>
+  <p>Your sign-in. The office never holds a password — you sign in with your Google account, the same one the invitation was sent to.</p>
+</section>
+
+<!-- ===================== 15 WHAT CHANGED ===================== -->
+<section class="page">
+  <div class="num">15</div>
+  <h2>What changed from the brief, and why</h2>
+  <div class="rule"></div>
+
+  <p class="lead">Some requirements were met exactly. A few were met a different way, because the different way was better. Here they are, plainly.</p>
+
+  <h3>Where I chose a different way</h3>
+  <ul>
+    <li><b>The back office is called “Office”, not “Admin”.</b> It is your back room, and the word is used everywhere — the menu, the sign-in screen, the address. The separation the brief asked for is unchanged.</li>
+    <li><b>One Inventory page instead of three separate sections.</b> Available, On Order and Landed are now filters on one catalogue. A buyer comparing cars does not have to remember which section a car was in, and when a car moves from On Order to Available it does not disappear from where he was looking.</li>
+    <li><b>Enquiries were added.</b> The brief asked for a WhatsApp button. A button tells you nothing. The site now records that a tap happened and on which car, and gives you a board for the names and numbers that follow. This is the largest addition, and it is the part you will use most.</li>
+    <li><b>Drafts were added.</b> A filled PDF is checked before it becomes live stock. A file read straight into the showroom is an accident waiting to happen.</li>
+    <li><b>Selling was added.</b> The brief asked for projected profit. The site also records the sale price and shows what you actually made.</li>
+    <li><b>Your enquiry states are yours.</b> Add, rename, colour and reorder them to match the way you actually talk about a sale.</li>
+  </ul>
+
+  <h3>The one thing not delivered</h3>
+  <p>The brief asked for photos to be automatically compressed and resized when uploaded. That is not built yet. Photos are kept exactly as you upload them. In practice: use normal phone photos, do not upload several very large ones to one car, and check the page if it feels slow.</p>
+
+  <h3>What was added on the public site</h3>
+  <p>The one-tap <b>What are you after?</b> panel, the three short lines on the home page, the share button, and the greeting for a visitor who returns to a car. None of them change what data is public. All of them are there to start a conversation.</p>
+</section>
+
+<!-- ===================== 16 QUICK ANSWERS ===================== -->
+<section class="page">
+  <div class="num">16</div>
+  <h2>Quick answers</h2>
+  <div class="rule"></div>
+
+  <table class="kv">
+    <tr><td>It asks me for a password</td><td>Do not type one. Select <b>Continue with Google</b> instead, using the same email the invitation went to.</td></tr>
+    <tr><td>I cannot find the office</td><td>Go to <b>https://truespec-k4y6.vercel.app/office</b> and bookmark it. There is no office link on the public site on purpose.</td></tr>
+    <tr><td>A car will not save</td><td>Look for the red message under the field it names. A car needs a <b>brand</b> and a <b>model</b>. Everything else can be filled later.</td></tr>
+    <tr><td>I deleted a car by mistake</td><td>Select <b>Undo</b> straight away. If the offer is gone, open <b>Activity log</b> and find the delete entry — a restore is recorded there too.</td></tr>
+    <tr><td>My WhatsApp button opens the wrong number</td><td><b>Settings</b> → <b>WhatsApp number</b>. Save the correct number. Every button follows it.</td></tr>
+    <tr><td>A page says “We couldn't load this”</td><td>Nothing is lost. Select <b>Try again</b>. If it keeps happening, report it — that is a fault, not something you did.</td></tr>
+    <tr><td>I cannot see a car I added</td><td>Check its state. <b>Sold</b> cars are removed from the showroom. A car with no price will not display properly.</td></tr>
+    <tr><td>Where do I see what customers see?</td><td>Open the main site in another tab, or select <b>Preview the buyer page</b> while editing a car.</td></tr>
+    <tr><td>Someone called about a car — where do I put them?</td><td>On the <b>Enquiries</b> board. If they came from a sheet, upload it with <b>Create from file</b>; otherwise record them in the next sheet you import.</td></tr>
+    <tr><td>How do I know who changed a price?</td><td><b>Activity log</b> → <b>Edited</b>, or <b>All</b>. Every change is there with the account and the time.</td></tr>
+    <tr><td>Something is broken</td><td>Note the page, what you pressed, and what happened. Take a screenshot if you can. That is enough for it to be fixed quickly.</td></tr>
+  </table>
+
+  <div class="foot">
+    <b>TrueSpec Automotive</b> — showroom and office.<br/>
+    This guide describes the site as delivered on 23 October 2026. If a screen changes, the guide is out of date before the site is — ask for the newer copy.
+  </div>
+</section>
+
+</body>
+</html>

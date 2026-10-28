@@ -1,10 +1,11 @@
 # Implementation Plan: DEMO-001 — demo mode
 
-**Status:** code complete — Tasks 1–19 built and code-level gates pass; live verification and copy approval remain the owner's. **Code
-boundary:** the Builder writes code, tests and the handover; the owner performs every live Neon,
-Clerk and Vercel action. Live-only checks are reported as **blocked — owner action**, never as
-passed. The task is not reported done until the demo branch, the fixed snapshot and the first reset
-exist.
+**Status:** code complete — Tasks 1–20 built and code-level gates pass; copy approved; snapshot,
+first reset and cron verified live; remaining session checks are owner/Clerk work.
+**Code boundary:** the Builder writes code, tests and the handover; the owner performs every live
+Neon, Clerk and Vercel action. Unrun live-only checks are reported as **blocked — owner action**;
+run checks are marked with evidence. The demo branch, fixed snapshot and first reset now exist;
+remaining live session checks and TASK-007 are not done.
 
 **Source of truth:** `openspec/tasks/DEMO-001/task.md`,
 `openspec/changes/demo-mode/{design.md,tasks.md,specs/}`, and
@@ -86,8 +87,9 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 14. **UI changes are the minimum.** Demo banner in the shell; no buyer-page preview for a demo car;
     no System or cleanup-readiness card in demo Settings; Clerk sign-up page and secondary demo
     link; corrected privacy notice. No redesign.
-15. **No live writes, no commits, no pushes.** The owner performs the live setup. The report says
-    "code complete, live verification pending owner setup."
+15. **Owner-led live setup.** The owner performs live Neon/Clerk/Vercel actions or delegates one
+    explicitly; the Developer commits locally but does not push. Live-only checks are named, never
+    assumed.
 
 ## Task list
 
@@ -146,13 +148,13 @@ the repository. Names and steps only; no secret values. Mode 600 if values are e
 
 - [x] Task 13: Demo Settings omits System and cleanup-readiness cards
 - [x] Task 14: No buyer-page preview for a demo car
-- [x] Task 15: Clerk sign-up page, demo link and corrected privacy notice (copy pending owner approval)
+- [x] Task 15: Clerk sign-up page, demo link and corrected privacy notice (copy approved 2026-10-26; Owner note removed in T20)
 
 ### Checkpoint E — after Tasks 13–15
 - [x] `npm run typecheck` and `npm run build` pass.
 - [x] Demo props contain no main storage, backup or asset filenames.
-- [ ] Privacy/sign-up copy is shown to the owner and marked pending approval. (Exact text is in
-  `developer-workspace/notes/DEMO-001-copy-review.md`; approval is pending.)
+- [x] Privacy/sign-up copy approved 2026-10-26; visible Owner note removed in T20. (Exact text is in
+  `developer-workspace/notes/DEMO-001-copy-review.md`.)
 
 ### Phase 6 — Cleanup exclusions, legacy retirement, handover and gates
 
@@ -772,8 +774,8 @@ ever added, the file is mode 600.
 
 **Description:** Run every code-level gate and write
 `developer-workspace/reports/DEMO-001-report.md`. Report exact commands and figures. Live-only
-checks are named blocked — owner action, never passed. The report says "code complete, live
-verification pending owner setup."
+checks are named for what was actually verified, never assumed. The report records live results
+separately from code-level gates.
 
 **Acceptance criteria:**
 - [x] `npm run typecheck` — 0.
@@ -818,8 +820,9 @@ verification pending owner setup."
 ## Open questions
 
 None. The owner has ruled on the code boundary, artifacts, order, connections, switches, branch
-identity and copy approval. Two owner gates remain outside this build: approval of the exact
-privacy/sign-up text, and the live setup (branch, snapshot, first reset, TASK-007 independent test).
+identity and copy approval. The copy gate is closed. Remaining owner work: Clerk sign-up, the app
+switch, live session checks and TASK-007 independent testing; snapshot, first reset and cron are
+verified.
 
 ## Stop conditions
 

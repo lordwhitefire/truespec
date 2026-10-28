@@ -1,0 +1,2245 @@
+[
+  {
+    "route": "/",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/",
+    "h": [
+      "2021 BMWX5 xDrive40i",
+      "2020 LexusRX 350 F Sport",
+      "2022 ToyotaRAV4 Prime SE",
+      "What are you after?",
+      "TrueSpec Inventory",
+      "Toyota Camry 2021",
+      "Lexus RX 350 2020",
+      "BMW X5 2021",
+      "Honda Accord 2021",
+      "Toyota RAV4 Prime 2022",
+      "Mercedes-Benz C 300 2018",
+      "BMW X3 2019",
+      "Lexus RX 350 2019",
+      "Honda CR-V 2020",
+      "Mercedes-Benz E 350 2020",
+      "TS-FLOW-1792145622497 Flow2 2020",
+      "TS-FLOW-1792145803583 Flow2 2020",
+      "Are you looking for a car?",
+      "Want a car you cannot see here?",
+      "Featured cars",
+      "Why choose us",
+      "One doorstep price",
+      "Shipped from the USA",
+      "Wide range of brands",
+      "Talk to us directly",
+      "Vehicle importsdone right",
+      "TrueSpec Automotive",
+      "Photo gallery",
+      "How buying works",
+      "Social network",
+      "Chat with us",
+      "Chat hours",
+      "Viewing",
+      "Delivery",
+      "Before you go to WhatsApp"
+    ],
+    "buttons": [
+      "A family SUV",
+      "A saloon",
+      "Something I haven’t listed yet",
+      "Skip",
+      "Available",
+      "On order",
+      "Landed this year",
+      "Prev",
+      "1",
+      "2",
+      "Next",
+      "×",
+      "Continue to WhatsApp",
+      "Cancel"
+    ],
+    "links": [
+      {
+        "t": "TrueSpec",
+        "h": "/"
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "2021 BMWX5 xDrive40i₦88.0Mdoorstep priceAvailable now. Shipping, clearing and delivery included.",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "2020 LexusRX 350 F Sport₦52.0Mdoorstep priceAvailable now. Shipping, clearing and delivery included.",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "2022 ToyotaRAV4 Prime SE₦45.5Mdoorstep priceAvailable now. Shipping, clearing and delivery included.",
+        "h": "/car/TS-1008"
+      },
+      {
+        "t": "Toyota Camry 2021₦34,500,00031,000 kmObsidian black",
+        "h": "/car/TS-1001"
+      },
+      {
+        "t": "Lexus RX 350 2020₦52,000,00041,000 kmSonic grey",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "BMW X5 2021₦88,000,00034,000 kmAlpine white",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "Honda Accord 2021₦38,000,00029,000 kmGraphite",
+        "h": "/car/TS-1007"
+      },
+      {
+        "t": "SpecialToyota RAV4 Prime 2022₦50,900,000₦45,500,000Special12,000 kmWind chill pearl",
+        "h": "/car/TS-1008"
+      },
+      {
+        "t": "SpecialMercedes-Benz C 300 2018₦33,000,000₦29,500,000Special71,000 kmObsidian black",
+        "h": "/car/TS-1011"
+      },
+      {
+        "t": "BMW X3 2019₦41,000,00058,000 kmSantorini black",
+        "h": "/car/TS-1012"
+      },
+      {
+        "t": "LandedLexus RX 350 2019₦44,500,000Landed64,000 kmCelestial silver",
+        "h": "/car/TS-1019"
+      },
+      {
+        "t": "LandedHonda CR-V 2020₦36,000,000Landed48,000 kmPlatinum white",
+        "h": "/car/TS-1020"
+      },
+      {
+        "t": "SpecialMercedes-Benz E 350 2020₦52,500,000₦48,000,000Special39,000 kmObsidian black",
+        "h": "/car/TS-1023"
+      },
+      {
+        "t": "TS-FLOW-1792145622497 Flow2 2020₦5,000,00012,000 kmBlack",
+        "h": "/car/TS-1033"
+      },
+      {
+        "t": "TS-FLOW-1792145803583 Flow2 2020₦5,000,00012,000 kmBlack",
+        "h": "/car/TS-1035"
+      },
+      {
+        "t": "Show all 19 cars",
+        "h": "/inventory"
+      },
+      {
+        "t": "All available",
+        "h": "#cars"
+      },
+      {
+        "t": "Toyota Camry 2021₦34,500,00031,000 kmObsidian black",
+        "h": "/car/TS-1001"
+      },
+      {
+        "t": "Lexus RX 350 2020₦52,000,00041,000 kmSonic grey",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "BMW X5 2021₦88,000,00034,000 kmAlpine white",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "Chat with us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "WhatsApp us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Privacy notice",
+        "h": "/privacy"
+      },
+      {
+        "t": "Read the full privacy notice",
+        "h": "/privacy"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nImported from the USA\nDelivered anywhere in Nigeria\nVISITS BY APPOINTMENT\nWHATSAPP\n+2348146927170\nCHAT HOURS\nMon - Sat, 9AM - 6PM\nNew on the lot: 2019 Lexus RX 350 350 — landed this year\nNext to land: 2021 Range Rover Sport HSE — Expected arrival: November\nBiggest drop: 2022 Toyota RAV4 Prime SE — was ₦50,900,000, now ₦45,500,000\nOne doorstep price — shipping, clearing and delivery included.\nChat on WhatsApp\n2021 BMW\nX5 XDRIVE40I\n₦88.0M\nDOORSTEP PRICE\n\nAvailable now. Shipping, clearing and delivery included.\n\n2020 LEXUS\nRX 350 F SPORT\n₦52.0M\nDOORSTEP PRICE\n\nAvailable now. Shipping, clearing and delivery included.\n\n2022 TOYOTA\nRAV4 PRIME SE\n₦45.5M\nDOORSTEP PRICE\n\nAvailable now. Shipping, clearing and delivery included.\n\nU\nWHAT ARE YOU AFTER?\n\nUmar here — I own the place. One tap and I’ll shorten the list for you, or skip it.\n\nA family SUV\nA saloon\nSomething I haven’t listed yet\nSkip\nTRUESPEC INVENTORY\nAVAILABLE 13 CARS · OF WHICH 3 NEW ARRIVALS\nAVAILABLE\nON ORDER\nLANDED THIS YEAR\n\nTOYOTA CAMRY 2021\n₦34,500,000\n31,000 km\nObsidian black\nLEXUS RX 350 2020\n₦52,000,000\n41,000 km\nSonic grey\nBMW X5 2021\n₦88,000,000\n34,000 km\nAlpine white\nHONDA ACCORD 2021\n₦38,000,000\n29,000 km\nGraphite\nSPECIAL\nTOYOTA RAV4 PRIME 2022\n₦50,900,000\n₦45,500,000\nSpecial\n12,000 km\nWind chill pearl\nSPECIAL\nMERCEDES-BENZ C 300 2018\n₦33,000,000\n₦29,500,000\nSpecial\n71,000 km\nObsidian black\nBMW X3 2019\n₦41,000,000\n58,000 km\nSantorini black\nLANDED\nLEXUS RX 350 2019\n₦44,500,000\nLanded\n64,000 km\nCelestial silver\nLANDED\nHONDA CR-V 2020\n₦36,000,000\nLanded\n48,000 km\nPlatinum white\nSPECIAL\nMERCEDES-BENZ E 350 2020\n₦52,500,000\n₦48,000,000\nSpecial\n39,000 km\nObsidian black\nTS-FLOW-1792145622497 FLOW2 2020\n₦5,000,000\n12,000 km\nBlack\nTS-FLOW-1792145803583 FLOW2 2020\n₦5,000,000\n12,000 km\nBlack\nPrev\n1\n2\nNext\nSHOW ALL 19 CARS\nAre you looking for a car?\n\nOur cars are delivered fully cleared with all requirements completed. We deliver your car wherever you are in Nigeria.\n\nWant a car you cannot see here?\n\nTell us the make, model and year. We source it in the USA, ship it and clear it for you. Send us a message to start.\n\nFEATURED CARS\nALL AVAILABLE\nTOYOTA CAMRY 2021\n₦34,500,000\n31,000 km\nObsidian black\nLEXUS RX 350 2020\n₦52,000,000\n41,000 km\nSonic grey\nBMW X5 2021\n₦88,000,000\n34,000 km\nAlpine white\nWHY CHOOSE US\nONE DOORSTEP PRICE\n\nShipping, clearing and delivery are already included in every price.\n\nSHIPPED FROM THE USA\n\nWe buy, ship and clear your car so you never deal with the port.\n\nWIDE RANGE OF BRANDS\n\nToyota, Lexus, Mercedes-Benz, BMW and more, all imported fresh.\n\nTALK TO US DIRECTLY\n\nMessage us on WhatsApp about any car and get a reply from the owner.\n\nCHAT WITH US\nVEHICLE IMPORTS\nDONE RIGHT\n\nTrueSpec Automotive brings quality vehicles from the USA to Nigeria. Every car you see here is either in stock, on its way, or landed this year. Choose a car, message us on WhatsApp and we handle the shipping and clearing until it reaches your door.\n\nTRUESPEC AUTOMOTIVE\n\nWe import and deliver quality vehicles from the USA. One honest doorstep price on every car.\n\nPHOTO GALLERY\nHOW BUYING WORKS\n1. Pick a car or ask for one\n2. Chat with us on WhatsApp\n3. We ship, clear and deliver\nSOCIAL NETWORK\nCHAT WITH US\nWhatsApp us\nCHAT HOURS\n\nMon - Fri: 09:00AM - 06:00PM\nSaturday: 10:00AM - 04:00PM\nSunday: Closed\n\nVIEWING\n\nCars can be viewed by appointment once they have landed. Message us to book a time.\n\nDELIVERY\n\nWe deliver to your door anywhere in Nigeria. Delivery is included in the price.\n\n© 2026 TrueSpec Automotive. All rights reserved.\nPrivacy notice · Imported from the USA"
+  },
+  {
+    "route": "/inventory",
+    "title": "Inventory — TrueSpec",
+    "finalUrl": "/inventory",
+    "h": [
+      "TrueSpec Inventory",
+      "All inventory",
+      "Toyota Camry 2021",
+      "Lexus RX 350 2020",
+      "BMW X5 2021",
+      "Honda Accord 2021",
+      "Toyota RAV4 Prime 2022",
+      "Mercedes-Benz C 300 2018",
+      "BMW X3 2019",
+      "Range Rover Sport 2021",
+      "Porsche Macan 2021",
+      "TrueSpec Automotive",
+      "Photo gallery",
+      "How buying works",
+      "Social network",
+      "Chat with us",
+      "Chat hours",
+      "Viewing",
+      "Delivery",
+      "Before you go to WhatsApp"
+    ],
+    "buttons": [
+      "Search options",
+      "Clear all filters",
+      "Prev",
+      "1",
+      "2",
+      "3",
+      "Next",
+      "Continue to WhatsApp",
+      "Cancel"
+    ],
+    "links": [
+      {
+        "t": "TrueSpec",
+        "h": "/"
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Home",
+        "h": "/"
+      },
+      {
+        "t": "Toyota Camry 2021₦34,500,00031,000 kmObsidian black",
+        "h": "/car/TS-1001"
+      },
+      {
+        "t": "Lexus RX 350 2020₦52,000,00041,000 kmSonic grey",
+        "h": "/car/TS-1003"
+      },
+      {
+        "t": "BMW X5 2021₦88,000,00034,000 kmAlpine white",
+        "h": "/car/TS-1005"
+      },
+      {
+        "t": "Honda Accord 2021₦38,000,00029,000 kmGraphite",
+        "h": "/car/TS-1007"
+      },
+      {
+        "t": "SpecialToyota RAV4 Prime 2022₦50,900,000₦45,500,000Special12,000 kmWind chill pearl",
+        "h": "/car/TS-1008"
+      },
+      {
+        "t": "SpecialMercedes-Benz C 300 2018₦33,000,000₦29,500,000Special71,000 kmObsidian black",
+        "h": "/car/TS-1011"
+      },
+      {
+        "t": "BMW X3 2019₦41,000,00058,000 kmSantorini black",
+        "h": "/car/TS-1012"
+      },
+      {
+        "t": "On OrderRange Rover Sport 2021₦115,000,000On OrderExpected arrival: NovemberFuji white",
+        "h": "/car/TS-1013"
+      },
+      {
+        "t": "On OrderPorsche Macan 2021₦96,000,000On OrderExpected arrival: DecemberGentian blue",
+        "h": "/car/TS-1014"
+      },
+      {
+        "t": "WhatsApp us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Privacy notice",
+        "h": "/privacy"
+      },
+      {
+        "t": "Read the full privacy notice",
+        "h": "/privacy"
+      }
+    ],
+    "labels": [
+      "Available13",
+      "On Order6",
+      "Landed3",
+      "BMW3",
+      "Chevrolet1",
+      "Ford1",
+      "Honda2",
+      "Lexus2",
+      "Mercedes-Benz2",
+      "Porsche1",
+      "Range Rover1",
+      "TS-FIX-1792145797830-21",
+      "TS-FLOW-17921456224971",
+      "TS-FLOW-17921458035831",
+      "Toyota3",
+      "20223",
+      "20217",
+      "20206",
+      "20192",
+      "20181",
+      "Alpine white3",
+      "Black2",
+      "Celestial silver1",
+      "Fixture exterior_color1",
+      "Fuji white1",
+      "Gentian blue1",
+      "Graphite1",
+      "Obsidian black3",
+      "Oxford white1",
+      "Platinum white1",
+      "Santorini black1",
+      "Sonic grey1",
+      "Summit white1",
+      "Wind chill pearl1",
+      "Sort by"
+    ],
+    "placeholders": [
+      "Min",
+      "Max"
+    ],
+    "th": [],
+    "body": "TRUESPEC\nImported from the USA\nDelivered anywhere in Nigeria\nVISITS BY APPOINTMENT\nWHATSAPP\n+2348146927170\nCHAT HOURS\nMon - Sat, 9AM - 6PM\nNew on the lot: 2019 Lexus RX 350 350 — landed this year\nNext to land: 2021 Range Rover Sport HSE — Expected arrival: November\nBiggest drop: 2022 Toyota RAV4 Prime SE — was ₦50,900,000, now ₦45,500,000\nOne doorstep price — shipping, clearing and delivery included.\nChat on WhatsApp\nTRUESPEC INVENTORY\n19 CARS\nREFINE SEARCH\nSTATUS\nMAKE\nYEAR\nCOLOUR\nPRICE (₦)\nClear all filters\n\nHome / Inventory\n\nALL INVENTORY\nSORT BY\nNewest first\nPrice: low to high\nPrice: high to low\nYear: newest\nTOYOTA CAMRY 2021\n₦34,500,000\n31,000 km\nObsidian black\nLEXUS RX 350 2020\n₦52,000,000\n41,000 km\nSonic grey\nBMW X5 2021\n₦88,000,000\n34,000 km\nAlpine white\nHONDA ACCORD 2021\n₦38,000,000\n29,000 km\nGraphite\nSPECIAL\nTOYOTA RAV4 PRIME 2022\n₦50,900,000\n₦45,500,000\nSpecial\n12,000 km\nWind chill pearl\nSPECIAL\nMERCEDES-BENZ C 300 2018\n₦33,000,000\n₦29,500,000\nSpecial\n71,000 km\nObsidian black\nBMW X3 2019\n₦41,000,000\n58,000 km\nSantorini black\nON ORDER\nRANGE ROVER SPORT 2021\n₦115,000,000\nOn Order\nExpected arrival: November\nFuji white\nON ORDER\nPORSCHE MACAN 2021\n₦96,000,000\nOn Order\nExpected arrival: December\nGentian blue\nPrev\n1\n2\n3\nNext\nTRUESPEC AUTOMOTIVE\n\nWe import and deliver quality vehicles from the USA. One honest doorstep price on every car.\n\nPHOTO GALLERY\nHOW BUYING WORKS\n1. Pick a car or ask for one\n2. Chat with us on WhatsApp\n3. We ship, clear and deliver\nSOCIAL NETWORK\nCHAT WITH US\nWhatsApp us\nCHAT HOURS\n\nMon - Fri: 09:00AM - 06:00PM\nSaturday: 10:00AM - 04:00PM\nSunday: Closed\n\nVIEWING\n\nCars can be viewed by appointment once they have landed. Message us to book a time.\n\nDELIVERY\n\nWe deliver to your door anywhere in Nigeria. Delivery is included in the price.\n\n© 2026 TrueSpec Automotive. All rights reserved.\nPrivacy notice · Imported from the USA"
+  },
+  {
+    "route": "/office",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office",
+    "h": [
+      "Dashboard",
+      "Recent activity",
+      "Recent WhatsApp taps",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Add a car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "See which",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Full log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "TS-1072",
+        "h": "/office/car/TS-1072"
+      },
+      {
+        "t": "TS-1067",
+        "h": "/office/car/TS-1067"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1062",
+        "h": "/office/car/TS-1062"
+      },
+      {
+        "t": "All taps",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "2022 RAV4 Prime SE",
+        "h": "/office/car/TS-1008"
+      },
+      {
+        "t": "2021 Sport HSE",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "2021 Camry XSE V6",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nDASHBOARD\n\nFriday 23 Oct 2026 · things at a glance\n\nAdd a car\nMONEY TIED UP\n₦741,140,000\n\nAcross 26 cars in stock — includes cars with incomplete costs, because that money is spent.\n\nPROJECTED PROFIT\n₦220,360,000\n\nFrom 14 of 26 cars. 12 excluded: costs incomplete. See which\n\nREAL PROFIT (SOLD)\n₦7,840,000\n\n1 car sold — 2021 Civic EX, sale price ₦28,000,000. Sits in Inventory → Sold.\n\n20 AVAILABLE\nOF WHICH 3 NEW ARRIVAL\n6 ON ORDER\nWAITING TO ARRIVE\n3 LANDED\nNEW ONES COUNTED IN AVAILABLE\nRECENT ACTIVITY\nFull log\nR\n\nAdded a car TS-1072ADDED\n2 hr\nrema6rema6rema6@gmail.com\n\nV\n\nAdded a car TS-1067ADDED\nYesterday\nvictormakuo2002@gmail.com\n\nR\n\nRemoved a car for good TS-1061DELETED\n5 days\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1061DELETED\n5 days\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1062DELETED\n5 days\nrema6rema6rema6@gmail.com\n\nRECENT WHATSAPP TAPS\nAll taps\n\nGeneral tap — /\n\nYesterday\n\nGeneral tap — /\n\n3 days\n\nTap on 2022 RAV4 Prime SE\n\n5 days\n\nTap on 2021 Sport HSE\n\n5 days\n\nTap on 2021 Camry XSE V6\n\n16 Oct\nWhat the buyer never sees: costs, profit, private states — server-side rule, not a setting"
+  },
+  {
+    "route": "/office/inventory",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/inventory",
+    "h": [
+      "Inventory",
+      "Toyota Camry XSE V6 2021TS-1001 · 31,000 km",
+      "Lexus RX 350 F Sport 2020TS-1003 · 41,000 km",
+      "BMW X5 xDrive40i 2021TS-1005 · 34,000 km",
+      "Honda Accord Touring 2021TS-1007 · 29,000 km",
+      "Toyota RAV4 Prime SE 2022TS-1008 · 12,000 km",
+      "Mercedes-Benz C 300 AMG Line 2018TS-1011 · 71,000 km",
+      "BMW X3 xDrive30i 2019TS-1012 · 58,000 km",
+      "Range Rover Sport HSE 2021TS-1013 · 0 km",
+      "Porsche Macan S 2021TS-1014 · 0 km",
+      "Toyota Land Cruiser Prado VX 2022TS-1015 · 0 km",
+      "Chevrolet Tahoe LT 2020TS-1016 · 0 km",
+      "Ford F-150 Lariat 2021TS-1017 · 0 km",
+      "BMW X7 xDrive40i 2022TS-1018 · 0 km",
+      "Lexus RX 350 350 2019TS-1019 · 64,000 km",
+      "Honda CR-V EX-L 2020TS-1020 · 48,000 km",
+      "Mercedes-Benz E 350 350 2020TS-1023 · 39,000 km",
+      "Honda Civic EX 2021TS-1025 · 42,000 km · sold 15 Sep 2026",
+      "TS-FLOW-1792136477358 Flow2 STD 2020TS-1029 · 12,000 km",
+      "TS-FLOW-1792144332626 Flow STD 2020TS-1030 · 12,000 km",
+      "TS-FLOW-1792145316547 Flow2 STD 2020TS-1031 · 12,000 km",
+      "TS-FIX-1792145305480-1 Fixture STD 2021TS-1032 · 22,000 km",
+      "TS-FLOW-1792145622497 Flow2 STD 2020TS-1033 · 12,000 km",
+      "TS-FIX-1792145615924-1 Fixture STD 2021TS-1034 · 22,000 km",
+      "TS-FLOW-1792145803583 Flow2 STD 2020TS-1035 · 12,000 km",
+      "TS-FIX-1792145797830-2 Fixture STD 2021TS-1036 · 22,000 km",
+      "More",
+      "Delete this car?"
+    ],
+    "buttons": [
+      "Sign out",
+      "All27",
+      "Available17",
+      "Landed3",
+      "On Order6",
+      "Sold1",
+      "Prev",
+      "1",
+      "2",
+      "Next",
+      "More",
+      "Keep it",
+      "Delete",
+      "Undo"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Car template",
+        "h": "/api/template"
+      },
+      {
+        "t": "Add a car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1003"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1005"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1007"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1008"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1011"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1012"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1014"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1015"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1016"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1017"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1019"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1020"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1023"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1025"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Create from file"
+    ],
+    "placeholders": [
+      "Search name or ref…"
+    ],
+    "th": [
+      "Car",
+      "State",
+      "Price",
+      "Cost",
+      "Profit",
+      "Actions"
+    ],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nINVENTORY\n\nEvery car, what it cost, and what it made. Only visible here — never in the showroom.\n\nCar template\nCreate from file\nFill the car template, then send it back — its rows become drafts.\nAdd a car\nNewest first\nPrice: high to low\nPrice: low to high\nProfit: high to low\n10 per page\n25 per page\n50 per page\n100 per page\nAll27\nAvailable17\nLanded3\nOn Order6\nSold1\n\n27 cars — 26 in stock, 1 sold\n\nCAR\tSTATE\tPRICE\tCOST\tPROFIT\tACTIONS\n\nToyota Camry XSE V6 2021\nTS-1001 · 31,000 km\t\nAVAILABLE\t₦34,500,000\t₦24,840,000\t₦9,660,000\t\n\nLexus RX 350 F Sport 2020\nTS-1003 · 41,000 km\t\nAVAILABLE\t₦52,000,000\t₦37,440,000\t₦14,560,000\t\n\nBMW X5 xDrive40i 2021\nTS-1005 · 34,000 km\t\nAVAILABLE\t₦88,000,000\t₦63,360,000\t₦24,640,000\t\n\nHonda Accord Touring 2021\nTS-1007 · 29,000 km\t\nAVAILABLE\t₦38,000,000\t₦27,360,000\t₦10,640,000\t\n\nToyota RAV4 Prime SE 2022\nTS-1008 · 12,000 km\t\nAVAILABLE\t₦45,500,000\t₦32,760,000\t₦12,740,000\t\n\nMercedes-Benz C 300 AMG Line 2018\nTS-1011 · 71,000 km\t\nAVAILABLE\t₦29,500,000\t₦21,240,000\t₦8,260,000\t\n\nBMW X3 xDrive30i 2019\nTS-1012 · 58,000 km\t\nAVAILABLE\t₦41,000,000\t₦29,520,000\t₦11,480,000\t\n\nRange Rover Sport HSE 2021\nTS-1013 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦115,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nPorsche Macan S 2021\nTS-1014 · 0 km\t\nON ORDER\nExpected arrival: December\n\t₦96,000,000\t₦69,120,000\t₦26,880,000\t\n\nToyota Land Cruiser Prado VX 2022\nTS-1015 · 0 km\t\nON ORDER\nExpected arrival: January\n\t₦92,000,000\t₦66,240,000\t₦25,760,000\t\n\nChevrolet Tahoe LT 2020\nTS-1016 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦74,000,000\t₦53,280,000\t₦20,720,000\t\n\nFord F-150 Lariat 2021\nTS-1017 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦68,000,000\t₦48,960,000\t₦19,040,000\t\n\nBMW X7 xDrive40i 2022\nTS-1018 · 0 km\t\nON ORDER\nExpected arrival: January\n\t₦128,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nLexus RX 350 350 2019\nTS-1019 · 64,000 km\t\nLANDED\t₦44,500,000\t₦32,040,000\t₦12,460,000\t\n\nHonda CR-V EX-L 2020\nTS-1020 · 48,000 km\t\nLANDED\t₦36,000,000\t₦25,920,000\t₦10,080,000\t\n\nMercedes-Benz E 350 350 2020\nTS-1023 · 39,000 km\t\nLANDED\t₦48,000,000\t₦34,560,000\t₦13,440,000\t\n\nHonda Civic EX 2021\nTS-1025 · 42,000 km · sold 15 Sep 2026\t\nSOLD\t₦28,000,000\t₦20,160,000\t₦7,840,000\t\n\nTS-FLOW-1792136477358 Flow2 STD 2020\nTS-1029 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792144332626 Flow STD 2020\nTS-1030 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145316547 Flow2 STD 2020\nTS-1031 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145305480-1 Fixture STD 2021\nTS-1032 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145622497 Flow2 STD 2020\nTS-1033 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145615924-1 Fixture STD 2021\nTS-1034 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145803583 Flow2 STD 2020\nTS-1035 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145797830-2 Fixture STD 2021\nTS-1036 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nPage 1 of 2\n\nPrev\n1\n2\nNext\n\nCost and profit appear only in the office. The public site is handed an explicit list of fields — costs are never included, even by accident."
+  },
+  {
+    "route": "/office/car",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/inventory",
+    "h": [
+      "Inventory",
+      "Toyota Camry XSE V6 2021TS-1001 · 31,000 km",
+      "Lexus RX 350 F Sport 2020TS-1003 · 41,000 km",
+      "BMW X5 xDrive40i 2021TS-1005 · 34,000 km",
+      "Honda Accord Touring 2021TS-1007 · 29,000 km",
+      "Toyota RAV4 Prime SE 2022TS-1008 · 12,000 km",
+      "Mercedes-Benz C 300 AMG Line 2018TS-1011 · 71,000 km",
+      "BMW X3 xDrive30i 2019TS-1012 · 58,000 km",
+      "Range Rover Sport HSE 2021TS-1013 · 0 km",
+      "Porsche Macan S 2021TS-1014 · 0 km",
+      "Toyota Land Cruiser Prado VX 2022TS-1015 · 0 km",
+      "Chevrolet Tahoe LT 2020TS-1016 · 0 km",
+      "Ford F-150 Lariat 2021TS-1017 · 0 km",
+      "BMW X7 xDrive40i 2022TS-1018 · 0 km",
+      "Lexus RX 350 350 2019TS-1019 · 64,000 km",
+      "Honda CR-V EX-L 2020TS-1020 · 48,000 km",
+      "Mercedes-Benz E 350 350 2020TS-1023 · 39,000 km",
+      "Honda Civic EX 2021TS-1025 · 42,000 km · sold 15 Sep 2026",
+      "TS-FLOW-1792136477358 Flow2 STD 2020TS-1029 · 12,000 km",
+      "TS-FLOW-1792144332626 Flow STD 2020TS-1030 · 12,000 km",
+      "TS-FLOW-1792145316547 Flow2 STD 2020TS-1031 · 12,000 km",
+      "TS-FIX-1792145305480-1 Fixture STD 2021TS-1032 · 22,000 km",
+      "TS-FLOW-1792145622497 Flow2 STD 2020TS-1033 · 12,000 km",
+      "TS-FIX-1792145615924-1 Fixture STD 2021TS-1034 · 22,000 km",
+      "TS-FLOW-1792145803583 Flow2 STD 2020TS-1035 · 12,000 km",
+      "TS-FIX-1792145797830-2 Fixture STD 2021TS-1036 · 22,000 km",
+      "More",
+      "Delete this car?"
+    ],
+    "buttons": [
+      "Sign out",
+      "All27",
+      "Available17",
+      "Landed3",
+      "On Order6",
+      "Sold1",
+      "Prev",
+      "1",
+      "2",
+      "Next",
+      "More",
+      "Keep it",
+      "Delete",
+      "Undo"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Car template",
+        "h": "/api/template"
+      },
+      {
+        "t": "Add a car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1003"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1005"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1007"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1008"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1011"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1012"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1013"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1014"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1015"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1016"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1017"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1018"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1019"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1020"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1023"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1025"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1029"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1030"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1031"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1032"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1033"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1034"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "Costs incomplete",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Create from file"
+    ],
+    "placeholders": [
+      "Search name or ref…"
+    ],
+    "th": [
+      "Car",
+      "State",
+      "Price",
+      "Cost",
+      "Profit",
+      "Actions"
+    ],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nINVENTORY\n\nEvery car, what it cost, and what it made. Only visible here — never in the showroom.\n\nCar template\nCreate from file\nFill the car template, then send it back — its rows become drafts.\nAdd a car\nNewest first\nPrice: high to low\nPrice: low to high\nProfit: high to low\n10 per page\n25 per page\n50 per page\n100 per page\nAll27\nAvailable17\nLanded3\nOn Order6\nSold1\n\n27 cars — 26 in stock, 1 sold\n\nCAR\tSTATE\tPRICE\tCOST\tPROFIT\tACTIONS\n\nToyota Camry XSE V6 2021\nTS-1001 · 31,000 km\t\nAVAILABLE\t₦34,500,000\t₦24,840,000\t₦9,660,000\t\n\nLexus RX 350 F Sport 2020\nTS-1003 · 41,000 km\t\nAVAILABLE\t₦52,000,000\t₦37,440,000\t₦14,560,000\t\n\nBMW X5 xDrive40i 2021\nTS-1005 · 34,000 km\t\nAVAILABLE\t₦88,000,000\t₦63,360,000\t₦24,640,000\t\n\nHonda Accord Touring 2021\nTS-1007 · 29,000 km\t\nAVAILABLE\t₦38,000,000\t₦27,360,000\t₦10,640,000\t\n\nToyota RAV4 Prime SE 2022\nTS-1008 · 12,000 km\t\nAVAILABLE\t₦45,500,000\t₦32,760,000\t₦12,740,000\t\n\nMercedes-Benz C 300 AMG Line 2018\nTS-1011 · 71,000 km\t\nAVAILABLE\t₦29,500,000\t₦21,240,000\t₦8,260,000\t\n\nBMW X3 xDrive30i 2019\nTS-1012 · 58,000 km\t\nAVAILABLE\t₦41,000,000\t₦29,520,000\t₦11,480,000\t\n\nRange Rover Sport HSE 2021\nTS-1013 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦115,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nPorsche Macan S 2021\nTS-1014 · 0 km\t\nON ORDER\nExpected arrival: December\n\t₦96,000,000\t₦69,120,000\t₦26,880,000\t\n\nToyota Land Cruiser Prado VX 2022\nTS-1015 · 0 km\t\nON ORDER\nExpected arrival: January\n\t₦92,000,000\t₦66,240,000\t₦25,760,000\t\n\nChevrolet Tahoe LT 2020\nTS-1016 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦74,000,000\t₦53,280,000\t₦20,720,000\t\n\nFord F-150 Lariat 2021\nTS-1017 · 0 km\t\nON ORDER\nExpected arrival: November\n\t₦68,000,000\t₦48,960,000\t₦19,040,000\t\n\nBMW X7 xDrive40i 2022\nTS-1018 · 0 km\t\nON ORDER\nExpected arrival: January\n\t₦128,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nLexus RX 350 350 2019\nTS-1019 · 64,000 km\t\nLANDED\t₦44,500,000\t₦32,040,000\t₦12,460,000\t\n\nHonda CR-V EX-L 2020\nTS-1020 · 48,000 km\t\nLANDED\t₦36,000,000\t₦25,920,000\t₦10,080,000\t\n\nMercedes-Benz E 350 350 2020\nTS-1023 · 39,000 km\t\nLANDED\t₦48,000,000\t₦34,560,000\t₦13,440,000\t\n\nHonda Civic EX 2021\nTS-1025 · 42,000 km · sold 15 Sep 2026\t\nSOLD\t₦28,000,000\t₦20,160,000\t₦7,840,000\t\n\nTS-FLOW-1792136477358 Flow2 STD 2020\nTS-1029 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792144332626 Flow STD 2020\nTS-1030 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145316547 Flow2 STD 2020\nTS-1031 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145305480-1 Fixture STD 2021\nTS-1032 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145622497 Flow2 STD 2020\nTS-1033 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145615924-1 Fixture STD 2021\nTS-1034 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FLOW-1792145803583 Flow2 STD 2020\nTS-1035 · 12,000 km\t\nAVAILABLE\t₦5,000,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nTS-FIX-1792145797830-2 Fixture STD 2021\nTS-1036 · 22,000 km\t\nAVAILABLE\nFixture arrival_note\n\t₦22,000\tCOSTS INCOMPLETE\tCOSTS INCOMPLETE\t\n\nPage 1 of 2\n\nPrev\n1\n2\nNext\n\nCost and profit appear only in the office. The public site is handed an explicit list of fields — costs are never included, even by accident."
+  },
+  {
+    "route": "/office/car/new",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/car/new",
+    "h": [
+      "Add a car",
+      "1The car",
+      "2Photos",
+      "3Costs — never leaves the office",
+      "4State",
+      "5Private notes",
+      "More",
+      "Delete this car?",
+      "Replace what is in the form?"
+    ],
+    "buttons": [
+      "Sign out",
+      "Autofill from PDF",
+      "Mark as sold",
+      "Delete",
+      "Available",
+      "Landed",
+      "On Order",
+      "Save car",
+      "More",
+      "Keep it",
+      "Keep what I typed",
+      "Replace with the PDF",
+      "Undo"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Cancel",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Preview the buyer page",
+        "h": "/car/2019-toyota-sienna-xle"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Brand",
+      "Model",
+      "Trim",
+      "Year",
+      "Mileage",
+      "Doorstep price (₦)",
+      "Was price (₦) — optional",
+      "Exterior colour",
+      "Interior",
+      "Features — one per line",
+      "Note (buyers read this)",
+      "Drop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.",
+      "Purchase price (₦)",
+      "Shipping (₦)",
+      "Clearing (₦)",
+      "Trucking within USA (₦)",
+      "Trucking in Nigeria (₦)",
+      "Full tank (₦)",
+      "Where this car is",
+      "Tracking states — optional, office only",
+      "On the way",
+      "At port",
+      "Cleared",
+      "New arrivalAlso shows under \"Landed this year\" in the showroom, as well as Available.",
+      "Arrival note",
+      "Notes to self (private)"
+    ],
+    "placeholders": [
+      "Toyota",
+      "Sienna",
+      "LE",
+      "2020",
+      "52,614",
+      "33,900,000",
+      "36,500,000",
+      "Silver",
+      "Grey",
+      "Reverse camera\nPower sliding doors\nTri-zone AC",
+      "One owner, full service history, ready to drive.",
+      "26,500,000",
+      "3,200,000",
+      "1,850,000",
+      "470,000",
+      "525,000",
+      "110,000",
+      "Expected arrival: November",
+      "Duty paid, immaculate. Ready for viewing."
+    ],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nADD A CAR\n\nFill what you know — save puts it in the showroom immediately.\n\nAutofill from PDF\n1\nTHE CAR\nBRAND\nMODEL\nTRIM\nYEAR\nMILEAGE\nShown exactly as the car reads — kilometres.\nDOORSTEP PRICE (₦)\n₦\nThe one price a buyer sees. Shipping, clearing and delivery are already inside it.\nWAS PRICE (₦) — OPTIONAL\n₦\nShown crossed out beside the price. Leave blank for no \"was\" price.\nEXTERIOR COLOUR\nINTERIOR\nFEATURES — ONE PER LINE\nWritten the way a seller types. These go straight to the buyer's page.\nNOTE (BUYERS READ THIS)\nShown on the car's page. The private note below stays office-only.\n2\nPHOTOS\nDrop photos here or click to browse — first photo is the cover buyers see first. Up to 15.0 MB each.\n3\nCOSTS\n— never leaves the office\nPURCHASE PRICE (₦)\n₦\nSHIPPING (₦)\n₦\nCLEARING (₦)\n₦\nTRUCKING WITHIN USA (₦)\n₦\nTRUCKING IN NIGERIA (₦)\n₦\nFULL TANK (₦)\n₦\nDefault from Settings — change per car if needed.\n4\nSTATE\nWHERE THIS CAR IS\nAvailable\nLanded\nOn Order\n\nThe showroom follows automatically. Buyers only ever see the three section names — never these labels.\n\nTRACKING STATES — OPTIONAL, OFFICE ONLY\nOn the way\nAt port\nCleared\n\nStages this car passes through — none or several. They never show to buyers and never change a count.\n\nNew arrival\nAlso shows under \"Landed this year\" in the showroom, as well as Available.\nARRIVAL NOTE\nShown to buyers on On-order cars. The one field they'd otherwise have to ask about.\n5\nPRIVATE NOTES\nNOTES TO SELF (PRIVATE)\nOffice-only — never sent to the showroom.\nSave car\nCancel\nSaving puts the car in the showroom immediately.\nLANDED COST — LIVE\nLANDED COST\n—\nDoorstep price\n—\n0 of 6 costs entered. Projected profit excludes this car until all six are in. Money tied up counts whatever is entered.\nPROFIT ON THIS CAR\n—\n\nEnter a doorstep price to see profit.\n\nWHAT THE BUYER SEES\n\nOnly the doorstep price, the car's facts and its photos. Costs, profit, private states and these notes are never sent to the browser — it's a server rule, not a setting.\n\nPreview the buyer page "
+  },
+  {
+    "route": "/office/drafts",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/drafts",
+    "h": [
+      "Delete this draft?",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "Save as a enquiry",
+      "Delete",
+      "Keep it",
+      "Remove for good",
+      "Save as a car",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/be66a36a-b00e-410d-ad84-292527176212"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/1eb61a5d-8c5d-4e6e-b233-db6f0b566997"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/986e6d70-39a2-4169-b6b8-b17662228522"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/99b07ed5-5074-4086-9fa3-9037736439d6"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/e8c1ce52-7429-4711-8b24-6d5cc7ef5794"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/car/954e4aed-b610-4899-bfd8-d5043e0c973b"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/a1bd7b9f-290a-45a0-9c8b-fc74e4f93a49"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/cbaaee4a-4856-4521-9546-f056259d1d22"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/ef56ba01-1a19-4388-8518-033c86723915"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/fae11f83-50de-415b-b107-5c2749e8906a"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/car/4026ffa0-2d95-4be4-855e-ec797d81369b"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/20fc707b-ff03-4b28-b1b6-f71d4eb52836"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/462b253d-0029-4a30-a19d-d9c4d947dee2"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/be269f82-817f-405c-a3e8-31accbf07984"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/d76b4b42-59bc-4849-9fc0-da02ddad4210"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/car/facd9055-2705-4597-8ca1-8a0da0a36f95"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/car/01cfb219-9975-4450-a105-061df3a9f127"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/car/57e5568e-b780-481c-b907-41eeebc76560"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/0acb42ad-f71d-4e85-bea0-2bf416a8084c"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/549f950b-4586-441b-920e-bfdc3cb63013"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/835ee4f8-724e-44c6-892a-4e43d83bdd0a"
+      },
+      {
+        "t": "Edit",
+        "h": "/office/drafts/enquiry/d93e4ad0-b55d-473a-9d68-5f9381503171"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [
+      "Enquiry state",
+      "Add the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.",
+      "Car state"
+    ],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\ntruespec-enquiry-filled.pdf\nENQUIRY\n1 enquiry waiting\nWAITING ENQUIRY\nFROM FILE\nYesterday\nNAME\nEmeka Obi\nPHONE NUMBER\n08030000001\nASKED FOR\nLexus RX 350 2020\nNOTE\nWants to view it on Saturday and asked about delivery to Enugu.\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nenquiries-2026-09-30.pdf\nENQUIRY\n4 enquiries waiting\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nBright Okonkwo\nPHONE NUMBER\n0805 000 0102\nASKED FOR\nthe white BMW X5 xDrive40i\nNOTE\nWants the black interior\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nDamilola Eze\nPHONE NUMBER\n0809 000 0104\nASKED FOR\na 2019 Lexus RX 350 in silver\nNOTE\nReady to inspect on Saturday\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nAda Nwosu\nPHONE NUMBER\n0803 000 0101\nASKED FOR\na 2021 Camry XSE V6 — the black one on your lot\nNOTE\nAsked about finance terms\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nChika Adeyemi\nPHONE NUMBER\n0807 000 0103\nASKED FOR\na 2022 Toyota Highlander, the new shape\nNOTE\nWaiting for the arrival date\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\ncar-template-1792145797830.pdf\nCAR\n1 car waiting\nWAITING CAR\nFROM FILE\n16 Oct\nBRAND\nTS-FIX-1792145797830-1\nMODEL\nFixture\nTRIM\nSTD\nYEAR\n2021\nEXTERIOR COLOUR\nFixture exterior_color\nINTERIOR COLOUR\nFixture interior_color\nMILEAGE (KM)\n22000\nFEATURES (SEPARATE EACH WITH A COMMA)\nAir conditioning Leather seats\nNOTE (BUYERS READ THIS)\nFixture note\nPRIVATE NOTE (NEVER SHOWN TO BUYERS)\nFixture private_note\nWAS PRICE (NGN) — OPTIONAL\n₦22,000\nARRIVAL NOTE\nFixture arrival_note\nDOORSTEP PRICE (NGN)\n₦22,000\nCAR STATE\nAvailable\nLanded\nOn Order\nSold\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a car\nDelete\nSaving mints the next TS-#### and computes the change-check.\nenquiries-2026-09-30.pdf\nENQUIRY\n4 enquiries waiting\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nAda Nwosu\nPHONE NUMBER\n0803 000 0101\nASKED FOR\na 2021 Camry XSE V6 — the black one on your lot\nNOTE\nAsked about finance terms\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nChika Adeyemi\nPHONE NUMBER\n0807 000 0103\nASKED FOR\na 2022 Toyota Highlander, the new shape\nNOTE\nWaiting for the arrival date\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nBright Okonkwo\nPHONE NUMBER\n0805 000 0102\nASKED FOR\nthe white BMW X5 xDrive40i\nNOTE\nWants the black interior\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nDamilola Eze\nPHONE NUMBER\n0809 000 0104\nASKED FOR\na 2019 Lexus RX 350 in silver\nNOTE\nReady to inspect on Saturday\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\ncar-template-1792145615924.pdf\nCAR\n1 car waiting\nWAITING CAR\nFROM FILE\n16 Oct\nBRAND\nTS-FIX-1792145615924-2\nMODEL\nFixture\nTRIM\nSTD\nYEAR\n2021\nEXTERIOR COLOUR\nFixture exterior_color\nINTERIOR COLOUR\nFixture interior_color\nMILEAGE (KM)\n22000\nFEATURES (SEPARATE EACH WITH A COMMA)\nAir conditioning Leather seats\nNOTE (BUYERS READ THIS)\nFixture note\nPRIVATE NOTE (NEVER SHOWN TO BUYERS)\nFixture private_note\nWAS PRICE (NGN) — OPTIONAL\n₦22,000\nARRIVAL NOTE\nFixture arrival_note\nDOORSTEP PRICE (NGN)\n₦22,000\nCAR STATE\nAvailable\nLanded\nOn Order\nSold\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a car\nDelete\nSaving mints the next TS-#### and computes the change-check.\nenquiries-2026-09-30.pdf\nENQUIRY\n4 enquiries waiting\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nDamilola Eze\nPHONE NUMBER\n0809 000 0104\nASKED FOR\na 2019 Lexus RX 350 in silver\nNOTE\nReady to inspect on Saturday\nENQUIRY STATE\nNo state — sits in none\nNew\nTalking\nNegotiating\nSold\nLost\nAdd the pictures the file cannot carry — first one is the cover. Up to 15.0 MB each.\nEdit\nSave as a enquiry\nDelete\nSaving records the enquiry; no TS-#### is spent on an enquiry.\nWAITING ENQUIRY\nFROM FILE\n16 Oct\nNAME\nAda Nwosu\nPHONE NUMBER\n0803 000 0101\nASKED FOR\na 2021 Camry XSE V6 — the black one on your lot\nNOTE\nAsked ab"
+  },
+  {
+    "route": "/office/enquiries",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/enquiries",
+    "h": [
+      "Enquiries",
+      "More",
+      "Enquiry",
+      "Delete this enquiry?"
+    ],
+    "buttons": [
+      "Sign out",
+      "CAChika Adeyemi18 Sep0807 000 0103ENQ-0004a 2022 Toyota Highlander, the new shapeWaiting for the arrival date",
+      "ANAda Nwosu4 Sep0803 000 0101ENQ-0002a 2021 Camry XSE V6 — the black one on your lotAsked about finance terms",
+      "COChidi O.14 Aug+2348030000001ENQ-0001a clean automatic saloon under ₦10 million — anything you haveAsked about servicing history",
+      "ABAisha B.1 Oct+2348030000002ENQ-0006the Range Rover Sport when it landsWants to see the Sport when it lands",
+      "BOBright Okonkwo11 Sep0805 000 0102ENQ-0003the white BMW X5 xDrive40iWants the black interior",
+      "DEDamilola Eze25 Sep0809 000 0104ENQ-0005a 2019 Lexus RX 350 in silverReady to inspect on Saturday",
+      "More",
+      "×",
+      "Delete",
+      "Cancel",
+      "Delete enquiry"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Enquiry template",
+        "h": "/api/enquiry-template"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Taps",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "WhatsApp them",
+        "h": "#"
+      },
+      {
+        "t": "Call",
+        "h": "#"
+      },
+      {
+        "t": "Edit",
+        "h": "#"
+      }
+    ],
+    "labels": [
+      "Create from file"
+    ],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nENQUIRIES\n\nThe site only records that a WhatsApp tap happened, and on which car. You bring the names and numbers back here by importing the enquiry sheet.\n\nEnquiry template\nCreate from file\nImport a filled enquiry template or the sales desk's sheet — its rows become drafts.\nEnquiries\nTaps\nNEW\n3\nCA\nChika Adeyemi\n18 Sep\n\n0807 000 0103\n\nENQ-0004\n\na 2022 Toyota Highlander, the new shape\n\nWaiting for the arrival date\n\nAN\nAda Nwosu\n4 Sep\n\n0803 000 0101\n\nENQ-0002\n\na 2021 Camry XSE V6 — the black one on your lot\n\nAsked about finance terms\n\nCO\nChidi O.\n14 Aug\n\n+2348030000001\n\nENQ-0001\n\na clean automatic saloon under ₦10 million — anything you have\n\nAsked about servicing history\n\nTALKING\n2\nAB\nAisha B.\n1 Oct\n\n+2348030000002\n\nENQ-0006\n\nthe Range Rover Sport when it lands\n\nWants to see the Sport when it lands\n\nBO\nBright Okonkwo\n11 Sep\n\n0805 000 0102\n\nENQ-0003\n\nthe white BMW X5 xDrive40i\n\nWants the black interior\n\nNEGOTIATING\n1\nDE\nDamilola Eze\n25 Sep\n\n0809 000 0104\n\nENQ-0005\n\na 2019 Lexus RX 350 in silver\n\nReady to inspect on Saturday\n\nSOLD\n0\n\nNothing here right now.\n\nLOST\n0\n\nNothing here right now.\n\nTwo tracks, never forced together:\nenquiry state\nfollows the customer conversation;\ncar state\nfollows the vehicle. Giving a customer the state Sold does not move the car — that is a separate decision on the car's own page."
+  },
+  {
+    "route": "/office/activity",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/activity",
+    "h": [
+      "Activity log",
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "All118",
+      "Added36",
+      "Edited12",
+      "State3",
+      "Sold3",
+      "Deleted51",
+      "Restored13",
+      "Imports0",
+      "Settings0",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "TS-1072",
+        "h": "/office/car/TS-1072"
+      },
+      {
+        "t": "TS-1067",
+        "h": "/office/car/TS-1067"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1062",
+        "h": "/office/car/TS-1062"
+      },
+      {
+        "t": "TS-1062",
+        "h": "/office/car/TS-1062"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1062",
+        "h": "/office/car/TS-1062"
+      },
+      {
+        "t": "TS-1061",
+        "h": "/office/car/TS-1061"
+      },
+      {
+        "t": "TS-1059",
+        "h": "/office/car/TS-1059"
+      },
+      {
+        "t": "TS-1060",
+        "h": "/office/car/TS-1060"
+      },
+      {
+        "t": "TS-1059",
+        "h": "/office/car/TS-1059"
+      },
+      {
+        "t": "TS-1057",
+        "h": "/office/car/TS-1057"
+      },
+      {
+        "t": "TS-1057",
+        "h": "/office/car/TS-1057"
+      },
+      {
+        "t": "TS-1058",
+        "h": "/office/car/TS-1058"
+      },
+      {
+        "t": "TS-1058",
+        "h": "/office/car/TS-1058"
+      },
+      {
+        "t": "TS-1057",
+        "h": "/office/car/TS-1057"
+      },
+      {
+        "t": "TS-1057",
+        "h": "/office/car/TS-1057"
+      },
+      {
+        "t": "TS-1058",
+        "h": "/office/car/TS-1058"
+      },
+      {
+        "t": "TS-1057",
+        "h": "/office/car/TS-1057"
+      },
+      {
+        "t": "TS-1056",
+        "h": "/office/car/TS-1056"
+      },
+      {
+        "t": "TS-1056",
+        "h": "/office/car/TS-1056"
+      },
+      {
+        "t": "TS-1055",
+        "h": "/office/car/TS-1055"
+      },
+      {
+        "t": "TS-1055",
+        "h": "/office/car/TS-1055"
+      },
+      {
+        "t": "TS-1056",
+        "h": "/office/car/TS-1056"
+      },
+      {
+        "t": "TS-1055",
+        "h": "/office/car/TS-1055"
+      },
+      {
+        "t": "TS-1054",
+        "h": "/office/car/TS-1054"
+      },
+      {
+        "t": "TS-1053",
+        "h": "/office/car/TS-1053"
+      },
+      {
+        "t": "TS-1053",
+        "h": "/office/car/TS-1053"
+      },
+      {
+        "t": "TS-1054",
+        "h": "/office/car/TS-1054"
+      },
+      {
+        "t": "TS-1053",
+        "h": "/office/car/TS-1053"
+      },
+      {
+        "t": "TS-1051",
+        "h": "/office/car/TS-1051"
+      },
+      {
+        "t": "TS-1052",
+        "h": "/office/car/TS-1052"
+      },
+      {
+        "t": "TS-1051",
+        "h": "/office/car/TS-1051"
+      },
+      {
+        "t": "TS-1049",
+        "h": "/office/car/TS-1049"
+      },
+      {
+        "t": "TS-1050",
+        "h": "/office/car/TS-1050"
+      },
+      {
+        "t": "TS-1049",
+        "h": "/office/car/TS-1049"
+      },
+      {
+        "t": "TS-1048",
+        "h": "/office/car/TS-1048"
+      },
+      {
+        "t": "TS-1047",
+        "h": "/office/car/TS-1047"
+      },
+      {
+        "t": "TS-1048",
+        "h": "/office/car/TS-1048"
+      },
+      {
+        "t": "TS-1047",
+        "h": "/office/car/TS-1047"
+      },
+      {
+        "t": "TS-1048",
+        "h": "/office/car/TS-1048"
+      },
+      {
+        "t": "TS-1048",
+        "h": "/office/car/TS-1048"
+      },
+      {
+        "t": "TS-1047",
+        "h": "/office/car/TS-1047"
+      },
+      {
+        "t": "TS-1047",
+        "h": "/office/car/TS-1047"
+      },
+      {
+        "t": "TS-1048",
+        "h": "/office/car/TS-1048"
+      },
+      {
+        "t": "TS-1047",
+        "h": "/office/car/TS-1047"
+      },
+      {
+        "t": "TS-1046",
+        "h": "/office/car/TS-1046"
+      },
+      {
+        "t": "TS-1046",
+        "h": "/office/car/TS-1046"
+      },
+      {
+        "t": "TS-1046",
+        "h": "/office/car/TS-1046"
+      },
+      {
+        "t": "TS-1045",
+        "h": "/office/car/TS-1045"
+      },
+      {
+        "t": "TS-1045",
+        "h": "/office/car/TS-1045"
+      },
+      {
+        "t": "TS-1045",
+        "h": "/office/car/TS-1045"
+      },
+      {
+        "t": "TS-1044",
+        "h": "/office/car/TS-1044"
+      },
+      {
+        "t": "TS-1044",
+        "h": "/office/car/TS-1044"
+      },
+      {
+        "t": "TS-1044",
+        "h": "/office/car/TS-1044"
+      },
+      {
+        "t": "TS-1043",
+        "h": "/office/car/TS-1043"
+      },
+      {
+        "t": "TS-1043",
+        "h": "/office/car/TS-1043"
+      },
+      {
+        "t": "TS-1043",
+        "h": "/office/car/TS-1043"
+      },
+      {
+        "t": "TS-1042",
+        "h": "/office/car/TS-1042"
+      },
+      {
+        "t": "TS-1042",
+        "h": "/office/car/TS-1042"
+      },
+      {
+        "t": "TS-1042",
+        "h": "/office/car/TS-1042"
+      },
+      {
+        "t": "TS-1041",
+        "h": "/office/car/TS-1041"
+      },
+      {
+        "t": "TS-1041",
+        "h": "/office/car/TS-1041"
+      },
+      {
+        "t": "TS-1041",
+        "h": "/office/car/TS-1041"
+      },
+      {
+        "t": "TS-1040",
+        "h": "/office/car/TS-1040"
+      },
+      {
+        "t": "TS-1040",
+        "h": "/office/car/TS-1040"
+      },
+      {
+        "t": "TS-1040",
+        "h": "/office/car/TS-1040"
+      },
+      {
+        "t": "TS-1039",
+        "h": "/office/car/TS-1039"
+      },
+      {
+        "t": "TS-1039",
+        "h": "/office/car/TS-1039"
+      },
+      {
+        "t": "TS-1039",
+        "h": "/office/car/TS-1039"
+      },
+      {
+        "t": "TS-1038",
+        "h": "/office/car/TS-1038"
+      },
+      {
+        "t": "TS-1038",
+        "h": "/office/car/TS-1038"
+      },
+      {
+        "t": "TS-1038",
+        "h": "/office/car/TS-1038"
+      },
+      {
+        "t": "TS-1037",
+        "h": "/office/car/TS-1037"
+      },
+      {
+        "t": "TS-1037",
+        "h": "/office/car/TS-1037"
+      },
+      {
+        "t": "TS-1037",
+        "h": "/office/car/TS-1037"
+      },
+      {
+        "t": "TS-1011",
+        "h": "/office/car/TS-1011"
+      },
+      {
+        "t": "TS-1011",
+        "h": "/office/car/TS-1011"
+      },
+      {
+        "t": "TS-1001",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "TS-1001",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "TS-1001",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "TS-1001",
+        "h": "/office/car/TS-1001"
+      },
+      {
+        "t": "TS-1036",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "TS-1036",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "TS-1036",
+        "h": "/office/car/TS-1036"
+      },
+      {
+        "t": "TS-1035",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "TS-1035",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "TS-1035",
+        "h": "/office/car/TS-1035"
+      },
+      {
+        "t": "TS-1035",
+        "h": "/office/car/TS-1035"
+      }
+    ],
+    "labels": [],
+    "placeholders": [
+      "Search car, ref or action…"
+    ],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\nACTIVITY LOG\n\nEvery change made to a car, newest first. Entries can't be edited or removed — that's what makes the log worth trusting.\n\nAll118\nAdded36\nEdited12\nState3\nSold3\nDeleted51\nRestored13\nImports0\nSettings0\n\n118 entries — newest first\n\nTODAY · FRIDAY 23 OCT 2026\nR\n\nAdded a car TS-1072ADDED\n16:47\nrema6rema6rema6@gmail.com\n\nYESTERDAY · THURSDAY 22 OCT 2026\nV\n\nAdded a car TS-1067ADDED\n06:54\nvictormakuo2002@gmail.com\n\nSUNDAY 18 OCT 2026\nR\n\nRemoved a car for good TS-1061DELETED\n12:30\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1061DELETED\n12:29\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1062DELETED\n12:29\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1062DELETED\n12:29\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1061RESTORED\n12:29\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1061DELETED\n12:29\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1062ADDED\n12:28\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1061ADDED\n12:28\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1059DELETED\n12:27\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1060ADDED\n12:27\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1059ADDED\n12:27\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1057DELETED\n11:44\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1057DELETED\n11:44\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1058DELETED\n11:44\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1058DELETED\n11:43\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1057RESTORED\n11:43\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1057DELETED\n11:43\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1058ADDED\n11:43\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1057ADDED\n11:42\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1056DELETED\n11:40\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1056DELETED\n11:40\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1055RESTORED\n11:40\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1055DELETED\n11:39\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1056ADDED\n11:39\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1055ADDED\n11:39\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1054DELETED\n11:29\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1053RESTORED\n11:29\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1053DELETED\n11:29\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1054ADDED\n11:28\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1053ADDED\n11:28\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1051DELETED\n11:17\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1052ADDED\n11:17\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1051ADDED\n11:17\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1049DELETED\n11:12\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1050ADDED\n11:12\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1049ADDED\n11:12\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1048DELETED\n10:24\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1047DELETED\n10:24\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1048DELETED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1047DELETED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1048RESTORED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1048DELETED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1047RESTORED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1047DELETED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1048ADDED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1047ADDED\n10:23\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1046DELETED\n03:36\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1046DELETED\n03:36\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1046ADDED\n03:35\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1045DELETED\n03:35\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1045DELETED\n03:34\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1045ADDED\n03:34\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1044DELETED\n03:33\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1044DELETED\n03:32\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1044ADDED\n03:32\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1043DELETED\n03:30\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1043DELETED\n03:29\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1043ADDED\n03:29\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1042DELETED\n03:25\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1042DELETED\n03:25\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1042ADDED\n03:25\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1041DELETED\n03:24\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1041DELETED\n03:24\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1041ADDED\n03:24\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1040DELETED\n03:21\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1040DELETED\n03:21\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1040ADDED\n03:21\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1039DELETED\n03:20\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1039DELETED\n03:20\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1039ADDED\n03:20\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1038DELETED\n03:09\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1038DELETED\n03:09\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1038ADDED\n03:09\nrema6rema6rema6@gmail.com\n\nR\n\nRemoved a car for good TS-1037DELETED\n03:02\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1037DELETED\n03:02\nrema6rema6rema6@gmail.com\n\nR\n\nAdded a car TS-1037ADDED\n03:02\nrema6rema6rema6@gmail.com\n\nSATURDAY 17 OCT 2026\nR\n\nRestored a car TS-1011RESTORED\n22:18\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1011DELETED\n22:18\nrema6rema6rema6@gmail.com\n\nR\n\nEdited a car TS-1001EDITED\n18:33\nrema6rema6rema6@gmail.com\n\nR\n\nEdited a car TS-1001EDITED\n18:33\nrema6rema6rema6@gmail.com\n\nR\n\nRestored a car TS-1001RESTORED\n09:30\nrema6rema6rema6@gmail.com\n\nR\n\nDeleted a car TS-1001DELETED\n09:30\nrema6rema6rema6@gmail.com\n\nR\n\nRe"
+  },
+  {
+    "route": "/office/settings",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/office/settings",
+    "h": [
+      "More"
+    ],
+    "buttons": [
+      "Sign out",
+      "Try again",
+      "More"
+    ],
+    "links": [
+      {
+        "t": "Dashboard",
+        "h": "/office"
+      },
+      {
+        "t": "Inventory",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add / edit car",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Enquiries",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "1",
+        "h": "/office/enquiries?tab=taps"
+      },
+      {
+        "t": "Home",
+        "h": "/office"
+      },
+      {
+        "t": "Stock",
+        "h": "/office/inventory"
+      },
+      {
+        "t": "Add",
+        "h": "/office/car/new"
+      },
+      {
+        "t": "Chats",
+        "h": "/office/enquiries"
+      },
+      {
+        "t": "Drafts",
+        "h": "/office/drafts"
+      },
+      {
+        "t": "Activity log",
+        "h": "/office/activity"
+      },
+      {
+        "t": "Settings",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nOFFICE\nDashboard\nInventory\nAdd / edit car\nEnquiries\nDrafts\nActivity log\nSettings\nSigned in as rema6rema6rema6@gmail.com\nSign out\n1\n\nWe couldn’t load this\n\nWe tried a few times but the server didn’t answer. Nothing was lost — please try again.\n\nTry again"
+  },
+  {
+    "route": "/office/account",
+    "title": "Your account | TrueSpec Office",
+    "finalUrl": "/office/account",
+    "h": [
+      "Your account"
+    ],
+    "buttons": [],
+    "links": [
+      {
+        "t": "Back to the office",
+        "h": "/office/settings"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "Back to the office\nYOUR ACCOUNT\n\nYour password is held by the sign-in provider, never by the office. Change it here.\n\nForgot your password? Recovery is an identity-provider operation — it happens at the sign-in screen, not in the office."
+  },
+  {
+    "route": "/privacy",
+    "title": "TrueSpec — cars you can trust",
+    "finalUrl": "/privacy",
+    "h": [
+      "Privacy notice",
+      "The short version",
+      "What we store",
+      "What we never collect",
+      "WhatsApp",
+      "How long we keep it",
+      "Your rights",
+      "Who to contact",
+      "TrueSpec Automotive",
+      "Photo gallery",
+      "How buying works",
+      "Social network",
+      "Chat with us",
+      "Chat hours",
+      "Viewing",
+      "Delivery",
+      "Before you go to WhatsApp"
+    ],
+    "buttons": [
+      "Continue to WhatsApp",
+      "Cancel"
+    ],
+    "links": [
+      {
+        "t": "TrueSpec",
+        "h": "/"
+      },
+      {
+        "t": "Chat on WhatsApp",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Home",
+        "h": "/"
+      },
+      {
+        "t": "What we store",
+        "h": "#collect"
+      },
+      {
+        "t": "What we never collect",
+        "h": "#never"
+      },
+      {
+        "t": "WhatsApp",
+        "h": "#whatsapp"
+      },
+      {
+        "t": "How long we keep it",
+        "h": "#retention"
+      },
+      {
+        "t": "Your rights",
+        "h": "#rights"
+      },
+      {
+        "t": "Who to contact",
+        "h": "#contact"
+      },
+      {
+        "t": "WhatsApp (+2348146927170)",
+        "h": "https://wa.me/2348146927170"
+      },
+      {
+        "t": "WhatsApp",
+        "h": "https://wa.me/2348146927170"
+      },
+      {
+        "t": "WhatsApp us",
+        "h": "https://wa.me/2348146927170?text=Hello%20TrueSpec%2C%20I%20have%20a%20question."
+      },
+      {
+        "t": "Privacy notice",
+        "h": "/privacy"
+      },
+      {
+        "t": "Read the full privacy notice",
+        "h": "/privacy"
+      }
+    ],
+    "labels": [],
+    "placeholders": [],
+    "th": [],
+    "body": "TRUESPEC\nImported from the USA\nDelivered anywhere in Nigeria\nVISITS BY APPOINTMENT\nWHATSAPP\n+2348146927170\nCHAT HOURS\nMon - Sat, 9AM - 6PM\nNew on the lot: 2019 Lexus RX 350 350 — landed this year\nNext to land: 2021 Range Rover Sport HSE — Expected arrival: November\nBiggest drop: 2022 Toyota RAV4 Prime SE — was ₦50,900,000, now ₦45,500,000\nOne doorstep price — shipping, clearing and delivery included.\nChat on WhatsApp\n\nHome / Privacy notice\n\nPrivacy notice\n\nLast updated: 23 October 2026\n\nTHE SHORT VERSION\n\nThis site collects almost nothing. There are no accounts, no forms and no analytics. The only things stored are a few small settings in your own browser — like your dark-mode choice — and they never leave your device. The one thing we keep on our side is the record of a WhatsApp tap: which page, the car’s code and the time, and nothing about you. When you contact us, that happens on WhatsApp, on your phone, with a message you can read before you send it.\n\nNo accounts\nNo analytics\nNo ads or trackers\nWhat we store\nWhat we never collect\nWhatsApp\nHow long we keep it\nYour rights\nWho to contact\nWHAT WE STORE\nDark mode choice — If you toggle dark/light, a tiny value called ts-theme is saved in localStorage in your browser. It is not sent to our servers.\nNothing for users — We don't create user accounts or profiles.\nA WhatsApp tap — When you tap a WhatsApp link on a car, we record three things so the office knows that car was asked about: the page you tapped from, the car’s code and the time. Nothing about you: no name, no number, no message, no address.\nWHAT WE NEVER COLLECT\nNo email addresses, passwords or phone numbers (unless you write one yourself in a WhatsApp message).\nNo cookies for tracking, advertising or analytics.\nNo IP-address logs for marketing.\nNo third-party trackers (no Google Analytics, Meta Pixel, etc).\nWHATSAPP\n\nEnquiries go to WhatsApp directly (+2348146927170). When you tap \"Chat on WhatsApp\", you leave this site and open WhatsApp. WhatsApp is a separate service with its own privacy policy. Before you leave, this site records that the tap happened — the page, the car’s code (when there is one) and the time — and nothing else. We only see what you choose to send us in that WhatsApp chat.\n\nHOW LONG WE KEEP IT\n\nWe store no browsing data beyond that tap record — no name, no number, no message, no address. WhatsApp conversations are kept according to your WhatsApp settings and our normal business retention for sales enquiries. We don't keep copies of full lists of visitors.\n\nYOUR RIGHTS\n\nIf you sent us an enquiry and would like it removed, message us on WhatsApp (+2348146927170) with enough detail to identify it — for example the car’s code, or the number you wrote from. We will remove the enquiry, and its imported sheet when no other enquiry or draft is using it. The tap record — the page, the car’s code and the time, and nothing about you — stays. Depending on your jurisdiction, you may have other rights; we’ll try to help.\n\nWHO TO CONTACT\n\nQuestions about this notice: message us on WhatsApp.\n\nOwner note: this is a demo privacy notice. Replace the \"last updated\" date and any contact details before publishing.\nTRUESPEC AUTOMOTIVE\n\nWe import and deliver quality vehicles from the USA. One honest doorstep price on every car.\n\nPHOTO GALLERY\nHOW BUYING WORKS\n1. Pick a car or ask for one\n2. Chat with us on WhatsApp\n3. We ship, clear and deliver\nSOCIAL NETWORK\nCHAT WITH US\nWhatsApp us\nCHAT HOURS\n\nMon - Fri: 09:00AM - 06:00PM\nSaturday: 10:00AM - 04:00PM\nSunday: Closed\n\nVIEWING\n\nCars can be viewed by appointment once they have landed. Message us to book a time.\n\nDELIVERY\n\nWe deliver to your door anywhere in Nigeria. Delivery is included in the price.\n\n© 2026 TrueSpec Automotive. All rights reserved.\nPrivacy notice · Imported from the USA"
+  }
+]
