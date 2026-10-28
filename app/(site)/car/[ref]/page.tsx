@@ -280,7 +280,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                       >
                         <Photo
                           src={p}
-                          alt=""
+                          alt={`${h1Title(car)} photo ${i + 1}`}
                           sized={{ width: 320, height: 180 }}
                           loading="lazy"
                           decoding="async"
@@ -466,7 +466,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
                 <div className="ph">
                   <Photo
                     src={c.photos[0]}
-                    alt=""
+                    alt={cardTitle(c)}
                     loading="lazy"
                     decoding="async"
                     sized={{ width: 580, height: 320 }}
@@ -509,7 +509,7 @@ export default async function CarPage({ params }: { params: Promise<{ ref: strin
         <button type="button" className="p" aria-label="Previous">
           <i className="fa-solid fa-chevron-left" />
         </button>
-        <Photo id="li" alt="" />
+        <Photo id="li" alt={`${h1Title(car)} photo`} />
         <button type="button" className="n" aria-label="Next">
           <i className="fa-solid fa-chevron-right" />
         </button>
@@ -640,7 +640,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
                     <div className="ph">
                       <Photo
                         src={c.photos[0]}
-                        alt=""
+                        alt={cardTitle(c)}
                         loading="lazy"
                         decoding="async"
                         sized={{ width: 580, height: 320 }}
@@ -667,7 +667,7 @@ function soldPageView(car: PublicCar, all: PublicCar[], num: string) {
       </div>
 
       <RelatedShell />
-      <CarLayers wa={soldWa} />
+      <CarLayers wa={soldWa} alt={`${name} photo`} />
     </>
   );
 }

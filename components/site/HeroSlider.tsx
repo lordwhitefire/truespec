@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { PublicCar } from '@/lib/serialize';
 import { sizedPhotoUrl } from '@/lib/photo-url';
-import { carHref, heroPrice } from './car-view';
+import { carHref, carTitle, heroPrice } from './car-view';
 
 // The reference hero (HS = available cars, dearest first, top 3), auto-rotating.
 export function HeroSlider({ cars }: { cars: PublicCar[] }) {
@@ -35,7 +35,7 @@ export function HeroSlider({ cars }: { cars: PublicCar[] }) {
                   src={wide}
                   srcSet={`${square} 800w, ${wide} 1200w`}
                   sizes="100vw"
-                  alt=""
+                  alt={carTitle(c)}
                   width={1200}
                   height={450}
                   loading={i === 0 ? 'eager' : 'lazy'}

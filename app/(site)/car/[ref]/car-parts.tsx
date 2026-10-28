@@ -31,7 +31,7 @@ export function RelatedShell() {
   );
 }
 
-export function CarLayers({ wa }: { wa: string | null }) {
+export function CarLayers({ wa, alt = 'Car photo' }: { wa: string | null; alt?: string }) {
   return (
     <>
       <div className="mbar" id="mbar">
@@ -59,7 +59,7 @@ export function CarLayers({ wa }: { wa: string | null }) {
         <button type="button" className="p" aria-label="Previous">
           <i className="fa-solid fa-chevron-left" />
         </button>
-        <Photo id="li" alt="" />
+        <Photo id="li" alt={alt} />
         <button type="button" className="n" aria-label="Next">
           <i className="fa-solid fa-chevron-right" />
         </button>

@@ -91,15 +91,11 @@ async function TickerLines() {
 
 async function FooterGallery() {
   const { cars } = await chromeData();
-  const gallery = cars
-    .filter((c) => c.section === 'available')
-    .slice(0, 4)
-    .map((c) => c.photos[0])
-    .filter(Boolean);
+  const gallery = cars.filter((c) => c.section === 'available' && c.photos[0]).slice(0, 4);
   return (
     <>
-      {gallery.map((src, i) => (
-        <Photo key={i} src={src} alt="" loading="lazy" />
+      {gallery.map((c) => (
+        <Photo key={c.ref} src={c.photos[0]} alt={carTitle(c)} loading="lazy" />
       ))}
     </>
   );
