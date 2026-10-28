@@ -5,6 +5,8 @@
 attach-only; no tab opened, no Chrome launched, no screenshot.
 
 Each row names the artifact that holds the evidence. A missing item is `NOT RUN`, not a pass.
+Run artifacts live under `developer-workspace/scripts/LAUNCH-001/runs/`, which is gitignored by the
+repository; re-run the named script to regenerate them.
 
 ## 1. Green-path checks
 
