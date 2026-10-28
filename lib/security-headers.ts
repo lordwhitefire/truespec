@@ -10,12 +10,17 @@
  * body is identical either way so enforcing is a one-line flip.
  *
  * Clerk instance (observed at runtime): https://singular-sawfish-8907.clerk.accounts.dev
+ * Clerk bot/abuse protection (Clerk's required CSP sources): https://*.protect.clerk.com
+ * and https://challenges.cloudflare.com. The protect hosts are served on non-443 ports, so
+ * `connect-src` needs the trailing `:*` (a source with no port matches 443 only).
  * Sanity images: https://cdn.sanity.io
  * Fonts: self-hosted via next/font (no Google Fonts request)
  * Font Awesome: local (no cdnjs request)
  */
 
 const CLERK_DOMAIN = 'https://singular-sawfish-8907.clerk.accounts.dev';
+const CLERK_PROTECT_DOMAIN = 'https://*.protect.clerk.com';
+const CLERK_CHALLENGE_DOMAIN = 'https://challenges.cloudflare.com';
 const SANITY_DOMAIN = 'https://cdn.sanity.io';
 const CLERK_IMG_DOMAIN = 'https://img.clerk.com';
 const UNSPLASH_DOMAIN = 'https://images.unsplash.com';
@@ -27,16 +32,17 @@ const UNSPLASH_DOMAIN = 'https://images.unsplash.com';
 export function cspDirective(): string {
   return [
     "default-src 'self'",
-    // Clerk SDK + UI scripts; Next.js and Clerk inject inline scripts (documented trade-off)
-    `script-src 'self' 'unsafe-inline' ${CLERK_DOMAIN}`,
+    // Clerk SDK + UI scripts; bot/abuse protection; Next.js and Clerk inject inline scripts
+    // (documented trade-off)
+    `script-src 'self' 'unsafe-inline' ${CLERK_DOMAIN} ${CLERK_PROTECT_DOMAIN} ${CLERK_CHALLENGE_DOMAIN}`,
     // Clerk injects inline styles; fonts/icons are self-hosted
     "style-src 'self' 'unsafe-inline'",
     // Sanity cover images; Clerk brand images; Unsplash design backgrounds; data: for placeholders
     `img-src 'self' ${SANITY_DOMAIN} ${CLERK_IMG_DOMAIN} ${UNSPLASH_DOMAIN} data:`,
-    // Clerk API + Sanity asset fetches
-    `connect-src 'self' ${CLERK_DOMAIN} ${SANITY_DOMAIN}`,
-    // Clerk sign-in / account frames
-    `frame-src ${CLERK_DOMAIN}`,
+    // Clerk API + bot/abuse protection (non-443 ports) + Sanity asset fetches
+    `connect-src 'self' ${CLERK_DOMAIN} ${CLERK_PROTECT_DOMAIN}:* ${SANITY_DOMAIN}`,
+    // Clerk sign-in / account frames + bot/abuse protection challenge frames
+    `frame-src ${CLERK_DOMAIN} ${CLERK_PROTECT_DOMAIN} ${CLERK_CHALLENGE_DOMAIN}`,
     // Clerk web workers run from blob URLs
     "worker-src 'self' blob:",
     // Self-hosted fonts only (no Google Fonts, no cdnjs)
