@@ -51,9 +51,8 @@ no check is claimed from a script alone. The owner decides whether to push.
 4. Run lint and format: `npm run lint` and `npm run format:check`.
 5. Record PASS/FAIL/NOT RUN with evidence in the handoff (Task 28).
 
-## Owner-only setup (NOT RUN until the owner does it)
+## Owner-only setup
 
-- Sentry project + `SENTRY_DSN` (error tracking, Task 19).
-- UptimeRobot monitor + owner alert email (uptime, Task 20).
-- Vercel Preview environment scoped to the demo Neon branch and Sanity `preview`
-  dataset (preview isolation, Task 22).
+- Sentry project + `SENTRY_DSN` (error tracking, Task 19) — **done**, documented in `developer-workspace/reports/sentry-setup.md`.
+- UptimeRobot monitor + owner alert email (uptime, Task 20) — **done**, monitor `804452457` UP, documented in `docs/monitoring.md`.
+- Vercel Preview environment scoped to the demo Neon branch and Sanity `preview` dataset (preview isolation, Task 22) — **done**, verified on a live preview deployment, documented in `developer-workspace/reports/preview-environment.md`. Sanity `preview` dataset carries 63 production assets at original ids.
