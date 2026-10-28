@@ -14,8 +14,21 @@ environment.
 ## Preview isolation
 
 Preview uses the **demo Neon branch** and the separate Sanity **`preview`** dataset. Preview never
-points at the production database or the production asset store. The owner scopes the Vercel
-Preview environment variables and creates the `preview` Sanity dataset.
+points at the production database or the production asset store.
+
+The Vercel Preview environment is configured as:
+
+| Variable                | Preview value     |
+| ----------------------- | ----------------- |
+| `DATABASE_URL`          | demo Neon branch  |
+| `DATABASE_URL_UNPOOLED` | demo Neon branch  |
+| `DEMO_DATABASE_URL`     | demo Neon branch  |
+| `SANITY_DATASET`        | `preview`         |
+| `NEON_BRANCH`           | `demo`            |
+
+Production has separate values for the same keys. The `preview` dataset carries a copy of the
+production assets with their original asset ids, so the demo database's asset references resolve.
+Preview deployments are protected by Vercel SSO; `vercel curl` is the CLI path for checking one.
 
 ## Deployment rollback
 

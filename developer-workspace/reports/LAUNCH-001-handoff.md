@@ -2,6 +2,8 @@
 
 **Status:** done — every checklist item recorded PASS / FAIL / NOT RUN with evidence; the push is left to the owner.
 
+**Post-handoff update (2026-10-28):** F1 is done — UptimeRobot monitor `804452457` ("TrueSpec showroom") is live and UP at `https://truespec-k4y6.vercel.app/`, email alerts to `victormakuo2002@gmail.com` (see `docs/monitoring.md`). F2 is done — Sentry project `lordwhitefire/truespec` created, DSN configured on Vercel project `truespec-k4y6` (Production + Preview), test event received (see `reports/sentry-setup.md`). F7 is done — the Vercel Preview environment now uses the demo Neon branch and the `preview` Sanity dataset, verified by a preview deployment (see `reports/preview-environment.md`). The code is pushed and deployed; `https://truespec-k4y6.vercel.app` serves the LAUNCH-001 build. Owner visual look check completed 2026-10-28.
+
 **Owner ruling honoured:** the runtime checklist is the pipeline; no GitHub Actions workflow (`/github/workflows/ci.yml`) and no branch protection was added. The agent ran every check it can run in the browser and recorded the rest as `NOT RUN — owner`.
 
 ---
@@ -181,7 +183,7 @@ Nothing here was claimed from a script alone unless the script is the evidence.
 
 Before pushing, the owner should:
 1. Review the residue above and decide whether to accept or remediate each item (especially LCP baseline and `npm audit` findings).
-2. Complete the owner-only setup gates: Sentry DSN, UptimeRobot monitor, Vercel Preview env + Sanity `preview` dataset, terms approval (already approved 2026-10-27).
+2. Owner-only setup gates are done: Sentry DSN, UptimeRobot monitor, Vercel Preview env + Sanity `preview` dataset, and terms approval (2026-10-27). Remaining owner decisions: the `npm audit` findings, the LCP baseline, and the screen-reader/privacy tests.
 3. Run `npm run build`, `npm run lint`, `npm run format:check`, `npm test` and `npm run smoke-test` one final time against the tree to be pushed.
 4. Push when satisfied.
 
