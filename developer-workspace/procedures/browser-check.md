@@ -4,8 +4,9 @@
 down once so it is never re-derived. Refer to **this file**, not to the old task's plan.
 **Status:** standing procedure, applies to every layer.
 **Authority for rules:** the layer's model/spec, **never** the browser. This procedure checks **surfaces** only.
-**Underlying method:** `~/.agents/skills/runtime-divergence/` (SKILL.md + `scripts/{browser,run,model,compare,extract,normalize}.mjs`)
-and `developer-workspace/notes/RUNTIME-UI-DIFF-method.md`. This file is that method applied to this project.
+**Comparison:** none. We no longer compare against the reference (`:3211`) — there is nothing to match against.
+We simply check that each item we finished is okay on its own. The attach-only discipline, no-screenshots rule and
+no-new-tab rule **do not change**.
 
 ---
 
@@ -51,9 +52,8 @@ own source for discovery only** — the comparison itself is always runtime-vs-r
 - **Office surfaces:** `1440 / 820 / 560 / 390` × `dark / light` → 8 cells per screen.
 - Matrices are held in `checklist.public.json` / `checklist.office.json` beside the harness.
 
-**The comparison is always ref vs build at the same state** — never ambient against conditional, never ref's
-HTML against build's CSS. For each cell, capture **ref-that-state vs build-that-state** across the three layers
-(HTML / CSS / JS).
+**How to check each item** — open the item's page on `:3210`, put it in the state, look at it, and record OK /
+not OK. No ref vs build, no cell matrix, no compare scripts unless one is genuinely needed.
 
 ## 5. Probes
 
@@ -74,21 +74,18 @@ HTML against build's CSS. For each cell, capture **ref-that-state vs build-that-
   - **what was NOT checked** (look/CSS/pixels — no screenshots; interactive behaviour unless actually driven;
     anything outside the layer's surface).
 
-## 7. When the reference legitimately differs
+## 7. When a check is not run
 
-The reference is the old implementation. Where the current requirement **changes** a surface on purpose (a
-removed rate, a renamed label, a new demo dataset), the ref-vs-build difference is **expected** and is logged
-as an **intended** divergence tied to its requirement — never treated as a defect. The witness may then be
-**build-vs-build agreement** (e.g. office vs showroom on the same car) rather than ref-vs-build matching. The
-attach-only discipline, the cell matrix, surfaces-only and no-screenshots rules do **not** change.
+A check that cannot be performed safely, or needs owner input, is **NOT RUN** — state the reason and any
+compensating evidence. A not-run check is never a pass.
 
 ---
 
 ### Quick checklist for a run
 
 - [ ] Automation Chrome visible and listening on `:9222` (profile `~/.config/google-chrome-automation`); attach-only; UA has no `Headless`.
-- [ ] Build on `:3210`, reference on `:3211`; port `3000` untouched.
-- [ ] `node _lib.mjs` smoke check: attach, ours, two tabs, **no launch** (guard unchanged), detach.
-- [ ] Probe each screen across its cell matrix; same facts, ref vs build, same state.
-- [ ] Artefacts under `runs/<screen>/`; report written with intended/unintended split and "not checked".
+- [ ] Build on `:3210`; port `3000` untouched; `:3211` reference is no longer needed.
+- [ ] `node _lib.mjs` smoke check: attach, ours, build tab present, **no launch** (guard unchanged), detach.
+- [ ] Check each finished item: open its page on `:3210`, confirm it behaves as expected, record OK / not OK.
+- [ ] Record the result: check ID, route, expected vs actual, evidence snippet or status code.
 - [ ] No screenshots. Detach on exit.
