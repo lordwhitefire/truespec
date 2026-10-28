@@ -702,23 +702,33 @@ html[data-ts-offline] .nav {
   gap: 9px;
   z-index: 2;
 }
+/* 24x24 hit area (WCAG 2.2 target size); the visible dot stays 11px. */
 .sv .hdt button {
-  width: 11px;
-  height: 11px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 0;
   padding: 0;
-  background: rgba(255, 255, 255, 0.5);
+  background: transparent;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.sv .hdt button::after {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
   transition: background 0.2s;
 }
-.sv .hdt button.on {
+.sv .hdt button.on::after {
   background: var(--gold);
 }
-.sv .hdt button:hover {
+.sv .hdt button:hover::after {
   background: #fff;
 }
-.sv .hdt button.on:hover {
+.sv .hdt button.on:hover::after {
   background: var(--gold);
 }
 .sv .ring {

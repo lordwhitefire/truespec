@@ -567,7 +567,7 @@ export function InventoryClient({
             disabled={current === 1}
             onClick={() => goPage(current - 1)}
           >
-            Prev
+            Previous
           </button>
           {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
             <button
