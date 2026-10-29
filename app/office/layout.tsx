@@ -1,3 +1,5 @@
+import { ClerkProvider } from '@clerk/nextjs';
+
 // Office-area layout — wraps every /office/* route (the (shell) group today,
 // and the login/settings screens). The office reference's font set
 //   Inter 400;500;600 + Oswald 500;600;700
@@ -6,5 +8,5 @@
 // preview number `.mchip b`) is substituted under Chrome's weight matching and renders ~2px wide
 // versus the reference.
 export default function OfficeLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return <ClerkProvider>{children}</ClerkProvider>;
 }

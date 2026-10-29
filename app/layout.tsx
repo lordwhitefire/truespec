@@ -1,4 +1,3 @@
-import { ClerkProvider } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import { Inter, Oswald } from 'next/font/google';
@@ -50,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <ClerkProvider>{children}</ClerkProvider>
+        {children}
       </body>
     </html>
   );
