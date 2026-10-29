@@ -2,14 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-const rootLayout = readFileSync(
-  new URL('../layout.tsx', import.meta.url),
-  'utf8'
-);
-const officeLayout = readFileSync(
-  new URL('./layout.tsx', import.meta.url),
-  'utf8'
-);
+const rootLayout = readFileSync(new URL('../layout.tsx', import.meta.url), 'utf8');
+const officeLayout = readFileSync(new URL('./layout.tsx', import.meta.url), 'utf8');
 
 test('root layout has no ClerkProvider', () => {
   assert.ok(!rootLayout.includes('ClerkProvider'));
